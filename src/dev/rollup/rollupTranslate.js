@@ -1,35 +1,29 @@
-"use strict";
+import fs from "fs";
 
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports["default"] = RollupTranslate;
-var _fs = _interopRequireDefault(require("fs"));
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
-function RollupTranslate(defs) {
+export default function rollupTranslate(defs) {
   return {
-    name: 'onRollupTranslate',
+    name: "onRollupTranslate",
     buildStart: {
       sequential: true,
-      order: 'pre',
-      handler: function handler() {
+      order: "pre",
+      handler: () => {
         //
         // la public dir è di solito {workspace}/public
         //
-        globalThis['TranslateService'] = defs;
-        globalThis['TranslateService'].baseLng = {
-          "__lngVersion__": CalcolaVersion()
+        globalThis["TranslateService"] = defs;
+        globalThis["TranslateService"].baseLng = {
+          __lngVersion__: CalcolaVersion(),
         }; // spazio vuoto per gli elementi
-        console.log('Preparo il servizio traduzioni.');
-      }
+        console.log("Preparo il servizio traduzioni.");
+      },
     },
     buildEnd: {
       sequential: true,
-      order: 'post',
-      handler: function handler() {
+      order: "post",
+      handler: () => {
         updateFileLanguage();
-      }
-    }
+      },
+    },
   };
 }
 
@@ -50,47 +44,55 @@ function RollupTranslate(defs) {
  */
 function updateFileLanguage() {
   // Specifica il percorso del tuo file JSON
-  var filePath = globalThis['TranslateService'].file;
-  var distPath = globalThis['TranslateService'].dist;
-  console.log('TRANSLATE ---------------------------------------------');
-  console.log('Carico traduzione base.');
+  const filePath = globalThis["TranslateService"].file;
+  const distPath = globalThis["TranslateService"].dist;
+  console.log("TRANSLATE ---------------------------------------------");
+  console.log("Carico traduzione base.");
   try {
-    _fs["default"].readFile(filePath, 'utf8', function (err, data) {
-      var state = {
-          newest: true,
-          changed: true
-        },
+    fs.readFile(filePath, "utf8", (err, data) => {
+      let state = { newest: true, changed: true },
         baseData = null;
       if (err) {
-        console.log("Non esiste ancora il file ".concat(filePath, ", tento di crearlo"));
-        baseData = globalThis['TranslateService'].baseLng; // questi i dati
+        console.log(`Non esiste ancora il file ${filePath}, tento di crearlo`);
+        baseData = globalThis["TranslateService"].baseLng; // questi i dati
       } else {
         baseData = JSON.parse(data);
-        var newData = globalThis['TranslateService'].baseLng;
+        const newData = globalThis["TranslateService"].baseLng;
         state = decade(baseData, newData); // se ci sono variazioni
       }
       if (state.changed) {
         // sono avvenute variazioni, salva
-        var stats = state.newest ? "Nuovo file," : "(".concat(state.added, " agginte, ").concat(state.deleted, " rimosse)");
-        console.log("Update avvenuto: ".concat(stats, " salvo."));
-        _fs["default"].writeFile(filePath, JSON.stringify(baseData, null, 2), 'utf8', function (err) {
-          if (err) {
-            console.error("Errore durante la scrittura su ".concat(filePath), err);
-          } else {
-            console.log("Dati scritti con successo su ".concat(filePath));
-            _fs["default"].copyFile(filePath, distPath, function (err) {
-              if (!err) console.log("Copiato con successo su ".concat(distPath));
-              console.log('END TRANSLATE ---------------------------------------------');
-            });
+        const stats = state.newest
+          ? "Nuovo file,"
+          : `(${state.added} agginte, ${state.deleted} rimosse)`;
+        console.log(`Update avvenuto: ${stats} salvo.`);
+        fs.writeFile(
+          filePath,
+          JSON.stringify(baseData, null, 2),
+          "utf8",
+          err => {
+            if (err) {
+              console.error(`Errore durante la scrittura su ${filePath}`, err);
+            } else {
+              console.log(`Dati scritti con successo su ${filePath}`);
+              fs.copyFile(filePath, distPath, err => {
+                if (!err) console.log(`Copiato con successo su ${distPath}`);
+                console.log(
+                  "END TRANSLATE ---------------------------------------------"
+                );
+              });
+            }
           }
-        });
+        );
       } else {
         console.log("Nessun cambiamento.");
-        console.log('END TRANSLATE ---------------------------------------------');
+        console.log(
+          "END TRANSLATE ---------------------------------------------"
+        );
       }
     });
   } catch (error) {
-    console.error("Errore l'elaborazione di ".concat(filePath, ", cancellalo"), error);
+    console.error(`Errore l'elaborazione di ${filePath}, cancellalo`, error);
     return;
   }
 }
@@ -110,13 +112,9 @@ function updateFileLanguage() {
  * console.log('Ci sono variazioni:', ciSonoVariazioni); // Ci sono variazioni: true
  */
 function decade(a, b) {
-  var stats = {
-    changed: false,
-    deleted: 0,
-    added: 0
-  };
+  const stats = { changed: false, deleted: 0, added: 0 };
   // Rimuovi le chiavi da 'a' che non sono presenti in 'b'
-  for (var keyA in a) {
+  for (const keyA in a) {
     if (!(keyA in b)) {
       delete a[keyA];
       stats.changed = true;
@@ -124,7 +122,7 @@ function decade(a, b) {
     }
   }
   // Aggiungi le chiavi da 'b' che non sono presenti in 'a'
-  for (var keyB in b) {
+  for (const keyB in b) {
     if (!(keyB in a)) {
       a[keyB] = b[keyB];
       stats.changed = true;
@@ -134,6 +132,7 @@ function decade(a, b) {
   if (stats.changed) a["__lngVersion__"] = b["__lngVersion__"]; // riporta in a la versione corrente
   return stats;
 }
+
 function CalcolaVersion() {
   return Date.now();
 }
