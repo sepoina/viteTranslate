@@ -1,0 +1,7 @@
+src/
+.eslintrc
+.gitignore
+.github/
+.vscode/
+.eslintignore     
+.lintstagedrc  

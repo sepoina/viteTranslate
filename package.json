@@ -1,14 +1,20 @@
 {
   "name": "vitetranslate",
-  "version": "1.0.5",
+  "version": "1.2.1",
   "description": "Library for Vite-React. Make translate simple.",
-  "source": "src/index.js",
-  "main": "dist/main.js",
-  "module": "dist/module.js",
-   "repository": {
+  "repository": {
     "type": "git",
     "url": "git+https://github.com/sepoina/viteTranslate.git"
   },
+  "type": "module",
+  "source": "src/index.js",           
+  "exports": {
+    "require": "./dist/index.cjs",      
+    "default": "./dist/index.modern.js" 
+  },
+  "main": "./dist/index.cjs",           
+  "module": "./dist/index.module.js",   
+  "unpkg": "./dist/index.umd.js",       
   "author": "Giancarlo Ghigi",
   "license": "ISC",
   "keywords": [
@@ -24,19 +30,19 @@
     "property"
   ],
   "scripts": {
-    "watch": "parcel watch",
-    "build": "parcel build"
+    "build": "microbundle",           
+    "dev": "microbundle watch"        
   },
   "dependencies": {
-    "react": "^18.2.0",
-    "fnv1a": "^1.1.1",
+    "fnv1a": "^1.1.1"
+  },
+  "peerDependencies": {
+    "react": "^18.2.0",    
     "react-dom": "^18.2.0"
   },
-
-  "devDependencies": {
-
-    "parcel": "latest"
-
-  
+  "devDependencies": {    
+    "microbundle": "^0.15.1",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
   }
 }
