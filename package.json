@@ -1,6 +1,6 @@
 {
   "name": "@sepoina/vitetranslate",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "Internazionalizza la tua app React senza sforzo: un plugin Vite che estrae automaticamente le stringhe marcate generando e sincronizzando le tabelle di traduzione JSON per te.",
   "author": {
     "name": "Giancarlo Ghigi",
