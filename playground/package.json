@@ -5,12 +5,12 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "_note_": "production next line is replaced by 'prebuild': 'vitetranslate-prepare-translation-table'",
-    "prebuild": "node ../lib/dev/vite/cli.js",
+    "prebuild": "vitetranslate-prepare-translation-table",
     "build": "vite build",
     "preview": "vite preview"
   },
   "dependencies": {
+    "@sepoina/vitetranslate": "^2.0.2",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
   },

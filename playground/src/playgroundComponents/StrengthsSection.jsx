@@ -7,6 +7,10 @@ export default function StrengthsSection() {
       <table className="strengths-table">
         <tbody>
           <tr>
+            <td className="strength-icon" aria-hidden="true">⚖️</td>
+            <td className="strength-text"><Translate t={"_%_<strong>~2 kB gzip nel bundle finale.</strong> Il runtime che arriva al browser (<code>&#60;Translate&#62;</code>, <code>TranslateContainer</code>, <code>useAvailableLanguages</code>) pesa circa 2 kB gzip, misurati confrontando una build di produzione con e senza la libreria. Il payload delle traduzioni scala con i tuoi contenuti, non con la libreria._%_"} /></td>
+          </tr>
+          <tr>
             <td className="strength-icon" aria-hidden="true">🔀</td>
             <td className="strength-text"><Translate t={"_%_<strong>Compatibile con Vite 7 e Vite 8.</strong> Stesso codice per entrambi: su Vite 7 gira su Rollup (build) ed esbuild (dev), su Vite 8 gira su Rolldown (bundler Rust) e Oxc (compilatore), senza bisogno di configurazione diversa._%_"} /></td>
           </tr>

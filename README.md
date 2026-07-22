@@ -29,6 +29,8 @@ function SwitchToEnglish() {
 
 ## Features
 
+⚖️ **~2 kB gzip in your final bundle.** The runtime that reaches the browser (`<Translate>`, `TranslateContainer`, `useAvailableLanguages`) adds about 2 kB gzip — measured by diffing a production build with and without the library. Translation payloads scale with your content, not with the library.
+
 🔀 **Works on Vite 7 and Vite 8 alike.** Same codebase, no config switch needed: on Vite 7 it runs on Rollup (build) and esbuild (dev); on Vite 8 it runs on Rolldown (the Rust bundler) and Oxc (the compiler that replaces Babel/esbuild internally for Vite's own transforms). The plugin adapts automatically — virtual-module `moduleType` hints, `\0`-prefixed internal ids, and declarative hook filters are all handled under the hood.
 
 📍 **Mark text in place.** Wrap a string with `_%_..._%_` and render it through `<Translate>` (or `useTranslateString()`); no keys to invent or maintain by hand — the marker gets extracted at build time, the component resolves it against the current language table at runtime.

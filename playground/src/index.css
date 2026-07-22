@@ -81,6 +81,42 @@
   font-family   : ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 }
 
+.top-lang-switch {
+  display    : flex;
+  align-items: center;
+  flex-wrap  : wrap;
+  gap        : 0.6rem;
+  margin     : 0.5rem 0 2.5rem;
+}
+
+.top-lang-switch-buttons {
+  display  : flex;
+  flex-wrap: wrap;
+  gap      : 1.1rem;
+}
+
+.top-lang-switch-btn {
+  padding         : 0.1rem 0.05rem 0.3rem;
+  font-size       : 0.85rem;
+  border          : none;
+  border-bottom   : 3px solid transparent;
+  background      : transparent;
+  color           : #6e7781;
+  cursor          : pointer;
+  transition      : color 150ms ease, border-color 150ms ease;
+}
+
+.top-lang-switch-btn:hover:not(:disabled) {
+  color: inherit;
+}
+
+.top-lang-switch-btn:disabled {
+  border-bottom-color: #1976d2;
+  color               : #1976d2;
+  font-weight         : 600;
+  cursor              : default;
+}
+
 /* --- Pagina di documentazione (ispirata a mui.com/material-ui/react-button) --- */
 
 .doc-section {

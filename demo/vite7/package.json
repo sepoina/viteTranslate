@@ -4,12 +4,13 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "prebuild": "node ../../lib/dev/vite/cli.js",
+    "prebuild": "vitetranslate-prepare-translation-table",
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview"
   },
   "dependencies": {
+    "@sepoina/vitetranslate": "^2.0.2",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
   },
