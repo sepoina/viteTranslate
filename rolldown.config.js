@@ -43,7 +43,7 @@ export default defineConfig([
   {
     input: "lib/index.js",
     output: {
-      file: "lib/dist/vitetranslate.cjs.js",
+      file: "lib/dist/vitetranslate.cjs",
       format: "cjs",
       sourcemap: true,
       banner,
@@ -63,7 +63,7 @@ export default defineConfig([
   {
     input: "lib/react/index.js",
     output: {
-      file: "lib/dist/react.cjs.js",
+      file: "lib/dist/react.cjs",
       format: "cjs",
       sourcemap: true,
       banner,
