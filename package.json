@@ -1,0 +1,77 @@
+{
+  "name": "@sepoina/vitetranslate",
+  "version": "2.0.0",
+  "description": "Internazionalizza la tua app React senza sforzo: un plugin Vite che estrae automaticamente le stringhe marcate generando e sincronizzando le tabelle di traduzione JSON per te.",
+  "author": {
+    "name": "Giancarlo Ghigi",
+    "email": "ripensamento@gmail.com"
+  },
+  "keywords": [
+    "react",
+    "babel",
+    "vite",
+    "rolldown",
+    "translate",
+    "i18n",
+    "components",
+    "data",
+    "attributes",
+    "property"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sepoina/vitetranslate.git"
+  },
+  "bugs": {
+    "url": "https://github.com/sepoina/vitetranslate/issues"
+  },
+  "homepage": "https://github.com/sepoina/vitetranslate#readme",
+  "type": "module",
+  "main": "./lib/dist/vitetranslate.cjs.js",
+  "module": "./lib/dist/vitetranslate.es.js",
+  "types": "./lib/index.d.ts",
+  "bin": {
+    "vitetranslate-prepare-translation-table": "./lib/dev/vite/cli.js"
+  },
+  "exports": {
+    ".": {
+      "types": "./lib/index.d.ts",
+      "import": "./lib/dist/vitetranslate.es.js",
+      "require": "./lib/dist/vitetranslate.cjs.js"
+    },
+    "./react": {
+      "types": "./lib/index.d.ts",
+      "import": "./lib/dist/react.es.js",
+      "require": "./lib/dist/react.cjs.js"
+    }
+  },
+  "scripts": {
+    "build": "rolldown -c",
+    "prepublishOnly": "npm run build",
+    "playground": "npm --prefix playground run dev",
+    "playground:build": "npm --prefix playground run build",
+    "demo:vite7": "npm --prefix demo/vite7 run dev",
+    "demo:vite7:build": "npm --prefix demo/vite7 run build",
+    "demo:vite8": "npm --prefix demo/vite8 run dev",
+    "demo:vite8:build": "npm --prefix demo/vite8 run build"
+  },
+  "files": [
+    "lib"
+  ],
+  "devDependencies": {
+    "@babel/core": "^7.26.10",
+    "@babel/preset-react": "^7.26.3",
+    "rolldown": "^1.0.0-rc.9"
+  },
+  "peerDependencies": {
+    "@babel/core": "^7.0.0",
+    "vite": "^5.0.0 || ^6.0.0 || ^7.0.0 || ^8.0.0",
+    "react": "^18.0.0 || ^19.0.0"
+  },
+  "peerDependenciesMeta": {
+    "@babel/core": { "optional": true },
+    "vite": { "optional": true },
+    "react": { "optional": true }
+  },
+  "license": "MIT"
+}
