@@ -69,6 +69,9 @@ export default defineConfig([
       banner,
       exports: "named",
     },
+    // Il CJS non ha un bundler che fornisce import.meta.env (niente Vite in mezzo),
+    // quindi si comporta sempre come produzione: reso esplicito per non generare warning.
+    transform: { define: { "import.meta.env": "{}" } },
     external: componentExternal,
     plugins: [babelJsx()],
   },
