@@ -20,12 +20,12 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/sepoina/vitetranslate.git"
+    "url": "git+https://github.com/sepoina/viteTranslate.git"
   },
   "bugs": {
-    "url": "https://github.com/sepoina/vitetranslate/issues"
+    "url": "https://github.com/sepoina/viteTranslate/issues"
   },
-  "homepage": "https://github.com/sepoina/vitetranslate#readme",
+  "homepage": "https://github.com/sepoina/viteTranslate#readme",
   "type": "module",
   "main": "./lib/dist/vitetranslate.cjs",
   "module": "./lib/dist/vitetranslate.es.js",
