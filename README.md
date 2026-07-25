@@ -175,13 +175,37 @@ function LanguageSwitcher() {
 
 ### `TranslateContainer` props
 
-| Prop         | Type      | Default                          | Description                              |
-| ------------ | --------- | --------------------------------- | ----------------------------------------- |
-| `predefined` | `string`  | `defaultLanguage` from the plugin | Initial language tag to load (BCP 47)     |
-| `debug`      | `boolean` | `false`                           | Exposed on the translation context object |
-| `children`   | `node`    | —                                  | App tree that gets the translation context |
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `predefined` | `string` | `defaultLanguage` from the plugin | Initial language tag to load (BCP 47). If it's a preloaded language it renders synchronously on the first paint, with no flash |
+| `debug` | `boolean` | `false` | Exposed on the translation context object |
+| `children` | `node` | — | App tree that gets the translation context |
 
 `proposeNewLanguage({ lang, onStart, onDone, onError })` (available on the context value) triggers a runtime language switch, lazily loading the requested chunk.
+
+### Preloading and the initial flash
+
+Languages are code-split: each one is a separate chunk loaded on demand. The **default language** is always bundled eagerly — it's the universal fallback for any key a language hasn't translated yet (in production the fallback is no longer embedded in the compiled marker, so without it an untranslated key would surface as its raw id).
+
+The catch: a language loaded on demand isn't ready on the **first** render. If `predefined` points to a language that still has to be fetched, the first paint shows the fallback (the source language) and then swaps to the requested one — a visible flash. This only happens when `predefined` differs from the source language.
+
+To avoid it, list the languages you want ready on the first paint in `preloadedLanguages`: they're bundled eagerly, so when `predefined` is one of them `TranslateContainer` initializes synchronously and renders the right language immediately.
+
+```js
+vitetranslate({
+  localeDir: "src/locale",
+  defaultLanguage: "it-IT",       // source language, always preloaded (fallback)
+  preloadedLanguages: ["en-US"],  // shown first without a flash
+})
+```
+
+```jsx
+<TranslateContainer predefined="en-US">  {/* en-US is preloaded -> no flash */}
+  <App />
+</TranslateContainer>
+```
+
+Preloaded languages ship in the initial bundle, so keep the list to the few you actually show first; every other language stays a lazy chunk loaded only when switched to.
 
 ## Translation file format
 
@@ -225,19 +249,20 @@ Reads the `vitetranslate` config from `vite.config.js` in the current working di
 
 ## Plugin options (`vitetranslate(options)`)
 
-| Option            | Type      | Default                | Description                                                             |
-| ------------------ | --------- | ----------------------- | ------------------------------------------------------------------------- |
-| `localeDir`         | `string`  | *required*               | Folder with the language JSON files, relative to `baseDir`               |
-| `defaultLanguage`   | `string`  | *required*               | BCP 47 tag of the default/source language                                |
-| `baseDir`           | `string`  | `process.cwd()`          | Project root used to resolve `localeDir`/`srcDir`                        |
-| `srcDir`            | `string`  | `"src"`                  | Source folder scanned by the CLI                                         |
-| `includeFallback`   | `boolean` | `!isProduction` (auto)   | Embed the original text as a fallback in the compiled marker (dev only by default) |
+| Option | Type | Default | Description |
+| --- | --- | --- | --- |
+| `localeDir` | `string` | *required* | Folder with the language JSON files, relative to `baseDir` |
+| `defaultLanguage` | `string` | *required* | BCP 47 tag of the default/source language |
+| `preloadedLanguages` | `string[]` | `[]` | Extra languages bundled eagerly for a flash-free first paint (see [Preloading](#preloading-and-the-initial-flash)). `defaultLanguage` is always preloaded regardless |
+| `baseDir` | `string` | `process.cwd()` | Project root used to resolve `localeDir`/`srcDir` |
+| `srcDir` | `string` | `"src"` | Source folder scanned by the CLI |
+| `includeFallback` | `boolean` | `!isProduction` (auto) | Embed the original text as a fallback in the compiled marker (dev only by default) |
 
 ## How it works
 
 1. A Babel plugin (used both by the Vite transform and the CLI) finds strings wrapped in `_%_..._%_`, computes a stable id (`<filename>_<hash>`), and rewrites them to a compiled marker `_<_id_/_fallback_>_` (dev) or `_<_id_>_` (build).
-2. At runtime, `<Translate>`/`useTranslateString()` look up that id in the current language table, falling back to the embedded fallback (or the raw key) if missing.
-3. A virtual module (`virtual:vitetranslate/languages`) lists every `localeDir/*.json` file as a lazily-imported chunk; `TranslateContainer` loads the requested one on demand and exposes it via React context.
+2. At runtime, `<Translate>`/`useTranslateString()` look up that id in the current language table, then fall back through the default-language table, the embedded fallback (dev only), and finally the raw key.
+3. A virtual module (`virtual:vitetranslate/languages`) lists every `localeDir/*.json` file as a lazily-imported chunk and eagerly imports the preloaded ones (`defaultLanguage` plus `preloadedLanguages`); `TranslateContainer` uses a preloaded table for a synchronous first paint, or loads the requested chunk on demand, exposing it via React context.
 
 ## Known limitations
 

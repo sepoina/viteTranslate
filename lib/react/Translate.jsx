@@ -2,6 +2,10 @@ import React, { useContext, useMemo } from "react";
 import { TranslateContext } from "./TranslateContext";
 import emitNodes from "./emitNode";
 import { parseCompiledMarker } from "./parseCompiledMarker";
+// Tabella della lingua sorgente, importata staticamente dal plugin: fallback universale
+// sempre disponibile (anche prima che il context abbia caricato una lingua, e in produzione
+// dove il fallback non è più embeddato nel marcatore).
+import { defaultTable } from "virtual:vitetranslate/languages";
 
 
 // --- COMPONENTE PRINCIPALE ---
@@ -21,7 +25,7 @@ export default function Translate({ "data-translate": dataTranslate = false, t =
       //
       // Traduzione via data-translate (iniettato da vitetranslate)
       if (dataTranslate) {
-        const resolved = lang?.table?.[dataTranslate] ?? source;
+        const resolved = lang?.table?.[dataTranslate] ?? defaultTable?.[dataTranslate] ?? source;
         return emitNodes(a, resolved);
       }
       //
@@ -47,11 +51,11 @@ export default function Translate({ "data-translate": dataTranslate = false, t =
       // Ora la stringa dovrebbe essere frutto di vitetranslate, con sintassi _<_codice_/_fallback_>_
       if (text?.startsWith("_<_") && text.endsWith("_>_")) {
         const { key, fallback } = parseCompiledMarker(text);
-        // fallback assente (build di produzione): la lingua base è garantita
-        // completa dal comando prepare-translation-table eseguito prima della
-        // build, quindi in pratica lang.table[key] esiste sempre; la chiave
-        // grezza resta come ultima rete di sicurezza, visibile e non silenziosa.
-        return emitNodes(args, lang?.table?.[key] ?? fallback ?? key);
+        // Ordine di fallback: lingua attiva -> lingua sorgente (defaultTable, sempre
+        // importata) -> fallback embeddato nel marcatore (solo dev) -> chiave grezza.
+        // In produzione il fallback embeddato è assente, ma defaultTable garantisce
+        // comunque testo leggibile; la chiave grezza resta l'ultima rete di sicurezza.
+        return emitNodes(args, lang?.table?.[key] ?? defaultTable?.[key] ?? fallback ?? key);
       }
       //
       // Stringa non ancora formattata per la traduzione (marcatore _%_..._%_

@@ -1,21 +1,17 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React from "react";
 import { TranslateContext } from "./TranslateContext";
-import { languages, defaultLanguage } from "virtual:vitetranslate/languages";
+import { languages, defaultLanguage, preloadedTables } from "virtual:vitetranslate/languages";
 
 /**
  * @param {string} [predefined=defaultLanguage] - tag BCP 47 iniziale da caricare (es. 'it-IT'),
- *   di default quello configurato come defaultLanguage nel plugin vitetranslate
+ *   di default la defaultLanguage configurata nel plugin vitetranslate. Se è una delle
+ *   lingue precaricate (preloadedLanguages, più la defaultLanguage sempre inclusa) la sua
+ *   tabella è già importata staticamente e viene mostrata sincrona al primo render, senza flash.
  * @param {boolean} [debug]
  */
 export default function TranslateContainer({ predefined = defaultLanguage, children, debug }) {
   const [propose, setPropose] = React.useState({ lang: predefined });
-  const [langOBJ, setLangOBJ] = React.useState(null);
-  // Per-istanza (non a livello di modulo): due TranslateContainer montati insieme
-  // (nesting, root multipli, remount) non devono condividere questo stato di guardia,
-  // altrimenti il secondo che propone la stessa lingua del primo troverebbe già
-  // last.current === lang, farebbe return subito e langOBJ resterebbe null per sempre.
-  const last = React.useRef(null);
 
   // struttura funzione proposeNewLanguage({
   //   lang:'it-IT',
@@ -23,9 +19,32 @@ export default function TranslateContainer({ predefined = defaultLanguage, child
   //   onDone: (isOk) => {},   // a fine caricamento isOk - true o false
   //   onError: (error) => {}, // in caso di errore, struttura error
   //  })
-  const proposeNewLanguage = propObj => {
+  // useCallback: identità stabile così langOBJ.proposeNewLanguage — esposto ai language
+  // switcher via context — non cambia a ogni render.
+  const proposeNewLanguage = React.useCallback(propObj => {
     setPropose(propObj);
-  };
+  }, []);
+
+  // Se la lingua iniziale richiesta è tra quelle precaricate staticamente dal plugin
+  // (preloadedLanguages, più la defaultLanguage sempre inclusa), la sua tabella è già
+  // disponibile: inizializziamo il context in modo SINCRONO così il primo paint mostra già
+  // la lingua giusta, senza il flash (fallback sorgente -> lingua iniziale) del caricamento
+  // async. Negli altri casi (predefined non precaricata) si parte da null e si carica via
+  // effetto, come prima.
+  const preloadedTable = preloadedTables[predefined];
+  const [langOBJ, setLangOBJ] = React.useState(() =>
+    preloadedTable
+      ? { id: predefined, debug, table: preloadedTable, proposeNewLanguage }
+      : null
+  );
+
+  // Per-istanza (non a livello di modulo): due TranslateContainer montati insieme
+  // (nesting, root multipli, remount) non devono condividere questo stato di guardia,
+  // altrimenti il secondo che propone la stessa lingua del primo troverebbe già
+  // last.current === lang, farebbe return subito e langOBJ resterebbe null per sempre.
+  // Inizializzato a predefined quando la lingua iniziale è già sincrona, così l'effetto
+  // non la ricarica inutilmente.
+  const last = React.useRef(preloadedTable ? predefined : null);
 
   React.useEffect(() => {
     if (!propose.lang) return;
