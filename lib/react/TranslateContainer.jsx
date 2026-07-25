@@ -1,17 +1,41 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React from "react";
 import { TranslateContext } from "./TranslateContext";
-import { languages, defaultLanguage, preloadedTables } from "virtual:vitetranslate/languages";
+import { defaultLanguage } from "virtual:vitetranslate/languages";
+import { readLanguage, ensureLanguage, isKnownLanguage } from "./languageResource";
 
 /**
- * @param {string} [predefined=defaultLanguage] - tag BCP 47 iniziale da caricare (es. 'it-IT'),
- *   di default la defaultLanguage configurata nel plugin vitetranslate. Se è una delle
- *   lingue precaricate (preloadedLanguages, più la defaultLanguage sempre inclusa) la sua
- *   tabella è già importata staticamente e viene mostrata sincrona al primo render, senza flash.
+ * Componente interno che vive DENTRO il boundary Suspense: legge la tabella della lingua
+ * corrente e, se non è ancora pronta, sospende (readLanguage lancia la Promise). È qui —
+ * non in TranslateContainer — che deve avvenire la sospensione, così a catturarla è il
+ * <Suspense> reso dal container.
+ */
+function TranslateProvider({ lang, debug, proposeNewLanguage, children }) {
+  const table = readLanguage(lang); // sospende finché la lingua non è caricata
+  const value = React.useMemo(
+    () => ({ id: lang, debug, table, proposeNewLanguage }),
+    [lang, debug, table, proposeNewLanguage]
+  );
+  return <TranslateContext.Provider value={value}>{children}</TranslateContext.Provider>;
+}
+
+/**
+ * @param {string} [predefined=defaultLanguage] - tag BCP 47 iniziale (es. 'it-IT'), di
+ *   default la defaultLanguage del plugin. Se è precaricata (defaultLanguage o una di
+ *   preloadedLanguages) viene mostrata sincrona al primo render; altrimenti il container
+ *   sospende finché il chunk non è caricato, senza mai renderizzare la lingua sbagliata.
+ * @param {React.ReactNode} [fallback=null] - mostrato durante il caricamento di una lingua
+ *   non precaricata. Di default null: i chunk sono locali, il "loading" è un frame vuoto.
  * @param {boolean} [debug]
  */
-export default function TranslateContainer({ predefined = defaultLanguage, children, debug }) {
-  const [propose, setPropose] = React.useState({ lang: predefined });
+export default function TranslateContainer({ predefined = defaultLanguage, children, debug, fallback = null }) {
+  // predefined inesistente -> ricade su defaultLanguage (sempre disponibile) senza
+  // far esplodere l'app. Inizializzatore: eseguito una sola volta.
+  const [lang, setLang] = React.useState(() => {
+    if (isKnownLanguage(predefined)) return predefined;
+    console.error(`TranslateContainer: unknown predefined language "${predefined}", falling back to "${defaultLanguage}"`);
+    return defaultLanguage;
+  });
 
   // struttura funzione proposeNewLanguage({
   //   lang:'it-IT',
@@ -19,81 +43,38 @@ export default function TranslateContainer({ predefined = defaultLanguage, child
   //   onDone: (isOk) => {},   // a fine caricamento isOk - true o false
   //   onError: (error) => {}, // in caso di errore, struttura error
   //  })
-  // useCallback: identità stabile così langOBJ.proposeNewLanguage — esposto ai language
-  // switcher via context — non cambia a ogni render.
-  const proposeNewLanguage = React.useCallback(propObj => {
-    setPropose(propObj);
+  // useCallback: identità stabile così il proposeNewLanguage esposto nel context — usato
+  // dai language switcher — non cambia a ogni render.
+  const proposeNewLanguage = React.useCallback(({ lang: next, onStart, onDone, onError } = {}) => {
+    if (!isKnownLanguage(next)) {
+      const error = new Error(`Unknown language "${next}"`);
+      if (onError) onError({ error, inexistID: next });
+      else console.error(`Inexistant language "${next}"`);
+      if (onDone) onDone(false);
+      return;
+    }
+    if (onStart) onStart(true);
+    // Avvia (o riusa) il caricamento e aggancia i callback all'esito reale della Promise.
+    ensureLanguage(next).then(
+      () => { if (onDone) onDone(true); },
+      error => {
+        if (onError) onError({ error, inexistID: next });
+        else console.error(`Error loading language "${next}"`, error);
+        if (onDone) onDone(false);
+      }
+    );
+    // Transition: React tiene visibile la lingua corrente finché la nuova è pronta, invece
+    // di mostrare il fallback di Suspense (nessun lampo vuoto durante lo switch). Il render
+    // legge sempre lo stato `lang` corrente, quindi risposte lente di richieste superate
+    // vengono ignorate da sole (niente più guardia "last request wins").
+    React.startTransition(() => setLang(next));
   }, []);
 
-  // Se la lingua iniziale richiesta è tra quelle precaricate staticamente dal plugin
-  // (preloadedLanguages, più la defaultLanguage sempre inclusa), la sua tabella è già
-  // disponibile: inizializziamo il context in modo SINCRONO così il primo paint mostra già
-  // la lingua giusta, senza il flash (fallback sorgente -> lingua iniziale) del caricamento
-  // async. Negli altri casi (predefined non precaricata) si parte da null e si carica via
-  // effetto, come prima.
-  const preloadedTable = preloadedTables[predefined];
-  const [langOBJ, setLangOBJ] = React.useState(() =>
-    preloadedTable
-      ? { id: predefined, debug, table: preloadedTable, proposeNewLanguage }
-      : null
-  );
-
-  // Per-istanza (non a livello di modulo): due TranslateContainer montati insieme
-  // (nesting, root multipli, remount) non devono condividere questo stato di guardia,
-  // altrimenti il secondo che propone la stessa lingua del primo troverebbe già
-  // last.current === lang, farebbe return subito e langOBJ resterebbe null per sempre.
-  // Inizializzato a predefined quando la lingua iniziale è già sincrona, così l'effetto
-  // non la ricarica inutilmente.
-  const last = React.useRef(preloadedTable ? predefined : null);
-
-  React.useEffect(() => {
-    if (!propose.lang) return;
-    if (last.current === propose.lang) return; // già in caricamento
-    const requestedLang = propose.lang;
-    last.current = requestedLang; // evita doppie interazioni, e traccia la richiesta più recente
-    if (propose.onStart) propose.onStart(true);
-    // declare the async data loading function
-    const loadData = async () => {
-      // la lingua richiesta è tra quelle trovate in localeDir da vitetranslate?
-      const loader = languages[requestedLang];
-      if (!loader) {
-        const error = new Error(`Unknown language "${requestedLang}"`);
-        if (propose.onError) propose.onError({ error, inexistID: requestedLang });
-        else console.error(`Inexistant language "${requestedLang}"`);
-        if (propose.onDone) propose.onDone(false);
-        return;
-      }
-      try {
-        // import() dinamico -> Rollup/Vite carica solo il chunk della lingua richiesta
-        const mod = await loader();
-        // Se nel frattempo è stata proposta un'altra lingua, questa risoluzione è
-        // superata (le import() concorrenti non risolvono in ordine): scartala per
-        // evitare che una risposta lenta sovrascriva una lingua più recente già applicata.
-        if (last.current !== requestedLang) return;
-        // set state with the result
-        if (propose.onDone) propose.onDone(true);
-        setLangOBJ({
-          id: requestedLang,
-          debug: debug,
-          table: mod.default,
-          proposeNewLanguage: proposeNewLanguage,
-        });
-      } catch (error) {
-        if (last.current !== requestedLang) return;
-        if (propose.onError) propose.onError({ error: error, inexistID: requestedLang });
-        else console.error(`Error loading language "${requestedLang}"`, error);
-        if (propose.onDone) propose.onDone(false);
-        return;
-      }
-    };
-
-    // call the function
-    loadData();
-  }, [propose.lang]);
-
   return (
-    <TranslateContext.Provider value={langOBJ}>
-      {children}
-    </TranslateContext.Provider>
+    <React.Suspense fallback={fallback}>
+      <TranslateProvider lang={lang} debug={debug} proposeNewLanguage={proposeNewLanguage}>
+        {children}
+      </TranslateProvider>
+    </React.Suspense>
   );
 }
