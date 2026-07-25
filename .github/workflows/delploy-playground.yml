@@ -34,6 +34,10 @@ jobs:
         run: npm install
         working-directory: playground
 
+      - name: Check lib resolution
+        run: npm ls @sepoina/vitetranslate
+        working-directory: playground
+
       - name: Build playground
         run: npm run build -- --base=/${{ github.event.repository.name }}/
         working-directory: playground

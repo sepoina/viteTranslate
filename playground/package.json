@@ -10,7 +10,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@sepoina/vitetranslate": "^2.0.2",
+    "@sepoina/vitetranslate": "file:..",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
   },
