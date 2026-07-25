@@ -50,6 +50,7 @@
     "prepublishOnly": "npm run build",
     "playground": "npm --prefix playground run dev",
     "playground:build": "npm --prefix playground run build",
+    "playground:previewpages": "npm run build && npm --prefix playground run preview -- --base=/viteTranslate/",
     "demo:vite7": "npm --prefix demo/vite7 run dev",
     "demo:vite7:build": "npm --prefix demo/vite7 run build",
     "demo:vite8": "npm --prefix demo/vite8 run dev",

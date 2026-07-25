@@ -35,6 +35,7 @@
   "StrengthsSection_1alvua3": "<strong>Caricamento delle lingue lazy.</strong> Il cambio lingua a runtime scarica solo il chunk necessario, senza appesantire il bundle iniziale con le lingue non usate.",
   "StrengthsSection_1og57qy": "<strong>Le traduzioni sopravvivono ai rename.</strong> Se lo stesso testo cambia solo id, la sincronizzazione eredita la traduzione già fatta invece di farla ripartire da zero.",
   "StrengthsSection_1ppjcnx": "<strong>Sincronizzazione automatica delle tabelle.</strong> Un solo comando aggiorna tutte le lingue e segnala cosa resta da tradurre.",
+  "StrengthsSection_duo2cl": "<strong>~2 kB gzip nel bundle finale.</strong> Il runtime che arriva al browser (<code>&#60;Translate&#62;</code>, <code>TranslateContainer</code>, <code>useAvailableLanguages</code>) pesa circa 2 kB gzip, misurati confrontando una build di produzione con e senza la libreria. Il payload delle traduzioni scala con i tuoi contenuti, non con la libreria.",
   "StrengthsSection_orzg8c": "<strong>Compatibile con Vite 7 e Vite 8.</strong> Stesso codice per entrambi: su Vite 7 gira su Rollup (build) ed esbuild (dev), su Vite 8 gira su Rolldown (bundler Rust) e Oxc (compilatore), senza bisogno di configurazione diversa.",
   "StrengthsSection_s5g6mb": "<strong>File di lingua al sicuro in src, non in public.</strong> Evita di servire tabelle JSON modificabili lato client.",
   "TableOfContents_1825r0w": "Punti di forza",

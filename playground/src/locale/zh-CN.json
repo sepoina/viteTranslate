@@ -35,6 +35,7 @@
   "StrengthsSection_1alvua3": "<strong>语言延迟加载。</strong> 在运行时切换语言只会下载所需的 chunk，而不会用未使用的语言使初始 bundle 变得臃肿。",
   "StrengthsSection_1og57qy": "<strong>翻译在重命名后依然保留。</strong> 如果同一段文本只是 id 发生变化，同步会沿用已完成的翻译，而不是从头开始。",
   "StrengthsSection_1ppjcnx": "<strong>自动同步翻译表。</strong> 一条命令即可更新所有语言并标出仍需翻译的内容。",
+  "StrengthsSection_duo2cl": "<strong>最终产物中约 2 kB gzip。</strong>真正发送到浏览器的运行时（<code>&#60;Translate&#62;</code>、<code>TranslateContainer</code>、<code>useAvailableLanguages</code>）约为 2 kB gzip，该数值通过对比引入库前后的生产构建测得。翻译内容的体积随你的内容增长，而非随库本身增长。",
   "StrengthsSection_orzg8c": "<strong>同时兼容 Vite 7 和 Vite 8。</strong> 两者使用同一套代码：在 Vite 7 上运行于 Rollup（构建）和 esbuild（开发）之上，在 Vite 8 上运行于 Rolldown（Rust 打包器）和 Oxc（编译器）之上，无需任何不同的配置。",
   "StrengthsSection_s5g6mb": "<strong>语言文件安全地放在 src 中，而非 public 中。</strong> 避免提供可在客户端修改的 JSON 表。",
   "TableOfContents_1825r0w": "优势",

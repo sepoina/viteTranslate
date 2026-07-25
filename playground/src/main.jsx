@@ -6,7 +6,7 @@ import "./index.css";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
-    <TranslateContainer predefined="en-US" debug>
+    <TranslateContainer predefined="en-US" debug> {/* lingua della visualizzazione iniziale */}
       <App />
     </TranslateContainer>
   </React.StrictMode>

@@ -35,6 +35,7 @@
   "StrengthsSection_1alvua3": "<strong>Lazy language loading.</strong> Switching language at runtime downloads only the required chunk, without bloating the initial bundle with unused languages.",
   "StrengthsSection_1og57qy": "<strong>Translations survive renames.</strong> If the same text only changes id, the sync inherits the translation already done instead of starting it over from scratch.",
   "StrengthsSection_1ppjcnx": "<strong>Automatic table sync.</strong> A single command updates all languages and flags what remains to be translated.",
+  "StrengthsSection_duo2cl": "<strong>~2 kB gzip in the final bundle.</strong> The runtime that actually reaches the browser (<code>&#60;Translate&#62;</code>, <code>TranslateContainer</code>, <code>useAvailableLanguages</code>) weighs about 2 kB gzip, measured by comparing a production build with and without the library. The translation payload scales with your content, not with the library.",
   "StrengthsSection_orzg8c": "<strong>Works on Vite 7 and Vite 8 alike.</strong> Same code for both: on Vite 7 it runs on Rollup (build) and esbuild (dev), on Vite 8 it runs on Rolldown (Rust bundler) and Oxc (compiler), no different configuration needed.",
   "StrengthsSection_s5g6mb": "<strong>Language files kept safe in src, not in public.</strong> Avoids serving JSON tables that can be modified client-side.",
   "TableOfContents_1825r0w": "Strengths",

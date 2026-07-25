@@ -9,7 +9,7 @@ export default defineConfig({
     pluginOnlyForPlayground({ useLocalLibrary: false }),
     vitetranslate({
       localeDir: "src/locale",   // cartella con i file json delle traduzioni (va nella zona dei bundle)
-      defaultLanguage: "en-US",  // lingua di default
+      defaultLanguage: "it-IT",  // lingua dei testi originali (quelli scritti nel sorgente)
     }),
     react(),
     mkcert(),
