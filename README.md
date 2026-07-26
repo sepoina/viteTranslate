@@ -1,6 +1,6 @@
 <div align="center">
 
-# viteTranslate
+<img src="doc/logo.svg" alt="viteTranslate" width="380" height="68" />
 
 **Extract translatable strings straight from your source.**<br>
 No keys to invent. No separate extraction step. No runtime dependencies.
