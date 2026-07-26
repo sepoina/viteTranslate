@@ -1,5 +1,5 @@
-import { useContext, useState } from "react";
-import { TranslateContext, useAvailableLanguages } from "@sepoina/vitetranslate/react";
+import { useState } from "react";
+import { useTranslateLanguage } from "@sepoina/vitetranslate/react";
 
 function labelFor(tag) {
   try {
@@ -10,12 +10,11 @@ function labelFor(tag) {
 }
 
 export default function LanguageSwitchExample() {
-  const lang = useContext(TranslateContext);
-  const { tags } = useAvailableLanguages();
+  const { id, debug, tags, proposeNewLanguage } = useTranslateLanguage();
   const [loading, setLoading] = useState(false);
 
   const switchTo = (tag) => {
-    lang?.proposeNewLanguage({
+    proposeNewLanguage({
       lang: tag,
       onStart: () => setLoading(true),
       onDone: () => setLoading(false),
@@ -35,16 +34,16 @@ export default function LanguageSwitchExample() {
               type="radio"
               name="language"
               value={tag}
-              checked={lang?.id === tag}
+              checked={id === tag}
               onChange={() => switchTo(tag)}
             />
             {" "}{labelFor(tag)}
           </label>
         ))}
       </div>
-      {/* readout tecnico (id/debug dal context), non testo utente: niente marcatore di traduzione */}
+      {/* readout tecnico (id/debug dall'hook), non testo utente: niente marcatore di traduzione */}
       <p className="lang-switch-status">
-        {loading ? "…" : `id: ${lang?.id ?? "—"} · debug: ${String(!!lang?.debug)}`}
+        {loading ? "…" : `id: ${id ?? "—"} · debug: ${String(debug)}`}
       </p>
     </div>
   );

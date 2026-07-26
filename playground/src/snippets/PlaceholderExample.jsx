@@ -1,7 +1,7 @@
-import { useTranslateString } from "@sepoina/vitetranslate/react";
+import { useTranslateToString } from "@sepoina/vitetranslate/react";
 
 export default function PlaceholderExample() {
-  const ts = useTranslateString();
+  const ts = useTranslateToString();
 
   return (
     <input

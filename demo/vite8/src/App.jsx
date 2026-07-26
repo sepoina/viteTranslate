@@ -1,9 +1,7 @@
-import { useContext } from "react";
-import { Translate, TranslateContext, useAvailableLanguages } from "@sepoina/vitetranslate/react";
+import { Translate, useTranslateLanguage } from "@sepoina/vitetranslate/react";
 
 export default function App() {
-  const lang = useContext(TranslateContext);
-  const { tags } = useAvailableLanguages();
+  const { id, tags, proposeNewLanguage } = useTranslateLanguage();
 
   return (
     <main style={{ fontFamily: "sans-serif", padding: "2rem" }}>
@@ -13,8 +11,8 @@ export default function App() {
         {tags.map((tag) => (
           <button
             key={tag}
-            disabled={lang?.id === tag}
-            onClick={() => lang?.proposeNewLanguage({ lang: tag })}
+            disabled={id === tag}
+            onClick={() => proposeNewLanguage({ lang: tag })}
           >
             {tag}
           </button>

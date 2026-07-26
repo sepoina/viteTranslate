@@ -1,6 +1,6 @@
 import React, { useContext } from "react";
 import { TranslateContext } from "./TranslateContext";
-import emitNodes from "./emitNode";
+import { basicHtmlToNodes } from "./basicHtmlToNodes.jsx";
 import { parseCompiledMarker } from "./parseCompiledMarker";
 // Tabella della lingua sorgente, importata staticamente dal plugin: fallback universale
 // sempre disponibile (anche prima che il context abbia caricato una lingua, e in produzione
@@ -29,7 +29,7 @@ export default function Translate({ "data-translate": dataTranslate = false, t =
   const lang = useContext(TranslateContext);
 
   // Niente useMemo: la parte costosa (il parsing dell'HTML) è già memoizzata per stringa
-  // risolta dentro emitNodes, che a parità di testo restituisce lo stesso oggetto elemento
+  // risolta dentro basicHtmlToNodes, che a parità di testo restituisce lo stesso elemento
   // — quindi la stabilità referenziale che permette a React di saltare la riconciliazione
   // del sottoalbero c'è comunque. Un useMemo qui dipenderebbe da `t` e `a`, che nell'uso
   // normale sono literal (`t={[testo, arg]}`, `a={[arg]}`) e cambiano identità a ogni
@@ -46,7 +46,7 @@ export default function Translate({ "data-translate": dataTranslate = false, t =
     // Traduzione via data-translate (iniettato da vitetranslate)
     if (dataTranslate) {
       const resolved = lang?.table?.[dataTranslate] ?? defaultTable?.[dataTranslate] ?? source;
-      return emitNodes(a, resolved);
+      return basicHtmlToNodes(resolved, a);
     }
     //
     // formato t=[text, arg1, arg2, ...]
@@ -75,7 +75,7 @@ export default function Translate({ "data-translate": dataTranslate = false, t =
       // importata) -> fallback embeddato nel marcatore (solo dev) -> chiave grezza.
       // In produzione il fallback embeddato è assente, ma defaultTable garantisce
       // comunque testo leggibile; la chiave grezza resta l'ultima rete di sicurezza.
-      return emitNodes(args, lang?.table?.[key] ?? defaultTable?.[key] ?? fallback ?? key);
+      return basicHtmlToNodes(lang?.table?.[key] ?? defaultTable?.[key] ?? fallback ?? key, args);
     }
     //
     // Stringa non ancora formattata per la traduzione (marcatore _%_..._%_
@@ -86,11 +86,11 @@ export default function Translate({ "data-translate": dataTranslate = false, t =
     if (import.meta.env?.DEV) {
       throw new Error(`Translate: testo non marcato con _%_..._%_ (dimenticato?): "${text}"`);
     }
-    return emitNodes(args, text); // infine emetti lo stesso
+    return basicHtmlToNodes(text, args); // infine emetti lo stesso
     //
     //
   } catch (error) {
     logErrorOnce(error);
-    return emitNodes(null, "[...]");
+    return basicHtmlToNodes("[...]");
   }
 }

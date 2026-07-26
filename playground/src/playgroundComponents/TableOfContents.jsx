@@ -1,7 +1,7 @@
-import { Translate, useTranslateString } from "@sepoina/vitetranslate/react";
+import { Translate, useTranslateToString } from "@sepoina/vitetranslate/react";
 
 export default function TableOfContents({ items, installItems }) {
-  const ts = useTranslateString();
+  const ts = useTranslateToString();
 
   return (
     <nav className="toc" aria-label={ts("_%_Indice delle sezioni_%_")}>

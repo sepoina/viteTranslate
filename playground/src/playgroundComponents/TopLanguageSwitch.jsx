@@ -1,5 +1,4 @@
-import { useContext } from "react";
-import { TranslateContext, useAvailableLanguages } from "@sepoina/vitetranslate/react";
+import { useTranslateLanguage } from "@sepoina/vitetranslate/react";
 
 function labelFor(tag) {
   try {
@@ -10,8 +9,7 @@ function labelFor(tag) {
 }
 
 export default function TopLanguageSwitch() {
-  const lang = useContext(TranslateContext);
-  const { tags } = useAvailableLanguages();
+  const { id, tags, proposeNewLanguage } = useTranslateLanguage();
 
   return (
     <div className="top-lang-switch">
@@ -21,8 +19,8 @@ export default function TopLanguageSwitch() {
             key={tag}
             type="button"
             className="top-lang-switch-btn"
-            disabled={lang?.id === tag}
-            onClick={() => lang?.proposeNewLanguage({ lang: tag })}
+            disabled={id === tag}
+            onClick={() => proposeNewLanguage({ lang: tag })}
           >
             {labelFor(tag)}
           </button>

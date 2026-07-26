@@ -145,7 +145,7 @@ npx vitetranslate-prepare-translation-table`} />
 }`} />
 
         <p className="doc-description">
-          <Translate>_%_Ogni file .json trovato in localeDir diventa automaticamente disponibile: useAvailableLanguages() lo elenca e TranslateContainer lo carica pigramente alla richiesta, senza bisogno di registrarlo altrove._%_</Translate>
+          <Translate>_%_Ogni file .json trovato in localeDir diventa automaticamente disponibile: useTranslateLanguage() lo elenca e TranslateContainer lo carica pigramente alla richiesta, senza bisogno di registrarlo altrove._%_</Translate>
         </p>
       </section>
     </section>

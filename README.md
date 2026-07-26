@@ -58,7 +58,7 @@ That is the whole authoring workflow. Wrap a string in `_%_..._%_`, render it th
 
 | | |
 | --- | --- |
-| ⚖️ **~2 kB gzip in your bundle** | The runtime that reaches the browser (`<Translate>`, `TranslateContainer`, `useAvailableLanguages`) adds about 2 kB gzip — measured by diffing a production build with and without the library. Translation payloads scale with your content, not with the library. |
+| ⚖️ **~2 kB gzip in your bundle** | The runtime that reaches the browser (`<Translate>`, `TranslateContainer`, `useTranslateLanguage`) adds about 2 kB gzip — measured by diffing a production build with and without the library. Translation payloads scale with your content, not with the library. |
 | 🪶 **Zero runtime dependencies** | The shipped code imports nothing: it looks up an id already computed at build time. `@babel/core`, Vite and React are *peer* dependencies — they run the plugin and the CLI on your machine, never enter the bundle, and are already in your `node_modules`. |
 | 📍 **Mark text in place** | No keys to invent or maintain. The marker is extracted at build time; the component resolves it against the current language table at runtime. |
 | 📄 **Language files are auto-generated** | The JSON tables in `localeDir` are created and updated by the sync command from the markers found in your source. |
@@ -185,38 +185,53 @@ export default function Welcome() {
 <Translate t={"_%_<strong>Bold</strong> and <i>italic</i> text_%_"} />
 ```
 
-### `useTranslateString()`
+### `useTranslateToString()`
 
 For places that need a plain string instead of JSX — `placeholder`, `aria-label`, `title`:
 
 ```jsx
-import { useTranslateString } from "@sepoina/vitetranslate/react";
+import { useTranslateToString } from "@sepoina/vitetranslate/react";
 
 function SearchInput() {
-  const ts = useTranslateString();
+  const ts = useTranslateToString();
   return <input placeholder={ts("_%_Enter your name_%_")} />;
 }
 ```
 
-### `useAvailableLanguages()`
+### `useTranslateLanguage()`
 
-Lists the languages found in `localeDir` synchronously, without loading them — ideal for a switcher:
+Everything a language switcher needs, in one hook: the current language, the list of
+available ones and the function to change it.
 
 ```jsx
-import { useContext } from "react";
-import { TranslateContext, useAvailableLanguages } from "@sepoina/vitetranslate/react";
+import { useTranslateLanguage } from "@sepoina/vitetranslate/react";
 
 function LanguageSwitcher() {
-  const lang = useContext(TranslateContext);
-  const { tags } = useAvailableLanguages();
+  const { id, tags, proposeNewLanguage } = useTranslateLanguage();
 
   return tags.map((tag) => (
-    <button key={tag} onClick={() => lang?.proposeNewLanguage({ lang: tag })}>
+    <button key={tag} disabled={id === tag} onClick={() => proposeNewLanguage({ lang: tag })}>
       {tag}
     </button>
   ));
 }
 ```
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `id` | `string \| undefined` | Current language tag (BCP 47); `undefined` outside `TranslateContainer` |
+| `tags` | `string[]` | Languages found in `localeDir`, source language first |
+| `defaultLanguage` | `string` | Source language tag, the one the strings are written in |
+| `debug` | `boolean` | The `debug` prop passed to `TranslateContainer` |
+| `proposeNewLanguage` | `function` | Runtime language switch, see below |
+
+The returned object is referentially stable, so it is safe in dependency arrays.
+
+`tags` and `defaultLanguage` come from the language manifest, known at build time: no table
+is ever loaded just to list them, and they stay valid even outside `TranslateContainer` —
+handy to build a list of languages above the translated tree. There `id` is `undefined` and
+`proposeNewLanguage` is inert; calling it is reported once in the console during
+development, since that is the only thing that cannot work without a container.
 
 ### `TranslateContainer` props
 
@@ -224,20 +239,55 @@ function LanguageSwitcher() {
 | --- | --- | --- | --- |
 | `predefined` | `string` | `defaultLanguage` from the plugin | Initial language tag to load (BCP 47). Preloaded languages render synchronously; otherwise the container suspends until the chunk is ready — never the wrong language |
 | `fallback` | `node` | `null` | Shown via `Suspense` while a non-preloaded initial language loads. Chunks are local, so the default `null` is a near-imperceptible empty frame |
-| `debug` | `boolean` | `false` | Exposed on the translation context object |
+| `debug` | `boolean` | `false` | Exposed by `useTranslateLanguage()` |
 | `children` | `node` | — | App tree that receives the translation context |
 
 ### `proposeNewLanguage()`
 
-Available on the context value:
+Available from `useTranslateLanguage()`:
 
 ```js
-lang.proposeNewLanguage({ lang, onStart, onDone, onError });
+const { proposeNewLanguage } = useTranslateLanguage();
+proposeNewLanguage({ lang, onStart, onDone, onError });
 ```
 
 Triggers a runtime language switch, lazily loading the requested chunk. The switch runs
 inside a React transition, so the current language stays on screen until the new one is
 ready — no blank frame mid-switch.
+
+### `basicHtmlToNodes()`
+
+Turns a string containing basic HTML into React nodes, without `dangerouslySetInnerHTML`.
+It is the function `<Translate>` uses internally, exported because it is useful on its own:
+
+```jsx
+import { basicHtmlToNodes } from "@sepoina/vitetranslate/react";
+
+basicHtmlToNodes("Hello <b>%s</b>", "Mario");   // ["Hello ", <b>Mario</b>]
+basicHtmlToNodes("no markup here");             // "no markup here" (same string back)
+```
+
+| | |
+| --- | --- |
+| `text` | Text, optionally with markup and `%s` placeholders |
+| `args` | Value or array of values replacing the `%s`, in order — optional |
+| *returns* | A string, a single element, or a fragment |
+
+Only the formatting tags `<b> <strong> <i> <em> <u> <small> <code> <br> <hr> <wbr>` and
+HTML entities are recognised. Any other tag is dropped while keeping its content
+(`<div>hi</div>` → `hi`), and **no attribute is ever forwarded** — the elements it builds
+carry nothing but a `key`. A string without markup is returned untouched, allocating
+nothing. Parsed results are cached, so the same string is converted once per app.
+
+> [!IMPORTANT]
+> Three things to know before using it outside the library:
+>
+> - It is meant for **strings you control** — typically your own translation tables — not
+>   as a sanitiser for hostile input.
+> - `args` are interpolated **before** parsing, so an argument that contains markup is
+>   itself interpreted as HTML.
+> - It needs the DOM (it uses a `<template>` element). Where `document` does not exist,
+>   such as server-side rendering, it returns the original string unconverted.
 
 ---
 
@@ -363,7 +413,7 @@ vitetranslate(options)
 finds strings wrapped in `_%_..._%_`, computes a stable id (`<filename>_<hash>`), and
 rewrites them to a compiled marker: `_<_id_/_fallback_>_` in dev, `_<_id_>_` in build.
 
-**2. Resolution (runtime).** `<Translate>` and `useTranslateString()` look up that id in the
+**2. Resolution (runtime).** `<Translate>` and `useTranslateToString()` look up that id in the
 current language table, then fall back through the default-language table, the embedded
 fallback (dev only), and finally the raw key.
 

@@ -1,16 +1,13 @@
-import { useContext } from "react";
-import { Translate, TranslateContext, useAvailableLanguages } from "@sepoina/vitetranslate/react";
+import { Translate, useTranslateLanguage } from "@sepoina/vitetranslate/react";
 import playgroundString from "../App-playgroundString-from-js.js";
 
 export default function BadgeRotateLanguage() {
-  const lang = useContext(TranslateContext);
-  const { tags } = useAvailableLanguages();
+  const { id, tags, proposeNewLanguage } = useTranslateLanguage();
 
   const rotateLanguage = () => {
-    if (!lang) return;
-    const currentIndex = tags.indexOf(lang.id);
+    const currentIndex = tags.indexOf(id);
     const nextTag = tags[(currentIndex + 1) % tags.length];
-    lang.proposeNewLanguage({ lang: nextTag });
+    proposeNewLanguage({ lang: nextTag });
   };
 
   return (
