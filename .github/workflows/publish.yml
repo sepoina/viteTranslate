@@ -14,14 +14,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
-
       - uses: actions/setup-node@v6
         with:
           node-version: 24
           registry-url: https://registry.npmjs.org
-
+      - name: Aggiorna npm (richiesto per OIDC)
+        run: npm install -g npm@latest
       - name: Install deps
-        run: npm install
-
+        run: npm ci
       - name: Publish
         run: npm publish --access public
