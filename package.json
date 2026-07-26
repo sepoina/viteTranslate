@@ -1,7 +1,7 @@
 {
   "name": "@sepoina/vitetranslate",
   "version": "2.0.9",
-  "description": "Internazionalizza la tua app React senza sforzo: un plugin Vite che estrae automaticamente le stringhe marcate generando e sincronizzando le tabelle di traduzione JSON per te.",
+  "description": "Extract translatable strings straight from your JSX — a Vite plugin that auto-generates and syncs JSON translation tables, with zero runtime dependencies.",
   "author": {
     "name": "Giancarlo Ghigi",
     "email": "ripensamento@gmail.com"
@@ -9,14 +9,24 @@
   "keywords": [
     "react",
     "babel",
+    "babel-plugin",
     "vite",
+    "vite-plugin",
     "rolldown",
     "translate",
+    "translation",
+    "translation-management",
     "i18n",
+    "l10n",
+    "internationalization",
+    "localization",
     "components",
-    "data",
-    "attributes",
-    "property"
+    "react-hooks",
+    "jsx",
+    "code-splitting",
+    "lazy-loading",
+    "json",
+    "zero-dependencies"
   ],
   "repository": {
     "type": "git",
