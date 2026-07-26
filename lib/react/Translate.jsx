@@ -5,7 +5,7 @@ import { parseCompiledMarker } from "./parseCompiledMarker";
 // Tabella della lingua sorgente, importata staticamente dal plugin: fallback universale
 // sempre disponibile (anche prima che il context abbia caricato una lingua, e in produzione
 // dove il fallback non è più embeddato nel marcatore).
-import { defaultTable } from "virtual:vitetranslate/languages";
+import { sourceTable } from "virtual:vitetranslate/languages";
 
 // Un uso scorretto di <Translate> è un errore di codice: si ripresenta identico a ogni
 // render finché non lo si corregge. Loggarlo ogni volta seppellirebbe la console senza
@@ -45,7 +45,7 @@ export default function Translate({ "data-translate": dataTranslate = false, t =
     //
     // Traduzione via data-translate (iniettato da vitetranslate)
     if (dataTranslate) {
-      const resolved = lang?.table?.[dataTranslate] ?? defaultTable?.[dataTranslate] ?? source;
+      const resolved = lang?.table?.[dataTranslate] ?? sourceTable?.[dataTranslate] ?? source;
       return basicHtmlToNodes(resolved, a);
     }
     //
@@ -71,11 +71,11 @@ export default function Translate({ "data-translate": dataTranslate = false, t =
     // Ora la stringa dovrebbe essere frutto di vitetranslate, con sintassi _<_codice_/_fallback_>_
     if (text?.startsWith("_<_") && text.endsWith("_>_")) {
       const { key, fallback } = parseCompiledMarker(text);
-      // Ordine di fallback: lingua attiva -> lingua sorgente (defaultTable, sempre
+      // Ordine di fallback: lingua attiva -> lingua sorgente (sourceTable, sempre
       // importata) -> fallback embeddato nel marcatore (solo dev) -> chiave grezza.
-      // In produzione il fallback embeddato è assente, ma defaultTable garantisce
+      // In produzione il fallback embeddato è assente, ma sourceTable garantisce
       // comunque testo leggibile; la chiave grezza resta l'ultima rete di sicurezza.
-      return basicHtmlToNodes(lang?.table?.[key] ?? defaultTable?.[key] ?? fallback ?? key, args);
+      return basicHtmlToNodes(lang?.table?.[key] ?? sourceTable?.[key] ?? fallback ?? key, args);
     }
     //
     // Stringa non ancora formattata per la traduzione (marcatore _%_..._%_

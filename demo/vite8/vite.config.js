@@ -6,7 +6,7 @@ export default defineConfig({
   plugins: [
     vitetranslate({
       localeDir: "src/locale",
-      defaultLanguage: "it-IT",
+      sourceLanguage: "it-IT",
     }),
     react(),
   ],

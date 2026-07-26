@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React from "react";
 import { TranslateContext } from "./TranslateContext";
-import { defaultLanguage } from "virtual:vitetranslate/languages";
+import { sourceLanguage } from "virtual:vitetranslate/languages";
 import { readLanguage, ensureLanguage, isKnownLanguage } from "./languageResource";
 
 /**
@@ -20,21 +20,21 @@ function TranslateProvider({ lang, debug, proposeNewLanguage, children }) {
 }
 
 /**
- * @param {string} [predefined=defaultLanguage] - tag BCP 47 iniziale (es. 'it-IT'), di
- *   default la defaultLanguage del plugin. Se è precaricata (defaultLanguage o una di
+ * @param {string} [initialLanguage=sourceLanguage] - tag BCP 47 iniziale (es. 'it-IT'), di
+ *   default la sourceLanguage del plugin. Se è precaricata (sourceLanguage o una di
  *   preloadedLanguages) viene mostrata sincrona al primo render; altrimenti il container
  *   sospende finché il chunk non è caricato, senza mai renderizzare la lingua sbagliata.
  * @param {React.ReactNode} [fallback=null] - mostrato durante il caricamento di una lingua
  *   non precaricata. Di default null: i chunk sono locali, il "loading" è un frame vuoto.
  * @param {boolean} [debug]
  */
-export default function TranslateContainer({ predefined = defaultLanguage, children, debug, fallback = null }) {
-  // predefined inesistente -> ricade su defaultLanguage (sempre disponibile) senza
+export default function TranslateContainer({ initialLanguage = sourceLanguage, children, debug, fallback = null }) {
+  // initialLanguage inesistente -> ricade su sourceLanguage (sempre disponibile) senza
   // far esplodere l'app. Inizializzatore: eseguito una sola volta.
   const [lang, setLang] = React.useState(() => {
-    if (isKnownLanguage(predefined)) return predefined;
-    console.error(`TranslateContainer: unknown predefined language "${predefined}", falling back to "${defaultLanguage}"`);
-    return defaultLanguage;
+    if (isKnownLanguage(initialLanguage)) return initialLanguage;
+    console.error(`TranslateContainer: unknown initial language "${initialLanguage}", falling back to "${sourceLanguage}"`);
+    return sourceLanguage;
   });
 
   // struttura funzione proposeNewLanguage({

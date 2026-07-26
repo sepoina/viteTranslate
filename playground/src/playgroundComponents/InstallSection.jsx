@@ -28,7 +28,7 @@ export default defineConfig({
   plugins: [
     vitetranslate({
       localeDir: "src/locale",   // cartella con i file json delle traduzioni
-      defaultLanguage: "it-IT",  // lingua di default
+      sourceLanguage: "it-IT",   // lingua di default
     }),
     react(),
   ],
@@ -60,7 +60,7 @@ export default defineConfig({
         <CodeBlock code={`import { TranslateContainer } from "@sepoina/vitetranslate/react";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
-  <TranslateContainer predefined="it-IT">
+  <TranslateContainer initialLanguage="it-IT">
     <App />
   </TranslateContainer>
 );`} />

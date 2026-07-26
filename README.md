@@ -117,7 +117,7 @@ export default defineConfig({
   plugins: [
     vitetranslate({
       localeDir: "src/locale",  // folder with the language JSON files
-      defaultLanguage: "it-IT", // default language tag (BCP 47)
+      sourceLanguage: "it-IT",  // source language tag (BCP 47)
     }),
     react(),
   ],
@@ -133,7 +133,7 @@ import { TranslateContainer } from "@sepoina/vitetranslate/react";
 import App from "./App.jsx";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
-  <TranslateContainer predefined="it-IT">
+  <TranslateContainer initialLanguage="it-IT">
     <App />
   </TranslateContainer>
 );
@@ -161,7 +161,7 @@ export default function Welcome() {
 ```
 
 > [!IMPORTANT]
-> The `localeDir` folder must already exist and contain the default language file
+> The `localeDir` folder must already exist and contain the source language file
 > before the first `vite dev` / `vite build` — `TranslateContainer` reads it immediately
 > on load. Run the sync command once to generate it.
 
@@ -221,13 +221,13 @@ function LanguageSwitcher() {
 | --- | --- | --- |
 | `id` | `string \| undefined` | Current language tag (BCP 47); `undefined` outside `TranslateContainer` |
 | `tags` | `string[]` | Languages found in `localeDir`, source language first |
-| `defaultLanguage` | `string` | Source language tag, the one the strings are written in |
+| `sourceLanguage` | `string` | Source language tag, the one the strings are written in |
 | `debug` | `boolean` | The `debug` prop passed to `TranslateContainer` |
 | `proposeNewLanguage` | `function` | Runtime language switch, see below |
 
 The returned object is referentially stable, so it is safe in dependency arrays.
 
-`tags` and `defaultLanguage` come from the language manifest, known at build time: no table
+`tags` and `sourceLanguage` come from the language manifest, known at build time: no table
 is ever loaded just to list them, and they stay valid even outside `TranslateContainer` —
 handy to build a list of languages above the translated tree. There `id` is `undefined` and
 `proposeNewLanguage` is inert; calling it is reported once in the console during
@@ -237,7 +237,7 @@ development, since that is the only thing that cannot work without a container.
 
 | Prop | Type | Default | Description |
 | --- | --- | --- | --- |
-| `predefined` | `string` | `defaultLanguage` from the plugin | Initial language tag to load (BCP 47). Preloaded languages render synchronously; otherwise the container suspends until the chunk is ready — never the wrong language |
+| `initialLanguage` | `string` | `sourceLanguage` from the plugin | Initial language tag to load (BCP 47). Preloaded languages render synchronously; otherwise the container suspends until the chunk is ready — never the wrong language |
 | `fallback` | `node` | `null` | Shown via `Suspense` while a non-preloaded initial language loads. Chunks are local, so the default `null` is a near-imperceptible empty frame |
 | `debug` | `boolean` | `false` | Exposed by `useTranslateLanguage()` |
 | `children` | `node` | — | App tree that receives the translation context |
@@ -298,14 +298,14 @@ isn't ready on the **first** render. `TranslateContainer` handles this with a bu
 `Suspense` boundary and resolves it in one of three ways, none of which ever renders the
 wrong language:
 
-| `predefined` is… | Behaviour |
+| `initialLanguage` is… | Behaviour |
 | --- | --- |
-| the **default language** | Always bundled eagerly (it doubles as the per-key fallback) → renders **synchronously** |
+| the **source language** | Always bundled eagerly (it doubles as the per-key fallback) → renders **synchronously** |
 | in **`preloadedLanguages`** | Also bundled eagerly → renders **synchronously** |
 | **any other language** | The container **suspends** (showing `fallback`, `null` by default) until the chunk loads, then renders the right language directly. No source-language flash, no double render |
 
 > [!NOTE]
-> The default language is always eager because it is the universal fallback for any key a
+> The source language is always eager because it is the universal fallback for any key a
 > language hasn't translated yet. In production the fallback is no longer embedded in the
 > compiled marker, so without it an untranslated key would surface as its raw id.
 
@@ -316,13 +316,13 @@ the languages you know you'll show first, at the cost of shipping them in the in
 ```js
 vitetranslate({
   localeDir: "src/locale",
-  defaultLanguage: "it-IT",       // source language, always preloaded (fallback)
+  sourceLanguage: "it-IT",        // source language, always preloaded (fallback)
   preloadedLanguages: ["en-US"],  // instant first paint instead of a loading frame
 })
 ```
 
 ```jsx
-<TranslateContainer predefined="en-US">  {/* preloaded → synchronous first paint */}
+<TranslateContainer initialLanguage="en-US">  {/* preloaded → synchronous first paint */}
   <App />
 </TranslateContainer>
 ```
@@ -335,7 +335,7 @@ stays a lazy chunk loaded only when switched to.
 ## 🗂️ Translation file format
 
 Each language is one JSON file in `localeDir`, named after its BCP 47 tag (`it-IT.json`,
-`en-US.json`, …). The **default language** file is fully autogenerated from the markers
+`en-US.json`, …). The **source language** file is fully autogenerated from the markers
 found in your source — you never hand-write it. Every **other language** starts as an empty
 `{}`: the sync command populates it with the same keys set to `null`, and all you do is
 fill in the translations.
@@ -394,8 +394,8 @@ vitetranslate(options)
 | Option | Type | Default | Description |
 | --- | --- | --- | --- |
 | `localeDir` | `string` | **required** | Folder with the language JSON files, relative to `baseDir` |
-| `defaultLanguage` | `string` | **required** | BCP 47 tag of the default/source language |
-| `preloadedLanguages` | `string[]` | `[]` | Extra languages bundled eagerly for an instant, non-suspending first paint (see [Preloading](#-preloading-suspense-and-the-initial-flash)). `defaultLanguage` is always preloaded regardless |
+| `sourceLanguage` | `string` | **required** | BCP 47 tag of the source language |
+| `preloadedLanguages` | `string[]` | `[]` | Extra languages bundled eagerly for an instant, non-suspending first paint (see [Preloading](#-preloading-suspense-and-the-initial-flash)). `sourceLanguage` is always preloaded regardless |
 | `baseDir` | `string` | `process.cwd()` | Project root used to resolve `localeDir` / `srcDir` |
 | `srcDir` | `string` | `"src"` | Source folder scanned by the CLI |
 | `includeFallback` | `boolean` | `!isProduction` | Embed the original text as a fallback in the compiled marker (dev only by default) |
@@ -414,12 +414,12 @@ finds strings wrapped in `_%_..._%_`, computes a stable id (`<filename>_<hash>`)
 rewrites them to a compiled marker: `_<_id_/_fallback_>_` in dev, `_<_id_>_` in build.
 
 **2. Resolution (runtime).** `<Translate>` and `useTranslateToString()` look up that id in the
-current language table, then fall back through the default-language table, the embedded
+current language table, then fall back through the source-language table, the embedded
 fallback (dev only), and finally the raw key.
 
 **3. Delivery (virtual module).** `virtual:vitetranslate/languages` lists every
 `localeDir/*.json` file as a lazily-imported chunk and eagerly imports the preloaded ones
-(`defaultLanguage` plus `preloadedLanguages`). `TranslateContainer` reads the current table
+(`sourceLanguage` plus `preloadedLanguages`). `TranslateContainer` reads the current table
 through a `Suspense` resource: preloaded languages resolve synchronously, others suspend
 until their chunk loads, and runtime switches go through a React transition. The table is
 exposed via React context.
@@ -452,8 +452,8 @@ lib/
 >   a basename (e.g. two `index.jsx` in different folders) share the same id namespace.
 > - **The CLI expects a plain-object default export** in `vite.config.js` (not a
 >   function-based config) and only looks for `vite.config.js`, not `.ts` / `.mjs`.
-> - **No SSR support out of the box** — `<Translate>`'s HTML subset relies on `DOMParser`,
->   so it requires a browser-like environment.
+> - **No SSR support out of the box** — `<Translate>`'s HTML subset relies on a `<template>`
+>   element, so it requires a browser-like environment.
 
 ---
 

@@ -5,7 +5,7 @@ import { TranslateContainer } from "@sepoina/vitetranslate/react";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
-    <TranslateContainer predefined="it-IT">
+    <TranslateContainer initialLanguage="it-IT">
       <App />
     </TranslateContainer>
   </React.StrictMode>
