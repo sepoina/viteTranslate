@@ -47,7 +47,7 @@
   },
   "scripts": {
     "build": "rolldown -c",
-    "updateNpm": "npm version patch && git push --follow-tags && gh release create $(git describe --tags --abbrev=0) --generate-notes",
+    "updateNpm": "npm version patch && git push --follow-tags",
     "prepublishOnly": "npm run build",
     "playground": "npm --prefix playground run dev",
     "playground:build": "npm --prefix playground run build",
