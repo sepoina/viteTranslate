@@ -1,6 +1,6 @@
 {
   "name": "@sepoina/vitetranslate",
-  "version": "2.0.10",
+  "version": "2.0.11",
   "description": "Extract translatable strings straight from your JSX — a Vite plugin that auto-generates and syncs JSON translation tables, with zero runtime dependencies.",
   "author": {
     "name": "Giancarlo Ghigi",
