@@ -430,4 +430,4 @@ to the exact commit and workflow run that produced it. No long-lived tokens are 
 
 ## 📄 License
 
-UNLICENSED — see [`package.json`](package.json).
+Apache License 2.0 — see [`LICENSE`](LICENSE).
