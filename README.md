@@ -7,7 +7,7 @@ No keys to invent. No separate extraction step. No runtime dependencies.
 
 [![npm version](https://img.shields.io/npm/v/@sepoina/vitetranslate?logo=npm&logoColor=white&label=npm&color=CB3837)](https://www.npmjs.com/package/@sepoina/vitetranslate)
 [![npm downloads](https://img.shields.io/npm/dm/@sepoina/vitetranslate?logo=npm&logoColor=white&label=downloads&color=CB3837)](https://www.npmjs.com/package/@sepoina/vitetranslate)
-[![runtime size](https://img.shields.io/badge/runtime-~2%20kB%20gzip-4c1)](#-why-vitetranslate)
+[![runtime size](https://img.shields.io/badge/runtime-%3C%205%20kB%20gzip-4c1)](#-why-vitetranslate)
 [![publish](https://img.shields.io/github/actions/workflow/status/sepoina/viteTranslate/publish.yml?logo=githubactions&logoColor=white&label=publish)](https://github.com/sepoina/viteTranslate/actions/workflows/publish.yml)
 [![provenance](https://img.shields.io/badge/npm-provenance-2b7489?logo=npm&logoColor=white)](https://www.npmjs.com/package/@sepoina/vitetranslate#provenance)
 [![Vite](https://img.shields.io/badge/Vite-5%20|%206%20|%207%20|%208-646CFF?logo=vite&logoColor=white)](https://vite.dev)
@@ -58,7 +58,7 @@ That is the whole authoring workflow. Wrap a string in `_%_..._%_`, render it th
 
 | | |
 | --- | --- |
-| ⚖️ **~2 kB gzip in your bundle** | The runtime that reaches the browser (`<Translate>`, `TranslateContainer`, `useTranslateLanguage`) adds about 2 kB gzip — measured by diffing a production build with and without the library. Translation payloads scale with your content, not with the library. |
+| ⚖️ **Under 5 kB gzip in your bundle** | The runtime that reaches the browser (`<Translate>`, `TranslateContainer`, `useTranslateLanguage`) adds under 5 kB gzip — measured by diffing a production build with and without the library. Translation payloads scale with your content, not with the library. |
 | 🪶 **Zero runtime dependencies** | The shipped code imports nothing: it looks up an id already computed at build time. `@babel/core`, Vite and React are *peer* dependencies — they run the plugin and the CLI on your machine, never enter the bundle, and are already in your `node_modules`. |
 | 📍 **Mark text in place** | No keys to invent or maintain. The marker is extracted at build time; the component resolves it against the current language table at runtime. |
 | 📄 **Language files are auto-generated** | The JS tables in `localeDir` are created and updated by the sync command from the markers found in your source. |
@@ -289,6 +289,20 @@ nothing. Parsed results are cached, so the same string is converted once per app
 >   itself interpreted as HTML.
 > - It needs the DOM (it uses a `<template>` element). Where `document` does not exist,
 >   such as server-side rendering, it returns the original string unconverted.
+
+### `version`
+
+The installed package version, as a plain string — read from `package.json` at build time,
+so it costs nothing at runtime:
+
+```jsx
+import { version } from "@sepoina/vitetranslate/react";
+
+<p>viteTranslate v{version}</p>
+```
+
+Handy to surface the running version in a footer, an about page, or a playground/demo —
+without hand-syncing it against `package.json`.
 
 ---
 

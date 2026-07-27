@@ -1,4 +1,0 @@
-export default {
-  "__lngVersion__": "260216",
-  "App_1p95ssu": "Small minimal example with runtime language switching.",
-};
