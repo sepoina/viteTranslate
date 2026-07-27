@@ -3,7 +3,7 @@
 <img src="doc/logo.svg" alt="viteTranslate" width="380" height="68" />
 
 **Extract translatable strings straight from your source.**<br>
-No keys to invent. No separate extraction step. No runtime dependencies.
+No keys to invent. No separate extraction step. No runtime dependencies. 
 
 [![Vite](https://img.shields.io/badge/Vite-5%20|%206%20|%207%20|%208-646CFF?logo=vite&logoColor=white)](https://vite.dev)
 [![publish](https://img.shields.io/github/actions/workflow/status/sepoina/viteTranslate/publish.yml?logo=githubactions&logoColor=white&label=publish)](https://github.com/sepoina/viteTranslate/actions/workflows/publish.yml)
