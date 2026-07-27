@@ -32,11 +32,11 @@ export default function StrengthsSection() {
           </tr>
           <tr>
             <td className="strength-icon" aria-hidden="true">🔍</td>
-            <td className="strength-text"><Translate t={"_%_<strong>Nuove lingue rilevate in automatico.</strong> Basta aggiungere un file JSON nella cartella delle lingue, senza registrarlo altrove nel codice._%_"} /></td>
+            <td className="strength-text"><Translate t={"_%_<strong>Nuove lingue rilevate in automatico.</strong> Basta aggiungere un file JS nella cartella delle lingue, senza registrarlo altrove nel codice._%_"} /></td>
           </tr>
           <tr>
             <td className="strength-icon" aria-hidden="true">🔒</td>
-            <td className="strength-text"><Translate t={"_%_<strong>File di lingua al sicuro in src, non in public.</strong> Evita di servire tabelle JSON modificabili lato client._%_"} /></td>
+            <td className="strength-text"><Translate t={"_%_<strong>File di lingua al sicuro in src, non in public.</strong> Evita di servire tabelle di traduzione modificabili lato client._%_"} /></td>
           </tr>
           <tr>
             <td className="strength-icon" aria-hidden="true">♻️</td>

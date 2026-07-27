@@ -18,7 +18,7 @@ function App() {
         <TopLanguageSwitch />
         <p>
           <Translate
-            t={"_%_Plugin Babel + Vite per estrarre stringhe dal sorgente (marcatore %s e componente <code>&#60;Translate&#62;</code> ) e generare/sincronizzare le tabelle di traduzione JSON. I file di lingua vengono raggruppati in src (non in public, per evitare di servire JSON iniettabili) e caricati pigramente uno alla volta: il cambio lingua a runtime scarica solo il chunk necessario, senza appesantire il bundle iniziale con le lingue non usate._%_"}
+            t={"_%_Plugin Vite per estrarre stringhe dal sorgente (marcatore %s e componente <code>&#60;Translate&#62;</code> ) e generare/sincronizzare le tabelle di traduzione JS. I file di lingua vengono raggruppati in src (non in public, per evitare di servire moduli iniettabili) e caricati pigramente uno alla volta: il cambio lingua a runtime scarica solo il chunk necessario, senza appesantire il bundle iniziale con le lingue non usate._%_"}
             a={["<code>_%_testo_%_</code>"]}
           />
         </p>
@@ -43,5 +43,5 @@ function App() {
 export default App;
 
 /*
-Plugin Babel + Vite per estrarre stringhe dal sorgente (marcatore %s e componente <code>&#60;Translate&#60;</code>) e generare/sincronizzare le tabelle di traduzione JSON. I file di lingua vengono raggruppati in src (non in public, per evitare di servire JSON iniettabili) e caricati pigramente uno alla volta: il cambio lingua a runtime scarica solo il chunk necessario, senza appesantire il bundle iniziale con le lingue non usate.
+Plugin Babel + Vite per estrarre stringhe dal sorgente (marcatore %s e componente <code>&#60;Translate&#62;</code>) e generare/sincronizzare le tabelle di traduzione JS. I file di lingua vengono raggruppati in src (non in public, per evitare di servire moduli iniettabili) e caricati pigramente uno alla volta: il cambio lingua a runtime scarica solo il chunk necessario, senza appesantire il bundle iniziale con le lingue non usate.
 */

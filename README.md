@@ -161,9 +161,9 @@ export default function Welcome() {
 ```
 
 > [!IMPORTANT]
-> The `localeDir` folder must already exist and contain the source language file
-> before the first `vite dev` / `vite build` — `TranslateContainer` reads it immediately
-> on load. Run the sync command once to generate it.
+> The source language file must already exist before the first `vite dev` / `vite build` —
+> `TranslateContainer` reads it immediately on load. Run the sync command once to generate it
+> (the `localeDir` folder itself doesn't need to exist beforehand, the plugin creates it).
 
 ---
 
@@ -361,7 +361,7 @@ export default {
 ### Adding a language
 
 ```bash
-echo 'export default {};' > src/locale/fr-FR.js
+touch src/locale/fr-FR.js
 npx vitetranslate-prepare-translation-table
 ```
 

@@ -27,7 +27,7 @@ import { vitetranslate } from "@sepoina/vitetranslate";
 export default defineConfig({
   plugins: [
     vitetranslate({
-      localeDir: "src/locale",   // cartella con i file json delle traduzioni
+      localeDir: "src/locale",   // cartella con i file di traduzione
       sourceLanguage: "it-IT",   // lingua di default
     }),
     react(),
@@ -35,7 +35,7 @@ export default defineConfig({
 });`} />
 
         <p className="doc-description">
-          <Translate>_%_Ecco come appare src una volta configurato il plugin: locale è una sottocartella come le altre, indicata da localeDir, con dentro un file JSON per ogni lingua._%_</Translate>
+          <Translate>_%_Ecco come appare src una volta configurato il plugin: locale è una sottocartella come le altre, indicata da localeDir, con dentro un file JS per ogni lingua._%_</Translate>
         </p>
         <CodeBlock language="text" code={`src/
 ├── main.jsx
@@ -43,16 +43,16 @@ export default defineConfig({
 ├── components/
 │   └── ...
 └── locale/              ← localeDir
-    ├── it-IT.json       ← lingua di default
-    ├── en-US.json
-    └── zh-CN.json`} />
+    ├── it-IT.js         ← lingua di default
+    ├── en-US.js
+    └── zh-CN.js`} />
       </section>
 
       <section id={esecuzioneDev.id} className="doc-subsection">
         <h3><Translate>{esecuzioneDev.title}</Translate></h3>
 
         <p className="doc-description">
-          <Translate>_%_Prima del primo avvio serve che localeDir esista già come cartella e contenga il file della lingua di default: TranslateContainer lo cerca subito e, se manca, il caricamento fallisce. Se non l'hai ancora generato, lancia una volta il comando descritto in Build linguistico: alla fine avrai già una cartella con dentro la tabella della lingua di default, pronta per essere letta._%_</Translate>
+          <Translate>_%_Prima del primo avvio serve che il file della lingua di default esista già: TranslateContainer lo cerca subito e, se manca, il caricamento fallisce (la cartella localeDir non serve che esista in anticipo, la crea il plugin). Se non l'hai ancora generato, lancia una volta il comando descritto in Build linguistico: alla fine avrai già la tabella della lingua di default, pronta per essere letta._%_</Translate>
         </p>
         <p className="doc-description">
           <Translate>_%_Avvolgi l'app in TranslateContainer indicando la lingua iniziale da caricare: espone il contesto usato da Translate e dagli altri hook per leggere la tabella di traduzione corrente. In sviluppo il fallback resta incorporato nel codice compilato, quindi l'app mostra già il testo tradotto senza dover lanciare altri comandi._%_</Translate>
@@ -70,7 +70,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
         <h3><Translate>{buildLinguistico.title}</Translate></h3>
 
         <p className="doc-description">
-          <Translate>_%_Prima della build di produzione, sincronizza le tabelle JSON con tutte le stringhe trovate nel sorgente lanciando il comando come step "prebuild": garantisce che la lingua di default sia sempre completa._%_</Translate>
+          <Translate>_%_Prima della build di produzione, sincronizza le tabelle di traduzione con tutte le stringhe trovate nel sorgente lanciando il comando come step "prebuild": garantisce che la lingua di default sia sempre completa._%_</Translate>
         </p>
         <CodeBlock language="json" code={`{
   "scripts": {
@@ -85,20 +85,26 @@ ReactDOM.createRoot(document.getElementById("root")).render(
           <a href="#install-config-plugin">Config del plugin</a>
           <Translate>_%_. È esattamente il file che localeDir deve già contenere al primo avvio, come richiesto in Esecuzione dev._%_</Translate>
         </p>
-        <CodeBlock language="json" code={`{
+        <CodeBlock language="js" code={`//  -------------------------------------------------
+//      italiano (Italia) (sourceLanguage)
+//       |    code: it-IT
+//       |    missing key: 0
+//       |    processed: 2026-07-27 12:37
+//  -------------------------------------------------
+export default {
   "__lngVersion__": "260216",
   "BasicExample_1nke42v": "Benvenuto in viteTranslate",
   "DynamicExample_1wltsn1": "Ciao %s, come stai?",
   "PlaceholderExample_1dxcv5l": "Nome utente",
-  "PlaceholderExample_1ebkbf3": "Il nome verrà usato nel saluto"
-}`} />
+  "PlaceholderExample_1ebkbf3": "Il nome verrà usato nel saluto",
+};`} />
       </section>
 
       <section id={nuovaLingua.id} className="doc-subsection">
         <h3><Translate>{nuovaLingua.title}</Translate></h3>
 
         <p className="doc-description">
-          <Translate>_%_Ogni lingua è un file JSON dentro localeDir, con lo stesso nome del suo tag_%_</Translate>
+          <Translate>_%_Ogni lingua è un file JS dentro localeDir, con lo stesso nome del suo tag_%_</Translate>
           {" "}
           <a href="https://gist.github.com/typpo/b2b828a35e683b9bf8db91b5404f1bd1#file-bcp47-locales-md" target="_blank" rel="noopener noreferrer">BCP 47</a>
           <Translate>_%_. Il file della lingua di default viene creato e tenuto aggiornato in automatico dal comando di sincronizzazione: non va scritto a mano, solo tradotto se serve._%_</Translate>
@@ -106,46 +112,66 @@ ReactDOM.createRoot(document.getElementById("root")).render(
         <p className="doc-description">
           <Translate>_%_Per aggiungere una nuova lingua crea un file vuoto con il nome del tag scelto, poi rilancia il comando di sincronizzazione: aggiunge in coda tutte le chiavi mancanti con valore null e segnala nel log quali restano da tradurre. Basta sostituire quei null con il testo tradotto._%_</Translate>
         </p>
-        <CodeBlock language="bash" code={`echo '{}' > src/locale/fr-FR.json
+        <CodeBlock language="bash" code={`touch src/locale/fr-FR.js
 npx vitetranslate-prepare-translation-table`} />
 
         <p className="doc-description">
           <Translate>_%_Subito dopo il comando il file contiene già tutte le chiavi trovate nel sorgente, ma non tradotte (valore null): sotto la riga separatrice trovi l'elenco esatto di ciò che manca._%_</Translate>
         </p>
-        <CodeBlock language="json" code={`{
+        <CodeBlock language="js" code={`//  -------------------------------------------------
+//      français
+//       |    code: fr-FR
+//       |    missing key: 4
+//       |    processed: 2026-07-27 12:37
+//  -------------------------------------------------
+export default {
   "__lngVersion__": "260216",
-  "____________________________________________________________________________not translated__": "_____",
+
+  //  ----to be translated------------------------------------------
   "BasicExample_1nke42v": null,
   "DynamicExample_1wltsn1": null,
   "PlaceholderExample_1dxcv5l": null,
-  "PlaceholderExample_1ebkbf3": null
-}`} />
+  "PlaceholderExample_1ebkbf3": null,
+};`} />
 
         <p className="doc-description">
           <Translate>_%_Le stesse chiavi compaiono, nello stesso momento, anche nel file della lingua di default: mai come null lì, ma raggruppate sotto la stessa riga separatrice finché restano da tradurre in almeno un'altra lingua. È un'occasione pratica: puoi copiare quel blocco (testo reale, non null) e incollarlo in un LLM per farlo tradurre, poi incollare la risposta al posto dei null nel file della lingua di destinazione._%_</Translate>
         </p>
-        <CodeBlock language="json" code={`{
+        <CodeBlock language="js" code={`//  -------------------------------------------------
+//      italiano (Italia) (sourceLanguage)
+//       |    code: it-IT
+//       |    missing key: 4
+//       |    processed: 2026-07-27 12:37
+//  -------------------------------------------------
+export default {
   "__lngVersion__": "260216",
-  "____________________________________________________________________________not translated__": "_____",
+
+  //  ----to be translated------------------------------------------
   "BasicExample_1nke42v": "Benvenuto in viteTranslate",
   "DynamicExample_1wltsn1": "Ciao %s, come stai?",
   "PlaceholderExample_1dxcv5l": "Nome utente",
-  "PlaceholderExample_1ebkbf3": "Il nome verrà usato nel saluto"
-}`} />
+  "PlaceholderExample_1ebkbf3": "Il nome verrà usato nel saluto",
+};`} />
 
         <p className="doc-description">
           <Translate>_%_Sostituendo ogni null con il testo tradotto (mantenendo invariati eventuali %s) il file risulta completo, pronto per essere usato come lingua disponibile._%_</Translate>
         </p>
-        <CodeBlock language="json" code={`{
+        <CodeBlock language="js" code={`//  -------------------------------------------------
+//      français
+//       |    code: fr-FR
+//       |    missing key: 0
+//       |    processed: 2026-07-27 12:41
+//  -------------------------------------------------
+export default {
   "__lngVersion__": "260216",
   "BasicExample_1nke42v": "Bienvenue sur viteTranslate",
   "DynamicExample_1wltsn1": "Salut %s, comment ça va ?",
   "PlaceholderExample_1dxcv5l": "Nom d'utilisateur",
-  "PlaceholderExample_1ebkbf3": "Le nom sera utilisé dans la salutation"
-}`} />
+  "PlaceholderExample_1ebkbf3": "Le nom sera utilisé dans la salutation",
+};`} />
 
         <p className="doc-description">
-          <Translate>_%_Ogni file .json trovato in localeDir diventa automaticamente disponibile: useTranslateLanguage() lo elenca e TranslateContainer lo carica pigramente alla richiesta, senza bisogno di registrarlo altrove._%_</Translate>
+          <Translate>_%_Ogni file .js trovato in localeDir diventa automaticamente disponibile: useTranslateLanguage() lo elenca e TranslateContainer lo carica pigramente alla richiesta, senza bisogno di registrarlo altrove._%_</Translate>
         </p>
       </section>
     </section>
