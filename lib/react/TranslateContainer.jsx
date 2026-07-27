@@ -39,7 +39,7 @@ export default function TranslateContainer({ initialLanguage = sourceLanguage, c
 
   // struttura funzione proposeNewLanguage({
   //   lang:'it-IT',
-  //   onStart: () => {},      // a inizio caricamento
+  //   onStart: () => {},      // a inizio caricamento (chiamata solo se `lang` è valida)
   //   onDone: (isOk) => {},   // a fine caricamento isOk - true o false
   //   onError: (error) => {}, // in caso di errore, struttura error
   //  })
@@ -53,7 +53,7 @@ export default function TranslateContainer({ initialLanguage = sourceLanguage, c
       if (onDone) onDone(false);
       return;
     }
-    if (onStart) onStart(true);
+    if (onStart) onStart();
     // Avvia (o riusa) il caricamento e aggancia i callback all'esito reale della Promise.
     ensureLanguage(next).then(
       () => { if (onDone) onDone(true); },

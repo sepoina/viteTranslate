@@ -8,13 +8,32 @@ import StrengthsSection from "./playgroundComponents/StrengthsSection.jsx";
 import snippetList from "./snippets/ZZZ_snippetList.js";
 import installSubsections from "./snippets/installSubsections.js";
 
+// Se si arriva qui da un link su github.com (es. il README del repo), tornare al repo
+// significa solo "torna indietro": niente nuova tab, basta la history del browser.
+const fromGithub = typeof document !== "undefined" && /(^|\.)github\.com$/.test(new URL(document.referrer || "http://x").hostname);
+
 function App() {
+  const handleVersionClick = fromGithub
+    ? (e) => { e.preventDefault(); window.history.back(); }
+    : undefined;
+
   return (
     <>
       <TableOfContents items={snippetList} installItems={installSubsections} />
       <BadgeRotateLanguage />
       <div className="markdown-body playground-container">
-        <h1>viteTranslate <span className="lib-version">v{version}</span></h1>
+        <h1>
+          viteTranslate{" "}
+          <a
+            className="lib-version"
+            href="https://github.com/sepoina/viteTranslate"
+            target={fromGithub ? undefined : "_blank"}
+            rel={fromGithub ? undefined : "noopener noreferrer"}
+            onClick={handleVersionClick}
+          >
+            v{version} ↗
+          </a>
+        </h1>
         <TopLanguageSwitch />
         <p>
           <Translate
