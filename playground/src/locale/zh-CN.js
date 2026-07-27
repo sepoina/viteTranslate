@@ -1,4 +1,10 @@
-{
+//  -------------------------------------------------
+//      中文（中国）
+//       |    code: zh-CN
+//       |    missing key: 0
+//       |    processed: 2026-07-27 11:19
+//  -------------------------------------------------
+export default {
   "__lngVersion__": "260216",
   "App_1bgz4xw": "Babel + Vite 插件，用于从源代码中提取字符串（标记 %s 和组件 <code>&#60;Translate&#62;</code> ），并生成/同步 JSON 翻译表。语言文件被归组在 src 下（而非 public 中，以避免提供可注入的 JSON），并逐个延迟加载：在运行时切换语言只会下载所需的 chunk，而不会用未使用的语言使初始 bundle 变得臃肿。",
   "App_7p1ky4": "演练场",
@@ -50,5 +56,5 @@
   "ZZZ_snippetList_el88o9": "静态翻译",
   "ZZZ_snippetList_fweqm6": "<code>&lt;Translate&gt;</code> 组件包裹用 %s 标记的静态文本，在构建时替换为翻译 id 及其回退值。",
   "ZZZ_snippetList_li8fd0": "动态翻译",
-  "ZZZ_snippetList_pamfe5": "占位符与属性"
-}
+  "ZZZ_snippetList_pamfe5": "占位符与属性",
+};

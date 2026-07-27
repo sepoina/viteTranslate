@@ -1,4 +1,10 @@
-{
+//  -------------------------------------------------
+//      italiano (Italia) (sourceLanguage)
+//       |    code: it-IT
+//       |    missing key: 0
+//       |    processed: 2026-07-27 11:19
+//  -------------------------------------------------
+export default {
   "__lngVersion__": "260216",
   "App_1bgz4xw": "Plugin Babel + Vite per estrarre stringhe dal sorgente (marcatore %s e componente <code>&#60;Translate&#62;</code> ) e generare/sincronizzare le tabelle di traduzione JSON. I file di lingua vengono raggruppati in src (non in public, per evitare di servire JSON iniettabili) e caricati pigramente uno alla volta: il cambio lingua a runtime scarica solo il chunk necessario, senza appesantire il bundle iniziale con le lingue non usate.",
   "App_7p1ky4": "Playground",
@@ -50,5 +56,5 @@
   "ZZZ_snippetList_el88o9": "Traduzione statica",
   "ZZZ_snippetList_fweqm6": "Il componente <code>&lt;Translate&gt;</code> avvolge il testo statico marcato con %s, sostituito in build-time con l'id di traduzione e il relativo fallback.",
   "ZZZ_snippetList_li8fd0": "Traduzione dinamica",
-  "ZZZ_snippetList_pamfe5": "Placeholder e attributi"
-}
+  "ZZZ_snippetList_pamfe5": "Placeholder e attributi",
+};

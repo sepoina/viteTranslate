@@ -1,4 +1,10 @@
-{
+//  -------------------------------------------------
+//      American English
+//       |    code: en-US
+//       |    missing key: 0
+//       |    processed: 2026-07-27 11:19
+//  -------------------------------------------------
+export default {
   "__lngVersion__": "260216",
   "App_1bgz4xw": "Babel + Vite plugin to extract strings from source (marker %s and component <code>&#60;Translate&#62;</code> ) and generate/sync the JSON translation tables. Language files are grouped under src (not in public, to avoid serving injectable JSON) and loaded lazily one at a time: switching language at runtime downloads only the required chunk, without bloating the initial bundle with unused languages.",
   "App_7p1ky4": "Playground",
@@ -50,5 +56,5 @@
   "ZZZ_snippetList_el88o9": "Static translation",
   "ZZZ_snippetList_fweqm6": "The <code>&lt;Translate&gt;</code> component wraps static text marked with %s, replaced at build time with the translation id and its fallback.",
   "ZZZ_snippetList_li8fd0": "Dynamic translation",
-  "ZZZ_snippetList_pamfe5": "Placeholders and attributes"
-}
+  "ZZZ_snippetList_pamfe5": "Placeholders and attributes",
+};

@@ -1,4 +1,4 @@
-import { Translate } from "@sepoina/vitetranslate/react";
+import { Translate, version } from "@sepoina/vitetranslate/react";
 import DocSection from "./playgroundComponents/DocSection.jsx";
 import TableOfContents from "./playgroundComponents/TableOfContents.jsx";
 import BadgeRotateLanguage from "./playgroundComponents/BadgeRotateLanguage.jsx";
@@ -14,7 +14,7 @@ function App() {
       <TableOfContents items={snippetList} installItems={installSubsections} />
       <BadgeRotateLanguage />
       <div className="markdown-body playground-container">
-        <h1>viteTranslate</h1>
+        <h1>viteTranslate <span className="lib-version">v{version}</span></h1>
         <TopLanguageSwitch />
         <p>
           <Translate
