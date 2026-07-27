@@ -11,6 +11,7 @@ No keys to invent. No separate extraction step. No runtime dependencies.
 [![publish](https://img.shields.io/github/actions/workflow/status/sepoina/viteTranslate/publish.yml?logo=githubactions&logoColor=white&label=publish)](https://github.com/sepoina/viteTranslate/actions/workflows/publish.yml)
 [![provenance](https://img.shields.io/badge/npm-provenance-2b7489?logo=npm&logoColor=white)](https://www.npmjs.com/package/@sepoina/vitetranslate#provenance)
 [![Vite](https://img.shields.io/badge/Vite-5%20|%206%20|%207%20|%208-646CFF?logo=vite&logoColor=white)](https://vite.dev)
+[![Donate](https://img.shields.io/badge/support-PayPal-00457C?logo=paypal&logoColor=white)](https://www.paypal.com/paypalme/giancarloghigi)
 
 [**Live playground**](https://sepoina.github.io/viteTranslate/) · [Quick start](#-quick-start) · [API](#-api) · [How it works](#-how-it-works)
 
@@ -577,6 +578,10 @@ Questions, ideas, or feedback? Use
 Found an actual bug? Open an
 [Issue](https://github.com/sepoina/viteTranslate/issues) instead, so it stays tracked
 separately from open-ended conversation.
+
+If viteTranslate saved you some time, you can
+[buy me a coffee](https://www.paypal.com/paypalme/giancarloghigi) — entirely optional, never
+expected.
 
 ---
 
