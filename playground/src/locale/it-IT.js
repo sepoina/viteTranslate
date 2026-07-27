@@ -2,10 +2,10 @@
 //      italiano (Italia) (sourceLanguage)
 //       |    code: it-IT
 //       |    missing key: 0
-//       |    processed: 2026-07-27 15:07
+//       |    processed: 2026-07-27 15:50
 //  -------------------------------------------------
 export default {
-  "__builder__": {"v":260727,"incomplete":false,"languageName":"italiano (Italia)"},
+  "__builder__": {"v":260727,"languageName":"italiano (Italia)"},
   "App_1gzfd4g": "Plugin Vite per estrarre stringhe dal sorgente (marcatore %s e componente <code>&#60;Translate&#62;</code> ) e generare/sincronizzare le tabelle di traduzione JS. I file di lingua vengono raggruppati in src (non in public, per evitare di servire moduli iniettabili) e caricati pigramente uno alla volta: il cambio lingua a runtime scarica solo il chunk necessario, senza appesantire il bundle iniziale con le lingue non usate.",
   "App_7p1ky4": "Playground",
   "App-playgroundString-from-js_5vlliu": "📚",

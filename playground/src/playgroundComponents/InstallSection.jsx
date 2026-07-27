@@ -92,7 +92,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
 //       |    processed: 2026-07-27 12:37
 //  -------------------------------------------------
 export default {
-  "__builder__": { "v": 260727, "incomplete": false, "languageName": "italiano (Italia)" },
+  "__builder__": { "v": 260727, "languageName": "italiano (Italia)" },
   "BasicExample_1nke42v": "Benvenuto in viteTranslate",
   "DynamicExample_1wltsn1": "Ciao %s, come stai?",
   "PlaceholderExample_1dxcv5l": "Nome utente",
@@ -163,7 +163,7 @@ export default {
 //       |    processed: 2026-07-27 12:41
 //  -------------------------------------------------
 export default {
-  "__builder__": { "v": 260727, "incomplete": false, "languageName": "français" },
+  "__builder__": { "v": 260727, "languageName": "français" },
   "BasicExample_1nke42v": "Bienvenue sur viteTranslate",
   "DynamicExample_1wltsn1": "Salut %s, comment ça va ?",
   "PlaceholderExample_1dxcv5l": "Nom d'utilisateur",

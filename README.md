@@ -374,7 +374,9 @@ A header comment (language name, tag, count of keys still missing, last-sync tim
 regenerated on every sync — don't hand-edit it, it's overwritten each time. The first key,
 `__builder__`, is the same kind of bookkeeping in data form (schema version, whether the
 file still has untranslated keys, and the autonym exposed as `languageName` by
-`useTranslateLanguage()`) — also regenerated on every sync, never edit it by hand:
+`useTranslateLanguage()`) — also regenerated on every sync, never edit it by hand.
+`incomplete` is only written when `true`: a complete file omits it (it's the implicit
+default when the key is absent):
 
 ```js
 //  -------------------------------------------------
@@ -384,7 +386,7 @@ file still has untranslated keys, and the autonym exposed as `languageName` by
 //       |    processed: 2026-07-27 12:37
 //  -------------------------------------------------
 export default {
-  "__builder__": { "v": 260727, "incomplete": false, "languageName": "italiano (Italia)" },
+  "__builder__": { "v": 260727, "languageName": "italiano (Italia)" },
   "BasicExample_1nke42v": "Welcome to viteTranslate",
   "DynamicExample_1wltsn1": "Hello %s, how are you?",
 };

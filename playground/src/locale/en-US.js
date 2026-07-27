@@ -2,10 +2,10 @@
 //      American English
 //       |    code: en-US
 //       |    missing key: 0
-//       |    processed: 2026-07-27 15:06
+//       |    processed: 2026-07-27 15:50
 //  -------------------------------------------------
 export default {
-  "__builder__": {"v":260727,"incomplete":false,"languageName":"American English"},
+  "__builder__": {"v":260727,"languageName":"American English"},
   "App_1gzfd4g": "Vite plugin that extracts strings from source (the %s marker and the <code>&#60;Translate&#62;</code> component) and generates/syncs the JS translation tables. Language files are grouped under src (not in public, to avoid serving injectable modules) and lazy-loaded one at a time: switching language at runtime downloads only the needed chunk, without bloating the initial bundle with unused languages.",
   "App_7p1ky4": "Playground",
   "App-playgroundString-from-js_5vlliu": "🗿",

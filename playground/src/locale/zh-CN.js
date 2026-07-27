@@ -2,10 +2,10 @@
 //      中文（中国）
 //       |    code: zh-CN
 //       |    missing key: 0
-//       |    processed: 2026-07-27 15:07
+//       |    processed: 2026-07-27 15:50
 //  -------------------------------------------------
 export default {
-  "__builder__": {"v":260727,"incomplete":false,"languageName":"中文（中国）"},
+  "__builder__": {"v":260727,"languageName":"中文（中国）"},
   "App_1gzfd4g": "用于从源码中提取字符串（%s 标记和 <code>&#60;Translate&#62;</code> 组件）并生成/同步 JS 翻译表的 Vite 插件。语言文件集中放在 src 下（而非 public，以避免提供可被注入的模块），并按需逐个懒加载：运行时切换语言只会下载所需的 chunk，不会让初始包因未使用的语言而变大。",
   "App_7p1ky4": "演练场",
   "App-playgroundString-from-js_5vlliu": "🐅",
