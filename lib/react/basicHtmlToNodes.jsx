@@ -1,4 +1,5 @@
 import React from "react";
+import { interpolate } from "./interpolate.js";
 // --- HELPERS ---
 
 const ALLOWED_TAGS = new Set(["br", "b", "hr", "strong", "i", "em", "u", "small", "code", "wbr"]);
@@ -15,13 +16,6 @@ const HAS_HTML_RE = /<\/?(br|hr|b|strong|i|em|u|small|code|wbr)\b|&[a-z]+;|&#\d+
 const CACHE = new Map();
 const CACHE_MAX = 256;
 let template = null;
-
-function interpolate(text, args) {
-  if (!args?.length) return text;
-  const list = [].concat(args);
-  let i = 0;
-  return text.replace(/%s/g, () => String(list[i++] ?? ""));
-}
 
 // Appiattisce i figli direttamente nell'array di destinazione: un tag non permesso sparisce
 // e i suoi figli diventano fratelli, senza array annidati da ri-appiattire dopo.
@@ -87,15 +81,19 @@ function parseHtml(html) {
  * lato server, restituisce la stringa di partenza senza convertirla.
  *
  * @param {string} text - testo, eventualmente con markup e segnaposto `%s`
- * @param {any|any[]} [args] - valori che sostituiscono i `%s`, in ordine
+ * @param {any|any[]} [args] - valori che sostituiscono i `%s`, in ordine. Uno scalare vale
+ *   come lista di un elemento; un segnaposto rimasto senza valore diventa `[?]` (vedi
+ *   `interpolate`).
  * @returns {React.ReactNode} stringa, singolo elemento o frammento
  *
  * @example
  * basicHtmlToNodes("Ciao <b>%s</b>", "Mario")   // -> ["Ciao ", <b>Mario</b>]
+ * basicHtmlToNodes("hai %s messaggi", 0)        // -> "hai 0 messaggi"
+ * basicHtmlToNodes("hai %s messaggi")           // -> "hai [?] messaggi"
  * basicHtmlToNodes("nessun markup")             // -> "nessun markup" (stessa stringa)
  */
 export function basicHtmlToNodes(text, args) {
-  const html = args?.length ? interpolate(text, args) : text;
+  const html = interpolate(text, args);
 
   if (!HAS_HTML_RE.test(html)) return html; // text node puro: mai in cache
 

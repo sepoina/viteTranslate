@@ -284,6 +284,7 @@ It is the function `<Translate>` uses internally, exported because it is useful 
 import { basicHtmlToNodes } from "@sepoina/vitetranslate/react";
 
 basicHtmlToNodes("Hello <b>%s</b>", "Mario");   // ["Hello ", <b>Mario</b>]
+basicHtmlToNodes("you have %s messages");       // "you have [?] messages"
 basicHtmlToNodes("no markup here");             // "no markup here" (same string back)
 ```
 
@@ -292,6 +293,11 @@ basicHtmlToNodes("no markup here");             // "no markup here" (same string
 | `text` | Text, optionally with markup and `%s` placeholders |
 | `args` | Value or array of values replacing the `%s`, in order — optional |
 | *returns* | A string, a single element, or a fragment |
+
+A `%s` left without a value renders as `[?]` — whether no argument was passed at all, fewer
+were passed than there are placeholders, or the value in that position is `null`/`undefined`.
+`0` and the empty string are values like any other and are interpolated normally. The same
+rule applies to `ts()` from `useTranslateToString`.
 
 Only the formatting tags `<b> <strong> <i> <em> <u> <small> <code> <br> <hr> <wbr>` and
 HTML entities are recognised. Any other tag is dropped while keeping its content
