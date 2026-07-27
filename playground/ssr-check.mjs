@@ -4,9 +4,8 @@
 import { renderToString } from "react-dom/server";
 import { writeFileSync, unlinkSync } from "node:fs";
 
-const ROOT = "/run/media/aldo/4TB_Dati/L/Web/Dev/React/viteTranslate2";
-const { compileLanguageModule } = await import(`${ROOT}/lib/dev/compile/compileTable.js`);
-const { resolveEntry, resolveEntryText } = await import(`${ROOT}/lib/react/resolveEntry.js`);
+const { compileLanguageModule } = await import("../lib/dev/compile/compileTable.js");
+const { resolveEntry, resolveEntryText } = await import("../lib/react/resolveEntry.js");
 const { jsx } = await import("react/jsx-runtime");
 
 console.log("document esiste in questo processo?", typeof globalThis.document);

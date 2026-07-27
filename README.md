@@ -78,7 +78,7 @@ That is the whole authoring workflow. Wrap a string in `_%_..._%_`, render it th
 | | |
 | --- | --- |
 | ⚖️ **Under 5 kB gzip in your bundle** | The runtime that reaches the browser (`<Translate>`, `TranslateContainer`, `useTranslateLanguage`) adds under 5 kB gzip — measured by diffing a production build with and without the library. Translation payloads scale with your content, not with the library. |
-| 🪶 **Zero runtime dependencies** | The shipped code imports nothing: it looks up an id already computed at build time. `@babel/core`, Vite and React are *peer* dependencies — they run the plugin and the CLI on your machine, never enter the bundle, and are already in your `node_modules`. |
+| 🪶 **Zero dependencies** | The package declares no `dependencies` at all, and the shipped code imports nothing: it looks up an id already computed at build time. `@babel/core`, Vite and React are *peer* dependencies — they run the plugin and the CLI on your machine, never enter the bundle, and are already in your `node_modules`. |
 | 📍 **Mark text in place** | No keys to invent or maintain. The marker is extracted at build time; the component resolves it against the current language table at runtime. |
 | 📄 **Language files are auto-generated** | The JS tables in `localeDir` are created and updated by the sync command from the markers found in your source. |
 | 📦 **Lazy language loading** | Each language is a separate chunk, dynamically `import()`-ed only when selected. The initial bundle never carries languages you don't use. |
@@ -100,6 +100,10 @@ That is the whole authoring workflow. Wrap a string in `_%_..._%_`, render it th
 | `@babel/core` | `^7` |
 
 These are peer dependencies — install them if your project doesn't already have them.
+
+`.js`, `.jsx`, `.ts` and `.tsx` sources are all scanned and extracted from. TypeScript
+declarations ship with the package: plugin options, component props and hook results are
+typed, and `virtual:vitetranslate/languages` is declared for you.
 
 ---
 
@@ -285,7 +289,9 @@ ready — no blank frame mid-switch.
 ### `basicHtmlToNodes()`
 
 Turns a string containing basic HTML into React nodes, without `dangerouslySetInnerHTML`.
-It is the function `<Translate>` uses internally, exported because it is useful on its own:
+It used to be what `<Translate>` ran on every render; since translation tables are compiled
+at build time it is no longer on that path — `<Translate>` only falls back to it in
+development, for a key not yet synced. It stays exported because it is useful on its own:
 
 ```jsx
 import { basicHtmlToNodes } from "@sepoina/vitetranslate/react";
@@ -529,6 +535,8 @@ vitetranslate(options)
 **1. Extraction (Babel).** A Babel plugin — used both by the Vite transform and the CLI —
 finds strings wrapped in `_%_..._%_`, computes a stable id (`<filename>_<hash>`), and
 rewrites them to a compiled marker: `_<_id_/_fallback_>_` in dev, `_<_id_>_` in build.
+It only *parses* JSX and TypeScript, it never transforms them: your React plugin stays the
+only thing that compiles JSX, so `jsxDEV`, `jsxImportSource` and Fast Refresh are untouched.
 
 **2. Resolution (runtime).** `<Translate>` and `useTranslateToString()` look up that id in the
 current language table, then fall back through the source-language table, the embedded
@@ -567,6 +575,13 @@ lib/
 > [!WARNING]
 > - **Ids are derived from the file's basename only**, not its full path — two files sharing
 >   a basename (e.g. two `index.jsx` in different folders) share the same id namespace.
+>   Within one namespace the id is a 32-bit hash of the text: a collision between two
+>   different strings is unlikely but possible, and it is reported as a build warning
+>   naming both texts.
+> - **Markers must be whole strings.** `"_%_text_%_"`, `` `_%_text_%_` `` and a JSX child on
+>   its own line are extracted; a marker embedded in a longer string or mixed with other JSX
+>   text is not. A template literal with `${...}` inside the marker is not either — use a
+>   `%s` placeholder and pass the value as an argument.
 > - **The CLI expects a plain-object default export** in `vite.config.js` (not a
 >   function-based config) and only looks for `vite.config.js`, not `.ts` / `.mjs`.
 > - **`basicHtmlToNodes()` still needs the DOM** if you call it directly. `<Translate>` no

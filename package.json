@@ -49,35 +49,30 @@
       "require": "./lib/dist/vitetranslate.cjs"
     },
     "./react": {
-      "types": "./lib/index.d.ts",
+      "types": "./lib/react.d.ts",
       "import": "./lib/dist/react.es.js",
       "require": "./lib/dist/react.cjs"
-    }
+    },
+    "./package.json": "./package.json"
   },
   "scripts": {
     "build": "rolldown -c",
-    "test": "node test/compileTable.test.mjs",
+    "test": "node test/babelTranslate.test.mjs && node test/compileTable.test.mjs",
     "test:ssr": "node playground/ssr-check.mjs",
-    "dump": "node test/dumpCompiled.mjs",
+    "dump": "node test/dumpCompiled.test.mjs",
     "updateNpm": "npm version patch && git push --follow-tags",
     "prepublishOnly": "npm run build",
     "playground": "npm --prefix playground run dev",
     "playground:build": "npm --prefix playground run build",
-    "playground:previewpages": "npm run build && npm --prefix playground run preview -- --base=/viteTranslate/",
-    "demo:vite7": "npm --prefix demo/vite7 run dev",
-    "demo:vite7:build": "npm --prefix demo/vite7 run build",
-    "demo:vite8": "npm --prefix demo/vite8 run dev",
-    "demo:vite8:build": "npm --prefix demo/vite8 run build"
+    "playground:previewpages": "npm run build && npm --prefix playground run preview -- --base=/viteTranslate/"
   },
   "files": [
     "lib"
   ],
   "devDependencies": {
     "@babel/core": "^7.26.10",
+    "@babel/preset-react": "^7.26.3",
     "rolldown": "^1.0.0-rc.9"
-  },
-  "dependencies": {
-    "@babel/preset-react": "^7.26.3"
   },
   "peerDependencies": {
     "@babel/core": "^7.0.0",

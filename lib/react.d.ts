@@ -1,0 +1,98 @@
+/// <reference path="./virtual.d.ts" />
+
+import type { FC, ReactNode } from 'react';
+
+/**
+ * Valori che sostituiscono i `%s`, in ordine. Uno scalare vale come lista di un elemento;
+ * un segnaposto rimasto senza valore diventa `[?]`. Un argomento può essere un nodo React.
+ */
+export type TranslateArgs = unknown | readonly unknown[];
+
+export interface TranslateProps {
+  /**
+   * Il testo marcato, o la forma compatta `[testo, ...argomenti]`.
+   * Alternativo a `children`: usarli entrambi è un errore.
+   */
+  t?: string | readonly [string, ...unknown[]];
+  /** Argomenti per i `%s`. Non ammesso quando `t` è già nella forma `[testo, ...args]`. */
+  a?: TranslateArgs;
+  /** Il testo marcato, come figlio. Alternativo a `t`. */
+  children?: ReactNode;
+}
+
+/**
+ * Rende una stringa marcata con `_%_..._%_`, risolvendola nella lingua corrente.
+ *
+ * ```tsx
+ * <Translate>_%_Benvenuto_%_</Translate>
+ * <Translate t={['_%_Ciao %s_%_', nome]} />
+ * <Translate t="_%_Ciao %s_%_" a={[nome]} />
+ * ```
+ */
+export declare const Translate: FC<TranslateProps>;
+
+export interface TranslateContainerProps {
+  /** Tag BCP 47 iniziale. Default: la `sourceLanguage` configurata nel plugin. */
+  initialLanguage?: string;
+  /** Mostrato via Suspense mentre una lingua non precaricata si carica. Default: `null`. */
+  fallback?: ReactNode;
+  /** Esposto da `useTranslateLanguage()`. */
+  debug?: boolean;
+  children?: ReactNode;
+}
+
+/** Provider della lingua corrente, con il proprio boundary Suspense. Va sopra l'albero tradotto. */
+export declare const TranslateContainer: FC<TranslateContainerProps>;
+
+export interface ProposeNewLanguageOptions {
+  /** Tag BCP 47 della lingua richiesta. */
+  lang: string;
+  /** Chiamata a inizio caricamento, solo se `lang` è una lingua esistente. */
+  onStart?: () => void;
+  /** Chiamata a fine caricamento con l'esito reale. */
+  onDone?: (isOk: boolean) => void;
+  /** Chiamata al posto del log di default in caso di errore. */
+  onError?: (info: { error: Error; inexistID: string }) => void;
+}
+
+export interface TranslateLanguageInfo {
+  /** Tag BCP 47. */
+  tag: string;
+  /** Nome della lingua nella lingua stessa (autonimo), calcolato a sync-time. */
+  languageName: string;
+}
+
+export interface UseTranslateLanguageResult {
+  /** Lingua corrente; `undefined` fuori da `<TranslateContainer>`. */
+  id: string | undefined;
+  debug: boolean;
+  /** Lingue trovate in `localeDir`, lingua sorgente per prima. */
+  languages: TranslateLanguageInfo[];
+  sourceLanguage: string;
+  /** Cambio lingua a runtime. Fuori da `<TranslateContainer>` è inerte. */
+  proposeNewLanguage: (options: ProposeNewLanguageOptions) => void;
+}
+
+/**
+ * Tutto ciò che serve a un selettore di lingua. L'oggetto restituito è referenzialmente
+ * stabile, quindi si può mettere in una lista di dipendenze.
+ */
+export declare function useTranslateLanguage(): UseTranslateLanguageResult;
+
+/**
+ * Restituisce `ts(t, args?)`, che risolve una stringa marcata in una **stringa** — per le
+ * prop DOM che non accettano nodi (`placeholder`, `aria-label`, `title`). Un'eventuale voce
+ * con markup viene appiattita a solo testo.
+ */
+export declare function useTranslateToString(): (t: string, a?: TranslateArgs) => string;
+
+/**
+ * Converte una stringa con HTML elementare in nodi React, senza `dangerouslySetInnerHTML`.
+ * Riconosce solo `<b> <strong> <i> <em> <u> <small> <code> <br> <hr> <wbr>` e le entità;
+ * ogni altro tag viene sciolto conservandone il contenuto e nessun attributo sopravvive.
+ * Richiede il DOM: senza `document` restituisce la stringa di partenza.
+ */
+export declare function basicHtmlToNodes(text: string, args?: TranslateArgs): ReactNode;
+
+/** Versione del pacchetto installato, inlineata a build time. */
+export declare const version: string;

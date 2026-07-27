@@ -1,5 +1,4 @@
-const ROOT = "/run/media/aldo/4TB_Dati/L/Web/Dev/React/viteTranslate2";
-const { compileLanguageModule } = await import(`${ROOT}/lib/dev/compile/compileTable.js`);
+import { compileLanguageModule } from "../lib/dev/compile/compileTable.js";
 
 // Stub del jsx-runtime: rappresenta gli elementi come oggetti ispezionabili, così il test
 // verifica la struttura prodotta senza dipendere da React.
@@ -124,9 +123,14 @@ eq("entita in testo puro resta stringa", "string", typeof L.entitaSoloTesto);
 eq("< letterale resta stringa", "string", typeof L.minoreLetterale);
 
 // ------------------------------------------------------ argomento come elemento React
-console.log("\n== argomento non-stringa dentro il markup ==");
+console.log("\n== argomento non-stringa ==");
 const linkFinto = { type: "a", children: "profilo" };
-eq("elemento React come argomento", "Ciao <b><a>profilo</a></b> come stai?", show(T.markupArgs([linkFinto])));
+eq("elemento React nel markup", "Ciao <b><a>profilo</a></b> come stai?", show(T.markupArgs([linkFinto])));
+// Regressione: in una voce SENZA markup i pezzi venivano concatenati con `+`, quindi un
+// nodo React diventava "[object Object]" — e in silenzio, e solo in alcune lingue.
+eq("elemento React nel testo semplice", "Ciao <a>profilo</a>, come stai?", show(T.testoArgs([linkFinto])));
+eq("testo semplice + primitivo resta stringa", "string", typeof T.testoArgs(["aldo"]));
+eq("testo semplice + numero resta stringa", "string", typeof T.testoArgs([7]));
 
 // --------------------------------------------------------------- forma del generato
 console.log("\n== forma del modulo generato ==");

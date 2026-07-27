@@ -4,6 +4,7 @@ import { useTranslateLanguage, Translate } from "@sepoina/vitetranslate/react";
 export default function LanguageSwitchExample() {
   const { id, debug, languages, proposeNewLanguage } = useTranslateLanguage();
   const [loading, setLoading] = useState(false);
+  const actual = loading ? "…" : `id: ${id ?? "—"} // debug: ${String(debug)}`;
 
   const switchTo = (tag) => {
     proposeNewLanguage({
@@ -16,24 +17,16 @@ export default function LanguageSwitchExample() {
   return (
     <div>
       <p className="lang-switch-status">
-        <Translate t="_%_<b>Scegli la tua lingua </b>_%_"/>
-        {loading ? "…" : `(id: ${id ?? "—"} · debug: ${String(debug)})`}
+        <Translate t="_%_<b>Scegli la tua lingua </b> (%s)_%_" a={actual} />
       </p>
       <div className="lang-switch-group" role="group">
-        {languages.map(({ tag, languageName }) => (
-          <button
-            key={tag}
-            type="button"
-            className="lang-switch-chip"
-            disabled={id === tag}
-            onClick={() => switchTo(tag)}
-          >
-            {languageName}
-          </button>
+        {languages.map(entry => (
+          <button key={entry.tag} type="button" className="lang-switch-chip"
+            disabled={id === entry.tag}
+            onClick={() => switchTo(entry.tag)}
+          >{entry.languageName}</button>
         ))}
       </div>
-      {/* readout tecnico (id/debug dall'hook), non testo utente: niente marcatore di traduzione */}
-
     </div>
   );
 }
