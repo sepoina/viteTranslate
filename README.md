@@ -219,7 +219,7 @@ function LanguageSwitcher() {
 
 | Field | Type | Description |
 | --- | --- | --- |
-| `id` | `string \| undefined` | Current language tag (BCP 47); `undefined` outside `TranslateContainer` |
+| `id` | `string \| undefined` | Current language tag ([BCP 47](doc/bcp47.md)); `undefined` outside `TranslateContainer` |
 | `tags` | `string[]` | Languages found in `localeDir`, source language first |
 | `sourceLanguage` | `string` | Source language tag, the one the strings are written in |
 | `debug` | `boolean` | The `debug` prop passed to `TranslateContainer` |
@@ -237,7 +237,7 @@ development, since that is the only thing that cannot work without a container.
 
 | Prop | Type | Default | Description |
 | --- | --- | --- | --- |
-| `initialLanguage` | `string` | `sourceLanguage` from the plugin | Initial language tag to load (BCP 47). Preloaded languages render synchronously; otherwise the container suspends until the chunk is ready — never the wrong language |
+| `initialLanguage` | `string` | `sourceLanguage` from the plugin | Initial language tag to load ([BCP 47](doc/bcp47.md)). Preloaded languages render synchronously; otherwise the container suspends until the chunk is ready — never the wrong language |
 | `fallback` | `node` | `null` | Shown via `Suspense` while a non-preloaded initial language loads. Chunks are local, so the default `null` is a near-imperceptible empty frame |
 | `debug` | `boolean` | `false` | Exposed by `useTranslateLanguage()` |
 | `children` | `node` | — | App tree that receives the translation context |
@@ -405,7 +405,7 @@ vitetranslate(options)
 | Option | Type | Default | Description |
 | --- | --- | --- | --- |
 | `localeDir` | `string` | **required** | Folder with the language JS files, relative to `baseDir` |
-| `sourceLanguage` | `string` | **required** | BCP 47 tag of the source language |
+| `sourceLanguage` | `string` | **required** | [BCP 47](doc/bcp47.md) tag of the source language |
 | `preloadedLanguages` | `string[]` | `[]` | Extra languages bundled eagerly for an instant, non-suspending first paint (see [Preloading](#-preloading-suspense-and-the-initial-flash)). `sourceLanguage` is always preloaded regardless |
 | `baseDir` | `string` | `process.cwd()` | Project root used to resolve `localeDir` / `srcDir` |
 | `srcDir` | `string` | `"src"` | Source folder scanned by the CLI |
