@@ -5,20 +5,15 @@
 **Extract translatable strings straight from your source.**<br>
 No keys to invent. No separate extraction step. No runtime dependencies.
 
-<table align="center" width="60%">
-<tr><td align="center">
-
 [![npm version](https://img.shields.io/npm/v/@sepoina/vitetranslate?logo=npm&logoColor=white&label=npm&color=CB3837)](https://www.npmjs.com/package/@sepoina/vitetranslate)
 [![npm downloads](https://img.shields.io/npm/dm/@sepoina/vitetranslate?logo=npm&logoColor=white&label=downloads&color=CB3837)](https://www.npmjs.com/package/@sepoina/vitetranslate)
 [![runtime size](https://img.shields.io/badge/runtime-%3C%205%20kB%20gzip-4c1)](#-why-vitetranslate)
 [![publish](https://img.shields.io/github/actions/workflow/status/sepoina/viteTranslate/publish.yml?logo=githubactions&logoColor=white&label=publish)](https://github.com/sepoina/viteTranslate/actions/workflows/publish.yml)
 [![provenance](https://img.shields.io/badge/npm-provenance-2b7489?logo=npm&logoColor=white)](https://www.npmjs.com/package/@sepoina/vitetranslate#provenance)
 [![Vite](https://img.shields.io/badge/Vite-5%20|%206%20|%207%20|%208-646CFF?logo=vite&logoColor=white)](https://vite.dev)
+<br>
 [![Donate](https://img.shields.io/badge/support-PayPal-00457C?logo=paypal&logoColor=white)](https://www.paypal.com/paypalme/giancarloghigi)
 [![Buy Me a Coffee](https://img.shields.io/badge/buy%20me%20a-coffee-FFDD00?logo=buymeacoffee&logoColor=black)](https://www.buymeacoffee.com/giancarlogy)
-
-</td></tr>
-</table>
 
 [**Live playground**](https://sepoina.github.io/viteTranslate/) · [Quick start](#-quick-start) · [API](#-api) · [How it works](#-how-it-works)
 
