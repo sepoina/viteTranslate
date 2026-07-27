@@ -202,7 +202,14 @@ export default function Welcome() {
 
 // small inline HTML subset
 <Translate t={"_%_<strong>Bold</strong> and <i>italic</i> text_%_"} />
+
+// a placeholder can be filled with a React element, markup included
+<Translate t={["_%_Signed in as <b>%s</b>_%_", <Link to="/me">{username}</Link>]} />
 ```
+
+Since translation tables are compiled at build time, a `%s` inside markup is a real JSX child,
+not a piece of string. So an argument can be any React node, and it is **never** interpreted as
+HTML — React escapes it like any other child. A `%s` left without a value renders as `[?]`.
 
 ### `useTranslateToString()`
 

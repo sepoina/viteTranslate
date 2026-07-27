@@ -1,8 +1,8 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React from "react";
-import { TranslateContext } from "./TranslateContext";
+import { TranslateContext } from "./TranslateContext.js";
 import { sourceLanguage } from "virtual:vitetranslate/languages";
-import { readLanguage, ensureLanguage, isKnownLanguage } from "./languageResource";
+import { readLanguage, ensureLanguage, isKnownLanguage } from "./languageResource.js";
 
 /**
  * Componente interno che vive DENTRO il boundary Suspense: legge la tabella della lingua
