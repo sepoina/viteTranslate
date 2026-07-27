@@ -394,26 +394,73 @@ export default {
 
 ### Adding a language
 
+Create an empty file named after the new tag, then re-run the sync command:
+
 ```bash
 touch src/locale/fr-FR.js
 npx vitetranslate-prepare-translation-table
 ```
 
-Every key found in source is filled in with `null`, and untranslated keys are moved below a
-comment separator so it's obvious what's left:
+Right after the command, the file already has every key found in source, just not translated
+yet (`null`) — the separator line marks exactly what's missing:
 
 ```js
+//  -------------------------------------------------
+//      français
+//       |    code: fr-FR
+//       |    missing key: 2
+//       |    processed: 2026-07-27 12:37
+//  -------------------------------------------------
 export default {
   "__builder__": { "v": 260727, "incomplete": true, "languageName": "français" },
-  "BasicExample_1nke42v": "Welcome to viteTranslate",
 
   //  ----to be translated------------------------------------------
+  "BasicExample_1nke42v": null,
   "DynamicExample_1wltsn1": null,
 };
 ```
 
-Replace each `null` with the translated text — keeping any `%s` placeholders intact — and
-the file is complete.
+The same keys show up, at the same time, in the source language file too — never as `null`
+there, but grouped under that same separator line for as long as they're missing in at least
+one other language. That's a handy shortcut: copy that block (real text, not `null`) into an
+LLM to get it translated, then paste the answer over the `null`s in the new file:
+
+```js
+//  -------------------------------------------------
+//      italiano (Italia) (sourceLanguage)
+//       |    code: it-IT
+//       |    missing key: 2
+//       |    processed: 2026-07-27 12:37
+//  -------------------------------------------------
+export default {
+  "__builder__": { "v": 260727, "incomplete": true, "languageName": "italiano (Italia)" },
+
+  //  ----to be translated------------------------------------------
+  "BasicExample_1nke42v": "Welcome to viteTranslate",
+  "DynamicExample_1wltsn1": "Hello %s, how are you?",
+};
+```
+
+Replace each `null` with the translated text — keeping any `%s` placeholders intact — and the
+file is complete:
+
+```js
+//  -------------------------------------------------
+//      français
+//       |    code: fr-FR
+//       |    missing key: 0
+//       |    processed: 2026-07-27 12:41
+//  -------------------------------------------------
+export default {
+  "__builder__": { "v": 260727, "languageName": "français" },
+  "BasicExample_1nke42v": "Welcome to viteTranslate",
+  "DynamicExample_1wltsn1": "Hello %s, how are you?",
+};
+```
+
+No further registration needed: every `.js` file found in `localeDir` becomes automatically
+available — `useTranslateLanguage()` lists it and `TranslateContainer` loads it lazily on
+request.
 
 ---
 
