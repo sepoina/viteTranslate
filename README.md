@@ -63,6 +63,7 @@ That is the whole authoring workflow. Wrap a string in `_%_..._%_`, render it th
 - [🔬 How it works](#-how-it-works)
 - [⚠️ Known limitations](#️-known-limitations)
 - [🎮 Playground](#-playground)
+- [💬 Support](#-support)
 - [🔐 Provenance](#-provenance)
 - [📄 License](#-license)
 
@@ -565,6 +566,17 @@ A runnable example lives in [`playground/`](playground) and is deployed at
 npm run playground         # vite dev
 npm run playground:build   # vite build
 ```
+
+---
+
+## 💬 Support
+
+Questions, ideas, or feedback? Use
+[GitHub Discussions](https://github.com/sepoina/viteTranslate/discussions).
+
+Found an actual bug? Open an
+[Issue](https://github.com/sepoina/viteTranslate/issues) instead, so it stays tracked
+separately from open-ended conversation.
 
 ---
 

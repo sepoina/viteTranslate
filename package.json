@@ -4,7 +4,7 @@
   "description": "Extract translatable strings straight from your JSX — a Vite plugin that auto-generates and syncs JS translation tables, with zero runtime dependencies.",
   "author": {
     "name": "Giancarlo Ghigi",
-    "email": "ripensamento@gmail.com"
+    "email": "giancarlo.ghigi@gmail.com"
   },
   "keywords": [
     "react",
