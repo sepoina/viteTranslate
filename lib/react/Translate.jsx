@@ -1,6 +1,7 @@
-import React, { useContext } from "react";
+import { useContext } from "react";
 import { TranslateContext } from "./TranslateContext";
-import { basicHtmlToNodes } from "./basicHtmlToNodes.jsx";
+import { interpolate } from "./interpolate.js";
+import { resolveEntry } from "./resolveEntry.js";
 import { parseCompiledMarker } from "./parseCompiledMarker";
 // Tabella della lingua sorgente, importata staticamente dal plugin: fallback universale
 // sempre disponibile (anche prima che il context abbia caricato una lingua, e in produzione
@@ -45,8 +46,7 @@ export default function Translate({ "data-translate": dataTranslate = false, t =
     //
     // Traduzione via data-translate (iniettato da vitetranslate)
     if (dataTranslate) {
-      const resolved = lang?.table?.[dataTranslate] ?? sourceTable?.[dataTranslate] ?? source;
-      return basicHtmlToNodes(resolved, a);
+      return resolveEntry(lang?.table, sourceTable, dataTranslate, a, source);
     }
     //
     // formato t=[text, arg1, arg2, ...]
@@ -65,17 +65,17 @@ export default function Translate({ "data-translate": dataTranslate = false, t =
     //
     // dovrebbe essere testo ora
     if (!(typeof text === "string" || text instanceof String)) throw new Error(`Translate: "t" o "children" devono essere stringhe non ${typeof text}`);
-    const hasReactElements = Array.isArray(args) ? args.some(React.isValidElement) : React.isValidElement(args);
-    if (hasReactElements) throw new Error("Non sono accettati subelementi html nel translate");
+    // Un argomento può ora essere un elemento React: nella tabella compilata i segnaposto
+    // sono figli JSX, non pezzi di stringa, quindi `<Translate t={["_%_ciao <b>%s</b>_%_", <Link/>]} />`
+    // produce l'elemento dentro il <b>. Finché l'interpolazione era testuale non poteva
+    // funzionare, ed era per questo che veniva rifiutato.
     //
     // Ora la stringa dovrebbe essere frutto di vitetranslate, con sintassi _<_codice_/_fallback_>_
     if (text?.startsWith("_<_") && text.endsWith("_>_")) {
       const { key, fallback } = parseCompiledMarker(text);
       // Ordine di fallback: lingua attiva -> lingua sorgente (sourceTable, sempre
       // importata) -> fallback embeddato nel marcatore (solo dev) -> chiave grezza.
-      // In produzione il fallback embeddato è assente, ma sourceTable garantisce
-      // comunque testo leggibile; la chiave grezza resta l'ultima rete di sicurezza.
-      return basicHtmlToNodes(lang?.table?.[key] ?? sourceTable?.[key] ?? fallback ?? key, args);
+      return resolveEntry(lang?.table, sourceTable, key, args, fallback);
     }
     //
     // Stringa non ancora formattata per la traduzione (marcatore _%_..._%_
@@ -86,11 +86,13 @@ export default function Translate({ "data-translate": dataTranslate = false, t =
     if (import.meta.env?.DEV) {
       throw new Error(`Translate: testo non marcato con _%_..._%_ (dimenticato?): "${text}"`);
     }
-    return basicHtmlToNodes(text, args); // infine emetti lo stesso
+    // Testo mai passato dal compilatore: non esiste una voce di tabella da cui partire,
+    // quindi resta l'interpolazione testuale. Un eventuale markup non viene interpretato.
+    return interpolate(text, args);
     //
     //
   } catch (error) {
     logErrorOnce(error);
-    return basicHtmlToNodes("[...]");
+    return "[...]";
   }
 }
