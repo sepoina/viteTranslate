@@ -58,6 +58,7 @@
     "build": "rolldown -c",
     "test": "node test/compileTable.test.mjs",
     "test:ssr": "node playground/ssr-check.mjs",
+    "dump": "node test/dumpCompiled.mjs",
     "updateNpm": "npm version patch && git push --follow-tags",
     "prepublishOnly": "npm run build",
     "playground": "npm --prefix playground run dev",

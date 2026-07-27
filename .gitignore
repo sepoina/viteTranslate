@@ -37,3 +37,5 @@ Thumbs.db
 .playwright-mcp/
 .claude/
 coverage/
+# output di "npm run dump": artefatti ispezionabili, si rigenerano a comando
+test/*.compiled.js
