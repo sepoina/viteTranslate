@@ -562,8 +562,9 @@ lib/
 >   a basename (e.g. two `index.jsx` in different folders) share the same id namespace.
 > - **The CLI expects a plain-object default export** in `vite.config.js` (not a
 >   function-based config) and only looks for `vite.config.js`, not `.ts` / `.mjs`.
-> - **No SSR support out of the box** — `<Translate>`'s HTML subset relies on a `<template>`
->   element, so it requires a browser-like environment.
+> - **`basicHtmlToNodes()` still needs the DOM** if you call it directly. `<Translate>` no
+>   longer does: translation tables are compiled at build time, so its markup renders
+>   server-side too.
 
 ---
 
