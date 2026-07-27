@@ -207,11 +207,11 @@ available ones and the function to change it.
 import { useTranslateLanguage } from "@sepoina/vitetranslate/react";
 
 function LanguageSwitcher() {
-  const { id, tags, proposeNewLanguage } = useTranslateLanguage();
+  const { id, languages, proposeNewLanguage } = useTranslateLanguage();
 
-  return tags.map((tag) => (
+  return languages.map(({ tag, languageName }) => (
     <button key={tag} disabled={id === tag} onClick={() => proposeNewLanguage({ lang: tag })}>
-      {tag}
+      {languageName}
     </button>
   ));
 }
@@ -220,18 +220,19 @@ function LanguageSwitcher() {
 | Field | Type | Description |
 | --- | --- | --- |
 | `id` | `string \| undefined` | Current language tag ([BCP 47](doc/bcp47.md)); `undefined` outside `TranslateContainer` |
-| `tags` | `string[]` | Languages found in `localeDir`, source language first |
+| `languages` | `{ tag: string, languageName: string }[]` | Languages found in `localeDir`, source language first. `languageName` is the autonym, computed once at sync time |
 | `sourceLanguage` | `string` | Source language tag, the one the strings are written in |
 | `debug` | `boolean` | The `debug` prop passed to `TranslateContainer` |
 | `proposeNewLanguage` | `function` | Runtime language switch, see below |
 
 The returned object is referentially stable, so it is safe in dependency arrays.
 
-`tags` and `sourceLanguage` come from the language manifest, known at build time: no table
-is ever loaded just to list them, and they stay valid even outside `TranslateContainer` —
-handy to build a list of languages above the translated tree. There `id` is `undefined` and
-`proposeNewLanguage` is inert; calling it is reported once in the console during
-development, since that is the only thing that cannot work without a container.
+`languages` and `sourceLanguage` come from the language manifest, known at build time: no
+table is ever loaded just to list them, and they stay valid even outside
+`TranslateContainer` — handy to build a list of languages above the translated tree. There
+`id` is `undefined` and `proposeNewLanguage` is inert; calling it is reported once in the
+console during development, since that is the only thing that cannot work without a
+container.
 
 ### `TranslateContainer` props
 
@@ -342,7 +343,10 @@ command populates it with the same keys set to `null`, and all you do is fill in
 translations.
 
 A header comment (language name, tag, count of keys still missing, last-sync timestamp) is
-regenerated on every sync — don't hand-edit it, it's overwritten each time:
+regenerated on every sync — don't hand-edit it, it's overwritten each time. The first key,
+`__builder__`, is the same kind of bookkeeping in data form (schema version, whether the
+file still has untranslated keys, and the autonym exposed as `languageName` by
+`useTranslateLanguage()`) — also regenerated on every sync, never edit it by hand:
 
 ```js
 //  -------------------------------------------------
@@ -352,7 +356,7 @@ regenerated on every sync — don't hand-edit it, it's overwritten each time:
 //       |    processed: 2026-07-27 12:37
 //  -------------------------------------------------
 export default {
-  "__lngVersion__": "260216",
+  "__builder__": { "v": 260727, "incomplete": false, "languageName": "italiano (Italia)" },
   "BasicExample_1nke42v": "Welcome to viteTranslate",
   "DynamicExample_1wltsn1": "Hello %s, how are you?",
 };
@@ -370,7 +374,7 @@ comment separator so it's obvious what's left:
 
 ```js
 export default {
-  "__lngVersion__": "260216",
+  "__builder__": { "v": 260727, "incomplete": true, "languageName": "français" },
   "BasicExample_1nke42v": "Welcome to viteTranslate",
 
   //  ----to be translated------------------------------------------

@@ -1,20 +1,12 @@
 import { useTranslateLanguage } from "@sepoina/vitetranslate/react";
 
-function labelFor(tag) {
-  try {
-    return new Intl.DisplayNames([tag], { type: "language" }).of(tag);
-  } catch {
-    return tag;
-  }
-}
-
 export default function TopLanguageSwitch() {
-  const { id, tags, proposeNewLanguage } = useTranslateLanguage();
+  const { id, languages, proposeNewLanguage } = useTranslateLanguage();
 
   return (
     <div className="top-lang-switch">
       <div className="top-lang-switch-buttons" role="group">
-        {tags.map((tag) => (
+        {languages.map(({ tag, languageName }) => (
           <button
             key={tag}
             type="button"
@@ -22,7 +14,7 @@ export default function TopLanguageSwitch() {
             disabled={id === tag}
             onClick={() => proposeNewLanguage({ lang: tag })}
           >
-            {labelFor(tag)}
+            {languageName}
           </button>
         ))}
       </div>

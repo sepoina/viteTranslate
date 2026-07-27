@@ -75,16 +75,32 @@
 
 .lang-switch-group {
   display    : inline-flex;
+  flex-wrap  : wrap;
   align-items: center;
-  gap        : 1rem;
+  gap        : 0.5rem;
 }
 
-.lang-switch {
-  display    : inline-flex;
-  align-items: center;
-  gap        : 0.4rem;
-  font-size  : 0.9rem;
-  cursor     : pointer;
+.lang-switch-chip {
+  padding      : 0.3rem 0.85rem;
+  font-size    : 0.85rem;
+  border       : 1px solid rgba(127, 127, 127, 0.35);
+  border-radius: 999px;
+  background   : transparent;
+  color        : inherit;
+  cursor       : pointer;
+  transition   : background-color 150ms ease, border-color 150ms ease, color 150ms ease;
+}
+
+.lang-switch-chip:hover:not(:disabled) {
+  border-color: #1976d2;
+  color       : #1976d2;
+}
+
+.lang-switch-chip:disabled {
+  background  : #1976d2;
+  border-color: #1976d2;
+  color       : white;
+  cursor      : default;
 }
 
 .lang-switch-status {

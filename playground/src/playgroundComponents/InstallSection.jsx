@@ -92,7 +92,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
 //       |    processed: 2026-07-27 12:37
 //  -------------------------------------------------
 export default {
-  "__lngVersion__": "260216",
+  "__builder__": { "v": 260727, "incomplete": false, "languageName": "italiano (Italia)" },
   "BasicExample_1nke42v": "Benvenuto in viteTranslate",
   "DynamicExample_1wltsn1": "Ciao %s, come stai?",
   "PlaceholderExample_1dxcv5l": "Nome utente",
@@ -125,7 +125,7 @@ npx vitetranslate-prepare-translation-table`} />
 //       |    processed: 2026-07-27 12:37
 //  -------------------------------------------------
 export default {
-  "__lngVersion__": "260216",
+  "__builder__": { "v": 260727, "incomplete": true, "languageName": "français" },
 
   //  ----to be translated------------------------------------------
   "BasicExample_1nke42v": null,
@@ -144,7 +144,7 @@ export default {
 //       |    processed: 2026-07-27 12:37
 //  -------------------------------------------------
 export default {
-  "__lngVersion__": "260216",
+  "__builder__": { "v": 260727, "incomplete": true, "languageName": "italiano (Italia)" },
 
   //  ----to be translated------------------------------------------
   "BasicExample_1nke42v": "Benvenuto in viteTranslate",
@@ -163,7 +163,7 @@ export default {
 //       |    processed: 2026-07-27 12:41
 //  -------------------------------------------------
 export default {
-  "__lngVersion__": "260216",
+  "__builder__": { "v": 260727, "incomplete": false, "languageName": "français" },
   "BasicExample_1nke42v": "Bienvenue sur viteTranslate",
   "DynamicExample_1wltsn1": "Salut %s, comment ça va ?",
   "PlaceholderExample_1dxcv5l": "Nom d'utilisateur",

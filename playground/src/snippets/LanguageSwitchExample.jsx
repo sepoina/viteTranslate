@@ -1,16 +1,8 @@
 import { useState } from "react";
-import { useTranslateLanguage } from "@sepoina/vitetranslate/react";
-
-function labelFor(tag) {
-  try {
-    return new Intl.DisplayNames([tag], { type: "language" }).of(tag);
-  } catch {
-    return tag;
-  }
-}
+import { useTranslateLanguage, Translate } from "@sepoina/vitetranslate/react";
 
 export default function LanguageSwitchExample() {
-  const { id, debug, tags, proposeNewLanguage } = useTranslateLanguage();
+  const { id, debug, languages, proposeNewLanguage } = useTranslateLanguage();
   const [loading, setLoading] = useState(false);
 
   const switchTo = (tag) => {
@@ -18,33 +10,30 @@ export default function LanguageSwitchExample() {
       lang: tag,
       onStart: () => setLoading(true),
       onDone: () => setLoading(false),
-      onError: ({ error }) => {
-        setLoading(false);
-        console.error(error);
-      },
     });
   };
 
   return (
     <div>
-      <div className="lang-switch-group" role="radiogroup">
-        {tags.map((tag) => (
-          <label key={tag} className="lang-switch">
-            <input
-              type="radio"
-              name="language"
-              value={tag}
-              checked={id === tag}
-              onChange={() => switchTo(tag)}
-            />
-            {" "}{labelFor(tag)}
-          </label>
+      <p className="lang-switch-status">
+        <Translate t="_%_<b>Scegli la tua lingua </b>_%_"/>
+        {loading ? "…" : `(id: ${id ?? "—"} · debug: ${String(debug)})`}
+      </p>
+      <div className="lang-switch-group" role="group">
+        {languages.map(({ tag, languageName }) => (
+          <button
+            key={tag}
+            type="button"
+            className="lang-switch-chip"
+            disabled={id === tag}
+            onClick={() => switchTo(tag)}
+          >
+            {languageName}
+          </button>
         ))}
       </div>
       {/* readout tecnico (id/debug dall'hook), non testo utente: niente marcatore di traduzione */}
-      <p className="lang-switch-status">
-        {loading ? "…" : `id: ${id ?? "—"} · debug: ${String(debug)}`}
-      </p>
+
     </div>
   );
 }
