@@ -106,7 +106,7 @@ export default {
         <p className="doc-description">
           <Translate>_%_Ogni lingua è un file JS dentro localeDir, con lo stesso nome del suo tag_%_</Translate>
           {" "}
-          <a href="https://gist.github.com/typpo/b2b828a35e683b9bf8db91b5404f1bd1#file-bcp47-locales-md" target="_blank" rel="noopener noreferrer">BCP 47</a>
+          <a href="https://github.com/sepoina/viteTranslate/blob/main/doc/bcp47.md" target="_blank" rel="noopener noreferrer">BCP 47</a>
           <Translate>_%_. Il file della lingua di default viene creato e tenuto aggiornato in automatico dal comando di sincronizzazione: non va scritto a mano, solo tradotto se serve._%_</Translate>
         </p>
         <p className="doc-description">
