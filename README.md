@@ -441,8 +441,15 @@ export default {
 };
 ```
 
-Replace each `null` with the translated text — keeping any `%s` placeholders intact — and the
-file is complete:
+Replace each `null` with the translated text, keeping any `%s` placeholders intact. The
+header, the `incomplete` flag and the separator line are bookkeeping the sync command
+maintains, not something recomputed on the fly — hand-editing the values doesn't refresh
+them. Run the sync command once more so the file realigns itself into its final, complete
+shape:
+
+```bash
+npx vitetranslate-prepare-translation-table
+```
 
 ```js
 //  -------------------------------------------------
