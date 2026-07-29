@@ -250,6 +250,8 @@ function LanguageSwitcher() {
 
 The returned object is referentially stable, so it is safe in dependency arrays.
 
+It is also **frozen**, `languages` and its entries included: the very same array is shared by every component in the app for the whole life of the page, so a stray write would corrupt the list for everyone, far away from where it happened. Writing to it throws a `TypeError` on the spot instead. To reorder or filter, work on a copy — `[...languages]`.
+
 `languages` and `sourceLanguage` come from the language manifest, known at build time: no table is ever loaded just to list them, and they stay valid even outside `TranslateContainer` — handy to build a list of languages above the translated tree. There `id` is `undefined` and `proposeNewLanguage` is inert; calling it is reported once in the console during development, since that is the only thing that cannot work without a container.
 
 ### `TranslateContainer` props

@@ -69,20 +69,26 @@ export interface ProposeNewLanguageOptions {
 
 export interface TranslateLanguageInfo {
   /** Tag BCP 47. */
-  tag: string;
+  readonly tag: string;
   /** Nome della lingua nella lingua stessa (autonimo), calcolato a sync-time. */
-  languageName: string;
+  readonly languageName: string;
 }
 
+/**
+ * `readonly` non è decorativo: a runtime l'oggetto è congelato, ed è condiviso da tutta
+ * l'app. Scriverci dentro lancia un TypeError, quindi TypeScript segnala a compile time
+ * ciò che comunque fallirebbe. Per riordinare o filtrare, lavorare su una copia
+ * (`[...languages]`).
+ */
 export interface UseTranslateLanguageResult {
   /** Lingua corrente; `undefined` fuori da `<TranslateContainer>`. */
-  id: string | undefined;
-  debug: boolean;
+  readonly id: string | undefined;
+  readonly debug: boolean;
   /** Lingue trovate in `localeDir`, lingua sorgente per prima. */
-  languages: TranslateLanguageInfo[];
-  sourceLanguage: string;
+  readonly languages: readonly TranslateLanguageInfo[];
+  readonly sourceLanguage: string;
   /** Cambio lingua a runtime. Fuori da `<TranslateContainer>` è inerte. */
-  proposeNewLanguage: (options: ProposeNewLanguageOptions) => void;
+  readonly proposeNewLanguage: (options: ProposeNewLanguageOptions) => void;
 }
 
 /**

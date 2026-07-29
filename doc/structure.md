@@ -375,6 +375,20 @@ L'ordine però è vincolato: la sourceLanguage va **in coda**, non in testa, cos
 
 Il flag `preloaded` **viaggia nel bundle** invece di essere dedotto a runtime: è ciò che permette a `TranslateContainer` di avvisare _anche in produzione_ se la lingua iniziale non è precaricata — in dev il controllo direbbe sempre di sì.
 
+### Perché il plugin si auto-esclude dal pre-bundling
+
+`lib/dist/react.es.js` importa `virtual:vitetranslate/languages`, un id che esiste **solo** attraverso questo plugin. Il pre-bundling delle dipendenze però gira in un processo esbuild separato, che i plugin del progetto non li vede: su Vite ≤ 7 il dev server muore in partenza con
+
+```text
+✘ [ERROR] Could not resolve "virtual:vitetranslate/languages"
+    node_modules/@sepoina/vitetranslate/lib/dist/react.es.js:6:57
+Error: Error during dependency optimization
+```
+
+Per questo l'hook `config()` dichiara `optimizeDeps: { exclude: ["@sepoina/vitetranslate"] }` (il prefisso copre anche `/react`, che è poi l'unico sottopercorso che entra nel grafo del browser). L'esclusione la dichiara il plugin, non il consumer: è una conseguenza di come è fatta la libreria, non una scelta di chi la usa.
+
+⚠️ **Il playground non copre questo caso**: usa `"@sepoina/vitetranslate": "file:.."`, e i pacchetti linkati non vengono pre-bundlati. Il guasto si vede solo installando da npm — cioè su ogni progetto vero. Vale come regola generale: prima di considerare verificato un cambiamento su `lib/dist/`, provarlo su un progetto con la libreria **installata dal registry**, non linkata.
+
 ### Il ciclo di dev
 
 `configureServer` mette in ascolto `localeDir` e distingue due casi:
@@ -436,6 +450,24 @@ La sospensione avviene in `TranslateProvider`, un componente **interno** al boun
 ### Cosa NON è esportato
 
 `TranslateContext` resta privato di proposito: il valore del context contiene `table`, la mappa interna delle traduzioni, che deve restare libera di cambiare forma. Lingua corrente, elenco e cambio passano tutti da `useTranslateLanguage()`.
+
+### Cosa è congelato, e perché
+
+Tutto ciò che è insieme **condiviso da tutta l'app** e **consegnato a codice che non controlliamo** è `Object.freeze`-ato:
+
+| valore | dove |
+| --- | --- |
+| `languages`, array e singole voci | [`useTranslateLanguage.js`](../lib/react/useTranslateLanguage.js) |
+| l'oggetto restituito dall'hook | idem — è memoizzato, quindi condiviso da tutti i componenti finché la lingua non cambia |
+| `preloadedLanguages` | [`languageResource.js`](../lib/react/languageResource.js) |
+
+Non è simmetria estetica: `languages` è un singleton di modulo, e una singola scrittura di troppo lo corrompe **per tutti i lettori e per tutta la vita della pagina**, con il sintomo che compare lontanissimo dalla causa. Il caso reale che ha portato al freeze è un `filter(l => l.tag = id)` — `=` invece di `===` — dentro un language switcher: azzerava il `tag` di ogni lingua al primo render, e sembrava un bug della libreria. I moduli ESM sono sempre in strict mode, quindi ora quella riga lancia un `TypeError` sul posto. Il `.d.ts` dichiara gli stessi campi `readonly`, così TypeScript lo segnala già a compile time.
+
+Il congelamento vale **anche in produzione**, come tutte le altre garanzie di questa libreria: un comportamento che cambia fra dev e build è un comportamento che non è stato verificato. Il costo è due `Object.freeze` all'inizializzazione del modulo, non uno per render.
+
+Restano **non** congelati, di proposito: il valore del context (privato, non lo tocca nessuno da fuori) e le tabelle compilate (una passata su ogni voce di ogni lingua, per proteggere una struttura che il codice utente non vede).
+
+⚠️ Conseguenza da tenere presente: `languages.sort()` e `languages.reverse()` ora lanciano. Chi riordina l'elenco deve farlo su una copia, `[...languages]` — che è poi ciò che andrebbe fatto comunque su un valore condiviso.
 
 ---
 

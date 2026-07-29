@@ -28,6 +28,7 @@ const HERE = join(dirname(fileURLToPath(import.meta.url)), "list");
 const OPZIONALI = [
   { file: "ssr-check.test.mjs", richiede: ["react-dom/server", "react/jsx-runtime"], come: "npm i -D react react-dom" },
   { file: "translateComponent.test.mjs", richiede: ["react-dom/server", "react"], come: "npm i -D react react-dom" },
+  { file: "languageList.test.mjs", richiede: ["react-dom/server", "react"], come: "npm i -D react react-dom" },
 ];
 
 const argomenti = process.argv.slice(2);
