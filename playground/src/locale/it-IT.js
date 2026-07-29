@@ -1,11 +1,11 @@
 //  -------------------------------------------------
 //      italiano (Italia) (sourceLanguage)
 //       |    code: it-IT
-//       |    missing key: 1
-//       |    processed: 2026-07-27 22:57
+//       |    missing key: 0
+//       |    processed: 2026-07-29 16:39
 //  -------------------------------------------------
 export default {
-  "__builder__": {"v":260727,"languageName":"italiano (Italia)","incomplete":true},
+  "__builder__": {"v":260727,"languageName":"italiano (Italia)"},
   "App_1gzfd4g": "Plugin Vite per estrarre stringhe dal sorgente (marcatore %s e componente <code>&#60;Translate&#62;</code> ) e generare/sincronizzare le tabelle di traduzione JS. I file di lingua vengono raggruppati in src (non in public, per evitare di servire moduli iniettabili) e caricati pigramente uno alla volta: il cambio lingua a runtime scarica solo il chunk necessario, senza appesantire il bundle iniziale con le lingue non usate.",
   "App_7p1ky4": "Playground",
   "App-playgroundString-from-js_5vlliu": "📚",
@@ -31,6 +31,7 @@ export default {
   "installSubsections_cu0tqs": "Esecuzione dev",
   "installSubsections_e4sjnc": "Aggiunta nuova lingua",
   "installSubsections_igcfnh": "Build linguistico",
+  "LanguageSwitchExample_12rsd8j": "<b>Scegli la tua lingua </b> (%s)",
   "PlaceholderExample_1dxcv5l": "Nome utente",
   "PlaceholderExample_1kcs901": "Il placeholder necessita di una stringa, non un JSX, ne sono un esempio",
   "PlaceholderExample_2hq59l": "Anche il tooltip di sistema",
@@ -57,7 +58,4 @@ export default {
   "ZZZ_snippetList_fweqm6": "Il componente <code>&lt;Translate&gt;</code> avvolge il testo statico marcato con %s, sostituito in build-time con l'id di traduzione e il relativo fallback.",
   "ZZZ_snippetList_li8fd0": "Traduzione dinamica",
   "ZZZ_snippetList_pamfe5": "Placeholder e attributi",
-
-  //  ----to be translated------------------------------------------
-  "LanguageSwitchExample_12rsd8j": "<b>Scegli la tua lingua </b> (%s)",
 };

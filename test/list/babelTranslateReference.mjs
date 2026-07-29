@@ -1,22 +1,25 @@
-import pathCmd from "path";
+import {
+  markedTextOf, innerTextOf, compiledMarker, escapeTemplateRaw, registerMarker,
+} from "../../lib/dev/babel/markerCore.js";
 
-// FNV-1a 32-bit hash (from the 'fnv1a' npm package, inlined to drop the dependency).
-// The `(h<<1)+(h<<4)+(h<<7)+(h<<8)+(h<<24)` sum is the FNV prime (0x01000193) multiplication
-// decomposed into shifts, avoiding a 32-bit overflow-prone `h * prime`.
-const FNV_OFFSET_BASIS = 0x811c9dc5;
-function hash(s, h = FNV_OFFSET_BASIS) {
-  const l = s.length;
-  for (let i = 0; i < l; i++) {
-    h ^= s.charCodeAt(i);
-    h += (h << 1) + (h << 4) + (h << 7) + (h << 8) + (h << 24);
-  }
-  return h >>> 0;
-}
-
-// Lunghezza minima di una stringa marcata: "_%__%_" (marcatore vuoto).
-const MIN_MARKED_LENGTH = 6;
-const OPEN = "_%_";
-const CLOSE = "_%_";
+// IMPLEMENTAZIONE DI RIFERIMENTO — non fa parte della libreria e non viene distribuita.
+//
+// L'estrazione vera è lib/dev/babel/extractMarkers.js, che si ferma al parse e fa uno splice
+// sul sorgente invece di ricostruirlo (5x più veloce, vedi il commento in testa a quel file).
+// Questo file è il modo *ovvio* di fare la stessa cosa — sostituire i nodi e lasciare che
+// Babel rigeneri — e serve a dimostrare che quello veloce è corretto: extractMarkers.test.mjs
+// confronta i due su un corpus di casi limite, fino al JSX compilato.
+//
+// È l'unica prova indipendente che abbiamo. Un test che confrontasse extractMarkers solo con
+// se stesso non direbbe nulla.
+//
+// Le regole dei marcatori — riconoscimento, hash, forma del marcatore compilato — arrivano da
+// markerCore.js e sono condivise: qui resta solo la meccanica della riscrittura, che è
+// esattamente ciò che il confronto deve mettere alla prova.
+//
+// Fino alla 2.1.4 era esportato dal pacchetto come `babelTranslate`. Non lo usava nessun
+// percorso della libreria e non è mai stato documentato nel README: continuare a spedirlo
+// significava tenere in vita una seconda implementazione a beneficio di nessuno.
 
 /**
  * Funzione principale del Plugin Babel.
@@ -31,9 +34,8 @@ export default (api, options = {}) => {
   // gira sempre prima della build, quindi la lingua base è già garantita completa.
   const includeFallback = options.includeFallback !== false;
   // Tabella id -> testo originale, popolata come side effect del transform.
-  // Passata esplicitamente dal chiamante (cli.js la riusa tra i file di una stessa
-  // scansione per accumulare tutte le stringhe trovate) invece di un globalThis
-  // condiviso implicitamente: se non fornita, resta locale a questa singola chiamata.
+  // Passata esplicitamente dal chiamante invece di un globalThis condiviso implicitamente:
+  // se non fornita, resta locale a questa singola chiamata.
   const table = options.table ?? {};
 
   return {
@@ -59,54 +61,22 @@ export default (api, options = {}) => {
 };
 
 /**
- * Estrae il testo su cui lavorare da un nodo, nella forma specifica del suo tipo.
- *
- * - `StringLiteral`   -> `value` è già la stringa.
- * - `JSXText`         -> `value` è il testo **grezzo**, virgolette di JSX comprese: un
- *   marcatore scritto su una riga a sé (`<Translate>\n  _%_ciao_%_\n</Translate>`, cioè
- *   la formattazione normale) arriva qui con newline e indentazione attorno. Vanno tolti
- *   prima del confronto, altrimenti il nodo non viene mai riconosciuto. Sono gli stessi
- *   spazi che JSX scarterebbe comunque nel render.
- * - `TemplateElement` -> `value` è un oggetto `{ raw, cooked }`, non una stringa: leggere
- *   `value` direttamente faceva fallire il controllo di tipo e rendeva il visitor inerte.
- *   Un template con interpolazioni ha più quasi, e nessuno di essi apre *e* chiude il
- *   marcatore: restano correttamente esclusi.
- *
- * @returns {string | null} il testo marcato, o null se il nodo non è marcato
- */
-function markedTextOf(node) {
-  let value;
-  if (node.type === "TemplateElement") value = node.value.cooked ?? node.value.raw;
-  else if (node.type === "JSXText") value = typeof node.value === "string" ? node.value.trim() : null;
-  else value = node.value;
-
-  if (typeof value !== "string" || value.length < MIN_MARKED_LENGTH) return null;
-  if (!(value.startsWith(OPEN) && value.endsWith(CLOSE))) return null;
-  return value;
-}
-
-/**
  * ---------------------------------------------------------------------
  * LOGICA PER STRINGHE STATICHE
  * Trasforma "_%_testo_%_" in "_<_id_/_testo_>_" e lo salva nella tabella.
  * ---------------------------------------------------------------------
  */
 function staticStringToTranslateTable(p, state, t, includeFallback, table) {
-  const nodeValue = markedTextOf(p.node);
-  if (nodeValue === null) return;
+  const marked = markedTextOf(p.node);
+  if (marked === null) return;
 
-  // Estrae il contenuto rimuovendo i marcatori (i primi 3 e gli ultimi 3 caratteri)
-  const strToAdd = nodeValue.slice(3, -3);
-
-  // Aggiunge alla tabella e ottiene l'ID univoco
-  const data_translate = addToTable(strToAdd, state, table);
+  const strToAdd = innerTextOf(marked);
+  const data_translate = registerMarker(strToAdd, state.filename || "unknown", table);
 
   // Il nodo è marcato da un capo all'altro, quindi il marcatore compilato è l'intero
   // valore nuovo: non serve una replace sul valore vecchio. Quella che c'era interpretava
   // anche i pattern `$&` / `$1` di String.replace, corrompendo un testo che li contenesse.
-  const newValue = includeFallback
-    ? `_<_${data_translate}_/_${strToAdd}_>_`
-    : `_<_${data_translate}_>_`;
+  const newValue = compiledMarker(data_translate, strToAdd, includeFallback);
 
   // -----------------------------------------------------------------
   // Sostituzione con nodo nuovo (p.replaceWith) invece di mutazione in-place.
@@ -145,46 +115,4 @@ function staticStringToTranslateTable(p, state, t, includeFallback, table) {
 
   // Evita che Babel rivisiti il nodo appena creato
   p.skip();
-}
-
-// Escape dei soli caratteri che dentro un template literal non stanno per se stessi.
-function escapeTemplateRaw(value) {
-  return value.replace(/\\/g, "\\\\").replace(/`/g, "\\`").replace(/\$\{/g, "\\${");
-}
-
-/**
- * ---------------------------------------------------------------------
- * HELPER: Gestione Tabella Traduzioni
- * ---------------------------------------------------------------------
- */
-function addToTable(strToAdd, state, table) {
-  // Recupera il nome del file corrente dal contesto di Babel (state)
-  // Usa pathCmd come richiesto
-  const filename = state.filename || "unknown";
-  const nameFile = pathCmd.parse(filename).name;
-
-  // Calcola l'hash FNV-1a (inline in cima al file)
-  // Nota: converte in base 36 per accorciare la stringa
-  const hex = hash(strToAdd).toString(36);
-
-  // Crea l'ID univoco: nomefile_hash
-  const data_translate = `${nameFile}_${hex}`;
-
-  // Due testi diversi che collidono sullo stesso id si sovrascriverebbero a vicenda, e uno
-  // dei due sparirebbe dalla tabella senza che nulla lo segnali: la traduzione dell'altro
-  // comparirebbe al suo posto. È raro (32 bit, nello spazio di un solo nome file) ma va
-  // detto, perché a schermo si vedrebbe solo il testo sbagliato.
-  const previous = table[data_translate];
-  if (previous !== undefined && previous !== strToAdd) {
-    console.warn(
-      `[vitetranslate] collisione di id "${data_translate}" in "${filename}": ` +
-      `"${previous}" e "${strToAdd}" producono la stessa chiave. ` +
-      `Modifica leggermente uno dei due testi (o rinomina il file) per separarli.`
-    );
-  }
-
-  // Salva nella tabella: ID -> Testo Originale
-  table[data_translate] = strToAdd;
-
-  return data_translate; // Ritorna l'ID da inserire nel codice
 }

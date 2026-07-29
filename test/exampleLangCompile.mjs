@@ -3,15 +3,19 @@
 // Serve a ispezionare a occhio cosa finisce davvero nel bundle, senza doverlo estrarre da un
 // chunk minificato.
 //
-//   node test/dumpCompiled.mjs [tag] [localeDir]
+//   node test/exampleLangCompile.mjs [tag] [localeDir] [tagSorgente]
 //
-// Default: en-US dalla cartella locale del playground. L'output va in test/<tag>.compiled.js
+// Default: en-US dalla cartella locale del playground. L'output va in
+// test/exampleCompiled/<tag>.compiled.js — una cartella a parte, e fuori da git: sono esempi
+// da guardare, si rigenerano a comando e cambiano a ogni modifica del playground, quindi
+// tenerli versionati vorrebbe dire diff di file generati a ogni giro.
 import { writeFileSync, mkdirSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(HERE, "..");
+const OUT_DIR = join(HERE, "exampleCompiled");
 
 const { compileLanguageModule, compileEntry } = await import(`${ROOT}/lib/dev/compile/compileTable.js`);
 const { default: importLanguageModule } = await import(`${ROOT}/lib/dev/vite/uty/importLanguageModule.js`);
@@ -20,11 +24,19 @@ const tag = process.argv[2] ?? "en-US";
 const localeDir = process.argv[3] ?? join(ROOT, "playground/src/locale");
 const sourcePath = join(localeDir, `${tag}.js`);
 
+// La lingua sorgente serve a riempire le chiavi non tradotte: il modulo prodotto dal bundler
+// è autonomo, e il dump deve mostrare esattamente quello. Si ricava dal file di lingua che
+// dichiara `__builder__` senza essere questo tag — in mancanza di config, la si passa come
+// terzo argomento.
+const sourceTag = process.argv[4] ?? "it-IT";
 const table = await importLanguageModule(sourcePath);
-const compiled = compileLanguageModule(table, tag);
+const sourceTable = sourceTag === tag
+  ? null
+  : await importLanguageModule(join(localeDir, `${sourceTag}.js`)).catch(() => null);
+const compiled = compileLanguageModule(table, tag, sourceTable);
 
-const outPath = join(HERE, `${tag}.compiled.js`);
-mkdirSync(HERE, { recursive: true });
+const outPath = join(OUT_DIR, `${tag}.compiled.js`);
+mkdirSync(OUT_DIR, { recursive: true });
 writeFileSync(outPath, compiled, "utf8");
 
 // --- classificazione ---
@@ -32,8 +44,15 @@ writeFileSync(outPath, compiled, "utf8");
 // Rifà la compilazione voce per voce per capire in quale delle quattro forme è finita.
 // `compileEntry` è la stessa funzione usata dal modulo intero, quindi la classificazione non
 // può divergere da ciò che è stato scritto sul file.
-function classify(value) {
-  if (typeof value !== "string") return value === null ? "chiave non tradotta" : "metadati";
+function classify(value, key) {
+  if (typeof value !== "string") {
+    if (value !== null) return "metadati";
+    // Il file su disco ha un null, ma il modulo compilato non ce l'ha: porta il testo della
+    // sorgente. Dirlo com'è evita di leggere "non tradotta" e cercare invano un null nel dump.
+    return typeof sourceTable?.[key] === "string"
+      ? "5. non tradotta -> testo della sorgente"
+      : "chiave non tradotta (nessun fallback)";
+  }
   const expr = compileEntry(value, { jsx: false, jsxs: false, fragment: false, arg: false });
   const isFn = expr.startsWith("a => ");
   const hasJsx = /\bjsxs?\(/.test(expr);
@@ -45,7 +64,7 @@ function classify(value) {
 
 const byForm = new Map();
 for (const [key, value] of Object.entries(table)) {
-  const form = classify(value);
+  const form = classify(value, key);
   if (!byForm.has(form)) byForm.set(form, []);
   byForm.get(form).push(key);
 }

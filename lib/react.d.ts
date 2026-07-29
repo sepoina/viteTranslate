@@ -1,3 +1,7 @@
+// Architettura d'insieme: doc/structure.md § "Distribuzione del pacchetto".
+// Quel documento è la fonte di verità sul funzionamento della libreria: se cambi il
+// comportamento di questo file, aggiornalo nello stesso commit.
+
 /// <reference path="./virtual.d.ts" />
 
 import type { FC, ReactNode } from 'react';
@@ -32,7 +36,15 @@ export interface TranslateProps {
 export declare const Translate: FC<TranslateProps>;
 
 export interface TranslateContainerProps {
-  /** Tag BCP 47 iniziale. Default: la `sourceLanguage` configurata nel plugin. */
+  /**
+   * Tag BCP 47 iniziale. Default: la prima lingua precaricata — `preloadedLanguages[0]`, o la
+   * `sourceLanguage` se non ne è stata dichiarata nessuna. È la stessa in sviluppo e in build,
+   * ed essendo già in bundle il primo render non sospende mai.
+   *
+   * Passando una lingua non precaricata l'app funziona, ma il primo render attende il chunk:
+   * il container lo segnala in console (anche in produzione, dove l'insieme delle precaricate
+   * è diverso da quello di sviluppo).
+   */
   initialLanguage?: string;
   /** Mostrato via Suspense mentre una lingua non precaricata si carica. Default: `null`. */
   fallback?: ReactNode;

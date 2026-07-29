@@ -1,3 +1,7 @@
+// Architettura d'insieme: doc/structure.md § "Fase 3 — Il modulo virtuale e il code splitting".
+// Quel documento è la fonte di verità sul funzionamento della libreria: se cambi il
+// comportamento di questo file, aggiornalo nello stesso commit.
+
 // Modulo virtuale generato da vitetranslate: elenco delle lingue trovate in
 // localeDir, ciascuna caricabile pigramente via import() dinamico.
 //
@@ -25,18 +29,37 @@ declare module 'virtual:vitetranslate/languages' {
   /** Tabella di una lingua: le chiavi generate dal plugin, più i metadati `__builder__`. */
   export type TranslationTable = Record<string, TranslationEntry>;
 
-  export const languages: Record<string, () => Promise<{ default: TranslationTable }>>;
+  /** Una lingua trovata in localeDir, con tutto ciò che al runtime serve saperne. */
+  export interface LanguageEntry {
+    /** Nome nativo (autonimo), calcolato a sync-time e salvato in `__builder__`. */
+    name: string;
+    /**
+     * Importata staticamente: la tabella è già in bundle e il primo render non sospende.
+     *
+     * Quali lingue lo siano dipende dall'ambiente — in sviluppo la `sourceLanguage` è sempre
+     * inclusa, in build cede il posto a `preloadedLanguages` se ne è stata dichiarata almeno
+     * una. Il flag viaggia nel bundle proprio per questo: è l'unico modo di sapere in
+     * produzione ciò che in sviluppo risulterebbe sempre vero.
+     */
+    preloaded: boolean;
+    /** La tabella, presente solo se `preloaded`. */
+    table?: TranslationTable;
+    /** Firma unica: Promise già risolta se `preloaded`, `import()` dinamico altrimenti. */
+    load: () => Promise<{ default: TranslationTable }>;
+  }
+
+  /**
+   * Tutte le lingue trovate in localeDir; chiave = tag BCP 47. Le precaricate compaiono per
+   * prime, e la prima di esse è la lingua iniziale di default di `<TranslateContainer>` —
+   * la stessa in sviluppo e in build.
+   */
+  export const languages: Record<string, LanguageEntry>;
+  /** Tag della lingua in cui sono scritti i sorgenti. */
   export const sourceLanguage: string;
   /**
-   * Tabella della lingua sorgente, importata staticamente come fallback universale; null
-   * solo se il file della sourceLanguage non è presente in localeDir.
+   * Tabella importata staticamente su cui il runtime può sempre contare: la `sourceLanguage`
+   * quando è fra le precaricate, altrimenti la prima delle precaricate. L'identità non conta —
+   * ogni tabella compilata porta con sé il testo della sorgente per le chiavi non tradotte.
    */
-  export const sourceTable: TranslationTable | null;
-  /**
-   * Tabelle precaricate staticamente (config preloadedLanguages, più la sourceLanguage
-   * sempre inclusa), per il primo render sincrono senza flash; chiave = tag BCP 47.
-   */
-  export const preloadedTables: Record<string, TranslationTable>;
-  /** Nome nativo di ogni lingua (autonimo), calcolato a sync-time; chiave = tag BCP 47. */
-  export const languageNames: Record<string, string>;
+  export const fallbackTable: TranslationTable;
 }

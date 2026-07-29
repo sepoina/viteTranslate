@@ -25,7 +25,7 @@ function babelJsx() {
   };
 }
 
-const pluginExternal = ["path", "fs", "url", "@babel/core"];
+const pluginExternal = ["path", "fs", "url", "vm", "@babel/core"];
 const componentExternal = [
   "react", "react/jsx-runtime", "react/jsx-dev-runtime",
   // risolto a build-time dal consumer via il plugin vitetranslate, non dal bundle della libreria

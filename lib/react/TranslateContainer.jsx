@@ -1,8 +1,37 @@
 /* eslint-disable react-hooks/exhaustive-deps */
+// Architettura d'insieme: doc/structure.md § "Fase 4 — Runtime", "Suspense e cambio lingua".
+// Quel documento è la fonte di verità sul funzionamento della libreria: se cambi il
+// comportamento di questo file, aggiornalo nello stesso commit.
+
 import React from "react";
 import { TranslateContext } from "./TranslateContext.js";
-import { sourceLanguage } from "virtual:vitetranslate/languages";
-import { readLanguage, ensureLanguage, isKnownLanguage } from "./languageResource.js";
+import {
+  readLanguage, ensureLanguage, isKnownLanguage, isPreloadedLanguage,
+  preloadedLanguages, firstPreloadedLanguage,
+} from "./languageResource.js";
+
+// Una lingua iniziale non precaricata funziona — il container sospende, il chunk arriva, la
+// pagina si completa — ma paga un giro di rete prima di poter mostrare qualsiasi testo, che è
+// esattamente ciò che `preloadedLanguages` esiste per evitare. Vale la pena dirlo.
+//
+// L'avviso NON è limitato allo sviluppo, ed è il motivo per cui `preloaded` viaggia nel
+// bundle invece di essere dedotto: in dev la lingua sorgente è precaricata comunque, quindi
+// un controllo fatto lì direbbe che va tutto bene proprio nella configurazione che poi, in
+// produzione, sospende. Il caso tipico è `sourceLanguage: "it-IT"` con
+// `preloadedLanguages: ["en-US"]` e `initialLanguage="it-IT"`.
+//
+// Una volta sola per tag: è un errore di configurazione, si ripresenta identico a ogni mount.
+const warnedNotPreloaded = new Set();
+
+function warnInitialNotPreloaded(tag) {
+  if (warnedNotPreloaded.has(tag)) return;
+  warnedNotPreloaded.add(tag);
+  console.warn(
+    `TranslateContainer: initialLanguage "${tag}" is not preloaded, so the first render suspends ` +
+    `until its chunk is fetched. Preloaded: ${preloadedLanguages.map((t) => `"${t}"`).join(", ") || "(none)"}. ` +
+    `Add "${tag}" to the "preloadedLanguages" option of the vitetranslate plugin, or start from a preloaded language.`
+  );
+}
 
 /**
  * Componente interno che vive DENTRO il boundary Suspense: legge la tabella della lingua
@@ -20,21 +49,27 @@ function TranslateProvider({ lang, debug, proposeNewLanguage, children }) {
 }
 
 /**
- * @param {string} [initialLanguage=sourceLanguage] - tag BCP 47 iniziale (es. 'it-IT'), di
- *   default la sourceLanguage del plugin. Se è precaricata (sourceLanguage o una di
- *   preloadedLanguages) viene mostrata sincrona al primo render; altrimenti il container
- *   sospende finché il chunk non è caricato, senza mai renderizzare la lingua sbagliata.
+ * @param {string} [initialLanguage] - tag BCP 47 iniziale (es. 'it-IT'). Di default la prima
+ *   lingua precaricata — `preloadedLanguages[0]`, o la sourceLanguage se non ne è stata
+ *   dichiarata nessuna — che è la stessa in sviluppo e in build: essendo precaricata viene
+ *   mostrata sincrona al primo render. Passandone una non precaricata il container sospende
+ *   finché il chunk non è caricato, senza mai renderizzare la lingua sbagliata, e lo segnala
+ *   in console.
  * @param {React.ReactNode} [fallback=null] - mostrato durante il caricamento di una lingua
  *   non precaricata. Di default null: i chunk sono locali, il "loading" è un frame vuoto.
  * @param {boolean} [debug]
  */
-export default function TranslateContainer({ initialLanguage = sourceLanguage, children, debug, fallback = null }) {
-  // initialLanguage inesistente -> ricade su sourceLanguage (sempre disponibile) senza
-  // far esplodere l'app. Inizializzatore: eseguito una sola volta.
+export default function TranslateContainer({ initialLanguage = firstPreloadedLanguage, children, debug, fallback = null }) {
+  // initialLanguage inesistente -> ricade sulla prima precaricata (quindi sempre disponibile)
+  // senza far esplodere l'app. Inizializzatore: eseguito una sola volta.
   const [lang, setLang] = React.useState(() => {
-    if (isKnownLanguage(initialLanguage)) return initialLanguage;
-    console.error(`TranslateContainer: unknown initial language "${initialLanguage}", falling back to "${sourceLanguage}"`);
-    return sourceLanguage;
+    if (!isKnownLanguage(initialLanguage)) {
+      console.error(`TranslateContainer: unknown initial language "${initialLanguage}", falling back to "${firstPreloadedLanguage}"`);
+      return firstPreloadedLanguage;
+    }
+    // Lingua valida ma non in bundle: funziona, ma sospende. Vedi warnInitialNotPreloaded.
+    if (!isPreloadedLanguage(initialLanguage)) warnInitialNotPreloaded(initialLanguage);
+    return initialLanguage;
   });
 
   // struttura funzione proposeNewLanguage({

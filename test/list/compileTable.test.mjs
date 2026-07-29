@@ -1,4 +1,4 @@
-import { compileLanguageModule } from "../lib/dev/compile/compileTable.js";
+import { compileLanguageModule } from "../../lib/dev/compile/compileTable.js";
 
 // Stub del jsx-runtime: rappresenta gli elementi come oggetti ispezionabili, così il test
 // verifica la struttura prodotta senza dipendere da React.
@@ -8,8 +8,8 @@ const jsx = (type, props) => ({ type, children: props.children });
 const jsxs = jsx;
 `;
 
-async function load(table) {
-  const code = compileLanguageModule(table).replace(
+async function load(table, sourceTable = null) {
+  const code = compileLanguageModule(table, "", sourceTable).replace(
     /import \{[^}]*\} from "react\/jsx-runtime";/,
     STUB
   );
@@ -117,7 +117,9 @@ eq("commento rimosso", "primadopo", show(L.commento));
 eq("< letterale non e' un tag", "se a < b allora", show(L.minoreLetterale));
 eq("arg dentro tag sciolto", "ciao aldo", show(L.argDentroTagIgnoto(["aldo"])));
 eq("null passa come null", null, L.nullo);
-eq("__builder__ passa come dato", 260727, L.__builder__.v);
+// I metadati di sincronizzazione non hanno lettori nel bundle (il nome lingua arriva da
+// `languageNames`): restano sul file su disco e non vengono spediti al browser.
+eq("__builder__ escluso dal compilato", undefined, L.__builder__);
 
 eq("entita in testo puro resta stringa", "string", typeof L.entitaSoloTesto);
 eq("< letterale resta stringa", "string", typeof L.minoreLetterale);
@@ -138,6 +140,56 @@ console.log(code.split("\n").slice(0, 9).join("\n"));
 const soloTesto = compileLanguageModule({ a: "uno", b: "due" });
 eq("nessun import se non serve jsx", false, soloTesto.includes("jsx-runtime"));
 eq("nessun helper se non ci sono args", false, soloTesto.includes("_arg"));
+
+// ------------------------------------------------- tabella autonoma (fallback incorporato)
+// Ogni lingua porta con sé il testo della sorgente per ciò che non è ancora tradotto: chi la
+// consuma non ha bisogno di sapere in che lingua è stato scritto il progetto, né di averla
+// caricata. Senza questo, una chiave non tradotta arrivava al browser come `null` e la
+// risoluzione dipendeva dall'avere la tabella sorgente sempre in bundle.
+console.log("\n== tabella autonoma ==");
+const SORGENTE = {
+  __builder__: { v: 1, languageName: "italiano" },
+  tradotta: "originale",
+  daTradurre: "testo non ancora tradotto",
+  conMarkup: "resta <b>in grassetto</b>",
+  conArgs: "ciao %s",
+  soloNellaSorgente: "chiave che la sub-lingua non ha ancora",
+};
+const SUB = {
+  __builder__: { v: 1, languageName: "english" },
+  tradotta: "translated",
+  daTradurre: null,
+  conMarkup: null,
+  conArgs: null,
+};
+
+{
+  const { table: A } = await load(SUB, SORGENTE);
+  eq("la traduzione fatta vince sulla sorgente", "translated", show(A.tradotta));
+  eq("null riempito col testo sorgente", "testo non ancora tradotto", show(A.daTradurre));
+  eq("nessun null residuo nella tabella", false, Object.values(A).includes(null));
+  // Il fallback non è testo grezzo incollato: passa dalla stessa compilazione delle altre
+  // voci, quindi markup e segnaposto funzionano come se fosse tradotto.
+  eq("fallback con markup -> elemento", "resta <b>in grassetto</b>", show(A.conMarkup));
+  eq("fallback con markup non è stringa", "object", typeof A.conMarkup);
+  eq("fallback con segnaposto -> funzione", "function", typeof A.conArgs);
+  eq("fallback con segnaposto interpola", "ciao aldo", show(A.conArgs(["aldo"])));
+  // Il caso che conta di più: una lingua rimasta indietro, che la chiave non ce l'ha proprio.
+  eq("chiave assente presa dalla sorgente", "chiave che la sub-lingua non ha ancora", show(A.soloNellaSorgente));
+}
+{
+  // Senza sorgente il comportamento di prima resta intatto: i null sopravvivono e la catena
+  // di runtime continua a coprirli.
+  const { table: B } = await load(SUB);
+  eq("senza sorgente il null resta null", null, B.daTradurre);
+  eq("senza sorgente nessuna chiave aggiunta", undefined, B.soloNellaSorgente);
+}
+{
+  // Una sorgente a sua volta non tradotta non ha nulla da offrire: meglio il null, che lascia
+  // in piedi l'ultima risorsa a runtime, di un fallback inventato.
+  const { table: C } = await load({ k: null }, { k: null });
+  eq("sorgente anch'essa null -> resta null", null, C.k);
+}
 
 console.log(fail === 0 ? "\nTUTTI OK" : `\n${fail} FALLITI`);
 process.exit(fail === 0 ? 0 : 1);

@@ -4,8 +4,8 @@
 import { renderToString } from "react-dom/server";
 import { writeFileSync, unlinkSync } from "node:fs";
 
-const { compileLanguageModule } = await import("../lib/dev/compile/compileTable.js");
-const { resolveEntry, resolveEntryText } = await import("../lib/react/resolveEntry.js");
+const { compileLanguageModule } = await import("../../lib/dev/compile/compileTable.js");
+const { resolveEntry, resolveEntryText } = await import("../../lib/react/resolveEntry.js");
 const { jsx } = await import("react/jsx-runtime");
 
 console.log("document esiste in questo processo?", typeof globalThis.document);
@@ -68,8 +68,11 @@ eq("markup appiattito a testo", "componente <Translate> attivo", resolveEntryTex
 eq("markup + args appiattito", "Ciao aldo, hai 3 messaggi", resolveEntryText(table, undefined, "markupArgs", ["aldo", 3]));
 
 console.log("\n== chiave assente ==");
-eq("ricade sul fallback del marcatore", "testo di riserva", resolveEntryText(table, undefined, "inesistente", undefined, "testo di riserva"));
-eq("senza fallback resta la chiave", "inesistente", resolveEntryText(table, undefined, "inesistente"));
+// L'ultimo argomento è il MARCATORE compilato, non il testo di riserva già estratto: da lì
+// `resolveEntry` lo ricava, ma solo in questo ramo (vedi resolveEntry.js).
+eq("ricade sul fallback del marcatore", "testo di riserva", resolveEntryText(table, undefined, "inesistente", undefined, "_<_inesistente_/_testo di riserva_>_"));
+eq("senza fallback nel marcatore resta la chiave", "inesistente", resolveEntryText(table, undefined, "inesistente", undefined, "_<_inesistente_>_"));
+eq("senza marcatore resta la chiave", "inesistente", resolveEntryText(table, undefined, "inesistente"));
 
 console.log(fail === 0 ? "\nTUTTI OK" : `\n${fail} FALLITI`);
 process.exit(fail === 0 ? 0 : 1);

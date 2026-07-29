@@ -1,11 +1,11 @@
 //  -------------------------------------------------
 //      American English
 //       |    code: en-US
-//       |    missing key: 1
-//       |    processed: 2026-07-27 22:57
+//       |    missing key: 0
+//       |    processed: 2026-07-29 16:35
 //  -------------------------------------------------
 export default {
-  "__builder__": {"v":260727,"languageName":"American English","incomplete":true},
+  "__builder__": {"v":260727,"languageName":"American English"},
   "App_1gzfd4g": "Vite plugin that extracts strings from source (the %s marker and the <code>&#60;Translate&#62;</code> component) and generates/syncs the JS translation tables. Language files are grouped under src (not in public, to avoid serving injectable modules) and lazy-loaded one at a time: switching language at runtime downloads only the needed chunk, without bloating the initial bundle with unused languages.",
   "App_7p1ky4": "Playground",
   "App-playgroundString-from-js_5vlliu": "🗿",
@@ -31,6 +31,7 @@ export default {
   "installSubsections_cu0tqs": "Dev run",
   "installSubsections_e4sjnc": "Adding a new language",
   "installSubsections_igcfnh": "Language build",
+  "LanguageSwitchExample_12rsd8j": "<b>Choose your language</b> (%s)",
   "PlaceholderExample_1dxcv5l": "Username",
   "PlaceholderExample_1kcs901": "The placeholder requires a string, not JSX — these are an example of that",
   "PlaceholderExample_2hq59l": "The system tooltip too",
@@ -57,7 +58,4 @@ export default {
   "ZZZ_snippetList_fweqm6": "The <code>&lt;Translate&gt;</code> component wraps static text marked with %s, replaced at build time with the translation id and its fallback.",
   "ZZZ_snippetList_li8fd0": "Dynamic translation",
   "ZZZ_snippetList_pamfe5": "Placeholders and attributes",
-
-  //  ----to be translated------------------------------------------
-  "LanguageSwitchExample_12rsd8j": null,
 };

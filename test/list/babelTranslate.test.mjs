@@ -2,10 +2,10 @@
 // quale codice restituisce. Il codice generato deve restare JSX/TypeScript valido — è il
 // plugin React del progetto, non questo, a compilarlo.
 //
-//   node test/babelTranslate.test.mjs
+//   node test/list/babelTranslate.test.mjs
 import { transformSync } from "@babel/core";
-import babelTranslate from "../lib/dev/babel/babelTranslate_2.js";
-import parserOptionsFor from "../lib/dev/babel/parserOptionsFor.js";
+import babelTranslate from "./babelTranslateReference.mjs";
+import parserOptionsFor from "../../lib/dev/babel/parserOptionsFor.js";
 
 let fail = 0;
 const eq = (nome, atteso, ottenuto) => {
@@ -138,7 +138,7 @@ console.log("\n== id ==");
   } finally {
     console.warn = original;
   }
-  eq("collisione segnalata", true, warnings.length === 1 && warnings[0].includes("collisione di id"));
+  eq("collisione segnalata", true, warnings.length === 1 && warnings[0].includes("id collision"));
 }
 
 console.log(fail === 0 ? "\nTUTTI OK" : `\n${fail} FALLITI`);

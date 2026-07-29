@@ -1,3 +1,7 @@
+// Architettura d'insieme: doc/structure.md § "Distribuzione del pacchetto".
+// Quel documento è la fonte di verità sul funzionamento della libreria: se cambi il
+// comportamento di questo file, aggiornalo nello stesso commit.
+
 /// <reference path="./virtual.d.ts" />
 
 /** Opzioni di `vitetranslate(...)`, da registrare fra i `plugins` di vite.config. */
@@ -8,7 +12,9 @@ export interface VitetranslateOptions {
   sourceLanguage: string;
   /**
    * Lingue incluse staticamente nel bundle iniziale, per un primo paint senza sospensione.
-   * `sourceLanguage` è sempre precaricata, indipendentemente da questo elenco.
+   * In sviluppo `sourceLanguage` è precaricata comunque; in build solo se questo elenco è
+   * vuoto (ogni tabella compilata è autonoma, quindi spedirla sarebbe una copia in più).
+   * La prima della lista è la lingua iniziale di default di `TranslateContainer`.
    */
   preloadedLanguages?: string[];
   /** Radice del progetto usata per risolvere `localeDir` e `srcDir`. Default: `process.cwd()`. */
@@ -33,20 +39,8 @@ export interface VitetranslateOptions {
  */
 export function vitetranslate(options: VitetranslateOptions): any[];
 
-/** Opzioni del plugin Babel di estrazione, quando lo si usa fuori dal plugin Vite. */
-export interface BabelTranslateOptions {
-  /** Incorpora il testo originale nel marcatore compilato. Default: `true`. */
-  includeFallback?: boolean;
-  /** Tabella `id -> testo` da popolare; se assente ne viene usata una locale alla chiamata. */
-  table?: Record<string, string>;
-}
-
-/**
- * Plugin Babel che riscrive `"_%_testo_%_"` in `"_<_id_/_testo_>_"` e accumula le stringhe
- * trovate in `options.table`. Legge il JSX ma non lo trasforma: chi lo usa deve abilitare i
- * parser plugin adatti al file (`jsx`, `typescript`).
- */
-export function babelTranslate(api: any, options?: BabelTranslateOptions): {
-  name?: string;
-  visitor: Record<string, (path: any, state: any) => void>;
-};
+// `babelTranslate` era esportato fino alla 2.1.4: un plugin Babel che faceva la stessa
+// estrazione fuori dal plugin Vite. Nessun percorso della libreria lo usava più (l'estrazione
+// è passata a un parse + splice, molto più rapido) e non è mai stato documentato. Ora vive
+// solo come implementazione di riferimento nei test, dove serve a dimostrare che quella
+// veloce è corretta.
