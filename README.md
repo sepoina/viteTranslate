@@ -16,7 +16,7 @@ No keys to invent. No separate extraction step. No runtime dependencies.
 [![Donate](https://img.shields.io/badge/support-PayPal-00457C?logo=paypal&logoColor=white)](https://www.paypal.com/paypalme/giancarloghigi)
 [![Buy Me a Coffee](https://img.shields.io/badge/buy%20me%20a-coffee-FFDD00?logo=buymeacoffee&logoColor=black)](https://www.buymeacoffee.com/giancarlogy)
 
-[**Live playground**](https://sepoina.github.io/viteTranslate/) · [Quick start](#-quick-start) · [API](#-api) · [How it works](#-how-it-works) · [Architecture](doc/structure.md)
+[**Live playground**](https://sepoina.github.io/viteTranslate/) · [Quick start](#-quick-start) · [API](#-api) · [StackBlitz](https://stackblitz.com/edit/vitejs-vite-aa9rcqtt?file=README.md) · [Architecture](doc/structure.md)
 
 </div>
 
@@ -467,7 +467,7 @@ vitetranslate(options)
 | --- | --- | --- | --- |
 | `localeDir` | `string` | **required** | Folder with the language JS files, relative to `baseDir` |
 | `sourceLanguage` | `string` | **required** | [BCP 47](doc/bcp47.md) tag of the source language |
-| `preloadedLanguages` | `string[]` | `[]` | Languages bundled eagerly for an instant, non-suspending first paint (see [Preloading](#-preloading-suspense-and-the-initial-flash)). `sourceLanguage` is eager too in dev, and in build only when this list is empty |
+| `preloadedLanguages` | `string[]` | `[]` | Languages bundled eagerly fohttps://stackblitz.com/edit/vitejs-vite-aa9rcqtt?file=README.mdr an instant, non-suspending first paint (see [Preloading](#-preloading-suspense-and-the-initial-flash)). `sourceLanguage` is eager too in dev, and in build only when this list is empty |
 | `baseDir` | `string` | `process.cwd()` | Project root used to resolve `localeDir` / `srcDir` |
 | `srcDir` | `string` | `"src"` | Source folder scanned by the CLI |
 | `includeFallback` | `boolean` | `!isProduction` | Embed the original text as a fallback in the compiled marker (dev only by default) |
