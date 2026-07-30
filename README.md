@@ -37,7 +37,12 @@ function Welcome({ name }) {
 
 That is the whole authoring workflow. Wrap a string in `_%_..._%_`, render it through `<Translate>`, and the JS translation tables are generated and kept in sync for you.
 
----
+<!-- TODO: replace https://www.youtube.com/ with the actual video URL. -->
+<div align="center">
+  <a href="https://youtu.be/K_fefd3VLKQ">
+    <img src="doc/youplay.png" alt="Watch viteTranslate in action" width="50%" />
+  </a>
+</div>
 
 ## Contents
 
