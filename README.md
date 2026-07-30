@@ -23,7 +23,7 @@ No keys to invent. No separate extraction step. No runtime dependencies.
 <br />
 
   <a href="https://youtu.be/K_fefd3VLKQ">
-    <img src="doc/youplay.png" alt="Watch viteTranslate in action" width="50%" />
+    <img src="doc/youplay.png" alt="Watch viteTranslate in action" width="60%" />
   </a>
   
 </div>
