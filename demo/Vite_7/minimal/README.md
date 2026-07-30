@@ -25,12 +25,17 @@ npm run lint     # ESLint
 | `react` / `react-dom` | `^19` | `^18` |
 | `@vitejs/plugin-react` | `^6` | `^5` — il 6 richiede `vite ^8.0.0` |
 | pacchetti Rolldown | `rolldown`, `@rolldown/binding-wasm32-wasi` | non servono |
-| `optimizeDeps.exclude` | non serve | serve con la 2.2.1, vedi `vite.config.js` |
 
-L'ultima riga è l'unica differenza che si vede nel codice: con la **2.2.1** il pre-bundling di
-Vite 7 non riesce a risolvere `virtual:vitetranslate/languages` (lo genera il plugin, che
-esbuild non vede) e il dev server non parte. L'esclusione in `vite.config.js` lo risolve; dalla
-versione successiva la dichiara il plugin stesso e quelle righe si possono togliere.
+Nel codice dell'app e nel `vite.config.js` **non cambia nulla**: le differenze stanno tutte nel
+`package.json`.
+
+Vale la pena sapere perché, però. Su Vite 7 il pre-bundling delle dipendenze gira in un processo
+esbuild separato, che non vede i plugin del progetto e quindi non sa risolvere
+`virtual:vitetranslate/languages` — l'id che il plugin genera. Fino alla **2.2.1** il dev server
+moriva in partenza e serviva un `optimizeDeps: { exclude: ['@sepoina/vitetranslate'] }` scritto a
+mano qui; dalla **2.2.2** l'esclusione la dichiara il plugin stesso, quindi la configurazione
+resta identica a quella della copia Vite 8. Su Vite 8 il problema non si presenta: lì l'optimizer
+passa dal plugin container.
 
 ## StackBlitz
 
