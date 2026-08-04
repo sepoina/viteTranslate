@@ -102,6 +102,7 @@ mindmap
         uty
     shared
       htmlDialect.js
+      errorSolve.js
       utility.js
 ```
 
@@ -111,6 +112,7 @@ Poi la mappa letterale. Ogni file porta in testa il rimando alla sezione che lo 
 lib/
 ├── index.js .................... entry del plugin (esporta vitetranslate)
 ├── htmlDialect.js .............. tag HTML ammessi — unica fonte di verità, letta dai due parser
+├── errorSolve.js ............... opzione errorSolve: default, controlli, risoluzione, gate console
 ├── utility.js .................. log colorato del comando di sync
 ├── index.d.ts · react.d.ts ..... tipi pubblici delle due entry
 ├── virtual.d.ts ................ dichiarazione di "virtual:vitetranslate/languages"
@@ -139,15 +141,17 @@ lib/
 │   ├── useTranslateToString.js . ts() per le prop che vogliono una stringa
 │   ├── useTranslateLanguage.js . lingua corrente, elenco lingue, cambio lingua
 │   ├── languageResource.js ..... cache + Suspense + caricamento dei chunk
-│   ├── resolveEntry.js ......... la catena di fallback
+│   ├── resolveEntry.js ......... la catena di fallback (e i prefissi ⁑ / ∴)
 │   ├── parseCompiledMarker.js .. marcatore compilato -> chiave (con cache)
 │   ├── interpolate.js .......... %s sulle stringhe NON compilate
+│   ├── normalizeSource.js ...... forma a oggetto { t, a } -> stringa o tupla
+│   ├── withPrefix.js ........... attacca un prefisso diagnostico a una stringa o a un nodo
 │   └── basicHtmlToNodes.js ..... parser HTML sul DOM (solo dev + API pubblica)
 │
 └── dist/ ....................... output di rolldown (generato, non si edita)
 ```
 
-Regola di lettura veloce: **`dev/` non entra mai nel browser, `react/` non tocca mai il disco.** L'unico file condiviso fra i due mondi è [`htmlDialect.js`](../lib/htmlDialect.js), che infatti non importa nulla.
+Regola di lettura veloce: **`dev/` non entra mai nel browser, `react/` non tocca mai il disco.** I due file condivisi fra i due mondi sono [`htmlDialect.js`](../lib/htmlDialect.js) e [`errorSolve.js`](../lib/errorSolve.js), che infatti non importano nulla — né React né Node. Sono regole con più di un lettore, e scritte una volta sola non possono divergere.
 
 ---
 
@@ -329,6 +333,18 @@ Conseguenze concrete:
 3. **Le voci senza segnaposto hanno identità stabile fra i render**, il che permette a React di saltare la riconciliazione del sottoalbero. È il motivo per cui `<Translate>` non ha un `useMemo`: la stabilità arriva già dalla tabella.
 4. **Ogni tabella compilata è autonoma.** Passando anche la `sourceTable`, ogni chiave `null` o assente porta con sé il testo della lingua sorgente, già compilato nella stessa forma. Chi consuma la tabella non ha più bisogno che la lingua sorgente sia caricata per mostrare qualcosa di sensato.
 
+Il punto 4 ha però un prezzo, ed è il motivo per cui esiste `__untranslated__`: **dopo la sostituzione una voce non tradotta è indistinguibile da una tradotta bene.** L'informazione non è recuperabile più tardi — a runtime non resta niente da guardare. Con l'opzione `emitUntranslated` (accesa solo quando il prefisso `errorSolve.beginCharUntranslated` è acceso) il modulo porta quindi anche una chiave riservata:
+
+```js
+export default {
+  "App_1nke42v": "Hello world",
+  "App_1wltsn1": "Ciao %s",                      // riempita dalla sorgente: non tradotta
+  "__untranslated__": { "App_1wltsn1": 1 },      // ...e questo è l'unico posto che lo dice
+};
+```
+
+Ci finiscono sia le chiavi a `null` sia quelle che la lingua non ha proprio — dopo l'emissione si assomigliano anche loro. La forma è una mappa a `1` e non un array perché il lettore ([`prefixFor`](../lib/react/resolveEntry.js)) fa un lookup per chiave a ogni render, non una scansione. Con i default in produzione non viene emessa affatto.
+
 Gli helper `_arg` e `_cat` sono emessi **inline in ogni chunk** invece di essere importati dal runtime: il chunk resta autosufficiente, non dipende dalla risolvibilità di un path del pacchetto da dentro la cartella dell'utente, e il minifier li accorcia comunque a un carattere.
 
 `_cat` merita una riga: ricompone un testo senza markup i cui `%s` sono già risolti. Nel caso normale restituisce una stringa; ma se anche **uno solo** degli argomenti non è primitivo, diventa un frammento. Una concatenazione con `+` avrebbe prodotto `"[object Object]"` in silenzio, e per giunta in modo dipendente dalla lingua.
@@ -358,9 +374,15 @@ export const languages = {
 };
 export const sourceLanguage = "it-IT";
 export const fallbackTable = __vt_pre_0;
+export const errorSolve = { malformed: "⁂", untranslated: "⁑", notFullyTranslated: "∴", noArg: "[?]", warn: true };
+export const partiallyTranslated = { "App_1wltsn1": 1 };
 ```
 
 Una lingua = una riga, con tutto ciò che il runtime deve sapere. Erano tre mappe parallele da tenere allineate a mano.
+
+Gli ultimi due export sono la diagnostica, e portano già i valori **risolti**: `onlyInDev` e la scelta fra `warningDev` e `warningBuild` sono state applicate qui, dove `isProduction` è noto, così il runtime legge dei valori invece di doverli interpretare — non ragiona su `import.meta.env` e non conosce l'opzione dell'utente. Un carattere vuoto è un prefisso spento, ed è quello che una build di produzione con i default emette per tutti e tre.
+
+`partiallyTranslated` è l'unico posto in cui può stare: dice quali chiavi restano non tradotte in **qualche** lingua, e per rispondere servono tutte le tabelle insieme. Una tabella compilata sa dire cosa manca a sé stessa (`__untranslated__`, § 2b), non altrove. Qui le tabelle ci sono già, lette poco sopra per costruire il manifest, quindi non costa nessun accesso al disco in più. Vuoto quando quel prefisso è spento.
 
 **Quali lingue sono eager** dipende dall'ambiente, ed è una delle regole più sottili del progetto:
 
@@ -395,6 +417,8 @@ Per questo l'hook `config()` dichiara `optimizeDeps: { exclude: ["@sepoina/vitet
 
 - **file aggiunto/rimosso** → cambia l'_insieme_ delle lingue → invalida il modulo virtuale;
 - **file modificato** → il manifest resta valido, ma serve comunque un full-reload, perché le tabelle vivono in una cache a livello di modulo lato client che un hot update non svuoterebbe. E se il file modificato è la **lingua sorgente**, vengono invalidati _tutti_ i moduli compilati: ogni lingua incorpora il testo sorgente per le chiavi non tradotte, e Vite non può dedurlo dal grafo — quel testo entra durante il transform, non attraverso un import.
+
+Al secondo caso c'è **un'eccezione**, ed è il prefisso `∴`: `partiallyTranslated` è calcolato leggendo tutte le lingue, quindi tradurre una stringa lo cambia. Con quel prefisso acceso il manifest va rigenerato anche quando cambia solo il contenuto di un file — altrimenti il `∴` resterebbe a schermo su una stringa appena tradotta, fino al riavvio. Spento (ogni build di produzione con i default) la rilettura non avviene e la regola resta quella di sopra.
 
 Il filtro sull'estensione `.js` non è cosmetico: senza, i backup `.bak-corrupted-*` / `.bak-erased-*` lasciati lì accanto dalla sync facevano ricaricare la pagina.
 
@@ -436,6 +460,30 @@ sequenceDiagram
 Ordine completo: **lingua attiva → `fallbackTable` → fallback incorporato nel marcatore (solo dev) → chiave grezza.** Il principio è "mostra sempre qualcosa": nemmeno un chunk che non si carica produce un crash — [`readLanguage`](../lib/react/languageResource.js) ricade sulla tabella eager.
 
 Il fallback incorporato esiste per una condizione precisa e **normale in sviluppo**: hai appena scritto una stringa nuova, il marcatore compilato esiste già, ma il file di lingua la conoscerà solo dopo la sync. In produzione `includeFallback` è `false` per default (la sync gira nel prebuild, quindi sarebbe ridondante) e il ramo sparisce dal bundle insieme al suo import di `basicHtmlToNodes` — verificato ricostruendo il playground: il bundle resta byte-identico.
+
+### I prefissi diagnostici
+
+"Mostra sempre qualcosa" ha un rovescio: se qualcosa si vede sempre, non si vede mai che è andata storta. `errorSolve` mette un carattere davanti al testo — **in sviluppo**, di default — e chiude il buco senza toccare il principio.
+
+| Prefisso | Condizione | Chi lo sa |
+| --- | --- | --- |
+| `⁂` | testo che la traduzione non ha mai visto, o prop incompatibili fra loro | `Translate.js` / `useTranslateToString.js`, sul posto |
+| `⁑` | la lingua attiva non ha una traduzione per questa chiave | `table.__untranslated__` (§ 2b), oppure la chiave che dalla tabella manca |
+| `∴` | tradotta qui, ma assente in almeno un'altra lingua | `partiallyTranslated` dal modulo virtuale (§ Fase 3) |
+
+**Uno solo per stringa, e il primo della lista vince.** Se manca la traduzione proprio nella lingua che si sta guardando, dire anche che ne manca una altrove non aggiunge niente. Lo stesso vale nel percorso di salvataggio: quando `⁂` ha già vinto, il testo recuperato attraversa la catena con la variante `diag.malformedOnly`, che ha gli altri due spenti — altrimenti si prenderebbe un secondo prefisso per strada.
+
+`⁂` si porta dietro un cambio di contratto: **una stringa non marcata non è più un errore fatale.** Prima in sviluppo `<Translate>` lanciava e rendeva `[...]`, cancellando il testo; ma non tutto il testo che passa da una prop è traducibile — un numero di telefono, il nome di un campo configurato altrove, una descrizione che arriva dal server. Chi ne aveva doveva ispezionare il marcatore _prima_ di chiamare il componente, cioè riscrivere fuori una decisione che è di qui. Ora il marcatore è il discriminante e ad applicarlo è il componente.
+
+Per la stessa ragione gli usi scorretti non lanciano più: `salvage()` recupera il miglior testo disponibile fra `o`, `t` e `children` — la stringa, il primo elemento della tupla, il campo `t` dell'oggetto — e lo rende preceduto da `⁂`. `[...]` resta solo per il caso in cui non ci sia davvero niente da mostrare. La differenza si vede in produzione: prima un errore nelle _tue_ prop lo pagava chi legge lo schermo.
+
+### La console, e il suo interruttore
+
+`warningDev` / `warningBuild` governano **tutto** l'output che la libreria stampa nel browser, non solo le diagnostiche nuove: ogni chiamata passa da `report()` in [`errorSolve.js`](../lib/errorSolve.js). Chi mette a tacere il pacchetto in produzione si aspetta che taccia.
+
+⚠️ Conseguenza da tenere presente: con il default `warningBuild: false` tacciono anche le segnalazioni di guasto vero — chunk di lingua non caricato, tag inesistente, `initialLanguage` non precaricata. Quest'ultima era deliberatamente fuori dal gate `import.meta.env.DEV`, perché in dev direbbe sempre che va tutto bene; ora l'ultima parola ce l'ha l'opzione, ed è una scelta di chi configura. `warningBuild: true` le riaccende tutte.
+
+I messaggi del plugin — lato Node, a build time, prefissati `[vitetranslate]` — restano fuori: non sono output di runtime.
 
 ### Suspense e cambio lingua
 
@@ -579,13 +627,15 @@ Un'aspettativa scritta a mano è giusta solo quanto il giorno in cui è stata sc
 Raccolta delle cose che, se cambiate senza accorgersene, rompono qualcosa in modo **silenzioso** — il tipo di rottura che si vede solo a schermo, tardi, in produzione.
 
 1. **`markerCore.js` è l'unica definizione di cosa sia un marcatore e di come si calcoli il suo id.** Cambiare l'hash invalida ogni traduzione esistente di ogni utente.
-2. **`htmlDialect.js` è l'unica lista dei tag ammessi.** I due parser devono leggerla, mai riscriverla.
+2. **`htmlDialect.js` è l'unica lista dei tag ammessi.** I due parser devono leggerla, mai riscriverla. Vale identico per [`errorSolve.js`](../lib/errorSolve.js), che ha quattro lettori — chi scrive l'opzione, il plugin che la normalizza, il plugin che la risolve, il runtime che ne legge l'esito.
 3. **La prima lingua precaricata deve essere la stessa in dev e in build** (`preloadedLanguages[0] ?? sourceLanguage`), altrimenti l'app parte in una lingua diversa una volta pubblicata.
 4. **La sync scrive, il plugin no.** Se il plugin cominciasse a scrivere file di lingua durante il build, tornerebbe la dipendenza dall'ordine degli hook che ha portato a estrarre il CLI.
 5. **Il transform dei sorgenti non deve toccare `localeDir`**, nemmeno se una stringa tradotta contiene `_%_` per coincidenza: sono dati, non sorgente.
 6. **`readLanguageTable` prima di `import()`.** La cache dei moduli ESM di Node non viene mai rilasciata e non ha API di sfratto: misurato, 24 kB trattenuti per ogni salvataggio del traduttore, 7 MB dopo 300 salvataggi. L'`import()` resta solo come ripiego per moduli di lingua non generati da noi, con una query di cache-busting che è un **hash del contenuto** e non l'mtime (la granularità del timestamp è troppo grossolana: due contenuti diversi scritti nello stesso tick condividerebbero la chiave di cache).
 7. **`splitAndSortEntries` ordina con locale esplicito.** Senza, la stessa tabella si ordina diversamente fra macchina di sviluppo e CI, e i file risultano "cambiati" senza esserlo.
 8. **Ogni divergenza fra build e runtime va segnalata, non nascosta.** È la regola che ha prodotto gli avvisi su marcatori annidati, collisioni di id e tag incrociati.
+9. **La diagnostica non deve costare niente dove è spenta.** `errorSolve` è risolto a build time, quindi con i default una build di produzione non spedisce né i prefissi né i dati che li alimentano: `__untranslated__` non viene emesso nei chunk di lingua e `partiallyTranslated` resta vuoto. Chi aggiunge un prefisso nuovo aggiunge anche la condizione che ne evita l'emissione — altrimenti ogni visitatore paga byte per un'informazione che nessuno leggerà.
+10. **Un solo prefisso per stringa.** La precedenza è `⁂` → `⁑` → `∴`, e il percorso di salvataggio usa `diag.malformedOnly` proprio per non sommarne un secondo. Due glifi davanti allo stesso testo non dicono più del primo, e rendono illeggibile ciò che si stava cercando di mostrare.
 
 ---
 
@@ -602,5 +652,6 @@ Raccolta delle cose che, se cambiate senza accorgersene, rompono qualcosa in mod
 | le reti di sicurezza sui dati | [`guardMassErase.js`](../lib/dev/vite/uty/guardMassErase.js) · [`backupLanguageFile.js`](../lib/dev/vite/uty/backupLanguageFile.js) |
 | Suspense e cambio lingua | [`languageResource.js`](../lib/react/languageResource.js) · [`TranslateContainer.jsx`](../lib/react/TranslateContainer.jsx) |
 | la catena di fallback | [`resolveEntry.js`](../lib/react/resolveEntry.js) |
+| i prefissi diagnostici e l'interruttore console | [`errorSolve.js`](../lib/errorSolve.js) · [`withPrefix.js`](../lib/react/withPrefix.js) |
 | i tag BCP 47 | [`bcp47.md`](bcp47.md) |
 | come contribuire, come girano i test | [`CONTRIBUTING.md`](../CONTRIBUTING.md) |

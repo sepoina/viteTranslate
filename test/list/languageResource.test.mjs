@@ -9,7 +9,7 @@
 // relativo, così il modulo sotto test resta byte per byte quello spedito.
 //
 //   node test/list/languageResource.test.mjs
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import { dirname, join, resolve } from "node:path";
 import { writeFileSync, unlinkSync, readFileSync, mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -38,7 +38,11 @@ async function loadRuntime({ preloadedLanguages, isProduction }) {
     ...(preloadedLanguages ? { preloadedLanguages } : {}),
   });
   plugin.configResolved({ isProduction, build: {} });
-  const manifest = (await plugin.load(VIRTUAL)).code;
+  // Il manifest importa i file di lingua per percorso assoluto: dentro il bundler li risolve
+  // Vite, ma qui a caricarli è l'ESM loader di Node, che su Windows legge il "d:" iniziale
+  // come schema di URL e rifiuta. Riscritti a file:// restano gli stessi file.
+  const manifest = (await plugin.load(VIRTUAL)).code
+    .replace(/"([A-Za-z]:\/[^"]+)"/g, (_, percorso) => JSON.stringify(pathToFileURL(percorso).href));
 
   const stamp = `${Date.now()}-${Math.random().toString(36).slice(2)}`;
   const manifestPath = join(ROOT, "lib/react", `__manifest-${stamp}.mjs`);
@@ -51,7 +55,9 @@ async function loadRuntime({ preloadedLanguages, isProduction }) {
     "utf8"
   );
   try {
-    return await import(`${modulePath}?t=${stamp}`);
+    // pathToFileURL e non il percorso grezzo: su Windows un path assoluto comincia con "d:",
+    // che l'ESM loader di Node legge come schema di URL e rifiuta.
+    return await import(`${pathToFileURL(modulePath).href}?t=${stamp}`);
   } finally {
     unlinkSync(manifestPath);
     unlinkSync(modulePath);

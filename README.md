@@ -70,6 +70,10 @@ That is the whole authoring workflow. Wrap a string in `_%_..._%_`, render it th
 - [🎯 Preloading, Suspense and the initial flash](#-preloading-suspense-and-the-initial-flash)
 - [🗂️ Translation file format](#️-translation-file-format)
   - [Adding a language](#adding-a-language)
+- [🔎 Diagnostics: `errorSolve`](#-diagnostics-errorsolve)
+  - [The four cases](#the-four-cases)
+  - [Unmarked text is domain data, not an error](#unmarked-text-is-domain-data-not-an-error)
+  - [Console output](#console-output)
 - [🖥️ CLI](#️-cli)
 - [⚙️ Plugin options](#️-plugin-options)
 - [🔬 How it works](#-how-it-works)
@@ -209,14 +213,22 @@ export default function Welcome() {
 // classic form: t="..." a=[...]
 <Translate t="_%_Hello %s, how are you?_%_" a={[username]} />
 
+// object form: text and arguments in one value
+<Translate o={{ t: "_%_Hello %s, how are you?_%_", a: [username] }} />
+
 // small inline HTML subset
 <Translate t={"_%_<strong>Bold</strong> and <i>italic</i> text_%_"} />
 
 // a placeholder can be filled with a React element, markup included
 <Translate t={["_%_Signed in as <b>%s</b>_%_", <Link to="/me">{username}</Link>]} />
+
+// not marked: domain data, rendered as it is
+<Translate>{user.phoneNumber}</Translate>
 ```
 
-Since translation tables are compiled at build time, a `%s` inside markup is a real JSX child, not a piece of string. So an argument can be any React node, and it is **never** interpreted as HTML — React escapes it like any other child. A `%s` left without a value renders as `[?]`.
+Since translation tables are compiled at build time, a `%s` inside markup is a real JSX child, not a piece of string. So an argument can be any React node, and it is **never** interpreted as HTML — React escapes it like any other child. A `%s` left without a value renders as `[?]` (configurable, see [Diagnostics](#-diagnostics-errorsolve)).
+
+A string **without** the marker is not an error: it is rendered as it is, and in development it carries a `⁂` in front of it so you can see the prop is receiving something nobody will translate. That is what lets one leaf component accept both translatable text and domain data without a wrapper deciding for it.
 
 ### `useTranslateToString()`
 
@@ -230,6 +242,8 @@ function SearchInput() {
   return <input placeholder={ts("_%_Enter your name_%_")} />;
 }
 ```
+
+It accepts the same forms as `<Translate>` — `ts("_%_Hello %s_%_", name)`, `ts(["_%_Hello %s_%_", name])`, `ts({ t: "_%_Hello %s_%_", a: [name] })` — and applies the same [diagnostic prefixes](#-diagnostics-errorsolve).
 
 ### `useTranslateLanguage()`
 
@@ -301,7 +315,7 @@ basicHtmlToNodes("no markup here");             // "no markup here" (same string
 | `args` | Value or array of values replacing the `%s`, in order — optional |
 | *returns* | A string, a single element, or a fragment |
 
-A `%s` left without a value renders as `[?]` — whether no argument was passed at all, fewer were passed than there are placeholders, or the value in that position is `null`/`undefined`. `0` and the empty string are values like any other and are interpolated normally. The same rule applies to `ts()` from `useTranslateToString`.
+A `%s` left without a value renders as `[?]` — whether no argument was passed at all, fewer were passed than there are placeholders, or the value in that position is `null`/`undefined`. `0` and the empty string are values like any other and are interpolated normally. The same rule applies to `ts()` from `useTranslateToString`, and the character is the `noArrayChar` option of [`errorSolve`](#-diagnostics-errorsolve).
 
 Only the formatting tags `<b> <strong> <i> <em> <u> <small> <code> <br> <hr> <wbr>` and HTML entities are recognised. Any other tag is dropped while keeping its content (`<div>hi</div>` → `hi`), and **no attribute is ever forwarded** — the elements it builds carry nothing but a `key`. A string without markup is returned untouched, allocating nothing. Parsed results are cached, so the same string is converted once per app.
 
@@ -456,6 +470,73 @@ No further registration needed: every `.js` file found in `localeDir` becomes au
 
 ---
 
+## 🔎 Diagnostics: `errorSolve`
+
+A string that doesn't reach the screen translated is not always a bug you can see. A key nobody has translated yet still renders — in the source language, indistinguishable from a real translation. A text nobody marked renders too. Both look fine, and that is the problem.
+
+`errorSolve` puts a character in front of them, **in development only**, so you spot them by reading the page instead of by auditing the tables. Every field is optional; these are the defaults:
+
+```js
+vitetranslate({
+  localeDir: "src/locale",
+  sourceLanguage: "it-IT",
+  errorSolve: {
+    beginCharMalformed: "⁂",           // text nobody marked, or incompatible props
+    beginCharUntranslated: "⁑",        // no translation in the current language
+    beginCharNotFullyTranslated: "∴",  // translated here, missing in some other language
+    noArrayChar: "[?]",                // a %s left without a value
+    onlyInDev: true,                   // in a build: just the fallback, no characters
+    warningDev: true,                  // runtime console in development
+    warningBuild: false,               // runtime console in production
+  },
+})
+```
+
+One character per string, the worst one wins: `⁂` → `⁑` → `∴`. Set any of them to `""` or `false` to turn that one off.
+
+With `onlyInDev: true` (the default) a production build ships none of this — not the characters, and not the data behind them: the untranslated-key lists never enter the language chunks and the global set stays empty. `noArrayChar` is the exception: it isn't a diagnostic but ordinary rendering, so it applies in development and in a build alike, and its default is what `%s` already rendered as.
+
+### The four cases
+
+| What happened | Before | Dev | Build (default) |
+| --- | --- | --- | --- |
+| Text nobody marked — `<Translate>Mira Halvorsen</Translate>` | `[...]` in dev, text in build | `⁂Mira Halvorsen` | `Mira Halvorsen` |
+| Incompatible props — `t` and `children` together | `[...]` | `⁂` + the text that was there | the text that was there |
+| No translation in this language | source text, silently | `⁑` + source text | source text |
+| Translated here, missing elsewhere | nothing | `∴` + translation | translation |
+| A `%s` with no value | `[?]` | `noArrayChar` | `noArrayChar` |
+
+Incompatible props no longer erase the text. `[...]` used to be the answer to every misuse, which meant a mistake in *your* props was paid for by whoever was reading the screen. Now the best available text is recovered and rendered — the string in `t`, the children, the first element of the tuple — and `[...]` is left only for the case where there is genuinely nothing to show.
+
+### Unmarked text is domain data, not an error
+
+`<Translate>` used to throw in development on a string without `_%_..._%_`. But plenty of text is not translatable and never will be: a phone number, a field name configured in an admin panel, an exception message, a description coming from the server. Deciding between the two meant inspecting the marker *before* calling `<Translate>` — rewriting outside a decision that belongs here.
+
+Now the marker is the discriminator and the component applies it: marked text is translated, unmarked text is rendered as it is. So a leaf component can take whatever its caller has:
+
+```jsx
+// all four of these work, and none of them needs a wrapper
+<Translate>_%_Welcome_%_</Translate>
+<Translate t={["_%_Hello %s_%_", username]} />
+<Translate o={{ t: "_%_Hello %s_%_", a: [username] }} />   // object form
+<Translate>{user.phoneNumber}</Translate>                  // domain data, rendered as is
+```
+
+The `o` prop — and the same `{ t, a }` object passed to `t`, or to `ts()` — is for text that already travels packaged with its arguments, which is how several application cores carry it. It is exactly equivalent to passing them separately.
+
+In development that phone number shows a `⁂`, and that is the point: the prop is receiving something nobody will translate, and you get to decide whether that is right.
+
+### Console output
+
+`warningDev` and `warningBuild` are the switch for **everything the library prints in the browser** — the new diagnostics, the missing-key report, the unknown-language and failed-chunk errors, the warning about an `initialLanguage` that isn't preloaded.
+
+> [!IMPORTANT]
+> With `warningBuild: false` (the default) a published app is completely silent, including the messages that report a real failure — a language chunk that didn't load, a tag that doesn't exist. Set `warningBuild: true` to keep them.
+
+Plugin messages (build time, prefixed `[vitetranslate]`) are not affected: they are not runtime output.
+
+---
+
 ## 🖥️ CLI
 
 ```bash
@@ -480,6 +561,19 @@ vitetranslate(options)
 | `baseDir` | `string` | `process.cwd()` | Project root used to resolve `localeDir` / `srcDir` |
 | `srcDir` | `string` | `"src"` | Source folder scanned by the CLI |
 | `includeFallback` | `boolean` | `!isProduction` | Embed the original text as a fallback in the compiled marker (dev only by default) |
+| `errorSolve` | `object` | see below | On-screen and console diagnostics for strings that didn't arrive where they should — see [Diagnostics](#-diagnostics-errorsolve) |
+
+### `errorSolve`
+
+| Option | Type | Default | Description |
+| --- | --- | --- | --- |
+| `beginCharMalformed` | `string \| false` | `"⁂"` | Prefix for text nobody marked, and for incompatible props |
+| `beginCharUntranslated` | `string \| false` | `"⁑"` | Prefix when the current language has no translation for that entry |
+| `beginCharNotFullyTranslated` | `string \| false` | `"∴"` | Prefix when the entry is translated here but missing in some other language |
+| `noArrayChar` | `string` | `"[?]"` | Stands in for a `%s` left without a value. Ordinary rendering, not a diagnostic: applies in dev **and** in a build, and `onlyInDev` doesn't touch it |
+| `onlyInDev` | `boolean` | `true` | In a build, no prefixes on screen — just the fallback. The data behind them isn't shipped either |
+| `warningDev` | `boolean` | `true` | Runtime console output in development |
+| `warningBuild` | `boolean` | `false` | Runtime console output in production — **all** of it, failures included |
 
 ---
 

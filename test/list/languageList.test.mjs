@@ -14,7 +14,7 @@
 import { renderToStaticMarkup } from "react-dom/server";
 import { createElement as h } from "react";
 import { writeFileSync, unlinkSync, readFileSync } from "node:fs";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import { dirname, join, resolve } from "node:path";
 import { TranslateContext } from "../../lib/react/TranslateContext.js";
 
@@ -66,7 +66,9 @@ const percorsoModulo = scriviTemporaneo(
   readFileSync(join(ROOT, "lib/react/useTranslateLanguage.js"), "utf8")
     .replaceAll(/["']virtual:vitetranslate\/languages["']/g, JSON.stringify(`./${nomeManifest}`)),
 );
-const { useTranslateLanguage } = await import(`${percorsoModulo}?t=${stamp}`);
+// pathToFileURL e non il percorso grezzo: su Windows un path assoluto comincia con "d:", che
+// l'ESM loader di Node legge come schema di URL e rifiuta (ERR_UNSUPPORTED_ESM_URL_SCHEME).
+const { useTranslateLanguage } = await import(`${pathToFileURL(percorsoModulo).href}?t=${stamp}`);
 
 /** Rende una sonda che chiama l'hook, dentro (o fuori) un provider di lingua. */
 function leggiHook(lang) {

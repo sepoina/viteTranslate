@@ -12,14 +12,25 @@ import type { FC, ReactNode } from 'react';
  */
 export type TranslateArgs = unknown | readonly unknown[];
 
+/** La forma a oggetto: testo e argomenti in un valore solo. */
+export interface TranslateObjectForm {
+  t: string;
+  a?: TranslateArgs;
+}
+
 export interface TranslateProps {
   /**
-   * Il testo marcato, o la forma compatta `[testo, ...argomenti]`.
-   * Alternativo a `children`: usarli entrambi è un errore.
+   * Il testo marcato, la forma compatta `[testo, ...argomenti]` o la forma a oggetto
+   * `{ t, a }`. Alternativo a `children` e a `o`: usarne più di uno è un errore.
    */
-  t?: string | readonly [string, ...unknown[]];
-  /** Argomenti per i `%s`. Non ammesso quando `t` è già nella forma `[testo, ...args]`. */
+  t?: string | readonly [string, ...unknown[]] | TranslateObjectForm;
+  /** Argomenti per i `%s`. Non ammesso quando `t` porta già gli argomenti con sé. */
   a?: TranslateArgs;
+  /**
+   * La forma a oggetto `{ t, a }`, per chi ha testo e argomenti già impacchettati insieme —
+   * è come passarli separatamente. Accetta anche le altre forme; alternativa a `t`.
+   */
+  o?: string | readonly [string, ...unknown[]] | TranslateObjectForm;
   /** Il testo marcato, come figlio. Alternativo a `t`. */
   children?: ReactNode;
 }
@@ -31,7 +42,13 @@ export interface TranslateProps {
  * <Translate>_%_Benvenuto_%_</Translate>
  * <Translate t={['_%_Ciao %s_%_', nome]} />
  * <Translate t="_%_Ciao %s_%_" a={[nome]} />
+ * <Translate o={{ t: '_%_Ciao %s_%_', a: [nome] }} />
  * ```
+ *
+ * Un testo **non** marcato non è un errore: viene reso così com'è, preceduto in sviluppo dal
+ * carattere `errorSolve.beginCharMalformed`. È il caso dei dati di dominio — un numero di
+ * telefono, una descrizione che arriva dal server — che passano di qui senza doversi
+ * annunciare.
  */
 export declare const Translate: FC<TranslateProps>;
 
@@ -101,8 +118,14 @@ export declare function useTranslateLanguage(): UseTranslateLanguageResult;
  * Restituisce `ts(t, args?)`, che risolve una stringa marcata in una **stringa** — per le
  * prop DOM che non accettano nodi (`placeholder`, `aria-label`, `title`). Un'eventuale voce
  * con markup viene appiattita a solo testo.
+ *
+ * Accetta le stesse forme di `<Translate>`: stringa, tupla `[testo, ...args]` e oggetto
+ * `{ t, a }`.
  */
-export declare function useTranslateToString(): (t: string, a?: TranslateArgs) => string;
+export declare function useTranslateToString(): (
+  t: string | readonly [string, ...unknown[]] | TranslateObjectForm,
+  a?: TranslateArgs
+) => string;
 
 /**
  * Converte una stringa con HTML elementare in nodi React, senza `dangerouslySetInnerHTML`.

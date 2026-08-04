@@ -9,16 +9,25 @@ import {
   readLanguage, ensureLanguage, isKnownLanguage, isPreloadedLanguage,
   preloadedLanguages, firstPreloadedLanguage,
 } from "./languageResource.js";
+// Namespace per gli export recenti: vedi la nota in Translate.js.
+import * as manifest from "virtual:vitetranslate/languages";
+import { resolveDiagnostics, report } from "../errorSolve.js";
+
+const diag = resolveDiagnostics(manifest);
 
 // Una lingua iniziale non precaricata funziona — il container sospende, il chunk arriva, la
 // pagina si completa — ma paga un giro di rete prima di poter mostrare qualsiasi testo, che è
 // esattamente ciò che `preloadedLanguages` esiste per evitare. Vale la pena dirlo.
 //
-// L'avviso NON è limitato allo sviluppo, ed è il motivo per cui `preloaded` viaggia nel
+// L'avviso non è limitato allo sviluppo, ed è il motivo per cui `preloaded` viaggia nel
 // bundle invece di essere dedotto: in dev la lingua sorgente è precaricata comunque, quindi
 // un controllo fatto lì direbbe che va tutto bene proprio nella configurazione che poi, in
 // produzione, sospende. Il caso tipico è `sourceLanguage: "it-IT"` con
 // `preloadedLanguages: ["en-US"]` e `initialLanguage="it-IT"`.
+//
+// Da quando esiste `errorSolve` l'ultima parola ce l'ha `warningBuild`, che di default è
+// false: in una build di produzione questo avviso tace, ed è una scelta di chi configura, non
+// più della libreria. Chi vuole vederlo dove serve davvero mette `warningBuild: true`.
 //
 // Una volta sola per tag: è un errore di configurazione, si ripresenta identico a ogni mount.
 const warnedNotPreloaded = new Set();
@@ -26,7 +35,8 @@ const warnedNotPreloaded = new Set();
 function warnInitialNotPreloaded(tag) {
   if (warnedNotPreloaded.has(tag)) return;
   warnedNotPreloaded.add(tag);
-  console.warn(
+  report(
+    diag, "warn",
     `TranslateContainer: initialLanguage "${tag}" is not preloaded, so the first render suspends ` +
     `until its chunk is fetched. Preloaded: ${preloadedLanguages.map((t) => `"${t}"`).join(", ") || "(none)"}. ` +
     `Add "${tag}" to the "preloadedLanguages" option of the vitetranslate plugin, or start from a preloaded language.`
@@ -64,7 +74,7 @@ export default function TranslateContainer({ initialLanguage = firstPreloadedLan
   // senza far esplodere l'app. Inizializzatore: eseguito una sola volta.
   const [lang, setLang] = React.useState(() => {
     if (!isKnownLanguage(initialLanguage)) {
-      console.error(`TranslateContainer: unknown initial language "${initialLanguage}", falling back to "${firstPreloadedLanguage}"`);
+      report(diag, "error", `TranslateContainer: unknown initial language "${initialLanguage}", falling back to "${firstPreloadedLanguage}"`);
       return firstPreloadedLanguage;
     }
     // Lingua valida ma non in bundle: funziona, ma sospende. Vedi warnInitialNotPreloaded.
@@ -84,7 +94,7 @@ export default function TranslateContainer({ initialLanguage = firstPreloadedLan
     if (!isKnownLanguage(next)) {
       const error = new Error(`Unknown language "${next}"`);
       if (onError) onError({ error, inexistID: next });
-      else console.error(`Inexistant language "${next}"`);
+      else report(diag, "error", `Inexistant language "${next}"`);
       if (onDone) onDone(false);
       return;
     }
@@ -94,7 +104,7 @@ export default function TranslateContainer({ initialLanguage = firstPreloadedLan
       () => { if (onDone) onDone(true); },
       error => {
         if (onError) onError({ error, inexistID: next });
-        else console.error(`Error loading language "${next}"`, error);
+        else report(diag, "error", `Error loading language "${next}"`, error);
         if (onDone) onDone(false);
       }
     );

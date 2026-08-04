@@ -8,8 +8,8 @@ const jsx = (type, props) => ({ type, children: props.children });
 const jsxs = jsx;
 `;
 
-async function load(table, sourceTable = null) {
-  const code = compileLanguageModule(table, "", sourceTable).replace(
+async function load(table, sourceTable = null, options = {}) {
+  const code = compileLanguageModule(table, "", sourceTable, options).replace(
     /import \{[^}]*\} from "react\/jsx-runtime";/,
     STUB
   );
@@ -189,6 +189,30 @@ const SUB = {
   // in piedi l'ultima risorsa a runtime, di un fallback inventato.
   const { table: C } = await load({ k: null }, { k: null });
   eq("sorgente anch'essa null -> resta null", null, C.k);
+}
+
+// ------------------------------------------------------------- opzioni di errorSolve
+// Il fallback incorporato qui sopra rende una voce non tradotta indistinguibile da una
+// tradotta: `__untranslated__` è l'unico modo per far arrivare quell'informazione al runtime,
+// che è ciò che serve al prefisso `errorSolve.beginCharUntranslated`.
+console.log("\n== errorSolve nel modulo compilato ==");
+{
+  const { table: A } = await load(SUB, SORGENTE, { emitUntranslated: true });
+  eq("le voci a null sono elencate", true, A.__untranslated__.daTradurre === 1 && A.__untranslated__.conMarkup === 1);
+  // Anche una chiave che questa lingua non ha proprio: dopo l'emissione è presente come tutte
+  // le altre, e senza segnarla adesso a runtime nessuno potrebbe più distinguerla.
+  eq("e le chiavi assenti pure", 1, A.__untranslated__.soloNellaSorgente);
+  eq("una voce tradotta non è elencata", undefined, A.__untranslated__.tradotta);
+
+  eq("senza l'opzione la chiave non c'è", undefined, (await load(SUB, SORGENTE)).table.__untranslated__);
+  // Niente da segnalare, niente da spedire: nessuna chiave riservata su una lingua completa.
+  eq("niente da segnalare -> niente chiave", undefined, (await load({ a: "uno" }, null, { emitUntranslated: true })).table.__untranslated__);
+
+  // noArrayChar viaggia fino dentro il chunk di lingua, dove l'helper degli argomenti lo
+  // inlinea: è la stessa regola che a runtime applica l'interpolazione, e devono coincidere.
+  const { table: P } = await load({ k: "ciao %s" }, null, { missingArg: "«?»" });
+  eq("missingArg personalizzato", "ciao «?»", show(P.k()));
+  eq("e il default resta [?]", "ciao [?]", show((await load({ k: "ciao %s" })).table.k()));
 }
 
 console.log(fail === 0 ? "\nTUTTI OK" : `\n${fail} FALLITI`);

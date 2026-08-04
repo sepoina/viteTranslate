@@ -4,6 +4,51 @@
 
 /// <reference path="./virtual.d.ts" />
 
+/**
+ * Cosa succede quando una stringa non arriva dove doveva: un testo che nessuno ha marcato,
+ * prop incompatibili fra loro, una voce senza traduzione.
+ *
+ * I tre `beginChar*` sono prefissi diagnostici, mostrati a schermo davanti al testo. Vale il
+ * più grave e uno solo: malformato, poi non tradotto qui, poi non tradotto altrove. Ognuno si
+ * spegne da solo passando `""` o `false`.
+ */
+export interface ErrorSolveOptions {
+  /**
+   * Testo che la traduzione non ha mai visto (un `_%_..._%_` sfuggito al transform, o un
+   * valore che marcato non è mai stato) e prop incompatibili fra loro. Default: `"⁂"`.
+   */
+  beginCharMalformed?: string | false;
+  /**
+   * La lingua corrente non ha una traduzione per questa voce: a schermo c'è il testo della
+   * lingua sorgente. Default: `"⁑"`.
+   */
+  beginCharUntranslated?: string | false;
+  /**
+   * Tradotta qui, ma assente in almeno un'altra lingua del progetto. Default: `"∴"`.
+   */
+  beginCharNotFullyTranslated?: string | false;
+  /**
+   * Segnaposto `%s` rimasto senza valore. **Non** è una diagnostica ma una resa normale:
+   * vale in sviluppo e in build, e `onlyInDev` non lo tocca. Default: `"[?]"`.
+   */
+  noArrayChar?: string;
+  /**
+   * In build nessun prefisso a schermo: si mostra il fallback e basta. Default: `true`.
+   */
+  onlyInDev?: boolean;
+  /** Output console del runtime in sviluppo. Default: `true`. */
+  warningDev?: boolean;
+  /**
+   * Output console del runtime in produzione. Default: `false`.
+   *
+   * Governa **tutto** ciò che la libreria stampa nel browser, comprese le segnalazioni su
+   * lingua iniziale non precaricata, tag inesistente e chunk non caricato: con il default
+   * un'app pubblicata tace del tutto. I messaggi del plugin (a build time, prefissati
+   * `[vitetranslate]`) non passano di qui.
+   */
+  warningBuild?: boolean;
+}
+
 /** Opzioni di `vitetranslate(...)`, da registrare fra i `plugins` di vite.config. */
 export interface VitetranslateOptions {
   /** Cartella con i file di lingua JS, relativa a `baseDir` (es. `"src/locale"`). */
@@ -26,6 +71,11 @@ export interface VitetranslateOptions {
    * Default: `true` in sviluppo, `false` in produzione (risolto da `configResolved`).
    */
   includeFallback?: boolean;
+  /**
+   * Diagnostica a schermo e in console per le stringhe che non arrivano dove dovevano.
+   * Ogni campo è facoltativo; omettere l'opzione lascia tutti i default.
+   */
+  errorSolve?: ErrorSolveOptions;
 }
 
 /**

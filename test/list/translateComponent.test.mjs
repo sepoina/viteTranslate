@@ -17,7 +17,7 @@
 import { renderToStaticMarkup } from "react-dom/server";
 import { createElement as h } from "react";
 import { writeFileSync, unlinkSync, readFileSync } from "node:fs";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import { dirname, join, resolve } from "node:path";
 import { compileLanguageModule } from "../../lib/dev/compile/compileTable.js";
 import { TranslateContext } from "../../lib/react/TranslateContext.js";
@@ -53,17 +53,25 @@ function scriviTemporaneo(nome, contenuto) {
   return percorso;
 }
 
+// Un id nuovo a ogni caricamento: lo stesso modulo va caricato più volte contro manifest
+// diversi (uno senza diagnostica, uno con i prefissi accesi), e Node tiene in cache i moduli
+// per URL — riusare il nome del manifest servirebbe il primo anche alla seconda lettura.
+let caricamenti = 0;
+
 /** Carica un modulo di lib/react con l'import virtuale rimpiazzato dal manifest dato. */
 async function caricaConManifest(file, manifest) {
-  const nomeManifest = `__manifest-${stamp}.mjs`;
+  const id = `${stamp}-${caricamenti++}`;
+  const nomeManifest = `__manifest-${id}.mjs`;
   scriviTemporaneo(nomeManifest, manifest);
-  const nomeModulo = `__${file.replace(/\.jsx?$/, "")}-${stamp}.mjs`;
+  const nomeModulo = `__${file.replace(/\.jsx?$/, "")}-${id}.mjs`;
   const percorso = scriviTemporaneo(
     nomeModulo,
     readFileSync(join(ROOT, "lib/react", file), "utf8")
       .replaceAll(/["']virtual:vitetranslate\/languages["']/g, JSON.stringify(`./${nomeManifest}`)),
   );
-  return import(`${percorso}?t=${stamp}`);
+  // pathToFileURL e non il percorso grezzo: su Windows un path assoluto comincia con "d:", che
+  // l'ESM loader di Node legge come schema di URL e rifiuta (ERR_UNSUPPORTED_ESM_URL_SCHEME).
+  return import(`${pathToFileURL(percorso).href}?t=${id}`);
 }
 
 // La tabella è quella vera, compilata dal sorgente come farebbe la build: stringhe, elementi
@@ -77,7 +85,7 @@ const sorgenti = {
 const tabellaPath = join(ROOT, "lib/react", `__tabella-${stamp}.mjs`);
 writeFileSync(tabellaPath, compileLanguageModule(sorgenti, "test"), "utf8");
 temporanei.push(tabellaPath);
-const tabella = (await import(`${tabellaPath}?t=${stamp}`)).default;
+const tabella = (await import(`${pathToFileURL(tabellaPath).href}?t=${stamp}`)).default;
 
 // Nel manifest, `fallbackTable` è la tabella eager: è la sola che <Translate> vede quando non
 // c'è un container sopra, ed è il fallback universale quando c'è.
@@ -171,17 +179,40 @@ console.log("\n== testo mai passato dal compilatore ==");
   eq("il markup resta letterale", "a &lt;b&gt;b&lt;/b&gt;", rendi({ t: "_%_a <b>b</b>_%_" }, linguaAttiva));
 }
 
-// ------------------------------------------------------------------------- usi scorretti
-console.log("\n== usi scorretti: si degrada, non si esplode ==");
+// ---------------------------------------------------------------------- forma a oggetto
+console.log("\n== forma a oggetto { t, a } ==");
 {
+  // È la forma in cui certi core applicativi trasportano testo e argomenti insieme. Prima
+  // dava "t cannot be an object" e ogni chiamante doveva convertirla a mano.
+  eq("o={{ t, a }} con lista", "Ciao Mario, come stai?", rendi({ o: { t: marcatore("App_conArg"), a: ["Mario"] } }, linguaAttiva));
+  eq("o={{ t, a }} con scalare", "Ciao Mario, come stai?", rendi({ o: { t: marcatore("App_conArg"), a: "Mario" } }, linguaAttiva));
+  eq("o={{ t }} senza argomenti", "Ciao mondo", rendi({ o: { t: marcatore("App_saluto") } }, linguaAttiva));
+  eq("o={{ t, a: null }}", "Ciao mondo", rendi({ o: { t: marcatore("App_saluto"), a: null } }, linguaAttiva));
+  // Lo stesso oggetto passato a `t`: riconosciuto uguale, così chi ce l'ha già in mano non
+  // deve sapere quale delle due prop usare.
+  eq("t={{ t, a }}", "Ciao Mario, come stai?", rendi({ t: { t: marcatore("App_conArg"), a: ["Mario"] } }, linguaAttiva));
+  eq("o con markup e argomenti", "Ciao <b>Mario</b>, hai 3 messaggi", rendi({ o: { t: marcatore("App_markupArg"), a: ["Mario", 3] } }, linguaAttiva));
+  eq("ts() accetta la forma a oggetto", "Ciao Mario, come stai?", ts({ t: marcatore("App_conArg"), a: ["Mario"] }, undefined, linguaAttiva));
+  eq("ts() accetta la forma a tupla", "Ciao Mario, come stai?", ts([marcatore("App_conArg"), "Mario"], undefined, linguaAttiva));
+}
+
+// ------------------------------------------------------------------------- usi scorretti
+console.log("\n== usi scorretti: si salva il testo, non si esplode ==");
+{
+  // Il testo dell'utente non sparisce più dietro "[...]": era lì e si poteva mostrare, e a
+  // pagare la combinazione sbagliata di prop era chi legge lo schermo. Con i prefissi accesi
+  // (vedi più sotto) si porta dietro un `⁂`; qui il manifest non li chiede, quindi esce nudo.
   const conta = errori.length;
-  eq("t e children insieme", "[...]", rendi({ t: marcatore("App_saluto"), children: marcatore("App_markup") }, linguaAttiva));
+  eq("t e children insieme: vince t", "Ciao mondo", rendi({ t: marcatore("App_saluto"), children: marcatore("App_markup") }, linguaAttiva));
   // Regressione: il controllo è sulla sentinella `false`, non sulla verità del valore. Con
-  // `t=""` i children sparivano in silenzio.
-  eq('t="" e children insieme', "[...]", rendi({ t: "", children: marcatore("App_saluto") }, linguaAttiva));
-  eq("forma ad array insieme ad a", "[...]", rendi({ t: [marcatore("App_conArg"), "Mario"], a: "Luigi" }, linguaAttiva));
-  eq("t oggetto", "[...]", rendi({ t: { chiave: "valore" } }, linguaAttiva));
-  eq("t numero", "[...]", rendi({ t: [42] }, linguaAttiva));
+  // `t=""` i children sparivano in silenzio — e non devono sparire nemmeno nel salvataggio,
+  // dove la stringa vuota non conta come testo.
+  eq('t="" e children insieme: vincono i children', "Ciao mondo", rendi({ t: "", children: marcatore("App_saluto") }, linguaAttiva));
+  eq("forma ad array insieme ad a: vincono gli argomenti dell'array", "Ciao Mario, come stai?", rendi({ t: [marcatore("App_conArg"), "Mario"], a: "Luigi" }, linguaAttiva));
+  eq("o insieme a t: vince o", "Ciao mondo", rendi({ o: marcatore("App_saluto"), t: marcatore("App_markup") }, linguaAttiva));
+  eq("t numero", "42", rendi({ t: [42] }, linguaAttiva));
+  // Un oggetto senza campo `t` non contiene niente di mostrabile: qui "[...]" resta.
+  eq("t oggetto senza testo dentro", "[...]", rendi({ t: { chiave: "valore" } }, linguaAttiva));
   eq("ogni caso ha lasciato un errore in console", true, errori.length > conta);
 
   eq("nessuna prop -> stringa vuota, senza errori", "", rendi({}, linguaAttiva));
@@ -209,6 +240,79 @@ console.log("\n== ts(): stringhe per le prop del DOM ==");
   eq("niente da tradurre", "", ts(undefined, undefined, linguaAttiva));
   eq("senza provider si usa la tabella eager", "Ciao mondo", ts(marcatore("App_saluto")));
   eq("il risultato è sempre una stringa", "string", typeof ts(marcatore("App_markup"), undefined, linguaAttiva));
+}
+
+// ------------------------------------------------------------------ prefissi diagnostici
+console.log("\n== errorSolve: i prefissi a schermo ==");
+{
+  // Una lingua tradotta a metà: due voci tradotte, due ancora a null. Compilata con la tabella
+  // italiana come sorgente, quindi le due a null portano già dentro il testo italiano — ed è
+  // esattamente per questo che serve `__untranslated__`: dopo la compilazione le quattro voci
+  // si assomigliano tutte, e senza quell'elenco non ci sarebbe più niente da guardare.
+  const tradotteEn = {
+    App_saluto: "Hello world",
+    App_conArg: null,
+    App_markup: "text in <b>bold</b>",
+    App_markupArg: null,
+  };
+  const percorsoEn = join(ROOT, "lib/react", `__tabella-en-${stamp}.mjs`);
+  writeFileSync(percorsoEn, compileLanguageModule(tradotteEn, "en-US", sorgenti, { emitUntranslated: true, missingArg: "«?»" }), "utf8");
+  temporanei.push(percorsoEn);
+  const tabellaEn = (await import(`${pathToFileURL(percorsoEn).href}?t=${stamp}`)).default;
+
+  eq("__untranslated__ elenca le voci a null", '{"App_conArg":1,"App_markupArg":1}', JSON.stringify(tabellaEn.__untranslated__));
+
+  // `App_markup` è tradotto QUI ma manca in qualche altra lingua: è l'informazione globale che
+  // il plugin calcola leggendo tutte le tabelle e spedisce nel modulo virtuale.
+  // `warn: false` per verificare l'interruttore: nessuno di questi casi deve stampare niente.
+  const manifestDiag = `
+import tabella from "./__tabella-en-${stamp}.mjs";
+export const languages = { "en-US": { name: "English", preloaded: true, table: tabella, load: () => Promise.resolve({ default: tabella }) } };
+export const sourceLanguage = "it-IT";
+export const fallbackTable = tabella;
+export const errorSolve = { malformed: "⁂", untranslated: "⁑", notFullyTranslated: "∴", noArg: "«?»", warn: false };
+export const partiallyTranslated = { "App_markup": 1 };
+`;
+  const { default: TranslateDiag } = await caricaConManifest("Translate.js", manifestDiag);
+  const { useTranslateToString: usaTsDiag } = await caricaConManifest("useTranslateToString.js", manifestDiag);
+
+  const linguaEn = { id: "en-US", table: tabellaEn, debug: false, proposeNewLanguage: () => {} };
+  const rendiDiag = (props) =>
+    renderToStaticMarkup(h(TranslateContext.Provider, { value: linguaEn }, h(TranslateDiag, props)));
+  const tsDiag = (t, a) => {
+    let risultato;
+    function Sonda() { risultato = usaTsDiag()(t, a); return null; }
+    renderToStaticMarkup(h(TranslateContext.Provider, { value: linguaEn }, h(Sonda)));
+    return risultato;
+  };
+
+  const conta = errori.length;
+
+  eq("tradotta e completa: nessun prefisso", "Hello world", rendiDiag({ t: marcatore("App_saluto") }));
+  eq("⁑ non tradotta in questa lingua", "⁑Ciao Mario, come stai?", rendiDiag({ t: marcatore("App_conArg"), a: "Mario" }));
+  eq("∴ tradotta qui, non altrove", "∴text in <b>bold</b>", rendiDiag({ t: marcatore("App_markup") }));
+  eq("⁑ vince su ∴ quando valgono entrambi", "⁑Ciao <b>Mario</b>, hai 3 messaggi", rendiDiag({ t: marcatore("App_markupArg"), a: ["Mario", 3] }));
+  eq("⁑ anche per una chiave che la tabella non ha", "⁑testo nuovo", rendiDiag({ t: marcatore("App_maiVisto", "testo nuovo") }));
+  eq("⁂ testo non marcato", "⁂testo libero", rendiDiag({ t: "testo libero" }));
+  eq("⁂ marcatore sorgente mai compilato", "⁂Benvenuto", rendiDiag({ t: "_%_Benvenuto_%_" }));
+
+  // noArrayChar: vale sia nella tabella compilata (inlineato nel chunk) sia nell'interpolazione
+  // a runtime. Due strade diverse per la stessa regola, e devono dire la stessa cosa.
+  eq("noArrayChar nella tabella compilata", "⁑Ciao «?», come stai?", rendiDiag({ t: marcatore("App_conArg") }));
+  eq("noArrayChar nell'interpolazione a runtime", "⁂ciao «?»", rendiDiag({ t: "_%_ciao %s_%_" }));
+
+  // Un solo prefisso per stringa: `⁂` ha già vinto, e il testo recuperato non deve prendersene
+  // un secondo per strada.
+  eq("⁂ non si somma a ⁑ nel salvataggio", "⁂Ciao «?», come stai?", rendiDiag({ t: marcatore("App_conArg"), children: marcatore("App_saluto") }));
+  eq("⁂ senza niente da salvare", "⁂[...]", rendiDiag({ t: { chiave: "valore" } }));
+
+  console.log("\n== errorSolve: gli stessi prefissi da ts() ==");
+  eq("ts() tradotta e completa", "Hello world", tsDiag(marcatore("App_saluto")));
+  eq("ts() ⁑ non tradotta", "⁑Ciao Mario, come stai?", tsDiag(marcatore("App_conArg"), "Mario"));
+  eq("ts() ∴ non tradotta altrove", "∴text in bold", tsDiag(marcatore("App_markup")));
+  eq("ts() ⁂ testo non marcato", "⁂testo libero", tsDiag("testo libero"));
+
+  eq("warn: false tiene la console muta", conta, errori.length);
 }
 
 console.error = originale;
