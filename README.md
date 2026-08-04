@@ -33,6 +33,12 @@ No keys to invent. No separate extraction step. No runtime dependencies.
 
 ---
 
+Install with [npm](https://www.npmjs.com/package/@sepoina/vitetranslate):
+
+```sh
+npm install @sepoina/vitetranslate
+```
+
 ```jsx
 import { Translate } from "@sepoina/vitetranslate/react";
 
