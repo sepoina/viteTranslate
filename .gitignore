@@ -36,6 +36,7 @@ Thumbs.db
 # Tooling locale
 .playwright-mcp/
 .claude/
+.qwen/
 coverage/
 # output di "npm run dump" (test/exampleLangCompile.mjs): moduli di lingua compilati, tenuti
 # lì come esempio da ispezionare. Si rigenerano a comando e seguono il playground, quindi
