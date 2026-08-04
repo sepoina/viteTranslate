@@ -1,8 +1,9 @@
 name: Publish to npm
 
 # Ogni commit/push su main che tocca package.json (di norma un cambio di versione)
-# produce una pubblicazione npm. La versione pubblicata trasporta il campo
-# versionDescription, scritto a mano in package.json.
+# produce una pubblicazione npm, un tag v<versione> e una release GitHub.
+# La versione pubblicata trasporta il campo versionDescription, scritto a mano
+# in package.json, che diventa anche il titolo/le note della release.
 on:
   push:
     branches: [main]
@@ -10,7 +11,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write # serve per creare tag e release
   id-token: write
 
 concurrency:
@@ -41,16 +42,22 @@ jobs:
         run: npm run build
 
       - name: Rilascio
+        id: meta
         run: |
           VERSION=$(node -p "require('./package.json').version")
           DESC=$(node -p "require('./package.json').versionDescription || 'nessuna nota'")
           echo "Pubblicazione v$VERSION - $DESC"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          {
+            echo "desc<<__EOF__"
+            echo "$DESC"
+            echo "__EOF__"
+          } >> "$GITHUB_OUTPUT"
 
       - name: Versione già pubblicata?
         id: check
         run: |
-          VERSION=$(node -p "require('./package.json').version")
-          if npm view "@sepoina/vitetranslate@$VERSION" version >/dev/null 2>&1; then
+          if npm view "@sepoina/vitetranslate@${{ steps.meta.outputs.version }}" version >/dev/null 2>&1; then
             echo "published=true" >> "$GITHUB_OUTPUT"
           else
             echo "published=false" >> "$GITHUB_OUTPUT"
@@ -59,3 +66,26 @@ jobs:
       - name: Publish (trusted publishing OIDC, nessun token)
         if: steps.check.outputs.published == 'false'
         run: npm publish --access public
+
+      - name: Tag già esistente?
+        id: tag
+        run: |
+          if git ls-remote --exit-code --tags origin "refs/tags/v${{ steps.meta.outputs.version }}" >/dev/null 2>&1; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Tag + release GitHub
+        if: steps.tag.outputs.exists == 'false'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.meta.outputs.version }}
+          DESC: ${{ steps.meta.outputs.desc }}
+        run: |
+          printf '%s\n\nnpm: https://www.npmjs.com/package/@sepoina/vitetranslate/v/%s\n' \
+            "$DESC" "$VERSION" > release-notes.md
+          gh release create "v$VERSION" \
+            --target "$GITHUB_SHA" \
+            --title "v$VERSION — $DESC" \
+            --notes-file release-notes.md
