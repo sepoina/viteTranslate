@@ -7,6 +7,7 @@ import React from "react";
 import { TranslateContext } from "./TranslateContext.js";
 import {
   readLanguage, ensureLanguage, isKnownLanguage, isPreloadedLanguage,
+  hasFailedLanguage, nextLanguageState,
   preloadedLanguages, firstPreloadedLanguage,
 } from "./languageResource.js";
 // Namespace per gli export recenti: vedi la nota in Translate.js.
@@ -51,9 +52,19 @@ function warnInitialNotPreloaded(tag) {
  */
 function TranslateProvider({ lang, debug, proposeNewLanguage, children }) {
   const table = readLanguage(lang); // sospende finché la lingua non è caricata
+
+  // Un caricamento fallito ricade sulla tabella eager (vedi readLanguage): a schermo c'è
+  // QUELLA lingua, non quella richiesta, e `id` deve dire ciò che si vede. Altrimenti
+  // useTranslateLanguage() risponde "fr-FR" mentre la pagina è in inglese, e un selettore
+  // evidenzia una voce che non corrisponde a niente — senza avere modo di accorgersene.
+  //
+  // La lingua della tabella eager è `firstPreloadedLanguage` per costruzione: il plugin emette
+  // `fallbackTable` dal primo tag precaricato, che è anche il primo di `preloadedLanguages`.
+  const id = hasFailedLanguage(lang) ? firstPreloadedLanguage : lang;
+
   const value = React.useMemo(
-    () => ({ id: lang, debug, table, proposeNewLanguage }),
-    [lang, debug, table, proposeNewLanguage]
+    () => ({ id, debug, table, proposeNewLanguage }),
+    [id, debug, table, proposeNewLanguage]
   );
   return <TranslateContext.Provider value={value}>{children}</TranslateContext.Provider>;
 }
@@ -71,15 +82,20 @@ function TranslateProvider({ lang, debug, proposeNewLanguage, children }) {
  */
 export default function TranslateContainer({ initialLanguage = firstPreloadedLanguage, children, debug, fallback = null }) {
   // initialLanguage inesistente -> ricade sulla prima precaricata (quindi sempre disponibile)
-  // senza far esplodere l'app. Inizializzatore: eseguito una sola volta.
-  const [lang, setLang] = React.useState(() => {
+  // senza far esplodere l'app. Inizializzatore: eseguito una sola volta — `initialLanguage` è
+  // la lingua di PARTENZA, cambiarla dopo il mount non ha effetto (si usa proposeNewLanguage).
+  //
+  // Lo stato è un oggetto e non il solo tag: `epoch` non lo legge nessuno, esiste per dare al
+  // ritentativo di una lingua fallita un'identità nuova, che è l'unica cosa che fa
+  // ri-renderizzare. Vedi nextLanguageState.
+  const [{ tag: lang }, setLanguageState] = React.useState(() => {
     if (!isKnownLanguage(initialLanguage)) {
       report(diag, "error", `TranslateContainer: unknown initial language "${initialLanguage}", falling back to "${firstPreloadedLanguage}"`);
-      return firstPreloadedLanguage;
+      return { tag: firstPreloadedLanguage, epoch: 0 };
     }
     // Lingua valida ma non in bundle: funziona, ma sospende. Vedi warnInitialNotPreloaded.
     if (!isPreloadedLanguage(initialLanguage)) warnInitialNotPreloaded(initialLanguage);
-    return initialLanguage;
+    return { tag: initialLanguage, epoch: 0 };
   });
 
   // struttura funzione proposeNewLanguage({
@@ -99,6 +115,10 @@ export default function TranslateContainer({ initialLanguage = firstPreloadedLan
       return;
     }
     if (onStart) onStart();
+    // Campionato PRIMA di ensureLanguage, che riarmando il caricamento cancella la traccia
+    // dell'errore: da lì in poi non si distinguerebbe più un ritentativo da una proposta
+    // qualunque, e il ritentativo è proprio il caso che senza questa riga non si vedeva.
+    const retrying = hasFailedLanguage(next);
     // Avvia (o riusa) il caricamento e aggancia i callback all'esito reale della Promise.
     ensureLanguage(next).then(
       () => { if (onDone) onDone(true); },
@@ -112,7 +132,7 @@ export default function TranslateContainer({ initialLanguage = firstPreloadedLan
     // di mostrare il fallback di Suspense (nessun lampo vuoto durante lo switch). Il render
     // legge sempre lo stato `lang` corrente, quindi risposte lente di richieste superate
     // vengono ignorate da sole (niente più guardia "last request wins").
-    React.startTransition(() => setLang(next));
+    React.startTransition(() => setLanguageState(prev => nextLanguageState(prev, next, retrying)));
   }, []);
 
   return (

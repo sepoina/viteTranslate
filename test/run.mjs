@@ -28,6 +28,8 @@ const HERE = join(dirname(fileURLToPath(import.meta.url)), "list");
 const OPZIONALI = [
   { file: "ssr-check.test.mjs", richiede: ["react-dom/server", "react/jsx-runtime"], come: "npm i -D react react-dom" },
   { file: "translateComponent.test.mjs", richiede: ["react-dom/server", "react"], come: "npm i -D react react-dom" },
+  // @babel/core in piu' degli altri: il container e' JSX, e va compilato come nel bundle vero.
+  { file: "translateContainer.test.mjs", richiede: ["react-dom/server", "react", "@babel/core"], come: "npm i -D react react-dom @babel/core @babel/preset-react" },
   { file: "languageList.test.mjs", richiede: ["react-dom/server", "react"], come: "npm i -D react react-dom" },
 ];
 

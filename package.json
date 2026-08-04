@@ -1,7 +1,7 @@
 {
   "name": "@sepoina/vitetranslate",
-  "version": "2.3.3",
-  "versionDescription": "warnig su react inside react.",
+  "version": "2.3.5",
+  "versionDescription": "Chiusura falle su retry failure.",
   "description": "Extract translatable strings straight from your JSX — a Vite plugin that auto-generates and syncs JS translation tables, with zero runtime dependencies.",
   "author": {
     "name": "Giancarlo Ghigi",

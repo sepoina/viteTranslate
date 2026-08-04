@@ -9,7 +9,7 @@
 import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { ERROR_SOLVE_DEFAULTS, normalizeErrorSolve, resolveErrorSolve, resolveDiagnostics, report, DEFAULT_DIAGNOSTICS } from "../../lib/errorSolve.js";
+import { ERROR_SOLVE_DEFAULTS, normalizeErrorSolve, resolveErrorSolve, resolveDiagnostics, report, reportOnce, DEFAULT_DIAGNOSTICS } from "../../lib/errorSolve.js";
 import vitetranslate from "../../lib/dev/vite/vitetranslate.js";
 
 const VIRTUAL = "\0virtual:vitetranslate/languages";
@@ -124,6 +124,43 @@ console.log("\n== report(): l'interruttore ==");
   eq("warn: true stampa", 1, righe.length);
   report({ warn: false }, "error", "non si vede");
   eq("warn: false non stampa", 1, righe.length);
+
+  console.error = originale;
+}
+
+console.log("\n== reportOnce(): dedup e messaggio pigro ==");
+{
+  const originale = console.error;
+  const righe = [];
+  console.error = (...pezzi) => righe.push(pezzi.join(" "));
+
+  // Forma a due parametri: la chiave È il messaggio.
+  const acceso = { warn: true };
+  reportOnce(acceso, "primo messaggio");
+  reportOnce(acceso, "primo messaggio");
+  eq("stessa chiave: una volta sola", 1, righe.length);
+  reportOnce(acceso, "secondo messaggio");
+  eq("chiave diversa: si vede", 2, righe.length);
+  eq("il messaggio è la chiave", "secondo messaggio", righe[1]);
+
+  // Forma a tre: la chiave deduplica, `build` compone. Il messaggio può quindi variare a
+  // parità di chiave — è il prezzo di non costruirlo, ed è voluto.
+  reportOnce(acceso, "chiave-pigra", () => "testo costruito");
+  eq("build() fornisce il messaggio", "testo costruito", righe[2]);
+
+  // Il punto di tutta la modifica: a console spenta `build` non deve essere CHIAMATA. Prima
+  // il messaggio arrivava già composto, quindi un describeValue() girava comunque.
+  let chiamate = 0;
+  const spento = { warn: false };
+  reportOnce(spento, "mai-vista", () => { chiamate++; return "non si vede"; });
+  eq("warn: false non stampa", 3, righe.length);
+  eq("warn: false non costruisce nemmeno il messaggio", 0, chiamate);
+
+  // A console accesa build() viene chiamata una volta sola, non una per tentativo.
+  reportOnce(acceso, "chiave-contata", () => { chiamate++; return "una volta"; });
+  reportOnce(acceso, "chiave-contata", () => { chiamate++; return "una volta"; });
+  eq("build() chiamata solo quando si stampa", 1, chiamate);
+  eq("e la seconda non stampa", 4, righe.length);
 
   console.error = originale;
 }

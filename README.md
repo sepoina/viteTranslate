@@ -79,7 +79,7 @@ That is the whole authoring workflow. Wrap a string in `_%_..._%_`, render it th
 - [🗂️ Translation file format](#️-translation-file-format)
   - [Adding a language](#adding-a-language)
 - [🔎 Diagnostics: `errorSolve`](#-diagnostics-errorsolve)
-  - [The four cases](#the-four-cases)
+  - [Case by case](#case-by-case)
   - [Unmarked text is domain data, not an error](#unmarked-text-is-domain-data-not-an-error)
   - [Console output](#console-output)
 - [🖥️ CLI](#️-cli)
@@ -233,11 +233,50 @@ export default function Welcome() {
 
 // not marked: domain data, rendered as it is
 <Translate>{user.phoneNumber}</Translate>
+
+// a value that will never carry a marker: no ⁂, no console warning
+<Translate t={row.label} skipMark />
 ```
 
 Since translation tables are compiled at build time, a `%s` inside markup is a real JSX child, not a piece of string. So an argument can be any React node, and it is **never** interpreted as HTML — React escapes it like any other child. A `%s` left without a value renders as `[?]` (configurable, see [Diagnostics](#-diagnostics-errorsolve)).
 
 A string **without** the marker is not an error: it is rendered as it is, and in development it carries a `⁂` in front of it so you can see the prop is receiving something nobody will translate. That is what lets one leaf component accept both translatable text and domain data without a wrapper deciding for it.
+
+#### Props
+
+| Prop | Meaning |
+| --- | --- |
+| `t` | the marked text, the compact form `[text, ...args]`, or the object form `{ t, a }`. A number or a React element are accepted too — see below |
+| `a` | values for the `%s`, when `t` doesn't already carry them |
+| `o` | the object form, for text that already travels packaged with its arguments. Same as passing them separately; alternative to `t` |
+| `children` | the marked text, as a child. Alternative to `t` |
+| `skipMark` | declares that here an **un**marked string is legitimate: no `⁂`, no console warning. See [below](#skipmark-when-unmarked-is-the-normal-case) |
+
+#### What can sit in the text position
+
+One leaf component often has to render whatever its caller has — and that isn't always a string a marker could ever be attached to:
+
+```jsx
+<Translate t={item.count} />              // a number: rendered as is, no ⁂, no warning
+<Translate t={0} />                       // renders "0" — zero is a value, not "nothing"
+<Translate t={<WaitingBarSpan />} />      // a React element: returned as is, no diagnostics
+```
+
+A number can never come from the source, so it is domain data by construction; a mounted element is not ambiguous either — it can't be a forgotten marker, and it already knows how to render itself. Neither of them goes through the error path.
+
+Two deliberate limits. Inside the tuple form the first slot **is** the text, so an element there stays an error (an element among the *arguments* has always been supported). And `ts()` does not take elements: it has to return a primitive string, so a node is a genuine error there, with a message that says so.
+
+#### `skipMark`: when unmarked is the normal case
+
+A number and an element tell you what they are. A **string** doesn't: unmarked can mean *forgotten marker* or *value that will never have one* — a phone number, a URI, a field name configured in an admin panel, an exception message, a description coming from the server. From inside the component the two look identical; only the call site knows which is which.
+
+```jsx
+<Translate t={row.label} skipMark />
+```
+
+When `skipMark` is on **and** the text is not marked: no `⁂`, no console warning, everything else unchanged (`%s` interpolation included). When the text **is** marked, the prop does nothing at all — the resolution chain runs as usual and `⁑` / `∴` stay on. It does not mean "don't translate", it means "unmarked is not an error here", which is exactly what a prop that carries marked text on some rows and domain data on others needs. Incompatible props are still an error, `skipMark` or not.
+
+The alternative that looks equivalent isn't: `errorSolve.beginCharMalformed: false` turns the diagnostic off **everywhere**, including where a marker really was forgotten.
 
 ### `useTranslateToString()`
 
@@ -253,6 +292,14 @@ function SearchInput() {
 ```
 
 It accepts the same forms as `<Translate>` — `ts("_%_Hello %s_%_", name)`, `ts(["_%_Hello %s_%_", name])`, `ts({ t: "_%_Hello %s_%_", a: [name] })` — and applies the same [diagnostic prefixes](#-diagnostics-errorsolve).
+
+An optional third argument carries what are props on `<Translate>`:
+
+```jsx
+<input placeholder={ts(field.label, undefined, { skipMark: true })} />
+```
+
+`{ skipMark: true }` says the same thing as the prop: an unmarked string is legitimate here, so no `⁂` and no console warning. A React element is the one form `ts()` does **not** take — it has to return a primitive string, so a mounted node is a real error and gets a message of its own.
 
 ### `useTranslateLanguage()`
 
@@ -274,7 +321,7 @@ function LanguageSwitcher() {
 
 | Field | Type | Description |
 | --- | --- | --- |
-| `id` | `string \| undefined` | Current language tag ([BCP 47](doc/bcp47.md)); `undefined` outside `TranslateContainer` |
+| `id` | `string \| undefined` | Tag of the language **on screen** ([BCP 47](doc/bcp47.md)); `undefined` outside `TranslateContainer`. If a chunk failed to load the container falls back to the eager table, and `id` reports that language — not the one that was asked for |
 | `languages` | `{ tag: string, languageName: string }[]` | Languages found in `localeDir`, source language first. `languageName` is the autonym, computed once at sync time |
 | `sourceLanguage` | `string` | Source language tag, the one the strings are written in |
 | `debug` | `boolean` | The `debug` prop passed to `TranslateContainer` |
@@ -290,7 +337,7 @@ It is also **frozen**, `languages` and its entries included: the very same array
 
 | Prop | Type | Default | Description |
 | --- | --- | --- | --- |
-| `initialLanguage` | `string` | first eager language (`preloadedLanguages[0] ?? sourceLanguage`) | Initial language tag to load ([BCP 47](doc/bcp47.md)). Eagerly bundled languages render synchronously; otherwise the container suspends until the chunk is ready — never the wrong language. The default is the same in dev and in build, so an app that omits it starts in the same language everywhere |
+| `initialLanguage` | `string` | first eager language (`preloadedLanguages[0] ?? sourceLanguage`) | Language tag to **start** from ([BCP 47](doc/bcp47.md)); read once at mount, changing it later has no effect — that is what `proposeNewLanguage()` is for. Eagerly bundled languages render synchronously; otherwise the container suspends until the chunk is ready — never the wrong language. The default is the same in dev and in build, so an app that omits it starts in the same language everywhere |
 | `fallback` | `node` | `null` | Shown via `Suspense` while a non-preloaded initial language loads. Chunks are local, so the default `null` is a near-imperceptible empty frame |
 | `debug` | `boolean` | `false` | Exposed by `useTranslateLanguage()` |
 | `children` | `node` | — | App tree that receives the translation context |
@@ -305,6 +352,19 @@ proposeNewLanguage({ lang, onStart, onDone, onError });
 ```
 
 Triggers a runtime language switch, lazily loading the requested chunk. The switch runs inside a React transition, so the current language stays on screen until the new one is ready — no blank frame mid-switch.
+
+A chunk that fails to load is **not** remembered as failed: proposing the same language again really retries it, and the screen updates when it works. A chunk can fail on a network hiccup, and one bad moment must not make that language unselectable for the life of the page.
+
+Meanwhile the container falls back to the eager table, and `id` reports **that** language — so a retry button has to use the tag it asked for, not `id`:
+
+```jsx
+const [wanted, setWanted] = useState(null);
+const switchTo = (tag) => {
+  setWanted(tag);
+  proposeNewLanguage({ lang: tag, onDone: (ok) => ok && setWanted(null) });
+};
+// wanted !== null -> the last switch failed, and `wanted` is the tag to retry
+```
 
 ### `basicHtmlToNodes()`
 
@@ -505,11 +565,12 @@ One character per string, the worst one wins: `⁂` → `⁑` → `∴`. Set any
 
 With `onlyInDev: true` (the default) a production build ships none of this — not the characters, and not the data behind them: the untranslated-key lists never enter the language chunks and the global set stays empty. `noArrayChar` is the exception: it isn't a diagnostic but ordinary rendering, so it applies in development and in a build alike, and its default is what `%s` already rendered as.
 
-### The four cases
+### Case by case
 
 | What happened | Before | Dev | Build (default) |
 | --- | --- | --- | --- |
 | Text nobody marked — `<Translate>Mira Halvorsen</Translate>` | `[...]` in dev, text in build | `⁂Mira Halvorsen` | `Mira Halvorsen` |
+| Same, but declared with `skipMark` | — | `Mira Halvorsen` | `Mira Halvorsen` |
 | Incompatible props — `t` and `children` together | `[...]` | `⁂` + the text that was there | the text that was there |
 | No translation in this language | source text, silently | `⁑` + source text | source text |
 | Translated here, missing elsewhere | nothing | `∴` + translation | translation |
@@ -524,16 +585,20 @@ Incompatible props no longer erase the text. `[...]` used to be the answer to ev
 Now the marker is the discriminator and the component applies it: marked text is translated, unmarked text is rendered as it is. So a leaf component can take whatever its caller has:
 
 ```jsx
-// all four of these work, and none of them needs a wrapper
+// all six of these work, and none of them needs a wrapper
 <Translate>_%_Welcome_%_</Translate>
 <Translate t={["_%_Hello %s_%_", username]} />
 <Translate o={{ t: "_%_Hello %s_%_", a: [username] }} />   // object form
 <Translate>{user.phoneNumber}</Translate>                  // domain data, rendered as is
+<Translate t={item.count} />                               // a number, "0" included
+<Translate t={<WaitingBarSpan />} />                       // an element renders itself
 ```
 
 The `o` prop — and the same `{ t, a }` object passed to `t`, or to `ts()` — is for text that already travels packaged with its arguments, which is how several application cores carry it. It is exactly equivalent to passing them separately.
 
-In development that phone number shows a `⁂`, and that is the point: the prop is receiving something nobody will translate, and you get to decide whether that is right.
+In development that phone number shows a `⁂`, and that is the point: the prop is receiving something nobody will translate, and you get to decide whether that is right. When the answer is "yes, and it always will be", say so with [`skipMark`](#skipmark-when-unmarked-is-the-normal-case) and the `⁂` goes away for that call site only — unlike `beginCharMalformed: false`, which would turn it off everywhere.
+
+A number and a React element don't need the declaration: neither can ever come from the source marked, so both are rendered directly, with no prefix and no warning.
 
 ### Console output
 

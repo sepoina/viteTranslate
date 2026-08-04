@@ -467,7 +467,7 @@ Il fallback incorporato esiste per una condizione precisa e **normale in svilupp
 
 | Prefisso | Condizione | Chi lo sa |
 | --- | --- | --- |
-| `⁂` | testo che la traduzione non ha mai visto, o prop incompatibili fra loro | `Translate.js` / `useTranslateToString.js`, sul posto |
+| `⁂` | testo che la traduzione non ha mai visto (salvo `skipMark`), o prop incompatibili fra loro | `Translate.js` / `useTranslateToString.js`, sul posto |
 | `⁑` | la lingua attiva non ha una traduzione per questa chiave | `table.__untranslated__` (§ 2b), oppure la chiave che dalla tabella manca |
 | `∴` | tradotta qui, ma assente in almeno un'altra lingua | `partiallyTranslated` dal modulo virtuale (§ Fase 3) |
 
@@ -476,6 +476,39 @@ Il fallback incorporato esiste per una condizione precisa e **normale in svilupp
 `⁂` si porta dietro un cambio di contratto: **una stringa non marcata non è più un errore fatale.** Prima in sviluppo `<Translate>` lanciava e rendeva `[...]`, cancellando il testo; ma non tutto il testo che passa da una prop è traducibile — un numero di telefono, il nome di un campo configurato altrove, una descrizione che arriva dal server. Chi ne aveva doveva ispezionare il marcatore _prima_ di chiamare il componente, cioè riscrivere fuori una decisione che è di qui. Ora il marcatore è il discriminante e ad applicarlo è il componente.
 
 Per la stessa ragione gli usi scorretti non lanciano più: `salvage()` recupera il miglior testo disponibile fra `o`, `t` e `children` — la stringa, il primo elemento della tupla, il campo `t` dell'oggetto — e lo rende preceduto da `⁂`. Un oggetto senza campo `t` non è la forma `{ t, a }` e non contiene testo: è una variante di `null` e rende vuoto come lui, senza prefisso, prima ancora del salvataggio. `[...]` resta per i valori che il salvataggio non può proprio leggere — una funzione, un simbolo. La differenza si vede in produzione: prima un errore nelle _tue_ prop lo pagava chi legge lo schermo.
+
+### Cosa può stare nella posizione del testo
+
+Il marcatore discrimina, ma non tutto ciò che arriva a `t` / `o` / `children` è una stringa che un marcatore potrebbe avere. Il caso che li genera tutti è lo stesso: **una prop sola, servita da un solo componente foglia, che a volte porta testo traducibile e a volte no.** Il chiamante non sempre sa quale delle due gli arriverà, e prima doveva deciderlo _fuori_ — cioè riconoscere il marcatore da sé, duplicando `_%_` e `_<_`, che sono formato interno.
+
+Guardati in ordine di percorso in [`Translate.js`](../lib/react/Translate.js):
+
+| Valore in posizione testo | Cosa fa | Perché |
+| --- | --- | --- |
+| `false`, `null`, `undefined`, `""` | `""` | niente da mostrare — `false` è anche la sentinella delle prop non passate |
+| numero, bigint | reso così com'è, **nessun prefisso** | dato di dominio: un conteggio, un interno, un codice. Marcato non ci può passare |
+| elemento React | restituito così com'è, **nessuna diagnostica** | non è ambiguo, e sa già renderizzarsi |
+| oggetto senza `t` | `""` + segnalazione | una variante di `null`: non è la forma `{ t, a }` e testo non ne contiene |
+| tutto il resto non-stringa | `salvage()` + `⁂` | funzione, simbolo: qui il testo non c'è davvero |
+
+⚠️ Due limiti voluti, e vanno tenuti: la **tupla** `[testo, ...argomenti]` non partecipa alle prime due righe — nel primo posto c'è il testo, e un elemento lì è davvero un errore da segnalare (un elemento _fra gli argomenti_ è invece supportato da sempre). E **`ts()` non accetta elementi**: deve restituire una stringa primitiva, quindi un nodo montato resta un errore — con un messaggio suo, che dice proprio quello.
+
+Il controllo del vuoto è `source === false || null || undefined || ""` e non `!source`, che è la differenza fra la sentinella e il valore: con `!source` un `t={0}` spariva dallo schermo senza segnalazione, perché il controllo nato per intercettare il default delle prop prendeva anche i conteggi a zero. Resta indistinguibile un `t={false}` esplicito, che come testo non ha comunque senso; chiuderlo del tutto vorrebbe dire un simbolo privato al posto di `false`.
+
+### `skipMark`: dichiarare che il non marcato è normale
+
+Resta il caso che nessuna ispezione del valore può risolvere: una **stringa** non marcata ha due significati opposti — marcatore dimenticato, oppure valore che un marcatore non l'avrà mai (un numero di telefono, una uri, il nome di un campo configurato in un pannello di amministrazione, il messaggio di un'eccezione). Da dentro il componente si vedono identici. A saperlo è solo il punto di chiamata.
+
+`skipMark` è quella dichiarazione, e ha esattamente due effetti quando il testo **non** è marcato: niente `⁂` e niente `reportOnce`. Tutto il resto — `stripSourceMarker`, l'interpolazione dei `%s` — non cambia.
+
+```jsx
+<Translate t={row.label} skipMark />
+ts(row.label, args, { skipMark: true })   // stessa via d'uscita per la variante stringa
+```
+
+Su un testo **marcato** la prop non ha alcun effetto: la catena di risoluzione procede normalmente e `⁑` / `∴` restano accesi. Questo è il punto, e non un dettaglio: non vuol dire "non tradurre", vuol dire "qui il non marcato non è un errore" — che è ciò che serve alla prop che porta l'uno o l'altro a seconda della riga. Nemmeno copre le prop incompatibili fra loro: quelle restano un errore e continuano a passare da `salvage()`.
+
+L'alternativa che sembra equivalente ma non lo è: `errorSolve.beginCharMalformed: false` spegne la diagnostica **ovunque**, cioè anche dove il marcatore era davvero dimenticato. `skipMark` la spegne dove è stato dichiarato e la lascia accesa altrove.
 
 ### La console, e il suo interruttore
 
@@ -492,6 +525,20 @@ I messaggi del plugin — lato Node, a build time, prefissati `[vitetranslate]` 
 Un caricamento **fallito non resta in cache come tale**: un chunk può fallire per un buco di rete, e tenerne memoria per sempre significherebbe che quella lingua non è più selezionabile per tutta la vita della pagina.
 
 Il cambio lingua passa da `React.startTransition`: React tiene visibile la lingua corrente finché la nuova non è pronta, invece di mostrare il fallback di Suspense. Siccome il render legge sempre lo stato `lang` corrente, le risposte lente di richieste ormai superate vengono ignorate da sole — niente guardia "last request wins" da mantenere.
+
+#### Il ritentativo, e perché lo stato è un oggetto
+
+Lo stato del container è `{ tag, epoch }` e non il solo tag. `epoch` non lo legge nessuno: esiste per dare un'**identità nuova** all'oggetto, che è l'unica cosa che fa ri-renderizzare.
+
+La ragione è il caso del ritentativo. Dopo un caricamento fallito il tag è **già** quello richiesto — è stato impostato prima che il chunk fallisse — quindi riproporlo, cioè il pulsante "riprova" di un language switcher, faceva `setLang(stessoTag)`: React incontra il bailout sullo stato eager e non pianifica nessun render. `ensureLanguage` riarmava davvero il caricamento, il chunk arrivava, `onDone(true)` diceva che era andata bene, e a schermo restava la tabella di fallback finché un render qualunque, per tutt'altra ragione, non ripassava da `readLanguage`.
+
+[`nextLanguageState`](../lib/react/languageResource.js) distingue i due casi e restituisce `prev` — cioè "niente da fare" — solo quando la proposta non cambia nulla di osservabile. `hasFailedLanguage(tag)` va campionata **prima** di `ensureLanguage`, che riarmando cancella la traccia dell'errore.
+
+#### `id` è la lingua che si vede, non quella che si è chiesta
+
+Quando il caricamento fallisce `readLanguage` ricade sulla tabella eager: a schermo c'è **quella** lingua. Il context espone quindi `firstPreloadedLanguage`, non il tag richiesto — altrimenti `useTranslateLanguage().id` risponderebbe `"fr-FR"` mentre la pagina è in italiano, e un selettore evidenzierebbe una voce che non corrisponde a niente, senza avere modo di accorgersene.
+
+La lingua della tabella eager è `firstPreloadedLanguage` per costruzione: il plugin emette `fallbackTable` dal primo tag precaricato, che è anche il primo di `preloadedLanguages`.
 
 La sospensione avviene in `TranslateProvider`, un componente **interno** al boundary: se avvenisse in `TranslateContainer` non sarebbe il suo `<Suspense>` a catturarla.
 
@@ -620,6 +667,20 @@ Quest'ultimo merita una nota: `extractMarkers` è veloce perché fa splice invec
 
 Un'aspettativa scritta a mano è giusta solo quanto il giorno in cui è stata scritta.
 
+### Il runtime React
+
+Tre test partono da punti diversi della stessa catena, ed è voluto: presi insieme coprono dalle prop del componente fino allo stato della lingua.
+
+| Test | Da dove parte |
+| --- | --- |
+| `translateComponent` | le prop di `<Translate>` e le chiamate a `ts()`, e guarda l'HTML che ne esce |
+| `languageResource` | la giuntura fra il manifest generato dal plugin e il runtime che lo consuma |
+| `translateContainer` | il componente montato: sospensione, lingua iniziale, chunk che non arriva |
+
+`translateContainer` compila il `.jsx` con Babel come fa `rolldown.config.js`, e si scrive un manifest a mano perché serve un `load()` pilotabile — è l'unico modo per far fallire un chunk a comando. Ogni scenario carica **copie private** dei moduli: la cache delle lingue vive a livello di modulo, e due scenari che se la condividessero si racconterebbero l'un l'altro caricamenti già andati. Per la stessa ragione le copie si importano senza query di cache-busting: una query renderebbe l'istanza del test diversa da quella che il container importa per percorso relativo, cioè due cache invece di una.
+
+Un limite dichiarato: `react-dom/server` non ha stato fra un render e l'altro, quindi `proposeNewLanguage` non si può guidare fino allo schermo senza un DOM (jsdom non è una dipendenza, e non vale un test). Il meccanismo del ritentativo si verifica dove è stato messo apposta per essere verificabile — `hasFailedLanguage` e `nextLanguageState`, funzioni con un nome e una ragione, non artefatti di test. Resta scoperta la sola riga di cablaggio dentro il `useCallback`.
+
 ---
 
 ## Invarianti da non rompere
@@ -634,7 +695,7 @@ Raccolta delle cose che, se cambiate senza accorgersene, rompono qualcosa in mod
 6. **`readLanguageTable` prima di `import()`.** La cache dei moduli ESM di Node non viene mai rilasciata e non ha API di sfratto: misurato, 24 kB trattenuti per ogni salvataggio del traduttore, 7 MB dopo 300 salvataggi. L'`import()` resta solo come ripiego per moduli di lingua non generati da noi, con una query di cache-busting che è un **hash del contenuto** e non l'mtime (la granularità del timestamp è troppo grossolana: due contenuti diversi scritti nello stesso tick condividerebbero la chiave di cache).
 7. **`splitAndSortEntries` ordina con locale esplicito.** Senza, la stessa tabella si ordina diversamente fra macchina di sviluppo e CI, e i file risultano "cambiati" senza esserlo.
 8. **Ogni divergenza fra build e runtime va segnalata, non nascosta.** È la regola che ha prodotto gli avvisi su marcatori annidati, collisioni di id e tag incrociati.
-9. **La diagnostica non deve costare niente dove è spenta.** `errorSolve` è risolto a build time, quindi con i default una build di produzione non spedisce né i prefissi né i dati che li alimentano: `__untranslated__` non viene emesso nei chunk di lingua e `partiallyTranslated` resta vuoto. Chi aggiunge un prefisso nuovo aggiunge anche la condizione che ne evita l'emissione — altrimenti ogni visitatore paga byte per un'informazione che nessuno leggerà.
+9. **La diagnostica non deve costare niente dove è spenta.** `errorSolve` è risolto a build time, quindi con i default una build di produzione non spedisce né i prefissi né i dati che li alimentano: `__untranslated__` non viene emesso nei chunk di lingua e `partiallyTranslated` resta vuoto. Chi aggiunge un prefisso nuovo aggiunge anche la condizione che ne evita l'emissione — altrimenti ogni visitatore paga byte per un'informazione che nessuno leggerà. Vale anche per i **messaggi**: un template literal si valuta prima della chiamata, quindi un messaggio che contiene `describeValue()` — cioè un `JSON.stringify` — va passato a `reportOnce` come lambda insieme a una chiave statica, altrimenti gira a ogni render pure con la console spenta, che in produzione è il default.
 10. **Un solo prefisso per stringa.** La precedenza è `⁂` → `⁑` → `∴`, e il percorso di salvataggio usa `diag.malformedOnly` proprio per non sommarne un secondo. Due glifi davanti allo stesso testo non dicono più del primo, e rendono illeggibile ciò che si stava cercando di mostrare.
 
 ---

@@ -111,10 +111,10 @@ const rendi = (props, lang) => {
 };
 
 /** Rende una chiamata a ts() dentro un componente, restituendo la stringa prodotta. */
-function ts(t, a, lang) {
+function ts(t, a, lang, options) {
   let risultato;
   function Sonda() {
-    risultato = useTranslateToString()(t, a);
+    risultato = useTranslateToString()(t, a, options);
     return null;
   }
   renderToStaticMarkup(lang === undefined ? h(Sonda) : h(TranslateContext.Provider, { value: lang }, h(Sonda)));
@@ -179,6 +179,70 @@ console.log("\n== testo mai passato dal compilatore ==");
   eq("il markup resta letterale", "a &lt;b&gt;b&lt;/b&gt;", rendi({ t: "_%_a <b>b</b>_%_" }, linguaAttiva));
 }
 
+// ------------------------------------------------------- dato di dominio nella posizione del testo
+console.log("\n== numeri: valore, non uso scorretto ==");
+{
+  // Un conteggio, un interno, un codice: dal sorgente non passano e marcati non possono
+  // essere. Resa diretta, senza passare dal salvataggio (che li mostrerebbe con `⁂`).
+  const conta = errori.length;
+  eq("t numero", "42", rendi({ t: 42 }, linguaAttiva));
+  eq("t numero dentro la tupla", "42", rendi({ t: [42] }, linguaAttiva));
+  eq("t bigint", "9007199254740993", rendi({ t: 9007199254740993n }, linguaAttiva));
+  eq("o numero", "42", rendi({ o: 42 }, linguaAttiva));
+  eq("children numero", "42", rendi({ children: 42 }, linguaAttiva));
+  // Regressione: `0` è falsy come la sentinella `false` delle prop, e con `if (!source)` un
+  // conteggio a zero spariva dallo schermo senza che niente lo segnalasse.
+  eq("t={0} non è vuoto", "0", rendi({ t: 0 }, linguaAttiva));
+  eq("o={0} non è vuoto", "0", rendi({ o: 0 }, linguaAttiva));
+  eq("t={0n} non è vuoto", "0", rendi({ t: 0n }, linguaAttiva));
+  // Le sentinelle vere e la stringa vuota restano vuote.
+  eq("t={false} resta vuoto", "", rendi({ t: false }, linguaAttiva));
+  eq("t={null} resta vuoto", "", rendi({ t: null }, linguaAttiva));
+  eq("t={undefined} resta vuoto", "", rendi({ t: undefined }, linguaAttiva));
+  eq("nessun numero ha lasciato un errore in console", conta, errori.length);
+  eq("ts() numero", "42", ts(42, undefined, linguaAttiva));
+  eq("ts(0) non è vuoto", "0", ts(0, undefined, linguaAttiva));
+  eq("ts() numero non ha lasciato errori", conta, errori.length);
+}
+
+console.log("\n== un elemento React nella posizione del testo ==");
+{
+  // Una prop che di norma porta testo marcato ma per lo stato "sto caricando" porta uno
+  // spinner: il componente foglia è uno solo e non sa quale delle due gli arriverà. Prima
+  // l'elemento cadeva nel controllo dell'oggetto senza `t` e il contenuto spariva.
+  const conta = errori.length;
+  eq("t elemento", "<i>attendere</i>", rendi({ t: h("i", null, "attendere") }, linguaAttiva));
+  eq("o elemento", "<i>attendere</i>", rendi({ o: h("i", null, "attendere") }, linguaAttiva));
+  eq("children elemento", "<i>attendere</i>", rendi({ children: h("i", null, "attendere") }, linguaAttiva));
+  eq("un elemento non lascia errori in console", conta, errori.length);
+  // Nella tupla il primo posto è il testo: un elemento lì è davvero un errore, e resta al
+  // ramo di salvataggio — che di testo non ne trova e mostra "[...]".
+  eq("nella tupla resta un errore", "[...]", rendi({ t: [h("i", null, "attendere")] }, linguaAttiva));
+  eq("la tupla con elemento si segnala", true, errori.length > conta);
+  // ts() deve restituire una stringa: un elemento non si riduce, e l'errore resta.
+  const prima = errori.length;
+  eq("ts() elemento rende vuoto", "", ts(h("i", null, "attendere"), undefined, linguaAttiva));
+  eq("ts() lo segnala con un messaggio suo", true, errori.some((m) => m.includes("React element cannot be reduced")));
+  eq("ts() elemento ha segnalato", true, errori.length > prima);
+}
+
+console.log("\n== skipMark: qui il non marcato non è un errore ==");
+{
+  // Senza prefissi accesi la resa è la stessa; quello che cambia è la console. I prefissi
+  // veri e propri si verificano più sotto, nel blocco errorSolve.
+  const conta = errori.length;
+  eq("stringa non marcata", "testo libero", rendi({ t: "testo libero", skipMark: true }, linguaAttiva));
+  eq("marcatore sorgente mai compilato", "Benvenuto", rendi({ t: "_%_Benvenuto_%_", skipMark: true }, linguaAttiva));
+  eq("i %s vengono comunque interpolati", "Ciao Mario", rendi({ t: "_%_Ciao %s_%_", a: "Mario", skipMark: true }, linguaAttiva));
+  eq("skipMark non lascia errori in console", conta, errori.length);
+  // Non vuol dire "non tradurre": su un testo marcato la prop non ha alcun effetto.
+  eq("un testo marcato si traduce lo stesso", "Ciao mondo", rendi({ t: marcatore("App_saluto"), skipMark: true }, linguaAttiva));
+  eq("con argomenti", "Ciao Mario, come stai?", rendi({ t: [marcatore("App_conArg"), "Mario"], skipMark: true }, linguaAttiva));
+  eq("ts() con skipMark", "testo libero", ts("testo libero", undefined, linguaAttiva, { skipMark: true }));
+  eq("ts() skipMark non spegne la traduzione", "Ciao mondo", ts(marcatore("App_saluto"), undefined, linguaAttiva, { skipMark: true }));
+  eq("ts() skipMark non lascia errori", conta, errori.length);
+}
+
 // ---------------------------------------------------------------------- forma a oggetto
 console.log("\n== forma a oggetto { t, a } ==");
 {
@@ -210,7 +274,6 @@ console.log("\n== usi scorretti: si salva il testo, non si esplode ==");
   eq('t="" e children insieme: vincono i children', "Ciao mondo", rendi({ t: "", children: marcatore("App_saluto") }, linguaAttiva));
   eq("forma ad array insieme ad a: vincono gli argomenti dell'array", "Ciao Mario, come stai?", rendi({ t: [marcatore("App_conArg"), "Mario"], a: "Luigi" }, linguaAttiva));
   eq("o insieme a t: vince o", "Ciao mondo", rendi({ o: marcatore("App_saluto"), t: marcatore("App_markup") }, linguaAttiva));
-  eq("t numero", "42", rendi({ t: [42] }, linguaAttiva));
   // Un oggetto senza campo `t` non è la forma `{ t, a }` e non contiene testo: è una
   // variante di `null`, e rende vuoto come lui, senza prefisso. `[...]` resta per i valori
   // che non si possono proprio leggere — la funzione qui sotto. Vuoto a schermo, ma non in
@@ -294,9 +357,9 @@ export const partiallyTranslated = { "App_markup": 1 };
   const linguaEn = { id: "en-US", table: tabellaEn, debug: false, proposeNewLanguage: () => {} };
   const rendiDiag = (props) =>
     renderToStaticMarkup(h(TranslateContext.Provider, { value: linguaEn }, h(TranslateDiag, props)));
-  const tsDiag = (t, a) => {
+  const tsDiag = (t, a, options) => {
     let risultato;
-    function Sonda() { risultato = usaTsDiag()(t, a); return null; }
+    function Sonda() { risultato = usaTsDiag()(t, a, options); return null; }
     renderToStaticMarkup(h(TranslateContext.Provider, { value: linguaEn }, h(Sonda)));
     return risultato;
   };
@@ -322,11 +385,29 @@ export const partiallyTranslated = { "App_markup": 1 };
   eq("oggetto senza testo: vuoto come null", "", rendiDiag({ t: { chiave: "valore" } }));
   eq("⁂ funzione: niente da salvare", "⁂[...]", rendiDiag({ t: () => {} }));
 
+  // I due valori che marcati non saranno mai: non passano dalla strada dell'errore, quindi
+  // `⁂` non ce lo mettono nemmeno con i prefissi accesi.
+  eq("nessun ⁂ per un numero", "42", rendiDiag({ t: 42 }));
+  eq("nessun ⁂ per un elemento React", "<i>attendere</i>", rendiDiag({ t: h("i", null, "attendere") }));
+
+  // skipMark spegne `⁂` e basta: la catena di risoluzione resta quella di sempre, e gli altri
+  // due prefissi — che parlano della traduzione, non del marcatore — restano accesi.
+  eq("skipMark: niente ⁂ sul non marcato", "testo libero", rendiDiag({ t: "testo libero", skipMark: true }));
+  eq("skipMark: niente ⁂ sul marcatore sorgente", "Benvenuto", rendiDiag({ t: "_%_Benvenuto_%_", skipMark: true }));
+  eq("skipMark non spegne ⁑", "⁑Ciao Mario, come stai?", rendiDiag({ t: marcatore("App_conArg"), a: "Mario", skipMark: true }));
+  eq("skipMark non spegne ∴", "∴text in <b>bold</b>", rendiDiag({ t: marcatore("App_markup"), skipMark: true }));
+  // Le prop incompatibili restano un errore anche con skipMark: quella dichiara la natura del
+  // valore, non mette a tacere il componente.
+  eq("skipMark non copre le prop incompatibili", "⁂Hello world", rendiDiag({ t: marcatore("App_saluto"), children: marcatore("App_markup"), skipMark: true }));
+
   console.log("\n== errorSolve: gli stessi prefissi da ts() ==");
   eq("ts() tradotta e completa", "Hello world", tsDiag(marcatore("App_saluto")));
   eq("ts() ⁑ non tradotta", "⁑Ciao Mario, come stai?", tsDiag(marcatore("App_conArg"), "Mario"));
   eq("ts() ∴ non tradotta altrove", "∴text in bold", tsDiag(marcatore("App_markup")));
   eq("ts() ⁂ testo non marcato", "⁂testo libero", tsDiag("testo libero"));
+  eq("ts() skipMark: niente ⁂", "testo libero", tsDiag("testo libero", undefined, { skipMark: true }));
+  eq("ts() skipMark non spegne ⁑", "⁑Ciao Mario, come stai?", tsDiag(marcatore("App_conArg"), "Mario", { skipMark: true }));
+  eq("ts() nessun ⁂ per un numero", "42", tsDiag(42));
 
   eq("warn: false tiene la console muta", conta, errori.length);
 }
