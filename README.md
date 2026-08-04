@@ -33,11 +33,13 @@ No keys to invent. No separate extraction step. No runtime dependencies.
 
 ---
 
-Install with [npm](https://www.npmjs.com/package/@sepoina/vitetranslate):
+Install with [npm](https://www.npmjs.com/package/@sepoina/vitetranslate) the last version 
 
 ```sh
 npm install @sepoina/vitetranslate
 ```
+
+And go!
 
 ```jsx
 import { Translate } from "@sepoina/vitetranslate/react";
@@ -82,6 +84,7 @@ That is the whole authoring workflow. Wrap a string in `_%_..._%_`, render it th
   - [Console output](#console-output)
 - [🖥️ CLI](#️-cli)
 - [⚙️ Plugin options](#️-plugin-options)
+  - [`errorSolve`](#errorsolve)
 - [🔬 How it works](#-how-it-works)
 - [⚠️ Known limitations](#️-known-limitations)
 - [🎮 Playground](#-playground)
