@@ -219,6 +219,11 @@ console.log("\n== usi scorretti: si salva il testo, non si esplode ==");
   eq("t oggetto senza testo dentro", "", rendi({ t: { chiave: "valore" } }, linguaAttiva));
   eq("l'oggetto senza t si segnala in console", true, errori.length > prima2);
   eq("t funzione", "[...]", rendi({ t: () => {} }, linguaAttiva));
+  // Un valore ciclico non deve far esplodere il messaggio diagnostico: warning sì, crash no.
+  // Prima il JSON.stringify del messaggio lanciava "Converting circular structure to JSON".
+  const ciclico = {};
+  ciclico.se = ciclico;
+  eq("t oggetto ciclico", "", rendi({ t: ciclico }, linguaAttiva));
   eq("ogni caso ha lasciato un errore in console", true, errori.length > conta);
 
   eq("nessuna prop -> stringa vuota, senza errori", "", rendi({}, linguaAttiva));
@@ -245,6 +250,9 @@ console.log("\n== ts(): stringhe per le prop del DOM ==");
   eq("stringa qualunque", "testo libero", ts("testo libero", undefined, linguaAttiva));
   eq("niente da tradurre", "", ts(undefined, undefined, linguaAttiva));
   eq("ts() oggetto senza testo", "", ts({ chiave: "valore" }, undefined, linguaAttiva));
+  const ciclico = {};
+  ciclico.se = ciclico;
+  eq("ts() oggetto ciclico", "", ts(ciclico, undefined, linguaAttiva));
   eq("senza provider si usa la tabella eager", "Ciao mondo", ts(marcatore("App_saluto")));
   eq("il risultato è sempre una stringa", "string", typeof ts(marcatore("App_markup"), undefined, linguaAttiva));
 }
