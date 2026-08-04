@@ -211,8 +211,14 @@ console.log("\n== usi scorretti: si salva il testo, non si esplode ==");
   eq("forma ad array insieme ad a: vincono gli argomenti dell'array", "Ciao Mario, come stai?", rendi({ t: [marcatore("App_conArg"), "Mario"], a: "Luigi" }, linguaAttiva));
   eq("o insieme a t: vince o", "Ciao mondo", rendi({ o: marcatore("App_saluto"), t: marcatore("App_markup") }, linguaAttiva));
   eq("t numero", "42", rendi({ t: [42] }, linguaAttiva));
-  // Un oggetto senza campo `t` non contiene niente di mostrabile: qui "[...]" resta.
-  eq("t oggetto senza testo dentro", "[...]", rendi({ t: { chiave: "valore" } }, linguaAttiva));
+  // Un oggetto senza campo `t` non è la forma `{ t, a }` e non contiene testo: è una
+  // variante di `null`, e rende vuoto come lui, senza prefisso. `[...]` resta per i valori
+  // che non si possono proprio leggere — la funzione qui sotto. Vuoto a schermo, ma non in
+  // silenzio: l'uso scorretto si segnala una volta in console.
+  const prima2 = errori.length;
+  eq("t oggetto senza testo dentro", "", rendi({ t: { chiave: "valore" } }, linguaAttiva));
+  eq("l'oggetto senza t si segnala in console", true, errori.length > prima2);
+  eq("t funzione", "[...]", rendi({ t: () => {} }, linguaAttiva));
   eq("ogni caso ha lasciato un errore in console", true, errori.length > conta);
 
   eq("nessuna prop -> stringa vuota, senza errori", "", rendi({}, linguaAttiva));
@@ -238,6 +244,7 @@ console.log("\n== ts(): stringhe per le prop del DOM ==");
   eq("marcatore sorgente non compilato", "Benvenuto", ts("_%_Benvenuto_%_", undefined, linguaAttiva));
   eq("stringa qualunque", "testo libero", ts("testo libero", undefined, linguaAttiva));
   eq("niente da tradurre", "", ts(undefined, undefined, linguaAttiva));
+  eq("ts() oggetto senza testo", "", ts({ chiave: "valore" }, undefined, linguaAttiva));
   eq("senza provider si usa la tabella eager", "Ciao mondo", ts(marcatore("App_saluto")));
   eq("il risultato è sempre una stringa", "string", typeof ts(marcatore("App_markup"), undefined, linguaAttiva));
 }
@@ -304,7 +311,8 @@ export const partiallyTranslated = { "App_markup": 1 };
   // Un solo prefisso per stringa: `⁂` ha già vinto, e il testo recuperato non deve prendersene
   // un secondo per strada.
   eq("⁂ non si somma a ⁑ nel salvataggio", "⁂Ciao «?», come stai?", rendiDiag({ t: marcatore("App_conArg"), children: marcatore("App_saluto") }));
-  eq("⁂ senza niente da salvare", "⁂[...]", rendiDiag({ t: { chiave: "valore" } }));
+  eq("oggetto senza testo: vuoto come null", "", rendiDiag({ t: { chiave: "valore" } }));
+  eq("⁂ funzione: niente da salvare", "⁂[...]", rendiDiag({ t: () => {} }));
 
   console.log("\n== errorSolve: gli stessi prefissi da ts() ==");
   eq("ts() tradotta e completa", "Hello world", tsDiag(marcatore("App_saluto")));

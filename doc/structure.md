@@ -475,7 +475,7 @@ Il fallback incorporato esiste per una condizione precisa e **normale in svilupp
 
 `⁂` si porta dietro un cambio di contratto: **una stringa non marcata non è più un errore fatale.** Prima in sviluppo `<Translate>` lanciava e rendeva `[...]`, cancellando il testo; ma non tutto il testo che passa da una prop è traducibile — un numero di telefono, il nome di un campo configurato altrove, una descrizione che arriva dal server. Chi ne aveva doveva ispezionare il marcatore _prima_ di chiamare il componente, cioè riscrivere fuori una decisione che è di qui. Ora il marcatore è il discriminante e ad applicarlo è il componente.
 
-Per la stessa ragione gli usi scorretti non lanciano più: `salvage()` recupera il miglior testo disponibile fra `o`, `t` e `children` — la stringa, il primo elemento della tupla, il campo `t` dell'oggetto — e lo rende preceduto da `⁂`. `[...]` resta solo per il caso in cui non ci sia davvero niente da mostrare. La differenza si vede in produzione: prima un errore nelle _tue_ prop lo pagava chi legge lo schermo.
+Per la stessa ragione gli usi scorretti non lanciano più: `salvage()` recupera il miglior testo disponibile fra `o`, `t` e `children` — la stringa, il primo elemento della tupla, il campo `t` dell'oggetto — e lo rende preceduto da `⁂`. Un oggetto senza campo `t` non è la forma `{ t, a }` e non contiene testo: è una variante di `null` e rende vuoto come lui, senza prefisso, prima ancora del salvataggio. `[...]` resta per i valori che il salvataggio non può proprio leggere — una funzione, un simbolo. La differenza si vede in produzione: prima un errore nelle _tue_ prop lo pagava chi legge lo schermo.
 
 ### La console, e il suo interruttore
 
