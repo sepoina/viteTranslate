@@ -1,6 +1,7 @@
 {
   "name": "@sepoina/vitetranslate",
   "version": "2.3.1",
+  "versionDescription": "Aggiunto controllo di consistenza, warning log.",
   "description": "Extract translatable strings straight from your JSX — a Vite plugin that auto-generates and syncs JS translation tables, with zero runtime dependencies.",
   "author": {
     "name": "Giancarlo Ghigi",
@@ -58,9 +59,8 @@
   "scripts": {
     "build": "rolldown -c",
     "test": "node test/run.mjs",
-    "updateNpm": "npm version patch && git push --follow-tags",
+    "release": "npm version patch && git push --follow-tags",
     "prepare": "npm run build",
-    "prepublishOnly": "npm run build",
     "playground": "npm --prefix playground run dev",
     "playground:build": "npm --prefix playground run build",
     "playground:dump": "node test/exampleLangCompile.mjs",

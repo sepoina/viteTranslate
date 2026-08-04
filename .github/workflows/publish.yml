@@ -1,29 +1,61 @@
 name: Publish to npm
 
+# Ogni commit/push su main che tocca package.json (di norma un cambio di versione)
+# produce una pubblicazione npm. La versione pubblicata trasporta il campo
+# versionDescription, scritto a mano in package.json.
 on:
   push:
-    tags:
-      - 'v*'
+    branches: [main]
+    paths: [package.json]
   workflow_dispatch:
 
 permissions:
   contents: read
   id-token: write
 
+concurrency:
+  group: npm-publish
+  cancel-in-progress: false
+
 jobs:
   publish:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
+
       - uses: actions/setup-node@v6
         with:
           node-version: 24
           registry-url: https://registry.npmjs.org
-      - name: Aggiorna npm (richiesto per OIDC)
+
+      - name: Aggiorna npm (richiesto per trusted publishing OIDC)
         run: npm install -g npm@latest
+
       - name: Install deps
         run: npm install
+
       - name: Test
         run: npm test
-      - name: Publish
+
+      - name: Build
+        run: npm run build
+
+      - name: Rilascio
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          DESC=$(node -p "require('./package.json').versionDescription || 'nessuna nota'")
+          echo "Pubblicazione v$VERSION - $DESC"
+
+      - name: Versione già pubblicata?
+        id: check
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          if npm view "@sepoina/vitetranslate@$VERSION" version >/dev/null 2>&1; then
+            echo "published=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "published=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Publish (trusted publishing OIDC, nessun token)
+        if: steps.check.outputs.published == 'false'
         run: npm publish --access public
