@@ -29,7 +29,7 @@ declare module 'virtual:vitetranslate/languages' {
   /**
    * Tabella di una lingua: le chiavi generate dal plugin, più le voci riservate.
    *
-   * `__untranslated__` c'è solo quando il prefisso `errorSolve.beginCharUntranslated` è
+   * `__untranslated__` c'è solo quando il prefisso `errorSolve.mark.untranslated` è
    * acceso, ed elenca le chiavi che in questa lingua una traduzione non ce l'hanno. Senza,
    * l'informazione a runtime non esisterebbe: la compilazione riempie le voci non tradotte
    * con il testo della lingua sorgente, e da lì in poi si assomigliano tutte.
@@ -73,21 +73,26 @@ declare module 'virtual:vitetranslate/languages' {
   export const fallbackTable: TranslationTable;
 
   /**
-   * L'opzione `errorSolve` del plugin, già risolta contro l'ambiente della build: `onlyInDev`
-   * e la scelta fra `warningDev` e `warningBuild` sono state applicate qui, così il runtime
-   * legge dei valori invece di doverli interpretare. Un carattere vuoto è un prefisso spento.
+   * Il `mark` dell'opzione `errorSolve`, già risolto contro l'ambiente della build:
+   * `markOnlyDev` e la scelta fra `warningDev` e `warningBuild` sono state applicate qui, così
+   * il runtime legge dei valori invece di doverli interpretare. Un carattere vuoto è spento.
+   *
+   * I nomi sono gli stessi che si scrivono in `vite.config.js` dentro `errorSolve.mark`: la
+   * risoluzione copia e spegne, non rinomina. In più c'è solo `warn`, che è l'esito della
+   * scelta fra i due interruttori della console.
    */
   export const errorSolve: {
+    badData: string;
     malformed: string;
     untranslated: string;
     notFullyTranslated: string;
-    noArg: string;
+    absentDataInArray: string;
     warn: boolean;
   };
 
   /**
    * Le chiavi che almeno una lingua del progetto non ha ancora tradotto — l'informazione
-   * dietro il prefisso `errorSolve.beginCharNotFullyTranslated`. È globale, quindi vive qui e
+   * dietro il prefisso `errorSolve.mark.notFullyTranslated`. È globale, quindi vive qui e
    * non nelle singole tabelle: una tabella sa dire cosa manca a sé stessa, non altrove.
    *
    * Vuoto quando quel prefisso è spento, cioè in ogni build di produzione con i default.

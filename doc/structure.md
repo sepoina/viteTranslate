@@ -141,7 +141,7 @@ lib/
 │   ├── useTranslateToString.js . ts() per le prop che vogliono una stringa
 │   ├── useTranslateLanguage.js . lingua corrente, elenco lingue, cambio lingua
 │   ├── languageResource.js ..... cache + Suspense + caricamento dei chunk
-│   ├── resolveEntry.js ......... la catena di fallback (e i prefissi ⁑ / ∴)
+│   ├── resolveEntry.js ......... la catena di fallback (e i prefissi 🔸 / 🔹)
 │   ├── parseCompiledMarker.js .. marcatore compilato -> chiave (con cache)
 │   ├── interpolate.js .......... %s sulle stringhe NON compilate
 │   ├── normalizeSource.js ...... forma a oggetto { t, a } -> stringa o tupla
@@ -333,7 +333,7 @@ Conseguenze concrete:
 3. **Le voci senza segnaposto hanno identità stabile fra i render**, il che permette a React di saltare la riconciliazione del sottoalbero. È il motivo per cui `<Translate>` non ha un `useMemo`: la stabilità arriva già dalla tabella.
 4. **Ogni tabella compilata è autonoma.** Passando anche la `sourceTable`, ogni chiave `null` o assente porta con sé il testo della lingua sorgente, già compilato nella stessa forma. Chi consuma la tabella non ha più bisogno che la lingua sorgente sia caricata per mostrare qualcosa di sensato.
 
-Il punto 4 ha però un prezzo, ed è il motivo per cui esiste `__untranslated__`: **dopo la sostituzione una voce non tradotta è indistinguibile da una tradotta bene.** L'informazione non è recuperabile più tardi — a runtime non resta niente da guardare. Con l'opzione `emitUntranslated` (accesa solo quando il prefisso `errorSolve.beginCharUntranslated` è acceso) il modulo porta quindi anche una chiave riservata:
+Il punto 4 ha però un prezzo, ed è il motivo per cui esiste `__untranslated__`: **dopo la sostituzione una voce non tradotta è indistinguibile da una tradotta bene.** L'informazione non è recuperabile più tardi — a runtime non resta niente da guardare. Con l'opzione `emitUntranslated` (accesa solo quando il prefisso `errorSolve.mark.untranslated` è acceso) il modulo porta quindi anche una chiave riservata:
 
 ```js
 export default {
@@ -374,13 +374,15 @@ export const languages = {
 };
 export const sourceLanguage = "it-IT";
 export const fallbackTable = __vt_pre_0;
-export const errorSolve = { malformed: "⁂", untranslated: "⁑", notFullyTranslated: "∴", noArg: "[?]", warn: true };
+export const errorSolve = { badData: "🚫", malformed: "‼️", untranslated: "🔸", notFullyTranslated: "🔹", absentDataInArray: "⁇", warn: true };
 export const partiallyTranslated = { "App_1wltsn1": 1 };
 ```
 
 Una lingua = una riga, con tutto ciò che il runtime deve sapere. Erano tre mappe parallele da tenere allineate a mano.
 
-Gli ultimi due export sono la diagnostica, e portano già i valori **risolti**: `onlyInDev` e la scelta fra `warningDev` e `warningBuild` sono state applicate qui, dove `isProduction` è noto, così il runtime legge dei valori invece di doverli interpretare — non ragiona su `import.meta.env` e non conosce l'opzione dell'utente. Un carattere vuoto è un prefisso spento, ed è quello che una build di produzione con i default emette per tutti e tre.
+Gli ultimi due export sono la diagnostica, e portano già i valori **risolti**: `markOnlyDev` e la scelta fra `warningDev` e `warningBuild` sono state applicate qui, dove `isProduction` è noto, così il runtime legge dei valori invece di doverli interpretare — non ragiona su `import.meta.env` e non conosce l'opzione dell'utente. Un carattere vuoto è un mark spento, ed è quello che una build di produzione con i default emette per tutti e quattro i diagnostici.
+
+`errorSolve` qui è **`errorSolve.mark` di `vite.config.js`**, con gli stessi nomi: `resolveErrorSolve` copia e spegne, non rinomina. In più c'è solo `warn`, che è l'esito della scelta fra i due interruttori della console. Un vocabolario solo per la stessa cosa: chi legge il manifest generato riconosce ciò che ha scritto, e aggiungere un mark nuovo è una riga in un posto invece che una coppia di nomi da tenere allineata.
 
 `partiallyTranslated` è l'unico posto in cui può stare: dice quali chiavi restano non tradotte in **qualche** lingua, e per rispondere servono tutte le tabelle insieme. Una tabella compilata sa dire cosa manca a sé stessa (`__untranslated__`, § 2b), non altrove. Qui le tabelle ci sono già, lette poco sopra per costruire il manifest, quindi non costa nessun accesso al disco in più. Vuoto quando quel prefisso è spento.
 
@@ -418,7 +420,7 @@ Per questo l'hook `config()` dichiara `optimizeDeps: { exclude: ["@sepoina/vitet
 - **file aggiunto/rimosso** → cambia l'_insieme_ delle lingue → invalida il modulo virtuale;
 - **file modificato** → il manifest resta valido, ma serve comunque un full-reload, perché le tabelle vivono in una cache a livello di modulo lato client che un hot update non svuoterebbe. E se il file modificato è la **lingua sorgente**, vengono invalidati _tutti_ i moduli compilati: ogni lingua incorpora il testo sorgente per le chiavi non tradotte, e Vite non può dedurlo dal grafo — quel testo entra durante il transform, non attraverso un import.
 
-Al secondo caso c'è **un'eccezione**, ed è il prefisso `∴`: `partiallyTranslated` è calcolato leggendo tutte le lingue, quindi tradurre una stringa lo cambia. Con quel prefisso acceso il manifest va rigenerato anche quando cambia solo il contenuto di un file — altrimenti il `∴` resterebbe a schermo su una stringa appena tradotta, fino al riavvio. Spento (ogni build di produzione con i default) la rilettura non avviene e la regola resta quella di sopra.
+Al secondo caso c'è **un'eccezione**, ed è il prefisso `🔹`: `partiallyTranslated` è calcolato leggendo tutte le lingue, quindi tradurre una stringa lo cambia. Con quel prefisso acceso il manifest va rigenerato anche quando cambia solo il contenuto di un file — altrimenti il `🔹` resterebbe a schermo su una stringa appena tradotta, fino al riavvio. Spento (ogni build di produzione con i default) la rilettura non avviene e la regola resta quella di sopra.
 
 Il filtro sull'estensione `.js` non è cosmetico: senza, i backup `.bak-corrupted-*` / `.bak-erased-*` lasciati lì accanto dalla sync facevano ricaricare la pagina.
 
@@ -467,15 +469,36 @@ Il fallback incorporato esiste per una condizione precisa e **normale in svilupp
 
 | Prefisso | Condizione | Chi lo sa |
 | --- | --- | --- |
-| `⁂` | testo che la traduzione non ha mai visto (salvo `skipMark`), o prop incompatibili fra loro | `Translate.js` / `useTranslateToString.js`, sul posto |
-| `⁑` | la lingua attiva non ha una traduzione per questa chiave | `table.__untranslated__` (§ 2b), oppure la chiave che dalla tabella manca |
-| `∴` | tradotta qui, ma assente in almeno un'altra lingua | `partiallyTranslated` dal modulo virtuale (§ Fase 3) |
+| `‼️` | testo che la traduzione non ha mai visto (salvo `skipMark`), o prop incompatibili fra loro | `Translate.js` / `useTranslateToString.js`, sul posto |
+| `🔸` | la lingua attiva non ha una traduzione per questa chiave | `table.__untranslated__` (§ 2b), oppure la chiave che dalla tabella manca |
+| `🔹` | tradotta qui, ma assente in almeno un'altra lingua | `partiallyTranslated` dal modulo virtuale (§ Fase 3) |
+| `🚫` | in posizione testo c'è un valore che testo non è: nessun testo da mostrare | `Translate.js`, sul posto — vedi § "Quando testo non ce n'è" |
 
-**Uno solo per stringa, e il primo della lista vince.** Se manca la traduzione proprio nella lingua che si sta guardando, dire anche che ne manca una altrove non aggiunge niente. Lo stesso vale nel percorso di salvataggio: quando `⁂` ha già vinto, il testo recuperato attraversa la catena con la variante `diag.malformedOnly`, che ha gli altri due spenti — altrimenti si prenderebbe un secondo prefisso per strada.
+**Uno solo per stringa, e il primo della lista vince.** Se manca la traduzione proprio nella lingua che si sta guardando, dire anche che ne manca una altrove non aggiunge niente. Lo stesso vale nel percorso di salvataggio: quando `‼️` ha già vinto, il testo recuperato attraversa la catena con la variante `diag.malformedOnly`, che ha gli altri due spenti — altrimenti si prenderebbe un secondo prefisso per strada. `🚫` non partecipa alla precedenza perché non è mai in competizione: si accende solo dove testo davanti a cui stare non ce n'è.
 
-`⁂` si porta dietro un cambio di contratto: **una stringa non marcata non è più un errore fatale.** Prima in sviluppo `<Translate>` lanciava e rendeva `[...]`, cancellando il testo; ma non tutto il testo che passa da una prop è traducibile — un numero di telefono, il nome di un campo configurato altrove, una descrizione che arriva dal server. Chi ne aveva doveva ispezionare il marcatore _prima_ di chiamare il componente, cioè riscrivere fuori una decisione che è di qui. Ora il marcatore è il discriminante e ad applicarlo è il componente.
+`‼️` si porta dietro un cambio di contratto: **una stringa non marcata non è più un errore fatale.** Prima in sviluppo `<Translate>` lanciava e rendeva `[...]`, cancellando il testo; ma non tutto il testo che passa da una prop è traducibile — un numero di telefono, il nome di un campo configurato altrove, una descrizione che arriva dal server. Chi ne aveva doveva ispezionare il marcatore _prima_ di chiamare il componente, cioè riscrivere fuori una decisione che è di qui. Ora il marcatore è il discriminante e ad applicarlo è il componente.
 
-Per la stessa ragione gli usi scorretti non lanciano più: `salvage()` recupera il miglior testo disponibile fra `o`, `t` e `children` — la stringa, il primo elemento della tupla, il campo `t` dell'oggetto — e lo rende preceduto da `⁂`. Un oggetto senza campo `t` non è la forma `{ t, a }` e non contiene testo: è una variante di `null` e rende vuoto come lui, senza prefisso, prima ancora del salvataggio. `[...]` resta per i valori che il salvataggio non può proprio leggere — una funzione, un simbolo. La differenza si vede in produzione: prima un errore nelle _tue_ prop lo pagava chi legge lo schermo.
+Per la stessa ragione gli usi scorretti non lanciano più: `salvage()` recupera il miglior testo disponibile fra `o`, `t` e `children` — la stringa, il primo elemento della tupla, il campo `t` dell'oggetto — e lo rende preceduto da `‼️`. Un oggetto senza campo `t` non è la forma `{ t, a }` e non contiene testo: è una variante di `null` e rende vuoto come lui, senza prefisso, prima ancora del salvataggio. La differenza si vede in produzione: prima un errore nelle _tue_ prop lo pagava chi legge lo schermo.
+
+#### Quando testo non ce n'è: `🚫[func]`
+
+Resta il fondo del percorso: `salvage()` ha guardato in `o`, `t` e `children` e non ha trovato niente di testuale. Una funzione, un simbolo, un elemento React nel primo posto della tupla, una tupla vuota. Qui il principio "mostra sempre qualcosa" non si può applicare — qualcosa da mostrare non esiste — e l'unica informazione che resta è **cosa** c'era al posto del testo.
+
+Prima usciva `[...]`, uguale per tutti e visibile anche in produzione. Diceva due cose sbagliate insieme: a chi sviluppa non diceva niente che non sapesse già (che qualcosa era andato storto lo si vedeva dal buco), e a chi legge la pagina diceva qualcosa che non lo riguarda. Ora `mark.badData` prende il posto di entrambi:
+
+| Valore | Resa in sviluppo |
+| --- | --- |
+| `t={() => {}}` | `🚫[func]` |
+| `t={Symbol("x")}` | `🚫[symbol]` |
+| `t={true}` | `🚫[true]` |
+| `t={[]}` | `🚫[array]` |
+| `t={[null]}` | `🚫[nullArray]` |
+| `t={[<i/>]}`, `t`+`children` entrambi elementi, `o`+`t` entrambi elementi | `🚫[badDom]` |
+| qualunque altra forma illeggibile | `🚫[badData]` |
+
+Il nome si ricava scendendo nella **prima posizione utile** — il primo elemento della tupla, il campo `t` dell'oggetto — perché è lì che il testo doveva essere: di `t={[<i/>]}` la cosa da dire è che c'è un nodo dove andava il testo, non che c'è un array. `array` e `nullArray` restano per le tuple in cui quella posizione non esiste o è vuota, dove il nome dell'involucro **è** l'informazione. La discesa ha un limite di profondità, e non è teorico: `const a = []; a[0] = a;` senza guardia sarebbe un `RangeError` dentro un render, cioè una diagnostica trasformata in crash — vale per `badDataKind()` e per `textOf()`, che percorrono la stessa struttura.
+
+Il glifo passa da `markOnlyDev` come gli altri tre, e **spento non si rende niente**: il nome del tipo da solo sarebbe rumore per chi legge la pagina, e la resa vuota è già quella dell'altro "niente da mostrare" del componente, l'oggetto senza campo `t`. Quindi in ogni build di produzione con i default questi casi rendono `""` — dove prima si vedeva `[...]`. La segnalazione in console resta, sotto `warningDev`/`warningBuild` come sempre.
 
 ### Cosa può stare nella posizione del testo
 
@@ -489,7 +512,7 @@ Guardati in ordine di percorso in [`Translate.js`](../lib/react/Translate.js):
 | numero, bigint | reso così com'è, **nessun prefisso** | dato di dominio: un conteggio, un interno, un codice. Marcato non ci può passare |
 | elemento React | restituito così com'è, **nessuna diagnostica** | non è ambiguo, e sa già renderizzarsi |
 | oggetto senza `t` | `""` + segnalazione | una variante di `null`: non è la forma `{ t, a }` e testo non ne contiene |
-| tutto il resto non-stringa | `salvage()` + `⁂` | funzione, simbolo: qui il testo non c'è davvero |
+| tutto il resto non-stringa | `salvage()`, e se non trova testo `🚫[tipo]` | funzione, simbolo: qui il testo non c'è davvero |
 
 ⚠️ Due limiti voluti, e vanno tenuti: la **tupla** `[testo, ...argomenti]` non partecipa alle prime due righe — nel primo posto c'è il testo, e un elemento lì è davvero un errore da segnalare (un elemento _fra gli argomenti_ è invece supportato da sempre). E **`ts()` non accetta elementi**: deve restituire una stringa primitiva, quindi un nodo montato resta un errore — con un messaggio suo, che dice proprio quello.
 
@@ -499,16 +522,16 @@ Il controllo del vuoto è `source === false || null || undefined || ""` e non `!
 
 Resta il caso che nessuna ispezione del valore può risolvere: una **stringa** non marcata ha due significati opposti — marcatore dimenticato, oppure valore che un marcatore non l'avrà mai (un numero di telefono, una uri, il nome di un campo configurato in un pannello di amministrazione, il messaggio di un'eccezione). Da dentro il componente si vedono identici. A saperlo è solo il punto di chiamata.
 
-`skipMark` è quella dichiarazione, e ha esattamente due effetti quando il testo **non** è marcato: niente `⁂` e niente `reportOnce`. Tutto il resto — `stripSourceMarker`, l'interpolazione dei `%s` — non cambia.
+`skipMark` è quella dichiarazione, e ha esattamente due effetti quando il testo **non** è marcato: niente `‼️` e niente `reportOnce`. Tutto il resto — `stripSourceMarker`, l'interpolazione dei `%s` — non cambia.
 
 ```jsx
 <Translate t={row.label} skipMark />
 ts(row.label, args, { skipMark: true })   // stessa via d'uscita per la variante stringa
 ```
 
-Su un testo **marcato** la prop non ha alcun effetto: la catena di risoluzione procede normalmente e `⁑` / `∴` restano accesi. Questo è il punto, e non un dettaglio: non vuol dire "non tradurre", vuol dire "qui il non marcato non è un errore" — che è ciò che serve alla prop che porta l'uno o l'altro a seconda della riga. Nemmeno copre le prop incompatibili fra loro: quelle restano un errore e continuano a passare da `salvage()`.
+Su un testo **marcato** la prop non ha alcun effetto: la catena di risoluzione procede normalmente e `🔸` / `🔹` restano accesi. Questo è il punto, e non un dettaglio: non vuol dire "non tradurre", vuol dire "qui il non marcato non è un errore" — che è ciò che serve alla prop che porta l'uno o l'altro a seconda della riga. Nemmeno copre le prop incompatibili fra loro: quelle restano un errore e continuano a passare da `salvage()`.
 
-L'alternativa che sembra equivalente ma non lo è: `errorSolve.beginCharMalformed: false` spegne la diagnostica **ovunque**, cioè anche dove il marcatore era davvero dimenticato. `skipMark` la spegne dove è stato dichiarato e la lascia accesa altrove.
+L'alternativa che sembra equivalente ma non lo è: `errorSolve.mark.malformed: false` spegne la diagnostica **ovunque**, cioè anche dove il marcatore era davvero dimenticato. `skipMark` la spegne dove è stato dichiarato e la lascia accesa altrove.
 
 ### La console, e il suo interruttore
 
@@ -696,7 +719,7 @@ Raccolta delle cose che, se cambiate senza accorgersene, rompono qualcosa in mod
 7. **`splitAndSortEntries` ordina con locale esplicito.** Senza, la stessa tabella si ordina diversamente fra macchina di sviluppo e CI, e i file risultano "cambiati" senza esserlo.
 8. **Ogni divergenza fra build e runtime va segnalata, non nascosta.** È la regola che ha prodotto gli avvisi su marcatori annidati, collisioni di id e tag incrociati.
 9. **La diagnostica non deve costare niente dove è spenta.** `errorSolve` è risolto a build time, quindi con i default una build di produzione non spedisce né i prefissi né i dati che li alimentano: `__untranslated__` non viene emesso nei chunk di lingua e `partiallyTranslated` resta vuoto. Chi aggiunge un prefisso nuovo aggiunge anche la condizione che ne evita l'emissione — altrimenti ogni visitatore paga byte per un'informazione che nessuno leggerà. Vale anche per i **messaggi**: un template literal si valuta prima della chiamata, quindi un messaggio che contiene `describeValue()` — cioè un `JSON.stringify` — va passato a `reportOnce` come lambda insieme a una chiave statica, altrimenti gira a ogni render pure con la console spenta, che in produzione è il default.
-10. **Un solo prefisso per stringa.** La precedenza è `⁂` → `⁑` → `∴`, e il percorso di salvataggio usa `diag.malformedOnly` proprio per non sommarne un secondo. Due glifi davanti allo stesso testo non dicono più del primo, e rendono illeggibile ciò che si stava cercando di mostrare.
+10. **Un solo prefisso per stringa.** La precedenza è `‼️` → `🔸` → `🔹`, e il percorso di salvataggio usa `diag.malformedOnly` proprio per non sommarne un secondo. Due glifi davanti allo stesso testo non dicono più del primo, e rendono illeggibile ciò che si stava cercando di mostrare.
 
 ---
 

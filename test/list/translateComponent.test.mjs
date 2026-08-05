@@ -142,11 +142,11 @@ console.log("\n== una voce di tabella, nelle sue quattro forme ==");
 
 console.log("\n== argomenti: quello che manca e quello che non è testo ==");
 {
-  eq("argomento mancante", "Ciao [?], come stai?", rendi({ t: marcatore("App_conArg") }, linguaAttiva));
-  eq("argomento null", "Ciao [?], come stai?", rendi({ t: marcatore("App_conArg"), a: null }, linguaAttiva));
+  eq("argomento mancante", "Ciao ⁇, come stai?", rendi({ t: marcatore("App_conArg") }, linguaAttiva));
+  eq("argomento null", "Ciao ⁇, come stai?", rendi({ t: marcatore("App_conArg"), a: null }, linguaAttiva));
   eq("argomento 0 (valore legittimo)", "Ciao 0, come stai?", rendi({ t: marcatore("App_conArg"), a: 0 }, linguaAttiva));
   eq("stringa vuota (valore legittimo)", "Ciao , come stai?", rendi({ t: marcatore("App_conArg"), a: "" }, linguaAttiva));
-  eq("argomenti in meno del previsto", "Ciao <b>Mario</b>, hai [?] messaggi", rendi({ t: marcatore("App_markupArg"), a: ["Mario"] }, linguaAttiva));
+  eq("argomenti in meno del previsto", "Ciao <b>Mario</b>, hai ⁇ messaggi", rendi({ t: marcatore("App_markupArg"), a: ["Mario"] }, linguaAttiva));
   // Un elemento React come argomento: nella tabella compilata i segnaposto sono figli JSX,
   // quindi l'elemento viene reso, non stampato come "[object Object]".
   eq("elemento React come argomento", "Ciao <b><i>Mario</i></b>, hai 3 messaggi",
@@ -183,7 +183,7 @@ console.log("\n== testo mai passato dal compilatore ==");
 console.log("\n== numeri: valore, non uso scorretto ==");
 {
   // Un conteggio, un interno, un codice: dal sorgente non passano e marcati non possono
-  // essere. Resa diretta, senza passare dal salvataggio (che li mostrerebbe con `⁂`).
+  // essere. Resa diretta, senza passare dal salvataggio (che li mostrerebbe con `‼️`).
   const conta = errori.length;
   eq("t numero", "42", rendi({ t: 42 }, linguaAttiva));
   eq("t numero dentro la tupla", "42", rendi({ t: [42] }, linguaAttiva));
@@ -215,9 +215,10 @@ console.log("\n== un elemento React nella posizione del testo ==");
   eq("o elemento", "<i>attendere</i>", rendi({ o: h("i", null, "attendere") }, linguaAttiva));
   eq("children elemento", "<i>attendere</i>", rendi({ children: h("i", null, "attendere") }, linguaAttiva));
   eq("un elemento non lascia errori in console", conta, errori.length);
-  // Nella tupla il primo posto è il testo: un elemento lì è davvero un errore, e resta al
-  // ramo di salvataggio — che di testo non ne trova e mostra "[...]".
-  eq("nella tupla resta un errore", "[...]", rendi({ t: [h("i", null, "attendere")] }, linguaAttiva));
+  // Nella tupla il primo posto è il testo: un elemento lì è davvero un errore, e resta al ramo
+  // di salvataggio — che di testo non ne trova. Con `mark.badData` spento (questo manifest
+  // non lo chiede) non si rende niente; il nome del tipo si verifica nel blocco errorSolve.
+  eq("nella tupla resta un errore", "", rendi({ t: [h("i", null, "attendere")] }, linguaAttiva));
   eq("la tupla con elemento si segnala", true, errori.length > conta);
   // ts() deve restituire una stringa: un elemento non si riduce, e l'errore resta.
   const prima = errori.length;
@@ -265,7 +266,7 @@ console.log("\n== usi scorretti: si salva il testo, non si esplode ==");
 {
   // Il testo dell'utente non sparisce più dietro "[...]": era lì e si poteva mostrare, e a
   // pagare la combinazione sbagliata di prop era chi legge lo schermo. Con i prefissi accesi
-  // (vedi più sotto) si porta dietro un `⁂`; qui il manifest non li chiede, quindi esce nudo.
+  // (vedi più sotto) si porta dietro un `‼️`; qui il manifest non li chiede, quindi esce nudo.
   const conta = errori.length;
   eq("t e children insieme: vince t", "Ciao mondo", rendi({ t: marcatore("App_saluto"), children: marcatore("App_markup") }, linguaAttiva));
   // Regressione: il controllo è sulla sentinella `false`, non sulla verità del valore. Con
@@ -275,13 +276,17 @@ console.log("\n== usi scorretti: si salva il testo, non si esplode ==");
   eq("forma ad array insieme ad a: vincono gli argomenti dell'array", "Ciao Mario, come stai?", rendi({ t: [marcatore("App_conArg"), "Mario"], a: "Luigi" }, linguaAttiva));
   eq("o insieme a t: vince o", "Ciao mondo", rendi({ o: marcatore("App_saluto"), t: marcatore("App_markup") }, linguaAttiva));
   // Un oggetto senza campo `t` non è la forma `{ t, a }` e non contiene testo: è una
-  // variante di `null`, e rende vuoto come lui, senza prefisso. `[...]` resta per i valori
-  // che non si possono proprio leggere — la funzione qui sotto. Vuoto a schermo, ma non in
+  // variante di `null`, e rende vuoto come lui, senza prefisso. Vuoto a schermo, ma non in
   // silenzio: l'uso scorretto si segnala una volta in console.
   const prima2 = errori.length;
   eq("t oggetto senza testo dentro", "", rendi({ t: { chiave: "valore" } }, linguaAttiva));
   eq("l'oggetto senza t si segnala in console", true, errori.length > prima2);
-  eq("t funzione", "[...]", rendi({ t: () => {} }, linguaAttiva));
+  // Con `mark.badData` spento — questo manifest non porta errorSolve, come una build di
+  // produzione con i default — un valore che testo non è rende vuoto: la diagnostica non deve
+  // arrivare all'utente finale. Il nome del tipo si verifica nel blocco errorSolve.
+  const prima3 = errori.length;
+  eq("t funzione", "", rendi({ t: () => {} }, linguaAttiva));
+  eq("la funzione si segnala comunque in console", true, errori.length > prima3);
   // Un valore ciclico non deve far esplodere il messaggio diagnostico: warning sì, crash no.
   // Prima il JSON.stringify del messaggio lanciava "Converting circular structure to JSON".
   const ciclico = {};
@@ -303,7 +308,7 @@ console.log("\n== ts(): stringhe per le prop del DOM ==");
 {
   eq("voce semplice", "Ciao mondo", ts(marcatore("App_saluto"), undefined, linguaAttiva));
   eq("voce con argomento", "Ciao Mario, come stai?", ts(marcatore("App_conArg"), "Mario", linguaAttiva));
-  eq("argomento mancante", "Ciao [?], come stai?", ts(marcatore("App_conArg"), undefined, linguaAttiva));
+  eq("argomento mancante", "Ciao ⁇, come stai?", ts(marcatore("App_conArg"), undefined, linguaAttiva));
   // Il markup in un aria-label non ha senso: la voce si risolve in un elemento e qui se ne
   // estrae il testo. È una degradazione dichiarata, non un uso previsto.
   eq("una voce con markup viene appiattita", "testo in grassetto", ts(marcatore("App_markup"), undefined, linguaAttiva));
@@ -348,7 +353,7 @@ import tabella from "./__tabella-en-${stamp}.mjs";
 export const languages = { "en-US": { name: "English", preloaded: true, table: tabella, load: () => Promise.resolve({ default: tabella }) } };
 export const sourceLanguage = "it-IT";
 export const fallbackTable = tabella;
-export const errorSolve = { malformed: "⁂", untranslated: "⁑", notFullyTranslated: "∴", noArg: "«?»", warn: false };
+export const errorSolve = { malformed: "‼️", untranslated: "🔸", notFullyTranslated: "🔹", badData: "🚫", absentDataInArray: "«?»", warn: false };
 export const partiallyTranslated = { "App_markup": 1 };
 `;
   const { default: TranslateDiag } = await caricaConManifest("Translate.js", manifestDiag);
@@ -367,47 +372,75 @@ export const partiallyTranslated = { "App_markup": 1 };
   const conta = errori.length;
 
   eq("tradotta e completa: nessun prefisso", "Hello world", rendiDiag({ t: marcatore("App_saluto") }));
-  eq("⁑ non tradotta in questa lingua", "⁑Ciao Mario, come stai?", rendiDiag({ t: marcatore("App_conArg"), a: "Mario" }));
-  eq("∴ tradotta qui, non altrove", "∴text in <b>bold</b>", rendiDiag({ t: marcatore("App_markup") }));
-  eq("⁑ vince su ∴ quando valgono entrambi", "⁑Ciao <b>Mario</b>, hai 3 messaggi", rendiDiag({ t: marcatore("App_markupArg"), a: ["Mario", 3] }));
-  eq("⁑ anche per una chiave che la tabella non ha", "⁑testo nuovo", rendiDiag({ t: marcatore("App_maiVisto", "testo nuovo") }));
-  eq("⁂ testo non marcato", "⁂testo libero", rendiDiag({ t: "testo libero" }));
-  eq("⁂ marcatore sorgente mai compilato", "⁂Benvenuto", rendiDiag({ t: "_%_Benvenuto_%_" }));
+  eq("🔸 non tradotta in questa lingua", "🔸Ciao Mario, come stai?", rendiDiag({ t: marcatore("App_conArg"), a: "Mario" }));
+  eq("🔹 tradotta qui, non altrove", "🔹text in <b>bold</b>", rendiDiag({ t: marcatore("App_markup") }));
+  eq("🔸 vince su 🔹 quando valgono entrambi", "🔸Ciao <b>Mario</b>, hai 3 messaggi", rendiDiag({ t: marcatore("App_markupArg"), a: ["Mario", 3] }));
+  eq("🔸 anche per una chiave che la tabella non ha", "🔸testo nuovo", rendiDiag({ t: marcatore("App_maiVisto", "testo nuovo") }));
+  eq("‼️ testo non marcato", "‼️testo libero", rendiDiag({ t: "testo libero" }));
+  eq("‼️ marcatore sorgente mai compilato", "‼️Benvenuto", rendiDiag({ t: "_%_Benvenuto_%_" }));
 
-  // noArrayChar: vale sia nella tabella compilata (inlineato nel chunk) sia nell'interpolazione
+  // absentDataInArray: vale sia nella tabella compilata (inlineato nel chunk) sia nell'interpolazione
   // a runtime. Due strade diverse per la stessa regola, e devono dire la stessa cosa.
-  eq("noArrayChar nella tabella compilata", "⁑Ciao «?», come stai?", rendiDiag({ t: marcatore("App_conArg") }));
-  eq("noArrayChar nell'interpolazione a runtime", "⁂ciao «?»", rendiDiag({ t: "_%_ciao %s_%_" }));
+  eq("absentDataInArray nella tabella compilata", "🔸Ciao «?», come stai?", rendiDiag({ t: marcatore("App_conArg") }));
+  eq("absentDataInArray nell'interpolazione a runtime", "‼️ciao «?»", rendiDiag({ t: "_%_ciao %s_%_" }));
 
-  // Un solo prefisso per stringa: `⁂` ha già vinto, e il testo recuperato non deve prendersene
+  // Un solo prefisso per stringa: `‼️` ha già vinto, e il testo recuperato non deve prendersene
   // un secondo per strada.
-  eq("⁂ non si somma a ⁑ nel salvataggio", "⁂Ciao «?», come stai?", rendiDiag({ t: marcatore("App_conArg"), children: marcatore("App_saluto") }));
+  eq("‼️ non si somma a 🔸 nel salvataggio", "‼️Ciao «?», come stai?", rendiDiag({ t: marcatore("App_conArg"), children: marcatore("App_saluto") }));
   eq("oggetto senza testo: vuoto come null", "", rendiDiag({ t: { chiave: "valore" } }));
-  eq("⁂ funzione: niente da salvare", "⁂[...]", rendiDiag({ t: () => {} }));
+
+  // mark.badData: qui il salvataggio non trova testo da nessuna parte, e l'unica cosa
+  // utile che resta da dire è COSA c'era al suo posto. Non è un prefisso davanti a un testo —
+  // testo non ce n'è — ma tutto ciò che si rende.
+  const El = h("i", null, "attendere");
+  eq("🚫 funzione", "🚫[func]", rendiDiag({ t: () => {} }));
+  eq("🚫 symbol", "🚫[symbol]", rendiDiag({ t: Symbol("s") }));
+  eq("🚫 boolean true", "🚫[true]", rendiDiag({ t: true }));
+  eq("🚫 tupla vuota", "🚫[array]", rendiDiag({ t: [] }));
+  eq("🚫 tupla che porta solo null", "🚫[nullArray]", rendiDiag({ t: [null] }));
+  // Si scende nel primo posto della tupla: lì doveva esserci il testo, ed è di quello che si
+  // parla — non dell'involucro che lo trasportava.
+  eq("🚫 elemento nella tupla", "🚫[badDom]", rendiDiag({ t: [El] }));
+  // `{ t: <El/> }` non è un errore: la forma a oggetto si srotola e un elemento da solo in
+  // posizione testo è legittimo. Serve un livello in più perché diventi un uso scorretto.
+  eq("la forma a oggetto con un elemento resta valida", "<i>attendere</i>", rendiDiag({ t: { t: El } }));
+  eq("🚫 elemento annidato due volte", "🚫[badDom]", rendiDiag({ t: { t: { t: El } } }));
+  eq("🚫 funzione nella tupla", "🚫[func]", rendiDiag({ t: [() => {}] }));
+  // Prop incompatibili in cui nessuna delle due porta testo: si nomina la prima che c'è.
+  eq("🚫 t e children entrambi elementi", "🚫[badDom]", rendiDiag({ t: El, children: El }));
+  eq("🚫 o e t entrambi elementi", "🚫[badDom]", rendiDiag({ o: El, t: El }));
+  // La stringa vuota si salta come in pickSource: il valore di cui vale la pena parlare è il
+  // secondo, altrimenti si nominerebbe la prop innocua.
+  eq('🚫 t="" e children elemento', "🚫[badDom]", rendiDiag({ t: "", children: El }));
+  // Una struttura che si contiene da sé non deve far esplodere il render: senza la guardia di
+  // profondità questa riga sarebbe un RangeError dentro il componente.
+  const ciclica = [];
+  ciclica[0] = ciclica;
+  eq("🚫 tupla ciclica: nessun crash", "🚫[badData]", rendiDiag({ t: ciclica }));
 
   // I due valori che marcati non saranno mai: non passano dalla strada dell'errore, quindi
-  // `⁂` non ce lo mettono nemmeno con i prefissi accesi.
-  eq("nessun ⁂ per un numero", "42", rendiDiag({ t: 42 }));
-  eq("nessun ⁂ per un elemento React", "<i>attendere</i>", rendiDiag({ t: h("i", null, "attendere") }));
+  // `‼️` non ce lo mettono nemmeno con i prefissi accesi.
+  eq("nessun ‼️ per un numero", "42", rendiDiag({ t: 42 }));
+  eq("nessun ‼️ per un elemento React", "<i>attendere</i>", rendiDiag({ t: h("i", null, "attendere") }));
 
-  // skipMark spegne `⁂` e basta: la catena di risoluzione resta quella di sempre, e gli altri
+  // skipMark spegne `‼️` e basta: la catena di risoluzione resta quella di sempre, e gli altri
   // due prefissi — che parlano della traduzione, non del marcatore — restano accesi.
-  eq("skipMark: niente ⁂ sul non marcato", "testo libero", rendiDiag({ t: "testo libero", skipMark: true }));
-  eq("skipMark: niente ⁂ sul marcatore sorgente", "Benvenuto", rendiDiag({ t: "_%_Benvenuto_%_", skipMark: true }));
-  eq("skipMark non spegne ⁑", "⁑Ciao Mario, come stai?", rendiDiag({ t: marcatore("App_conArg"), a: "Mario", skipMark: true }));
-  eq("skipMark non spegne ∴", "∴text in <b>bold</b>", rendiDiag({ t: marcatore("App_markup"), skipMark: true }));
+  eq("skipMark: niente ‼️ sul non marcato", "testo libero", rendiDiag({ t: "testo libero", skipMark: true }));
+  eq("skipMark: niente ‼️ sul marcatore sorgente", "Benvenuto", rendiDiag({ t: "_%_Benvenuto_%_", skipMark: true }));
+  eq("skipMark non spegne 🔸", "🔸Ciao Mario, come stai?", rendiDiag({ t: marcatore("App_conArg"), a: "Mario", skipMark: true }));
+  eq("skipMark non spegne 🔹", "🔹text in <b>bold</b>", rendiDiag({ t: marcatore("App_markup"), skipMark: true }));
   // Le prop incompatibili restano un errore anche con skipMark: quella dichiara la natura del
   // valore, non mette a tacere il componente.
-  eq("skipMark non copre le prop incompatibili", "⁂Hello world", rendiDiag({ t: marcatore("App_saluto"), children: marcatore("App_markup"), skipMark: true }));
+  eq("skipMark non copre le prop incompatibili", "‼️Hello world", rendiDiag({ t: marcatore("App_saluto"), children: marcatore("App_markup"), skipMark: true }));
 
   console.log("\n== errorSolve: gli stessi prefissi da ts() ==");
   eq("ts() tradotta e completa", "Hello world", tsDiag(marcatore("App_saluto")));
-  eq("ts() ⁑ non tradotta", "⁑Ciao Mario, come stai?", tsDiag(marcatore("App_conArg"), "Mario"));
-  eq("ts() ∴ non tradotta altrove", "∴text in bold", tsDiag(marcatore("App_markup")));
-  eq("ts() ⁂ testo non marcato", "⁂testo libero", tsDiag("testo libero"));
-  eq("ts() skipMark: niente ⁂", "testo libero", tsDiag("testo libero", undefined, { skipMark: true }));
-  eq("ts() skipMark non spegne ⁑", "⁑Ciao Mario, come stai?", tsDiag(marcatore("App_conArg"), "Mario", { skipMark: true }));
-  eq("ts() nessun ⁂ per un numero", "42", tsDiag(42));
+  eq("ts() 🔸 non tradotta", "🔸Ciao Mario, come stai?", tsDiag(marcatore("App_conArg"), "Mario"));
+  eq("ts() 🔹 non tradotta altrove", "🔹text in bold", tsDiag(marcatore("App_markup")));
+  eq("ts() ‼️ testo non marcato", "‼️testo libero", tsDiag("testo libero"));
+  eq("ts() skipMark: niente ‼️", "testo libero", tsDiag("testo libero", undefined, { skipMark: true }));
+  eq("ts() skipMark non spegne 🔸", "🔸Ciao Mario, come stai?", tsDiag(marcatore("App_conArg"), "Mario", { skipMark: true }));
+  eq("ts() nessun ‼️ per un numero", "42", tsDiag(42));
 
   eq("warn: false tiene la console muta", conta, errori.length);
 }

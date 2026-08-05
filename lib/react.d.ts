@@ -8,7 +8,7 @@ import type { FC, ReactElement, ReactNode } from 'react';
 
 /**
  * Valori che sostituiscono i `%s`, in ordine. Uno scalare vale come lista di un elemento;
- * un segnaposto rimasto senza valore diventa `[?]`. Un argomento può essere un nodo React.
+ * un segnaposto rimasto senza valore diventa `⁇`. Un argomento può essere un nodo React.
  */
 export type TranslateArgs = unknown | readonly unknown[];
 
@@ -48,11 +48,11 @@ export interface TranslateProps {
   children?: ReactNode;
   /**
    * Dichiara che, in questo punto di chiamata, una stringa **non** marcata è legittima: niente
-   * prefisso `⁂` e niente segnalazione in console. Per il resto la resa non cambia, `%s`
+   * prefisso `‼️` e niente segnalazione in console. Per il resto la resa non cambia, `%s`
    * compresi.
    *
    * Non vuol dire "non tradurre": su un testo marcato la prop non ha alcun effetto e la catena
-   * di risoluzione procede normalmente, `⁑` e `∴` inclusi. Serve alla prop che *a volte* porta
+   * di risoluzione procede normalmente, `🔸` e `🔹` inclusi. Serve alla prop che *a volte* porta
    * testo marcato e *a volte* dato di dominio — un numero di telefono, il nome di un campo
    * configurato in un pannello di amministrazione, il messaggio di un'eccezione — e che va
    * servita dallo stesso componente foglia.
@@ -71,9 +71,13 @@ export interface TranslateProps {
  * ```
  *
  * Un testo **non** marcato non è un errore: viene reso così com'è, preceduto in sviluppo dal
- * carattere `errorSolve.beginCharMalformed`. È il caso dei dati di dominio — un numero di
+ * carattere `errorSolve.mark.malformed`. È il caso dei dati di dominio — un numero di
  * telefono, una descrizione che arriva dal server — che passano di qui senza doversi
  * annunciare. Con `skipMark` anche il carattere e la segnalazione spariscono.
+ *
+ * Un valore che testo non è e non lo diventerà — una funzione, un simbolo, un elemento React
+ * nel primo posto della tupla — non ha niente da rendere: in sviluppo esce il nome di ciò che
+ * si è trovato (`🚫[func]`, vedi `errorSolve.mark.badData`), in una build niente.
  */
 export declare const Translate: FC<TranslateProps>;
 
@@ -152,7 +156,7 @@ export declare function useTranslateLanguage(): UseTranslateLanguageResult;
 export interface TranslateToStringOptions {
   /**
    * Come la prop omonima di `<Translate>`: qui una stringa non marcata è legittima, quindi
-   * niente `⁂` e niente segnalazione in console.
+   * niente `‼️` e niente segnalazione in console.
    */
   skipMark?: boolean;
 }

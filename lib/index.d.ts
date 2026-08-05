@@ -5,37 +5,61 @@
 /// <reference path="./virtual.d.ts" />
 
 /**
+ * Cosa si vede a schermo quando una stringa non arriva dove doveva.
+ *
+ * I primi quattro sono diagnostiche. Tre di essi sono prefissi davanti al testo, e vale il più
+ * grave e uno solo: malformato, poi non tradotto qui, poi non tradotto altrove. `badData` non
+ * ha un testo davanti a cui stare — è il caso in cui testo non ce n'è — e non compete con gli
+ * altri. Ognuno si spegne da solo passando `""` o `false`.
+ *
+ * Questi nomi sono anche quelli che il runtime legge dal modulo virtuale: la risoluzione a
+ * build time copia e spegne, non rinomina.
+ */
+export interface ErrorSolveMarks {
+  /**
+   * Nella posizione del testo è arrivato un valore che testo non è e non lo diventerà: una
+   * funzione, un simbolo, un elemento React nel primo posto della tupla. Niente da salvare,
+   * quindi il glifo non precede un testo — è tutto ciò che si rende, seguito dal nome di ciò
+   * che si è trovato: `🚫[func]`, `🚫[symbol]`, `🚫[badDom]`. Spento, non si rende niente.
+   * Default: `"🚫"`.
+   */
+  badData?: string | false;
+  /**
+   * Testo che la traduzione non ha mai visto (un `_%_..._%_` sfuggito al transform, o un
+   * valore che marcato non è mai stato) e prop incompatibili fra loro. Default: `"‼️"`.
+   */
+  malformed?: string | false;
+  /**
+   * La lingua corrente non ha una traduzione per questa voce: a schermo c'è il testo della
+   * lingua sorgente. Default: `"🔸"`.
+   */
+  untranslated?: string | false;
+  /**
+   * Tradotta qui, ma assente in almeno un'altra lingua del progetto. Default: `"🔹"`.
+   */
+  notFullyTranslated?: string | false;
+  /**
+   * Segnaposto `%s` rimasto senza valore. **Non** è una diagnostica ma una resa normale:
+   * vale in sviluppo e in build, e `markOnlyDev` non lo tocca. Default: `"⁇"`.
+   */
+  absentDataInArray?: string;
+}
+
+/**
  * Cosa succede quando una stringa non arriva dove doveva: un testo che nessuno ha marcato,
  * prop incompatibili fra loro, una voce senza traduzione.
  *
- * I tre `beginChar*` sono prefissi diagnostici, mostrati a schermo davanti al testo. Vale il
- * più grave e uno solo: malformato, poi non tradotto qui, poi non tradotto altrove. Ognuno si
- * spegne da solo passando `""` o `false`.
+ * Due domande separate: `mark` è **cosa** si vede, il resto è **quando** — a schermo con
+ * `markOnlyDev`, in console con `warningDev` / `warningBuild`.
  */
 export interface ErrorSolveOptions {
+  /** I glifi mostrati a schermo. Ogni campo omesso resta al proprio default. */
+  mark?: ErrorSolveMarks;
   /**
-   * Testo che la traduzione non ha mai visto (un `_%_..._%_` sfuggito al transform, o un
-   * valore che marcato non è mai stato) e prop incompatibili fra loro. Default: `"⁂"`.
+   * In build nessun mark diagnostico a schermo: si mostra il fallback e basta. Non tocca
+   * `mark.absentDataInArray`, che diagnostica non è. Default: `true`.
    */
-  beginCharMalformed?: string | false;
-  /**
-   * La lingua corrente non ha una traduzione per questa voce: a schermo c'è il testo della
-   * lingua sorgente. Default: `"⁑"`.
-   */
-  beginCharUntranslated?: string | false;
-  /**
-   * Tradotta qui, ma assente in almeno un'altra lingua del progetto. Default: `"∴"`.
-   */
-  beginCharNotFullyTranslated?: string | false;
-  /**
-   * Segnaposto `%s` rimasto senza valore. **Non** è una diagnostica ma una resa normale:
-   * vale in sviluppo e in build, e `onlyInDev` non lo tocca. Default: `"[?]"`.
-   */
-  noArrayChar?: string;
-  /**
-   * In build nessun prefisso a schermo: si mostra il fallback e basta. Default: `true`.
-   */
-  onlyInDev?: boolean;
+  markOnlyDev?: boolean;
   /** Output console del runtime in sviluppo. Default: `true`. */
   warningDev?: boolean;
   /**

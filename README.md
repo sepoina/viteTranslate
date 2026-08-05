@@ -80,6 +80,7 @@ That is the whole authoring workflow. Wrap a string in `_%_..._%_`, render it th
   - [Adding a language](#adding-a-language)
 - [🔎 Diagnostics: `errorSolve`](#-diagnostics-errorsolve)
   - [Case by case](#case-by-case)
+  - [When there is no text at all](#when-there-is-no-text-at-all)
   - [Unmarked text is domain data, not an error](#unmarked-text-is-domain-data-not-an-error)
   - [Console output](#console-output)
 - [🖥️ CLI](#️-cli)
@@ -234,13 +235,13 @@ export default function Welcome() {
 // not marked: domain data, rendered as it is
 <Translate>{user.phoneNumber}</Translate>
 
-// a value that will never carry a marker: no ⁂, no console warning
+// a value that will never carry a marker: no ‼️, no console warning
 <Translate t={row.label} skipMark />
 ```
 
-Since translation tables are compiled at build time, a `%s` inside markup is a real JSX child, not a piece of string. So an argument can be any React node, and it is **never** interpreted as HTML — React escapes it like any other child. A `%s` left without a value renders as `[?]` (configurable, see [Diagnostics](#-diagnostics-errorsolve)).
+Since translation tables are compiled at build time, a `%s` inside markup is a real JSX child, not a piece of string. So an argument can be any React node, and it is **never** interpreted as HTML — React escapes it like any other child. A `%s` left without a value renders as `⁇` (configurable, see [Diagnostics](#-diagnostics-errorsolve)).
 
-A string **without** the marker is not an error: it is rendered as it is, and in development it carries a `⁂` in front of it so you can see the prop is receiving something nobody will translate. That is what lets one leaf component accept both translatable text and domain data without a wrapper deciding for it.
+A string **without** the marker is not an error: it is rendered as it is, and in development it carries a `‼️` in front of it so you can see the prop is receiving something nobody will translate. That is what lets one leaf component accept both translatable text and domain data without a wrapper deciding for it.
 
 #### Props
 
@@ -250,14 +251,14 @@ A string **without** the marker is not an error: it is rendered as it is, and in
 | `a` | values for the `%s`, when `t` doesn't already carry them |
 | `o` | the object form, for text that already travels packaged with its arguments. Same as passing them separately; alternative to `t` |
 | `children` | the marked text, as a child. Alternative to `t` |
-| `skipMark` | declares that here an **un**marked string is legitimate: no `⁂`, no console warning. See [below](#skipmark-when-unmarked-is-the-normal-case) |
+| `skipMark` | declares that here an **un**marked string is legitimate: no `‼️`, no console warning. See [below](#skipmark-when-unmarked-is-the-normal-case) |
 
 #### What can sit in the text position
 
 One leaf component often has to render whatever its caller has — and that isn't always a string a marker could ever be attached to:
 
 ```jsx
-<Translate t={item.count} />              // a number: rendered as is, no ⁂, no warning
+<Translate t={item.count} />              // a number: rendered as is, no ‼️, no warning
 <Translate t={0} />                       // renders "0" — zero is a value, not "nothing"
 <Translate t={<WaitingBarSpan />} />      // a React element: returned as is, no diagnostics
 ```
@@ -274,9 +275,9 @@ A number and an element tell you what they are. A **string** doesn't: unmarked c
 <Translate t={row.label} skipMark />
 ```
 
-When `skipMark` is on **and** the text is not marked: no `⁂`, no console warning, everything else unchanged (`%s` interpolation included). When the text **is** marked, the prop does nothing at all — the resolution chain runs as usual and `⁑` / `∴` stay on. It does not mean "don't translate", it means "unmarked is not an error here", which is exactly what a prop that carries marked text on some rows and domain data on others needs. Incompatible props are still an error, `skipMark` or not.
+When `skipMark` is on **and** the text is not marked: no `‼️`, no console warning, everything else unchanged (`%s` interpolation included). When the text **is** marked, the prop does nothing at all — the resolution chain runs as usual and `🔸` / `🔹` stay on. It does not mean "don't translate", it means "unmarked is not an error here", which is exactly what a prop that carries marked text on some rows and domain data on others needs. Incompatible props are still an error, `skipMark` or not.
 
-The alternative that looks equivalent isn't: `errorSolve.beginCharMalformed: false` turns the diagnostic off **everywhere**, including where a marker really was forgotten.
+The alternative that looks equivalent isn't: `errorSolve.mark.malformed = false` turns the diagnostic off **everywhere**, including where a marker really was forgotten.
 
 ### `useTranslateToString()`
 
@@ -299,7 +300,7 @@ An optional third argument carries what are props on `<Translate>`:
 <input placeholder={ts(field.label, undefined, { skipMark: true })} />
 ```
 
-`{ skipMark: true }` says the same thing as the prop: an unmarked string is legitimate here, so no `⁂` and no console warning. A React element is the one form `ts()` does **not** take — it has to return a primitive string, so a mounted node is a real error and gets a message of its own.
+`{ skipMark: true }` says the same thing as the prop: an unmarked string is legitimate here, so no `‼️` and no console warning. A React element is the one form `ts()` does **not** take — it has to return a primitive string, so a mounted node is a real error and gets a message of its own.
 
 ### `useTranslateLanguage()`
 
@@ -374,7 +375,7 @@ Turns a string containing basic HTML into React nodes, without `dangerouslySetIn
 import { basicHtmlToNodes } from "@sepoina/vitetranslate/react";
 
 basicHtmlToNodes("Hello <b>%s</b>", "Mario");   // ["Hello ", <b>Mario</b>]
-basicHtmlToNodes("you have %s messages");       // "you have [?] messages"
+basicHtmlToNodes("you have %s messages");       // "you have ⁇ messages"
 basicHtmlToNodes("no markup here");             // "no markup here" (same string back)
 ```
 
@@ -384,7 +385,7 @@ basicHtmlToNodes("no markup here");             // "no markup here" (same string
 | `args` | Value or array of values replacing the `%s`, in order — optional |
 | *returns* | A string, a single element, or a fragment |
 
-A `%s` left without a value renders as `[?]` — whether no argument was passed at all, fewer were passed than there are placeholders, or the value in that position is `null`/`undefined`. `0` and the empty string are values like any other and are interpolated normally. The same rule applies to `ts()` from `useTranslateToString`, and the character is the `noArrayChar` option of [`errorSolve`](#-diagnostics-errorsolve).
+A `%s` left without a value renders as `⁇` — whether no argument was passed at all, fewer were passed than there are placeholders, or the value in that position is `null`/`undefined`. `0` and the empty string are values like any other and are interpolated normally. The same rule applies to `ts()` from `useTranslateToString`, and the character is the `mark.absentDataInArray` option of [`errorSolve`](#-diagnostics-errorsolve).
 
 Only the formatting tags `<b> <strong> <i> <em> <u> <small> <code> <br> <hr> <wbr>` and HTML entities are recognised. Any other tag is dropped while keeping its content (`<div>hi</div>` → `hi`), and **no attribute is ever forwarded** — the elements it builds carry nothing but a `key`. A string without markup is returned untouched, allocating nothing. Parsed results are cached, so the same string is converted once per app.
 
@@ -550,33 +551,57 @@ vitetranslate({
   localeDir: "src/locale",
   sourceLanguage: "it-IT",
   errorSolve: {
-    beginCharMalformed: "⁂",           // text nobody marked, or incompatible props
-    beginCharUntranslated: "⁑",        // no translation in the current language
-    beginCharNotFullyTranslated: "∴",  // translated here, missing in some other language
-    noArrayChar: "[?]",                // a %s left without a value
-    onlyInDev: true,                   // in a build: just the fallback, no characters
-    warningDev: true,                  // runtime console in development
-    warningBuild: false,               // runtime console in production
+    mark: {
+      badData: "🚫",            // a value that is not text and never will be
+      malformed: "‼️",          // text nobody marked, or incompatible props
+      untranslated: "🔸",       // no translation in the current language
+      notFullyTranslated: "🔹", // translated here, missing in some other language
+      absentDataInArray: "⁇",   // a %s left without a value
+    },
+    markOnlyDev: true,          // in a build: just the fallback, no characters
+    warningDev: true,           // runtime console in development
+    warningBuild: false,        // runtime console in production
   },
 })
 ```
 
-One character per string, the worst one wins: `⁂` → `⁑` → `∴`. Set any of them to `""` or `false` to turn that one off.
+Two questions, kept apart: `mark` is **what** you see, everything else is **when** — on screen with `markOnlyDev`, in the console with `warningDev` / `warningBuild`.
 
-With `onlyInDev: true` (the default) a production build ships none of this — not the characters, and not the data behind them: the untranslated-key lists never enter the language chunks and the global set stays empty. `noArrayChar` is the exception: it isn't a diagnostic but ordinary rendering, so it applies in development and in a build alike, and its default is what `%s` already rendered as.
+One prefix per string, the worst one wins: `‼️` → `🔸` → `🔹`. Set any of them to `""` or `false` to turn that one off. `🚫` never competes with the other three — it fires only where there is no text for a prefix to sit in front of; see [below](#when-there-is-no-text-at-all).
+
+With `markOnlyDev: true` (the default) a production build ships none of this — not the characters, and not the data behind them: the untranslated-key lists never enter the language chunks and the global set stays empty. `mark.absentDataInArray` is the exception: it isn't a diagnostic but ordinary rendering, so it applies in development and in a build alike.
 
 ### Case by case
 
-| What happened | Before | Dev | Build (default) |
-| --- | --- | --- | --- |
-| Text nobody marked — `<Translate>Mira Halvorsen</Translate>` | `[...]` in dev, text in build | `⁂Mira Halvorsen` | `Mira Halvorsen` |
-| Same, but declared with `skipMark` | — | `Mira Halvorsen` | `Mira Halvorsen` |
-| Incompatible props — `t` and `children` together | `[...]` | `⁂` + the text that was there | the text that was there |
-| No translation in this language | source text, silently | `⁑` + source text | source text |
-| Translated here, missing elsewhere | nothing | `∴` + translation | translation |
-| A `%s` with no value | `[?]` | `noArrayChar` | `noArrayChar` |
+| What happened | Dev | Build (default) |
+| --- | --- | --- |
+| Text nobody marked — `<Translate>Mira Halvorsen</Translate>` | `‼️Mira Halvorsen` | `Mira Halvorsen` |
+| Same, but declared with `skipMark` | `Mira Halvorsen` | `Mira Halvorsen` |
+| Incompatible props — `t` and `children` together | `‼️` + the text that was there | the text that was there |
+| No translation in this language | `🔸` + source text | source text |
+| Translated here, missing elsewhere | `🔹` + translation | translation |
+| A value that is not text — `t={() => {}}` | `🚫[func]` | nothing |
+| A `%s` with no value | `⁇` (`mark.absentDataInArray`) | `⁇` (`mark.absentDataInArray`) |
 
-Incompatible props no longer erase the text. `[...]` used to be the answer to every misuse, which meant a mistake in *your* props was paid for by whoever was reading the screen. Now the best available text is recovered and rendered — the string in `t`, the children, the first element of the tuple — and `[...]` is left only for the case where there is genuinely nothing to show.
+Incompatible props never erase the text: the best available one is recovered and rendered — the string in `t`, the children, the first element of the tuple. A mistake in *your* props is not paid for by whoever is reading the screen.
+
+### When there is no text at all
+
+Sometimes there is genuinely nothing to recover: a function, a symbol, a React element in the first slot of the tuple, an empty tuple. "Always show something" cannot apply — there is no something — and the only useful thing left to say is **what** was there instead of the text. That is `mark.badData`, and unlike the other three it is not a prefix in front of a text: it is the whole rendering.
+
+| Value | Dev | Build (default) |
+| --- | --- | --- |
+| `t={() => {}}` | `🚫[func]` | nothing |
+| `t={Symbol("x")}` | `🚫[symbol]` | nothing |
+| `t={true}` | `🚫[true]` | nothing |
+| `t={[]}` | `🚫[array]` | nothing |
+| `t={[null]}` | `🚫[nullArray]` | nothing |
+| `t={[<i/>]}`, or `t` and `children` both elements | `🚫[badDom]` | nothing |
+| any other unreadable shape | `🚫[badData]` | nothing |
+
+The name comes from the **first slot that mattered** — the first element of the tuple, the `t` field of the object — because that is where the text was supposed to be: about `t={[<i/>]}` the thing worth saying is that a node sits where the text belonged, not that there is an array. `array` and `nullArray` are for the tuples where that slot doesn't exist or is empty, and there the wrapper *is* the information.
+
+`markOnlyDev` covers this one too, and **turned off it renders nothing at all**: the type name on its own is noise for whoever is reading the page, and an empty rendering is already what the component does for its other "nothing to show" case, the object with no `t` field. The console message stays, under `warningDev`/`warningBuild` as always.
 
 ### Unmarked text is domain data, not an error
 
@@ -596,7 +621,7 @@ Now the marker is the discriminator and the component applies it: marked text is
 
 The `o` prop — and the same `{ t, a }` object passed to `t`, or to `ts()` — is for text that already travels packaged with its arguments, which is how several application cores carry it. It is exactly equivalent to passing them separately.
 
-In development that phone number shows a `⁂`, and that is the point: the prop is receiving something nobody will translate, and you get to decide whether that is right. When the answer is "yes, and it always will be", say so with [`skipMark`](#skipmark-when-unmarked-is-the-normal-case) and the `⁂` goes away for that call site only — unlike `beginCharMalformed: false`, which would turn it off everywhere.
+In development that phone number shows a `‼️`, and that is the point: the prop is receiving something nobody will translate, and you get to decide whether that is right. When the answer is "yes, and it always will be", say so with [`skipMark`](#skipmark-when-unmarked-is-the-normal-case) and the `‼️` goes away for that call site only — unlike `mark: { malformed: false }`, which would turn it off everywhere.
 
 A number and a React element don't need the declaration: neither can ever come from the source marked, so both are rendered directly, with no prefix and no warning.
 
@@ -641,11 +666,12 @@ vitetranslate(options)
 
 | Option | Type | Default | Description |
 | --- | --- | --- | --- |
-| `beginCharMalformed` | `string \| false` | `"⁂"` | Prefix for text nobody marked, and for incompatible props |
-| `beginCharUntranslated` | `string \| false` | `"⁑"` | Prefix when the current language has no translation for that entry |
-| `beginCharNotFullyTranslated` | `string \| false` | `"∴"` | Prefix when the entry is translated here but missing in some other language |
-| `noArrayChar` | `string` | `"[?]"` | Stands in for a `%s` left without a value. Ordinary rendering, not a diagnostic: applies in dev **and** in a build, and `onlyInDev` doesn't touch it |
-| `onlyInDev` | `boolean` | `true` | In a build, no prefixes on screen — just the fallback. The data behind them isn't shipped either |
+| `mark.badData` | `string \| false` | `"🚫"` | Shown, followed by the name of what was found (`🚫[func]`), when the text slot holds a value that is not text and nothing can be recovered. Turned off, nothing is rendered |
+| `mark.malformed` | `string \| false` | `"‼️"` | Prefix for text nobody marked, and for incompatible props |
+| `mark.untranslated` | `string \| false` | `"🔸"` | Prefix when the current language has no translation for that entry |
+| `mark.notFullyTranslated` | `string \| false` | `"🔹"` | Prefix when the entry is translated here but missing in some other language |
+| `mark.absentDataInArray` | `string` | `"⁇"` | Stands in for a `%s` left without a value. Ordinary rendering, not a diagnostic: applies in dev **and** in a build, and `markOnlyDev` doesn't touch it |
+| `markOnlyDev` | `boolean` | `true` | In a build, no diagnostic marks on screen — just the fallback. The data behind them isn't shipped either |
 | `warningDev` | `boolean` | `true` | Runtime console output in development |
 | `warningBuild` | `boolean` | `false` | Runtime console output in production — **all** of it, failures included |
 

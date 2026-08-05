@@ -56,9 +56,9 @@ eq("elemento React come argomento", 'Ciao <b><a href="/u/aldo">aldo</a></b>, hai
 eq("argomento ostile escapato, non interpretato", "Ciao <b>&lt;script&gt;x&lt;/script&gt;</b>, hai 0 messaggi", html("markupArgs", ["<script>x</script>", 0]));
 
 console.log("\n== fail-safe attraverso resolveEntry ==");
-eq("nessun argomento", "Ciao [?], come stai?", html("testoArgs"));
-eq("false (sentinella di Translate)", "Ciao [?], come stai?", html("testoArgs", false));
-eq("lista piu corta dei segnaposto", "Ciao <b>aldo</b>, hai [?] messaggi", html("markupArgs", ["aldo"]));
+eq("nessun argomento", "Ciao ⁇, come stai?", html("testoArgs"));
+eq("false (sentinella di Translate)", "Ciao ⁇, come stai?", html("testoArgs", false));
+eq("lista piu corta dei segnaposto", "Ciao <b>aldo</b>, hai ⁇ messaggi", html("markupArgs", ["aldo"]));
 eq("zero resta un valore", "Ciao 0, come stai?", html("testoArgs", [0]));
 
 console.log("\n== ts(): resolveEntryText ==");

@@ -1,7 +1,7 @@
 {
   "name": "@sepoina/vitetranslate",
-  "version": "2.3.6",
-  "versionDescription": "Emit releases linked to the `@sepoina/vitetranslate` npm package.",
+  "version": "3.0.0",
+  "versionDescription": "Refactor plugin parameters and mark chars.",
   "description": "Extract translatable strings straight from your JSX — a Vite plugin that auto-generates and syncs JS translation tables, with zero runtime dependencies.",
   "author": {
     "name": "Giancarlo Ghigi",

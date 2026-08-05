@@ -77,7 +77,7 @@ console.log("   [markup+args] nessun argomento   ->", JSON.stringify((() => {
 
 eq("scalare accettato come lista di uno", "Ciao aldo, come stai?", show(T.testoArgs("aldo")));
 eq("zero e' un valore, non un'assenza", "Ciao 0, come stai?", show(T.testoArgs([0])));
-eq("mancante -> [?]", "Ciao [?], come stai?", show(T.testoArgs()));
+eq("mancante -> ⁇", "Ciao ⁇, come stai?", show(T.testoArgs()));
 
 // -------------------------------------------------------------------- casi limite
 console.log("\n== casi limite del parser ==");
@@ -105,7 +105,7 @@ eq("stringa vuota", "", show(L.vuoto));
 eq("solo segnaposto", "aldo", show(L.soloArg(["aldo"])));
 eq("segnaposto iniziale", "3 messaggi", show(L.argIniziale([3])));
 eq("due segnaposto", "da roma a milano", show(L.multiArg(["roma", "milano"])));
-eq("secondo segnaposto mancante", "da roma a [?]", show(L.argMancante(["roma"])));
+eq("secondo segnaposto mancante", "da roma a ⁇", show(L.argMancante(["roma"])));
 eq("tag ignoto sciolto", "ciao <b>mondo</b>", show(L.tagIgnoto));
 eq("tag void", "riga<br></br>altra riga", show(L.tagVoid));
 eq("tag annidati", "<b>grassetto <i>e corsivo</i></b>", show(L.annidato));
@@ -194,7 +194,7 @@ const SUB = {
 // ------------------------------------------------------------- opzioni di errorSolve
 // Il fallback incorporato qui sopra rende una voce non tradotta indistinguibile da una
 // tradotta: `__untranslated__` è l'unico modo per far arrivare quell'informazione al runtime,
-// che è ciò che serve al prefisso `errorSolve.beginCharUntranslated`.
+// che è ciò che serve al prefisso `errorSolve.mark.untranslated`.
 console.log("\n== errorSolve nel modulo compilato ==");
 {
   const { table: A } = await load(SUB, SORGENTE, { emitUntranslated: true });
@@ -208,11 +208,11 @@ console.log("\n== errorSolve nel modulo compilato ==");
   // Niente da segnalare, niente da spedire: nessuna chiave riservata su una lingua completa.
   eq("niente da segnalare -> niente chiave", undefined, (await load({ a: "uno" }, null, { emitUntranslated: true })).table.__untranslated__);
 
-  // noArrayChar viaggia fino dentro il chunk di lingua, dove l'helper degli argomenti lo
+  // absentDataInArray viaggia fino dentro il chunk di lingua, dove l'helper degli argomenti lo
   // inlinea: è la stessa regola che a runtime applica l'interpolazione, e devono coincidere.
   const { table: P } = await load({ k: "ciao %s" }, null, { missingArg: "«?»" });
   eq("missingArg personalizzato", "ciao «?»", show(P.k()));
-  eq("e il default resta [?]", "ciao [?]", show((await load({ k: "ciao %s" })).table.k()));
+  eq("e il default resta ⁇", "ciao ⁇", show((await load({ k: "ciao %s" })).table.k()));
 }
 
 console.log(fail === 0 ? "\nTUTTI OK" : `\n${fail} FALLITI`);
