@@ -211,6 +211,8 @@ export default function Welcome() {
 
 ## 🧩 API
 
+> 🧪 **[Edge cases, live on StackBlitz](https://stackblitz.com/edit/vitejs-vite-ciqg2jwm)** — every call form, every value that is not text, side by side with what it renders.
+
 ### `<Translate>`
 
 ```jsx
@@ -542,6 +544,8 @@ No further registration needed: every `.js` file found in `localeDir` becomes au
 
 ## 🔎 Diagnostics: `errorSolve`
 
+> 🧪 **[Edge cases, live on StackBlitz](https://stackblitz.com/edit/vitejs-vite-ciqg2jwm)** — every case below, rendered next to what it is supposed to render.
+
 A string that doesn't reach the screen translated is not always a bug you can see. A key nobody has translated yet still renders — in the source language, indistinguishable from a real translation. A text nobody marked renders too. Both look fine, and that is the problem.
 
 `errorSolve` puts a character in front of them, **in development only**, so you spot them by reading the page instead of by auditing the tables. Every field is optional; these are the defaults:
@@ -599,6 +603,8 @@ Sometimes there is genuinely nothing to recover: a function, a symbol, a React e
 | `t={[<i/>]}`, or `t` and `children` both elements | `🚫[badDom]` | nothing |
 | any other unreadable shape | `🚫[badData]` | nothing |
 
+🧪 The seven of them are live on [StackBlitz](https://stackblitz.com/edit/vitejs-vite-ciqg2jwm), under *Valori che testo non sono*.
+
 The name comes from the **first slot that mattered** — the first element of the tuple, the `t` field of the object — because that is where the text was supposed to be: about `t={[<i/>]}` the thing worth saying is that a node sits where the text belonged, not that there is an array. `array` and `nullArray` are for the tuples where that slot doesn't exist or is empty, and there the wrapper *is* the information.
 
 `markOnlyDev` covers this one too, and **turned off it renders nothing at all**: the type name on its own is noise for whoever is reading the page, and an empty rendering is already what the component does for its other "nothing to show" case, the object with no `t` field. The console message stays, under `warningDev`/`warningBuild` as always.
@@ -624,6 +630,8 @@ The `o` prop — and the same `{ t, a }` object passed to `t`, or to `ts()` — 
 In development that phone number shows a `‼️`, and that is the point: the prop is receiving something nobody will translate, and you get to decide whether that is right. When the answer is "yes, and it always will be", say so with [`skipMark`](#skipmark-when-unmarked-is-the-normal-case) and the `‼️` goes away for that call site only — unlike `mark: { malformed: false }`, which would turn it off everywhere.
 
 A number and a React element don't need the declaration: neither can ever come from the source marked, so both are rendered directly, with no prefix and no warning.
+
+🧪 Marked, unmarked, `skipMark` and everything in between are live on [StackBlitz](https://stackblitz.com/edit/vitejs-vite-ciqg2jwm), under *Testo non marcato e skipMark*.
 
 ### Console output
 
@@ -656,13 +664,15 @@ vitetranslate(options)
 | --- | --- | --- | --- |
 | `localeDir` | `string` | **required** | Folder with the language JS files, relative to `baseDir` |
 | `sourceLanguage` | `string` | **required** | [BCP 47](doc/bcp47.md) tag of the source language |
-| `preloadedLanguages` | `string[]` | `[]` | Languages bundled eagerly fohttps://stackblitz.com/edit/vitejs-vite-aa9rcqtt?file=README.mdr an instant, non-suspending first paint (see [Preloading](#-preloading-suspense-and-the-initial-flash)). `sourceLanguage` is eager too in dev, and in build only when this list is empty |
+| `preloadedLanguages` | `string[]` | `[]` | Languages bundled eagerly for an instant, non-suspending first paint (see [Preloading](#-preloading-suspense-and-the-initial-flash)). `sourceLanguage` is eager too in dev, and in build only when this list is empty |
 | `baseDir` | `string` | `process.cwd()` | Project root used to resolve `localeDir` / `srcDir` |
 | `srcDir` | `string` | `"src"` | Source folder scanned by the CLI |
 | `includeFallback` | `boolean` | `!isProduction` | Embed the original text as a fallback in the compiled marker (dev only by default) |
 | `errorSolve` | `object` | see below | On-screen and console diagnostics for strings that didn't arrive where they should — see [Diagnostics](#-diagnostics-errorsolve) |
 
 ### `errorSolve`
+
+🧪 What each of these actually does to the screen: [edge cases on StackBlitz](https://stackblitz.com/edit/vitejs-vite-ciqg2jwm).
 
 | Option | Type | Default | Description |
 | --- | --- | --- | --- |
