@@ -55,7 +55,11 @@ async function loadRuntime({ preloadedLanguages, isProduction }) {
     return pathToFileURL(dest).href;
   };
   const manifest = (await plugin.load(VIRTUAL)).code
-    .replace(/"([A-Za-z]:\/[^"]+)"/g, (_, percorso) => JSON.stringify(compila(percorso)));
+    // I percorsi nel manifest sono assoluti e posix: su Windows cominciano con la lettera di
+    // unità, su Linux con "/". Ci si aggancia all'estensione, non alla forma del percorso —
+    // altrimenti in CI non si sostituisce niente e a caricare il .yml finisce l'ESM loader di
+    // Node, che di YAML non sa nulla (ERR_UNKNOWN_FILE_EXTENSION).
+    .replace(/"([^"]+\.yml)"/g, (_, percorso) => JSON.stringify(compila(percorso)));
 
   const manifestPath = join(ROOT, "lib/react", `__manifest-${stamp}.mjs`);
   const modulePath = join(ROOT, "lib/react", `__resource-${stamp}.mjs`);
