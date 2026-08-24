@@ -45,7 +45,7 @@ kanban
     a1[Scritto dall'utente<br/>"\_%\_Benvenuto\_%\_"]
   pre[Precompilazione]
     b1[<b>Id stabile</b> calcolato dal testo<br/>App\_1nke42v]
-    c1[Scritto nel file di lingua<br/>it-IT.js, en-US.js]
+    c1[Scritto nel file di lingua<br/>it-IT.yml, en-US.yml]
   comp[Compilazione]
     d1[Marcatore <b>compilato</b> nel sorgente<br/>"\_<\_App\_1nke42v\_>\_"]
     d2[Tabella convertita in <b>modulo di valori</b> già pronti]
@@ -54,13 +54,13 @@ kanban
     f1[Translate legge l'id nella tabella <b>attiva</b>]
 ```
 
-L'id è `<nomefile>_<hash FNV-1a del testo in base36>`: deterministico, quindi lo stesso testo nello stesso file produce sempre la stessa chiave, senza che nessuno la scriva.
+L'id è `<nome sanificato>_<hash FNV-1a in base36>`: il checksum copre il testo **e il percorso relativo del file** (normalizzato a `/`), mentre il prefisso è il basename ridotto a `[A-Za-z0-9]` — con `n` davanti se inizia per cifra, `unNamed` se si svuota. Deterministico: lo stesso testo nello stesso file produce sempre la stessa chiave, senza che nessuno la scriva.
 
 Le fasi sono tre, e **girano in momenti diversi**. È la cosa più importante da tenere a mente:
 
 | Fase | Quando gira | Chi la esegue | Cosa produce |
 | --- | --- | --- | --- |
-| **Precompilazione** | prima del build, comando a parte | [`cli.js`](../lib/dev/vite/cli.js) | i file di lingua `.js` **su disco** |
+| **Precompilazione** | prima del build, comando a parte | [`cli.js`](../lib/dev/vite/cli.js) | i file di lingua `.yml` **su disco** |
 | **Compilazione** | durante `vite dev` / `vite build` | il plugin Vite | marcatori compilati + tabelle compilate **in memoria** |
 | **Runtime** | nel browser | il runtime React | il nodo da mostrare |
 
@@ -231,23 +231,69 @@ Il config lo carica Node, non Vite: si cercano le sei estensioni che Vite stesso
 
 ### Il file di lingua prodotto
 
-```js
-//  -------------------------------------------------
-//      italiano (Italia) (sourceLanguage)
-//       |    code: it-IT
-//       |    missing key: 1
-//       |    processed: 2026-07-27 12:37
-//  -------------------------------------------------
-export default {
-  "__builder__": {"v":260727,"languageName":"italiano (Italia)","incomplete":true},
-  "App_1nke42v": "Benvenuto",
+```yaml
+#  -------------------------------------------------
+#      italiano (Italia) (sourceLanguage)
+#       |    code: it-IT
+#       |    missing key: 1
+#       |    processed: 2026-08-24 12:37
+#  -------------------------------------------------
+__builder__: {"v":260824,"languageName":"italiano (Italia)","incomplete":true}
+#  -------------------------------------------------
+App_1nke42v: "Benvenuto"
 
-  //  ----to be translated------------------------------------------
-  "App_1wltsn1": "Ciao %s, come stai?",
-};
+#  ----to be translated------------------------------------------
+App_1wltsn1: "Ciao %s, come stai?"
 ```
 
-Chiavi e valori escono da `JSON.stringify` (quindi sempre fra virgolette), ma il file **è un modulo JS, non JSON**: la virgola finale e il separatore a commento **dentro** l'oggetto sono legali come literal JS e sarebbero rifiutati da `JSON.parse`. L'intestazione e `__builder__` sono bookkeeping rigenerato a ogni sync — si guarda, non si edita; `incomplete` viene scritto solo quando è `true`, perché `false` è il valore implicito ripristinato in lettura.
+### Perché `.yml` e non `.js` (dalla 4.0)
+
+Fino alla 3.x il file era un modulo JS (`export default { … }`). Funzionava, ma per **leggere** dei dati bisognava **eseguire** del codice, e da lì veniva un intero sottosistema: un contesto `vm` senza globali per la forma piatta, un ripiego su `import()` per tutto il resto, e con quello la cache dei moduli ESM di Node — che non si svuota mai, non ha API di sfratto e tratteneva ~24 kB per ogni salvataggio del traduttore — più una query di cache-busting che doveva essere un hash del contenuto e non l'mtime, perché due scritture nello stesso tick del filesystem condividevano la chiave e Node serviva in silenzio la versione precedente. Un file di lingua è un dato: adesso si legge con `readFileSync` e si parsa, e quella classe di bug non ha più dove vivere.
+
+L'estensione cambia solo **chi legge il file da disco**, non cosa finisce nel bundle: i file di lingua non entrano mai nel grafo così come sono, li sostituisce il transform `vitetranslate:compile-locale` (vedi Fase 2). L'output resta un `.js` per lingua, identico a prima.
+
+### Il formato: un sottoinsieme STRETTO di YAML
+
+Non è YAML: è un sottoinsieme che **YAML legge allo stesso modo**. La differenza è tutto il punto, perché YAML pieno su questo contenuto sbaglia in silenzio — sono i valori che un traduttore scrive davvero:
+
+| scritto non quotato | cosa ne fa YAML |
+| --- | --- |
+| `App_a: %s è pronto` | **errore di sintassi** (`%` è un indicatore riservato — ed è il nostro segnaposto) |
+| `App_a: prezzo 5 # sconto` | `"prezzo 5"` — **troncato in silenzio** |
+| `App_a: Nota: importante` | errore di sintassi |
+| `App_a: 1.20` / `007` | il numero `1.2` / `7` |
+| `App_a: null` | il `null` "da tradurre", non il testo "null" |
+| `App_a: [uno, due]` | un array |
+| `App_a:·· ai bordi ··` (con spazi ai bordi) | spazi ai bordi persi |
+
+Quindi si accetta poco, e in modo severo. Le forme ammesse, una per riga, **tutte a colonna 0**:
+
+```yaml
+# commento su riga intera            (l'intestazione generata è fatta così)
+Chiave_abc: "testo"                  # JSON.parse del valore
+Chiave_abc: null                     # non ancora tradotta
+Chiave_abc:                          # idem — è ciò che resta cancellando il null
+__builder__: {"v":1,…}               # solo questa chiave può contenere un oggetto
+```
+
+Tutto il resto è un errore con il **numero di riga**: valore non quotato, riga indentata, due punti senza spazio dopo (`Chiave:"x"` per YAML è una stringa, non una mappa), commento in coda a una riga con valore, chiave duplicata (js-yaml stesso li rifiuta, e un parser a righe farebbe vincere l'ultima in silenzio). Il parser è [`parseLanguageFile.js`](../lib/dev/vite/uty/parseLanguageFile.js), ~40 righe, nessuna dipendenza.
+
+La regola che tiene insieme il tutto sta in scrittura: **ogni valore passa da `JSON.stringify` e da nient'altro**. JSON è un sottoinsieme di YAML 1.2, quindi ciò che scriviamo è leggibile identico dai due lati. Basta "abbellire" una riga a mano — togliere le virgolette a una chiave dentro `__builder__`, per dire — perché i due comincino a leggere cose diverse senza dirlo. `languageFileIO.test.mjs` verifica proprio questo: serializza una tabella di valori ostili e confronta il nostro parser con `js-yaml`, riga per riga.
+
+Le chiavi non hanno bisogno di virgolette e non possono averne bisogno: `sanitizeName` in [`markerCore.js`](../lib/dev/babel/markerCore.js) le riduce a `[A-Za-z0-9]` più il checksum, quindi non contengono mai `:` — ed è questo che rende sicuro tagliare la riga al primo carattere `:`.
+
+L'intestazione e `__builder__` sono bookkeeping rigenerato a ogni sync — si guarda, non si edita; `incomplete` viene scritto solo quando è `true`, perché `false` è il valore implicito ripristinato in lettura.
+
+### Vuoto non è svuotato
+
+Due stati che si assomigliano e vanno tenuti distinti:
+
+- **file vuoto** (zero byte, o solo spazi) → è il modo documentato per aggiungere una lingua: viene popolato con le chiavi della sorgente a `null`, senza backup, perché non c'è niente da perdere;
+- **file con contenuto ma nessuna voce** (righe cancellate lasciando l'intestazione) → **non** è una lingua nuova, è una lingua svuotata. `parseLanguageFile` lo segnala come errore apposta, così finisce nel ramo del backup `.bak-corrupted-*` invece che nel ripopolamento silenzioso.
+
+### Migrazione dalla 3.x
+
+`vitetranslate-prepare-translation-table --migrate` converte i `<tag>.js` di `localeDir` in `<tag>.yml` e rinomina gli originali in `.bak-migrated-*` invece di cancellarli; poi si rilancia il comando senza il flag per risincronizzare. Gira solo su richiesta esplicita — riscrive dei file, e farlo da solo dentro una `prebuild` che nessuno sta guardando sarebbe la cosa sbagliata. Il plugin, se trova `localeDir` ancora piena di `.js`, si ferma dicendo esattamente questo invece del generico "sourceLanguage non trovata". [`migrateLegacyLanguages.js`](../lib/dev/vite/uty/migrateLegacyLanguages.js) è l'unico punto della libreria in cui si esegue ancora del codice per leggere dei dati, e vive in un comando che si lancia a mano, una volta.
 
 Nelle sub-lingue le chiavi non tradotte valgono `null`. Nella lingua sorgente non c'è mai un `null`, ma le stesse chiavi finiscono sotto il separatore finché mancano **in almeno un'altra lingua**: è la scorciatoia documentata per copiare il blocco di testo vero e darlo a un traduttore (umano o LLM).
 
@@ -276,15 +322,15 @@ kanban
 
 ### Plugin 2 — `vitetranslate:compile-locale`: trasforma i file di lingua
 
-Gira sui `.js` dentro `localeDir` e li converte da tabella di stringhe a modulo di valori già pronti da usare. Il file su disco non viene toccato: la conversione vive solo nel grafo dei moduli del bundler.
+Gira sui `.yml` dentro `localeDir` e li converte da tabella di stringhe a modulo JS di valori già pronti da usare. Il file su disco non viene toccato: la conversione vive solo nel grafo dei moduli del bundler.
 
 ```mermaid
 kanban
   lin[selezione]
     l1[<b><u>Ingresso</u></b><br/>File di lingua dentro localeDir — la <b>tabella di stringhe</b> che il traduttore edita]
-    l2[<b><u>Filtro</u></b><br/>L'id deve stare dentro <b>localeDir</b> e finire in .js — niente sottocartelle, è la stessa convenzione con cui il plugin scopre le lingue<br/>passa "src/locale/en-US.js", non passa "src/locale/vecchie/en-US.js"]
+    l2[<b><u>Filtro</u></b><br/>L'id deve stare dentro <b>localeDir</b> e finire in .yml — niente sottocartelle, è la stessa convenzione con cui il plugin scopre le lingue<br/>passa "src/locale/en-US.yml", non passa "src/locale/vecchie/en-US.yml"]
   llavoro[Trasformazione]
-    l3[readLanguageTable valuta la tabella dal sorgente già letto da Vite, <b>senza import</b> — la cache dei moduli ESM di Node non viene mai rilasciata]
+    l3[parseLanguageFile legge la tabella dal contenuto già letto da Vite — <b>si parsa, non si esegue</b>: nessun import(), nessun vm, niente che resti dietro]
     l4[compileLanguageModule converte ogni voce in <b>stringa, elemento React o funzione</b> con segnaposto]
     l5[La tabella della lingua sorgente riempie le chiavi non ancora tradotte, e rende il modulo <b>autonomo</b>]
   lout[Uscita]
@@ -366,11 +412,11 @@ L'unica divergenza nota fra i due parser sono i **tag incrociati** (`<b>x <i>y</
 `virtual:vitetranslate/languages` è l'unico punto di contatto fra il lato build e il lato browser. Viene generato da `generateLanguagesModule()` in [`vitetranslate.js`](../lib/dev/vite/vitetranslate.js) e ha questa forma:
 
 ```js
-import __vt_pre_0 from "/percorso/src/locale/it-IT.js"; // precaricate: import STATICO
+import __vt_pre_0 from "/percorso/src/locale/it-IT.yml"; // precaricate: import STATICO
 
 export const languages = {
   "it-IT": { name: "italiano (Italia)", preloaded: true, table: __vt_pre_0, load: () => Promise.resolve({ default: __vt_pre_0 }) },
-  "en-US": { name: "English (US)", preloaded: false, load: () => import("/percorso/src/locale/en-US.js") }, // -> chunk a parte
+  "en-US": { name: "English (US)", preloaded: false, load: () => import("/percorso/src/locale/en-US.yml") }, // -> chunk a parte
 };
 export const sourceLanguage = "it-IT";
 export const fallbackTable = __vt_pre_0;
@@ -422,14 +468,14 @@ Per questo l'hook `config()` dichiara `optimizeDeps: { exclude: ["@sepoina/vitet
 
 Al secondo caso c'è **un'eccezione**, ed è il prefisso `🔹`: `partiallyTranslated` è calcolato leggendo tutte le lingue, quindi tradurre una stringa lo cambia. Con quel prefisso acceso il manifest va rigenerato anche quando cambia solo il contenuto di un file — altrimenti il `🔹` resterebbe a schermo su una stringa appena tradotta, fino al riavvio. Spento (ogni build di produzione con i default) la rilettura non avviene e la regola resta quella di sopra.
 
-Il filtro sull'estensione `.js` non è cosmetico: senza, i backup `.bak-corrupted-*` / `.bak-erased-*` lasciati lì accanto dalla sync facevano ricaricare la pagina.
+Il filtro sull'estensione `.yml` non è cosmetico: senza, i backup `.bak-corrupted-*` / `.bak-erased-*` / `.bak-migrated-*` lasciati lì accanto dalla sync facevano ricaricare la pagina.
 
 ### Lingue create al volo
 
 Il plugin è tollerante in modo asimmetrico, e la ragione è la stessa in entrambi i casi — la dichiarazione esplicita vale più dello scan:
 
-- un `.js` trovato nella cartella ma **vuoto** → è una lingua nuova, viene popolata al volo con le chiavi della sorgente a `null`;
-- un `.js` **invalido** (sintassi rotta) → escluso con un errore chiaro, mai sovrascritto alla cieca: dentro potrebbe esserci lavoro recuperabile;
+- un `.yml` trovato nella cartella ma **vuoto** → è una lingua nuova, viene popolata al volo con le chiavi della sorgente a `null`;
+- un `.yml` **invalido** (una riga fuori formato, o nessuna voce) → escluso con un errore che riporta il numero di riga, mai sovrascritto alla cieca: dentro potrebbe esserci lavoro recuperabile;
 - una `preloadedLanguages` il cui file **manca del tutto** → creata al volo, perché è una dichiarazione esplicita in `vite.config.js`, non una scoperta.
 
 ---
@@ -597,7 +643,7 @@ Il punto che confonde più spesso: **quali artefatti esistono davvero su disco e
 flowchart TD
   A["src/**/*.jsx<br/><em>disco — lo scrivi tu</em>"]
   B["sourceTable: id -> testo<br/><em>memoria — vive quanto la sync</em>"]
-  C["src/locale/*.js<br/><em>disco — lo edita il traduttore</em>"]
+  C["src/locale/*.yml<br/><em>disco — lo edita il traduttore</em>"]
   D["sorgente con marcatori compilati<br/><em>memoria — grafo dei moduli</em>"]
   E["modulo di lingua compilato<br/><em>memoria — grafo dei moduli</em>"]
   F["virtual:vitetranslate/languages<br/><em>memoria — modulo virtuale</em>"]
@@ -615,8 +661,8 @@ flowchart TD
 
 | Artefatto | Dove vive | Chi lo scrive | Si edita a mano? |
 | --- | --- | --- | --- |
-| `src/locale/it-IT.js` (sorgente) | disco | la sync, interamente | **no**, è autogenerato |
-| `src/locale/xx-XX.js` (altre) | disco | la sync per le chiavi, **tu** per i valori | sì, solo i valori |
+| `src/locale/it-IT.yml` (sorgente) | disco | la sync, interamente | **no**, è autogenerato |
+| `src/locale/xx-XX.yml` (altre) | disco | la sync per le chiavi, **tu** per i valori | sì, solo i valori |
 | intestazione + `__builder__` | disco, dentro i file sopra | la sync | **no**, riscritti ogni volta |
 | `.bak-corrupted-*` / `.bak-erased-*` | disco, accanto ai file | le reti di sicurezza | sono copie, si leggono |
 | tabella compilata | solo nel grafo dei moduli | il plugin `compile-locale` | non esiste come file |
@@ -710,12 +756,14 @@ Un limite dichiarato: `react-dom/server` non ha stato fra un render e l'altro, q
 
 Raccolta delle cose che, se cambiate senza accorgersene, rompono qualcosa in modo **silenzioso** — il tipo di rottura che si vede solo a schermo, tardi, in produzione.
 
-1. **`markerCore.js` è l'unica definizione di cosa sia un marcatore e di come si calcoli il suo id.** Cambiare l'hash invalida ogni traduzione esistente di ogni utente.
+1. **`markerCore.js` è l'unica definizione di cosa sia un marcatore e di come si calcoli il suo id.** Il checksum copre testo **e percorso relativo**: plugin e CLI devono relativizzare dalla stessa radice (`baseDir`), altrimenti la stessa stringa produce chiavi diverse ai due lati. Cambiare l'hash cambia ogni chiave esistente — le traduzioni sopravvivono solo se `matchRenamedKeys` le riabbina per valore.
 2. **`htmlDialect.js` è l'unica lista dei tag ammessi.** I due parser devono leggerla, mai riscriverla. Vale identico per [`errorSolve.js`](../lib/errorSolve.js), che ha quattro lettori — chi scrive l'opzione, il plugin che la normalizza, il plugin che la risolve, il runtime che ne legge l'esito.
 3. **La prima lingua precaricata deve essere la stessa in dev e in build** (`preloadedLanguages[0] ?? sourceLanguage`), altrimenti l'app parte in una lingua diversa una volta pubblicata.
 4. **La sync scrive, il plugin no.** Se il plugin cominciasse a scrivere file di lingua durante il build, tornerebbe la dipendenza dall'ordine degli hook che ha portato a estrarre il CLI.
 5. **Il transform dei sorgenti non deve toccare `localeDir`**, nemmeno se una stringa tradotta contiene `_%_` per coincidenza: sono dati, non sorgente.
-6. **`readLanguageTable` prima di `import()`.** La cache dei moduli ESM di Node non viene mai rilasciata e non ha API di sfratto: misurato, 24 kB trattenuti per ogni salvataggio del traduttore, 7 MB dopo 300 salvataggi. L'`import()` resta solo come ripiego per moduli di lingua non generati da noi, con una query di cache-busting che è un **hash del contenuto** e non l'mtime (la granularità del timestamp è troppo grossolana: due contenuti diversi scritti nello stesso tick condividerebbero la chiave di cache).
+6. **Un file di lingua si legge, non si esegue.** Nessun `import()`, nessun `vm`: la lettura passa da [`parseLanguageFile.js`](../lib/dev/vite/uty/parseLanguageFile.js) e basta. È il motivo della 4.0: finché il file era un modulo JS serviva la cache dei moduli ESM di Node, che non viene mai rilasciata e non ha API di sfratto (misurato: 24 kB trattenuti per ogni salvataggio del traduttore, 7 MB dopo 300). L'unica eccezione è `--migrate`, che è un comando a mano, si lancia una volta e serve proprio a togliere di mezzo i moduli JS.
+   Corollario che vale quanto la regola: **ciò che il parser accetta, un parser YAML vero lo deve leggere allo stesso modo.** Vale finché ogni valore lo scrive `JSON.stringify`; il test di parità in `languageFileIO.test.mjs` è lì per accorgersene se smette di valere.
+   E ancora: **file vuoto ≠ file svuotato.** Il primo è una lingua nuova da popolare, il secondo è un errore che deve far scattare il backup. Collassarli vuol dire ripopolare di `null` un file che conteneva traduzioni, senza rete.
 7. **`splitAndSortEntries` ordina con locale esplicito.** Senza, la stessa tabella si ordina diversamente fra macchina di sviluppo e CI, e i file risultano "cambiati" senza esserlo.
 8. **Ogni divergenza fra build e runtime va segnalata, non nascosta.** È la regola che ha prodotto gli avvisi su marcatori annidati, collisioni di id e tag incrociati.
 9. **La diagnostica non deve costare niente dove è spenta.** `errorSolve` è risolto a build time, quindi con i default una build di produzione non spedisce né i prefissi né i dati che li alimentano: `__untranslated__` non viene emesso nei chunk di lingua e `partiallyTranslated` resta vuoto. Chi aggiunge un prefisso nuovo aggiunge anche la condizione che ne evita l'emissione — altrimenti ogni visitatore paga byte per un'informazione che nessuno leggerà. Vale anche per i **messaggi**: un template literal si valuta prima della chiamata, quindi un messaggio che contiene `describeValue()` — cioè un `JSON.stringify` — va passato a `reportOnce` come lambda insieme a una chiave statica, altrimenti gira a ogni render pure con la console spenta, che in produzione è il default.
@@ -730,6 +778,7 @@ Raccolta delle cose che, se cambiate senza accorgersene, rompono qualcosa in mod
 | come si riconosce un marcatore | [`markerCore.js`](../lib/dev/babel/markerCore.js) |
 | come viene riscritto il sorgente | [`extractMarkers.js`](../lib/dev/babel/extractMarkers.js) |
 | che forma ha una voce compilata | [`compileTable.js`](../lib/dev/compile/compileTable.js) |
+| il formato del file di lingua | [`parseLanguageFile.js`](../lib/dev/vite/uty/parseLanguageFile.js) · [`serializeLanguageFile.js`](../lib/dev/vite/uty/serializeLanguageFile.js) |
 | il dialetto HTML ammesso | [`htmlDialect.js`](../lib/htmlDialect.js) · [`parseMarkup.js`](../lib/dev/compile/parseMarkup.js) |
 | i due plugin e il modulo virtuale | [`vitetranslate.js`](../lib/dev/vite/vitetranslate.js) |
 | il comando di sync | [`cli.js`](../lib/dev/vite/cli.js) · [`updateLanguage.js`](../lib/dev/vite/updateLanguage.js) |

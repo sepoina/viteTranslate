@@ -10,9 +10,8 @@
 //
 //   node test/list/languageResource.test.mjs
 import { fileURLToPath, pathToFileURL } from "node:url";
-import { dirname, join, resolve } from "node:path";
-import { writeFileSync, unlinkSync, readFileSync, mkdtempSync, rmSync } from "node:fs";
-import { tmpdir } from "node:os";
+import { basename, dirname, join, resolve } from "node:path";
+import { writeFileSync, unlinkSync, readFileSync } from "node:fs";
 import vitetranslate from "../../lib/dev/vite/vitetranslate.js";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -31,22 +30,36 @@ const eq = (nome, atteso, ottenuto) => {
  * I file temporanei stanno accanto al modulo originale: gli import relativi devono risolversi.
  */
 async function loadRuntime({ preloadedLanguages, isProduction }) {
-  const [, plugin] = vitetranslate({
+  const [localeCompiler, plugin] = vitetranslate({
     baseDir: join(ROOT, "playground"),
     localeDir: "src/locale",
     sourceLanguage: "it-IT",
     ...(preloadedLanguages ? { preloadedLanguages } : {}),
   });
   plugin.configResolved({ isProduction, build: {} });
-  // Il manifest importa i file di lingua per percorso assoluto: dentro il bundler li risolve
-  // Vite, ma qui a caricarli è l'ESM loader di Node, che su Windows legge il "d:" iniziale
-  // come schema di URL e rifiuta. Riscritti a file:// restano gli stessi file.
-  const manifest = (await plugin.load(VIRTUAL)).code
-    .replace(/"([A-Za-z]:\/[^"]+)"/g, (_, percorso) => JSON.stringify(pathToFileURL(percorso).href));
 
   const stamp = `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+  const temporanei = [];
+
+  // Il manifest importa i file di lingua per percorso assoluto. Dentro il bundler quei
+  // percorsi passano dal transform di `vitetranslate:compile-locale`, che li sostituisce con
+  // il modulo compilato: il file `.yml` sul disco non entra mai nel grafo così com'è. Qui a
+  // caricare è l'ESM loader di Node, che di YAML non sa nulla — quindi si fa lo stesso lavoro
+  // del bundler, chiamando il transform vero e scrivendo il suo risultato in un .mjs. Il
+  // modulo che il runtime riceve è così identico a quello di una build.
+  const compila = (percorso) => {
+    const compilato = localeCompiler.transform.handler.call({}, readFileSync(percorso, "utf8"), percorso);
+    const dest = join(ROOT, "lib/react", `__lang-${stamp}-${basename(percorso, ".yml")}.mjs`);
+    writeFileSync(dest, compilato.code, "utf8");
+    temporanei.push(dest);
+    return pathToFileURL(dest).href;
+  };
+  const manifest = (await plugin.load(VIRTUAL)).code
+    .replace(/"([A-Za-z]:\/[^"]+)"/g, (_, percorso) => JSON.stringify(compila(percorso)));
+
   const manifestPath = join(ROOT, "lib/react", `__manifest-${stamp}.mjs`);
   const modulePath = join(ROOT, "lib/react", `__resource-${stamp}.mjs`);
+  temporanei.push(manifestPath, modulePath);
   writeFileSync(manifestPath, manifest, "utf8");
   writeFileSync(
     modulePath,
@@ -59,8 +72,7 @@ async function loadRuntime({ preloadedLanguages, isProduction }) {
     // che l'ESM loader di Node legge come schema di URL e rifiuta.
     return await import(`${pathToFileURL(modulePath).href}?t=${stamp}`);
   } finally {
-    unlinkSync(manifestPath);
-    unlinkSync(modulePath);
+    for (const f of temporanei) { try { unlinkSync(f); } catch {} }
   }
 }
 
@@ -87,7 +99,10 @@ console.log("\n== build, preloadedLanguages: ['en-US'] (la sorgente resta lazy) 
   // Una precaricata si legge sincrona: nessuna sospensione, nessuna Promise lanciata.
   const table = rt.readLanguage("en-US");
   eq("readLanguage di una precaricata non sospende", "object", typeof table);
-  eq("ed è la tabella vera", true, typeof table["App_7p1ky4"] === "string");
+  // "La tabella vera" si verifica senza agganciarsi a una chiave specifica del playground:
+  // il nome di ogni voce è derivato dall'hash e cambia a ogni modifica del contenuto.
+  eq("ed è la tabella vera", true,
+    Object.keys(table).length > 0 && Object.values(table).some((v) => typeof v === "string"));
 
   // Una lazy sospende: readLanguage lancia la Promise (meccanismo di Suspense).
   let thrown;

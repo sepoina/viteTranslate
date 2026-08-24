@@ -38,7 +38,7 @@ async function generate({ preloadedLanguages, isProduction }) {
 
 /** Le lingue importate staticamente, nell'ordine in cui compaiono. */
 const eagerOf = (code) =>
-  [...code.matchAll(/^import __vt_pre_\d+ from ".*\/([^/"]+)\.js";$/gm)].map((m) => m[1]).join(",");
+  [...code.matchAll(/^import __vt_pre_\d+ from ".*\/([^/"]+)\.yml";$/gm)].map((m) => m[1]).join(",");
 
 const exportOf = (code, name) => {
   const m = new RegExp(`^export const ${name} = (.*);$`, "m").exec(code);

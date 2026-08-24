@@ -1,20 +1,23 @@
-// Come un file di lingua viene letto dal disco e riscritto: readLanguageTable,
-// importLanguageModule, splitAndSortEntries, serializeLanguageModule, stableStringify,
-// updateKeys.
+// Come un file di lingua viene letto dal disco e riscritto: parseLanguageFile,
+// readLanguageFile, splitAndSortEntries, serializeLanguageFile, stableStringify, updateKeys.
 //
 // Sono i pezzi che il comando di sincronizzazione mette in fila (vedi syncPipeline.test.mjs
 // per il loro effetto d'insieme). Qui si guarda ciascuno da vicino, perché è il punto in cui
 // una lettura sbagliata non produce un errore ma un contenuto plausibile e diverso: e a quel
 // punto la riscrittura del file lo rende definitivo.
 //
+// Il blocco più importante è l'ultimo: il formato è un sottoinsieme STRETTO di YAML, e
+// "stretto" vuol dire che tutto ciò che accettiamo un parser YAML vero lo legge allo stesso
+// modo. È una promessa verificabile, non un commento, e lì viene verificata.
+//
 //   node test/list/languageFileIO.test.mjs
-import { mkdtempSync, rmSync, writeFileSync, statSync, utimesSync } from "node:fs";
+import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import readLanguageTable, { normalizeBuilder } from "../../lib/dev/vite/uty/readLanguageTable.js";
-import importLanguageModule from "../../lib/dev/vite/uty/importLanguageModule.js";
+import parseLanguageFile, { normalizeBuilder, ENTRY_RE } from "../../lib/dev/vite/uty/parseLanguageFile.js";
+import readLanguageFile from "../../lib/dev/vite/uty/readLanguageFile.js";
 import splitAndSortEntries from "../../lib/dev/vite/uty/splitAndSortEntries.js";
-import serializeLanguageModule from "../../lib/dev/vite/uty/serializeLanguageModule.js";
+import serializeLanguageFile from "../../lib/dev/vite/uty/serializeLanguageFile.js";
 import stableStringify from "../../lib/dev/vite/uty/stableStringify.js";
 import updateKeys from "../../lib/dev/vite/uty/updateKeys.js";
 
@@ -26,11 +29,9 @@ const eq = (nome, atteso, ottenuto) => {
 };
 
 const temporanee = [];
-/** Una cartella usa e getta. Con `esm` ci mette dentro un package.json "type": "module". */
-function cartella(esm = true) {
+function cartella() {
   const dir = mkdtempSync(join(tmpdir(), "vt-io-"));
   temporanee.push(dir);
-  if (esm) writeFileSync(join(dir, "package.json"), '{ "type": "module" }');
   return dir;
 }
 const scrivi = (dir, nome, testo) => {
@@ -39,97 +40,244 @@ const scrivi = (dir, nome, testo) => {
   return p;
 };
 
-// ------------------------------------------------------------- lettura senza module loader
-console.log("\n== readLanguageTable: la forma piatta si legge dal sorgente ==");
+/** Il messaggio dell'errore di parse, o "(nessun errore)" se non ne è stato lanciato. */
+const errore = (testo) => {
+  try {
+    parseLanguageFile(testo, "x.yml");
+    return "(nessun errore)";
+  } catch (e) {
+    return e.message;
+  }
+};
+/** Il prefisso "line N:" del messaggio: è quello che il traduttore usa per trovare la riga. */
+const rigaDi = (testo) => errore(testo).split(":")[0];
+
+// Un file minimo valido a cui aggiungere la riga in prova, così il numero di riga conta davvero.
+const CON = (...righe) => ['__builder__: {"v":1}', ...righe].join("\n");
+
+// -------------------------------------------------------------------- forme accettate
+console.log("\n== parseLanguageFile: le forme che il formato ammette ==");
 {
-  // Esattamente ciò che serializeLanguageModule produce: commenti di intestazione, un commento
-  // separatore DENTRO l'oggetto e una virgola finale. Nessuna delle tre è JSON valido.
-  const generato = serializeLanguageModule({
-    tag: "en-US",
-    isSource: false,
-    translated: [["__builder__", { v: 1, languageName: "American English", incomplete: false }], ["App_a", "Hello"]],
+  const t = parseLanguageFile(CON(
+    "# un commento intero",
+    "",
+    'App_a: "Ciao"',
+    "App_b: null",
+    "App_c:",
+    '   # un commento può essere indentato, una voce no',
+    'App_d: "  spazi  interni  conservati  "',
+  ), "x.yml");
+  eq("chiavi lette", "App_a,App_b,App_c,App_d,__builder__", Object.keys(t).sort().join(","));
+  eq("testo quotato", "Ciao", t.App_a);
+  eq("null esplicito", "null", JSON.stringify(t.App_b));
+  eq("chiave senza valore = null", "null", JSON.stringify(t.App_c));
+  eq("spazi interni conservati", "  spazi  interni  conservati  ", t.App_d);
+  eq("__builder__ come oggetto JSON", 1, t.__builder__.v);
+}
+{
+  // Il file si edita su Windows quanto altrove: un "\r" rimasto in coda finirebbe dentro
+  // l'ultimo valore, o farebbe fallire JSON.parse su una riga che a schermo è perfetta.
+  const t = parseLanguageFile('__builder__: {"v":1}\r\nApp_a: "Ciao"\r\nApp_b: null\r\n', "x.yml");
+  eq("CRLF: valore senza \\r in coda", "Ciao", t?.App_a);
+  eq("CRLF: null resta null", "null", JSON.stringify(t?.App_b));
+  const conBom = parseLanguageFile('\uFEFF__builder__: {"v":1}\nApp_a: "Ciao"\n', "x.yml");
+  eq("BOM ignorato", "Ciao", conBom?.App_a);
+}
+
+// -------------------------------------------------------------------- forme rifiutate
+console.log("\n== parseLanguageFile: cosa si rifiuta, e a quale riga ==");
+{
+  // Ogni riga qui sotto YAML la accetterebbe, dandole un significato diverso da quello che
+  // il traduttore intendeva. Sono i casi per cui il parser è stretto invece che permissivo.
+  const casi = [
+    ["valore non quotato", CON("App_a: ciao come stai"), "unquoted value"],
+    ["valore che comincia per %s", CON("App_a: %s e pronto"), "unquoted value"],
+    ["valore con # in mezzo", CON("App_a: prezzo 5 # sconto"), "unquoted value"],
+    ["numero non quotato", CON("App_a: 1.20"), "unquoted value"],
+    ["lista", CON("App_a: [uno, due]"), "unquoted value"],
+    ["manca lo spazio dopo i due punti", CON('App_a:"Ciao"'), "missing space"],
+    ["riga indentata", CON('  App_a: "Ciao"'), "indented line"],
+    ["oggetto su una chiave qualsiasi", CON('App_a: {"x":1}'), "only \"__builder__\""],
+    ["testo quotato rotto", CON('App_a: "Ciao'), "invalid quoted text"],
+    ["roba dopo la virgoletta di chiusura", CON('App_a: "Ciao" # nota'), "invalid quoted text"],
+    ["riga che non è una voce", CON("questa non e' una voce"), "not an entry"],
+  ];
+  for (const [nome, testo, atteso] of casi) {
+    eq(nome + " -> riga 2", "line 2", rigaDi(testo));
+    eq(nome + " -> motivo", true, errore(testo).includes(atteso));
+  }
+}
+{
+  // Il traduttore che copia il blocco sotto il separatore e lo incolla tradotto sopra si
+  // ritrova ogni chiave due volte. Un parser a righe farebbe vincere l'ultima in silenzio;
+  // js-yaml stesso rifiuta i duplicati, e qui si fa lo stesso.
+  const doppia = CON('App_a: "primo"', 'App_b: null', 'App_a: "secondo"');
+  eq("chiave duplicata -> riga 4", "line 4", rigaDi(doppia));
+  eq("...e dice dov'era la prima", true, errore(doppia).includes("already set at line 2"));
+}
+{
+  // Il ciclo di parse non usa la regex (troppo lenta su una tabella grande) ma il confronto
+  // sui codici dei caratteri. I due devono accettare esattamente le stesse righe: qui si
+  // verifica che non abbiano cominciato a divergere.
+  //
+  // Solo la FORMA della riga (chiave, due punti, spazio): il valore è sempre valido, perché
+  // le regole sul valore sono un'altra cosa e la regex non le descrive.
+  const righe = [
+    '__builder__: {"v":1}', 'App_a: "x"', 'App_a:', 'App_a:   "x"', 'App_a: null',
+    'n404_ab12: "x"', 'my-component_xyz: "x"', 'a.b_c: "x"',
+    'App_a:"x"', '  App_a: "x"', '9App_a: "x"', 'App a: "x"', 'App_a "x"', 'App$a: "x"', '', '# nota',
+  ];
+  const accettateDallaRegex = righe.filter((r) => r === "" || r.trimStart().startsWith("#") || ENTRY_RE.test(r));
+  const accettateDalCiclo = righe.filter((r) => {
+    try { parseLanguageFile(`${r}\nZ_z: "y"`, "x.yml"); return true; } catch { return false; }
+  });
+  eq("regex e ciclo accettano le stesse righe", accettateDallaRegex.join(" | "), accettateDalCiclo.join(" | "));
+}
+{
+  // La scorciatoia che evita JSON.parse quando non ci sono escape deve valere ESATTAMENTE
+  // quanto JSON.parse, o il formato cambia significato a seconda del contenuto del valore.
+  const casi = [
+    'testo semplice', 'con: due punti', 'con # cancelletto', 'con \\\\ backslash escapato',
+    'con \\" virgolette escapate', 'a capo \\n dentro', 'tab \\t dentro', '', 'null', '   bordi   ',
+  ];
+  let divergenze = 0;
+  for (const v of casi) {
+    const riga = `App_a: "${v}"`;
+    let nostro, json;
+    try { nostro = JSON.stringify(parseLanguageFile(`${riga}\nZ_z: "y"`, "x.yml").App_a); } catch (e) { nostro = "ERR"; }
+    try { json = JSON.stringify(JSON.parse(`"${v}"`)); } catch { json = "ERR"; }
+    if (nostro !== json) { divergenze++; console.log("       divergenza su", JSON.stringify(v), nostro, "vs", json); }
+  }
+  eq("scorciatoia e JSON.parse danno lo stesso risultato", 0, divergenze);
+
+  // Un TAB letterale dentro le virgolette: YAML lo accetta, JSON.parse no. La scorciatoia
+  // non deve farlo passare per la porta di servizio.
+  eq("tab letterale rifiutato come da JSON.parse", true, errore(CON('App_a: "a\tb"')).includes("invalid quoted text"));
+  // Virgolette non escapate in mezzo: senza il controllo, `slice` restituirebbe un testo
+  // plausibile e sbagliato invece di un errore.
+  eq("virgolette interne non escapate rifiutate", true, errore(CON('App_a: "a" b "c"')).includes("invalid quoted text"));
+  // `__proto__` non esce mai da sanitizeName, ma un file scritto a mano sì: assegnarlo non
+  // creerebbe una proprietà e la voce sparirebbe senza un errore.
+  eq("__proto__ rifiutato come chiave", true, errore(CON('__proto__: "x"')).includes("__proto__"));
+}
+
+// ------------------------------------------------------------ vuoto contro svuotato
+console.log("\n== un file vuoto è una lingua nuova; uno svuotato no ==");
+{
+  // Il modo documentato per aggiungere una lingua è creare il file vuoto e lanciare la sync.
+  eq("file vuoto", undefined, parseLanguageFile("", "x.yml"));
+  eq("file di soli spazi", undefined, parseLanguageFile("\n  \n\t", "x.yml"));
+
+  // Ma un file che ha ancora l'intestazione e nessuna voce NON è una lingua nuova: è una
+  // lingua svuotata a mano. Trattarlo come nuovo vorrebbe dire ripopolarlo di null senza
+  // mettere al sicuro quello che c'era, e il backup non scatterebbe mai.
+  eq("solo commenti -> errore, non lingua nuova", true, errore("# intestazione\n# rimasta sola\n").includes("no entry found"));
+
+  const dir = cartella();
+  eq("readLanguageFile su file vuoto", undefined, readLanguageFile(scrivi(dir, "en-US.yml", "")));
+  eq("readLanguageFile normalizza __builder__", false, readLanguageFile(scrivi(dir, "fr-FR.yml", '__builder__: {"v":1}\nApp_a: "x"\n')).__builder__.incomplete);
+}
+
+// ------------------------------------------------------------------- scrittura
+console.log("\n== serializeLanguageFile: quello che finisce sul disco ==");
+{
+  const testo = serializeLanguageFile({
+    tag: "it-IT",
+    isSource: true,
+    translated: [["__builder__", { v: 1, languageName: "italiano", incomplete: true }], ["App_a", 'con "virgolette" e \\ backslash']],
     untranslated: [["App_b", null]],
     now: new Date(2026, 0, 2, 3, 4),
   });
-  const t = readLanguageTable(generato, "en-US.js");
-  eq("tabella letta", "App_a,App_b,__builder__", t === undefined ? "(undefined)" : Object.keys(t).sort().join(","));
-  eq("valore tradotto", "Hello", t?.App_a);
-  eq("valore non tradotto", "null", JSON.stringify(t?.App_b));
-  eq("incomplete: false omesso su disco", false, generato.includes("incomplete"));
-  eq("e ripristinato in lettura", false, normalizeBuilder(t).__builder__.incomplete);
-  eq("virgola finale tollerata", true, /,\n};/.test(generato));
+  eq("intestazione a commento #", true, testo.startsWith("#  ---"));
+  eq("nessuna riga di codice JS", false, testo.includes("export default"));
+  eq("intestazione con il conteggio", true, /missing key: 1/.test(testo));
+  eq("intestazione con la data al minuto", true, /processed: 2026-01-02 03:04/.test(testo));
+  eq("marcata come lingua sorgente", true, testo.includes("(sourceLanguage)"));
+  eq("incomplete: true resta scritto", true, testo.includes('"incomplete":true'));
+  eq("separatore prima delle non tradotte", true, testo.indexOf("to be translated") < testo.indexOf("App_b"));
+  eq("ogni voce a colonna 0", true, /^App_a: /m.test(testo) && !/^ +App_a:/m.test(testo));
+  eq("__builder__ in JSON stretto", true, testo.includes('__builder__: {"v":1,"languageName":"italiano","incomplete":true}'));
+
+  const riletto = parseLanguageFile(testo, "it-IT.yml");
+  eq("round-trip del valore ostile", 'con "virgolette" e \\ backslash', riletto?.App_a);
+  eq("round-trip del null", "null", JSON.stringify(riletto?.App_b));
 }
 {
-  // Un valore che contiene le parole chiave del formato non deve spostare il punto in cui la
-  // tabella comincia: `search` trova il primo `export default` in posizione di istruzione.
-  const t = readLanguageTable('export default { "App_a": "scrivi export default {} nel file" };', "x.js");
-  eq("un valore che cita 'export default'", "scrivi export default {} nel file", t?.App_a);
+  const testo = serializeLanguageFile({
+    tag: "en-US",
+    isSource: false,
+    translated: [["__builder__", { v: 1, languageName: "English", incomplete: false }], ["App_a", "Hello"]],
+    untranslated: [],
+    now: new Date(2026, 0, 2, 3, 4),
+  });
+  eq("incomplete: false omesso su disco", false, testo.includes("incomplete"));
+  eq("...e ripristinato in lettura", false, normalizeBuilder(parseLanguageFile(testo, "x.yml")).__builder__.incomplete);
+  eq("nessun separatore se non manca nulla", false, testo.includes("to be translated"));
+  eq("__builder__ separato dalle voci", true, /__builder__: .*\n#  -+\nApp_a:/.test(testo));
 }
+
+// --------------------------------------------------------- parità con un parser YAML vero
+console.log("\n== quello che scriviamo è YAML, e YAML lo legge uguale ==");
 {
-  const casi = [
-    ["modulo con import in testa", 'import base from "./base.js";\nexport default { ...base };'],
-    ["modulo con require", 'const base = require("./base.js");\nexport default { ...base };'],
-    ["export nominale prima", 'export const x = 1;\nexport default { "App_a": "x" };'],
-    ["sintassi rotta", 'export default { "App_a": '],
-    ["nessun export default", 'const a = 1;'],
-    ["default non oggetto", 'export default "una stringa";'],
-    ["default array", 'export default ["a", "b"];'],
-  ];
-  for (const [nome, codice] of casi) {
-    eq(nome + " -> lasciato a chi sa caricarlo", undefined, readLanguageTable(codice, "x.js"));
+  // La promessa del formato: accettiamo un sottoinsieme stretto, e su quel sottoinsieme il
+  // nostro parser e un parser YAML vero non possono divergere. Vale finché ogni valore lo
+  // scrive JSON.stringify — è il motivo per cui il serializzatore non "abbellisce" mai una
+  // riga a mano.
+  let yaml = null;
+  try {
+    ({ default: yaml } = await import("js-yaml"));
+  } catch {
+    console.log("  --  js-yaml non installato: parità con YAML non verificata (npm i -D js-yaml)");
+  }
+
+  if (yaml) {
+    // Ognuno di questi, scritto NON quotato, YAML lo leggerebbe diverso da com'è: `%s ...` è
+    // un errore di sintassi, `prezzo 5 # sconto` si tronca, `1.20` diventa un numero, `null`
+    // diventa il null "da tradurre". Quotati sono tutti se stessi, in entrambi i parser.
+    const ostili = {
+      App_percento: "%s è pronto",
+      App_duepunti: "Nota: importante",
+      App_cancelletto: "prezzo 5 # sconto",
+      App_cancelletto2: "#1 in classifica",
+      App_null: "null",
+      App_tilde: "~",
+      App_decimale: "1.20",
+      App_zeri: "007",
+      App_no: "no",
+      App_trattino: "- primo",
+      App_chiocciola: "@utente",
+      App_lista: "[uno, due]",
+      App_spazi: "   ai bordi   ",
+      App_vuoto: "",
+      App_virgolette: 'dice "sì" e usa \\ così',
+      App_acapo: "riga1\nriga2",
+      App_tab: "a\tb",
+      App_emoji: "🐅 fine",
+      App_html: "<b>ciao</b> &amp; via",
+      App_cinese: "你好 %s，你好吗？",
+      App_daTradurre: null,
+    };
+    const tabella = { __builder__: { v: 260824, languageName: "中文（中国）", incomplete: true }, ...ostili };
+    const { translated, untranslated } = splitAndSortEntries(tabella);
+    const testo = serializeLanguageFile({ tag: "zh-CN", isSource: false, translated, untranslated, now: new Date(2026, 0, 2, 3, 4) });
+
+    const nostro = parseLanguageFile(testo, "zh-CN.yml");
+    eq("il nostro parser rilegge la tabella identica", stableStringify(tabella), stableStringify(nostro));
+
+    let daYaml;
+    try {
+      daYaml = yaml.load(testo);
+    } catch (e) {
+      daYaml = { errore: e.message.split("\n")[0] };
+    }
+    eq("js-yaml legge esattamente la stessa cosa", stableStringify(nostro), stableStringify(daYaml));
+
+    // E con CRLF, che è come il file finisce sul disco su Windows.
+    eq("...anche con CRLF", stableStringify(nostro), stableStringify(yaml.load(testo.replace(/\n/g, "\r\n"))));
   }
 }
-{
-  // Il contesto di valutazione non ha globali: un file che ne usa non viene letto qui, e la
-  // decisione passa a importLanguageModule, che lo carica per davvero. È il confine fra le due
-  // strade, e vale la pena che sia visibile.
-  const conGlobale = 'export default { "App_a": process.platform ? "vero" : "falso" };';
-  eq("file che usa un globale -> non letto qui", undefined, readLanguageTable(conGlobale, "x.js"));
-  const dir = cartella();
-  eq("...ma caricato dal ripiego", "vero", (await importLanguageModule(scrivi(dir, "en-US.js", conGlobale)))?.App_a);
-}
 
-// ------------------------------------------------------------------------ file vuoto
-console.log("\n== un file vuoto è una lingua nuova, non una lingua vuota ==");
-{
-  // Il modo documentato per aggiungere una lingua è creare il file vuoto e lanciare la sync.
-  // La risposta non deve dipendere dal fatto che il progetto ospite sia ESM o CommonJS: in
-  // CommonJS `import()` di un file vuoto restituisce `{}` — un oggetto vero, che passava per
-  // una tabella valida e vuota, e il file restava vuoto senza che nessuno lo segnalasse.
-  for (const [nome, esm] of [["progetto ESM", true], ["progetto CommonJS", false]]) {
-    const dir = cartella(esm);
-    eq(`${nome}: file vuoto`, undefined, await importLanguageModule(scrivi(dir, "en-US.js", "")));
-    eq(`${nome}: file di soli spazi`, undefined, await importLanguageModule(scrivi(dir, "fr-FR.js", "\n  \n\t")));
-  }
-}
-
-// --------------------------------------------------- cache dei moduli e contenuto stantio
-console.log("\n== due versioni dello stesso file non si confondono ==");
-{
-  // Regressione. La cache dei moduli ESM di Node non si svuota mai, quindi il ripiego
-  // `import()` porta con sé una query che deve cambiare quando cambia il contenuto. Con
-  // l'mtime non cambiava sempre: la granularità del timestamp del filesystem è grossolana
-  // (3 ms su ext4 con HZ=300, 1-2 s su exFAT/FAT) e due scritture dentro lo stesso tick
-  // condividevano la chiave. Node restituiva allora la versione PRECEDENTE, in silenzio.
-  //
-  // Qui il tick grossolano è simulato rimettendo a mano l'mtime di prima: deterministico,
-  // mentre aspettarsi la collisione dall'orologio la renderebbe una prova a metà.
-  const dir = cartella();
-  const p = scrivi(dir, "en-US.js", 'import "node:path";\nexport default { "App_a": "prima" };');
-  const { atime, mtime } = statSync(p);
-  eq("prima lettura", "prima", (await importLanguageModule(p))?.App_a);
-
-  scrivi(dir, "en-US.js", 'import "node:path";\nexport default { "App_a": "dopo" };');
-  utimesSync(p, atime, mtime); // stesso identico mtime: come due scritture nello stesso tick
-  eq("contenuto nuovo, stesso mtime", "dopo", (await importLanguageModule(p))?.App_a);
-
-  // L'altra metà del patto: a contenuto immutato non si deve creare una entry di cache nuova
-  // a ogni lettura (era la ragione per cui si era scelto l'mtime invece di Date.now()).
-  utimesSync(p, atime, new Date(mtime.getTime() + 60000));
-  eq("stesso contenuto, mtime diverso", "dopo", (await importLanguageModule(p))?.App_a);
-}
-
-// ------------------------------------------------------------------- ordinamento e scrittura
+// ------------------------------------------------------------- ordinamento e confronti
 console.log("\n== splitAndSortEntries: chi va sopra e chi va sotto ==");
 {
   const tabella = { App_z: "z", App_a: "a", __builder__: { v: 1 }, App_m: null, App_b: null };
@@ -152,26 +300,6 @@ console.log("\n== splitAndSortEntries: chi va sopra e chi va sotto ==");
   eq("maiuscole e minuscole in ordine stabile", "a_1,A_1,a_2,b_1,B_2", misto.translated.map(([k]) => k).join(","));
 }
 
-console.log("\n== serializeLanguageModule: quello che finisce sul disco ==");
-{
-  const testo = serializeLanguageModule({
-    tag: "it-IT",
-    isSource: true,
-    translated: [["__builder__", { v: 1, languageName: "italiano", incomplete: true }], ["App_a", 'con "virgolette" e \\ backslash']],
-    untranslated: [["App_b", null]],
-    now: new Date(2026, 0, 2, 3, 4),
-  });
-  eq("intestazione con il conteggio", true, /missing key: 1/.test(testo));
-  eq("intestazione con la data al minuto", true, /processed: 2026-01-02 03:04/.test(testo));
-  eq("marcata come lingua sorgente", true, testo.includes("(sourceLanguage)"));
-  eq("incomplete: true resta scritto", true, testo.includes('"incomplete":true'));
-  eq("separatore prima delle non tradotte", true, testo.indexOf("to be translated") < testo.indexOf('"App_b"'));
-  const riletto = readLanguageTable(testo, "it-IT.js");
-  eq("rilettura fedele del valore ostile", 'con "virgolette" e \\ backslash', riletto?.App_a);
-  eq("rilettura fedele del null", "null", JSON.stringify(riletto?.App_b));
-}
-
-// ----------------------------------------------------------------------- confronti
 console.log("\n== stableStringify: due tabelle uguali devono risultare uguali ==");
 {
   eq("ordine delle chiavi ininfluente", stableStringify({ a: 1, b: 2 }), stableStringify({ b: 2, a: 1 }));

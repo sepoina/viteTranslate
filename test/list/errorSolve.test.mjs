@@ -11,6 +11,9 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { ERROR_SOLVE_DEFAULTS, normalizeErrorSolve, resolveErrorSolve, resolveDiagnostics, report, reportOnce, DEFAULT_DIAGNOSTICS } from "../../lib/errorSolve.js";
 import vitetranslate from "../../lib/dev/vite/vitetranslate.js";
+import splitAndSortEntries from "../../lib/dev/vite/uty/splitAndSortEntries.js";
+import serializeLanguageFile from "../../lib/dev/vite/uty/serializeLanguageFile.js";
+import { languageFileName } from "../../lib/dev/vite/uty/languageFileFormat.js";
 
 const VIRTUAL = "\0virtual:vitetranslate/languages";
 
@@ -211,8 +214,11 @@ console.log("\n== il modulo virtuale generato dal plugin ==");
   // il manifest la importa staticamente e non serve altro sul disco.
   const dir = mkdtempSync(join(tmpdir(), "vitetranslate-errorsolve-"));
   const locale = join(dir, "locale");
-  const scrivi = (tag, tabella) =>
-    writeFileSync(join(locale, `${tag}.js`), `export default ${JSON.stringify(tabella, null, 2)};\n`, "utf8");
+  const scrivi = (tag, tabella) => {
+    const { translated, untranslated } = splitAndSortEntries(tabella);
+    const testo = serializeLanguageFile({ tag, isSource: tag === "it-IT", translated, untranslated, now: new Date() });
+    writeFileSync(join(locale, languageFileName(tag)), testo, "utf8");
+  };
   try {
     mkdirSync(locale, { recursive: true });
     scrivi("it-IT", { __builder__: { v: 1, languageName: "italiano" }, App_a: "uno", App_b: "due", App_c: "tre" });

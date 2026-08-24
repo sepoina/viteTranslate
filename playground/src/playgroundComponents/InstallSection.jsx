@@ -35,7 +35,7 @@ export default defineConfig({
 });`} />
 
         <p className="doc-description">
-          <Translate>_%_Ecco come appare src una volta configurato il plugin: locale è una sottocartella come le altre, indicata da localeDir, con dentro un file JS per ogni lingua._%_</Translate>
+          <Translate>_%_Ecco come appare src una volta configurato il plugin: locale è una sottocartella come le altre, indicata da localeDir, con dentro un file .yml per ogni lingua._%_</Translate>
         </p>
         <CodeBlock language="text" code={`src/
 ├── main.jsx
@@ -43,9 +43,9 @@ export default defineConfig({
 ├── components/
 │   └── ...
 └── locale/              ← localeDir
-    ├── it-IT.js         ← lingua di default
-    ├── en-US.js
-    └── zh-CN.js`} />
+    ├── it-IT.yml        ← lingua di default
+    ├── en-US.yml
+    └── zh-CN.yml`} />
       </section>
 
       <section id={esecuzioneDev.id} className="doc-subsection">
@@ -85,26 +85,25 @@ ReactDOM.createRoot(document.getElementById("root")).render(
           <a href="#install-config-plugin">Config del plugin</a>
           <Translate>_%_. È esattamente il file che localeDir deve già contenere al primo avvio, come richiesto in Esecuzione dev._%_</Translate>
         </p>
-        <CodeBlock language="js" code={`//  -------------------------------------------------
-//      italiano (Italia) (sourceLanguage)
-//       |    code: it-IT
-//       |    missing key: 0
-//       |    processed: 2026-07-27 12:37
-//  -------------------------------------------------
-export default {
-  "__builder__": {"v":260727,"languageName":"italiano (Italia)"},
-  "BasicExample_1nke42v": "Benvenuto in viteTranslate",
-  "DynamicExample_1wltsn1": "Ciao %s, come stai?",
-  "PlaceholderExample_1dxcv5l": "Nome utente",
-  "PlaceholderExample_1ebkbf3": "Il nome verrà usato nel saluto",
-};`} />
+        <CodeBlock language="yaml" code={`#  -------------------------------------------------
+#      italiano (Italia) (sourceLanguage)
+#       |    code: it-IT
+#       |    missing key: 0
+#       |    processed: 2026-08-24 12:37
+#  -------------------------------------------------
+__builder__: {"v":260824,"languageName":"italiano (Italia)"}
+#  -------------------------------------------------
+BasicExample_1nke42v: "Benvenuto in viteTranslate"
+DynamicExample_1wltsn1: "Ciao %s, come stai?"
+PlaceholderExample_1dxcv5l: "Nome utente"
+PlaceholderExample_1ebkbf3: "Il nome verrà usato nel saluto"`} />
       </section>
 
       <section id={nuovaLingua.id} className="doc-subsection">
         <h3><Translate>{nuovaLingua.title}</Translate></h3>
 
         <p className="doc-description">
-          <Translate>_%_Ogni lingua è un file JS dentro localeDir, con lo stesso nome del suo tag_%_</Translate>
+          <Translate>_%_Ogni lingua è un file .yml dentro localeDir, con lo stesso nome del suo tag_%_</Translate>
           {" "}
           <a href="https://github.com/sepoina/viteTranslate/blob/main/doc/bcp47.md" target="_blank" rel="noopener noreferrer">BCP 47</a>
           <Translate>_%_. Il file della lingua di default viene creato e tenuto aggiornato in automatico dal comando di sincronizzazione: non va scritto a mano, solo tradotto se serve._%_</Translate>
@@ -112,66 +111,63 @@ export default {
         <p className="doc-description">
           <Translate>_%_Per aggiungere una nuova lingua crea un file vuoto con il nome del tag scelto, poi rilancia il comando di sincronizzazione: aggiunge in coda tutte le chiavi mancanti con valore null e segnala nel log quali restano da tradurre. Basta sostituire quei null con il testo tradotto._%_</Translate>
         </p>
-        <CodeBlock language="bash" code={`touch src/locale/fr-FR.js
+        <CodeBlock language="bash" code={`touch src/locale/fr-FR.yml
 npx vitetranslate-prepare-translation-table`} />
 
         <p className="doc-description">
           <Translate>_%_Subito dopo il comando il file contiene già tutte le chiavi trovate nel sorgente, ma non tradotte (valore null): sotto la riga separatrice trovi l'elenco esatto di ciò che manca._%_</Translate>
         </p>
-        <CodeBlock language="js" code={`//  -------------------------------------------------
-//      français
-//       |    code: fr-FR
-//       |    missing key: 4
-//       |    processed: 2026-07-27 12:37
-//  -------------------------------------------------
-export default {
-  "__builder__": {"v":260727,"languageName":"français","incomplete":true},
+        <CodeBlock language="yaml" code={`#  -------------------------------------------------
+#      français
+#       |    code: fr-FR
+#       |    missing key: 4
+#       |    processed: 2026-08-24 12:37
+#  -------------------------------------------------
+__builder__: {"v":260824,"languageName":"français","incomplete":true}
+#  -------------------------------------------------
 
-  //  ----to be translated------------------------------------------
-  "BasicExample_1nke42v": null,
-  "DynamicExample_1wltsn1": null,
-  "PlaceholderExample_1dxcv5l": null,
-  "PlaceholderExample_1ebkbf3": null,
-};`} />
+#  ----to be translated------------------------------------------
+BasicExample_1nke42v: null
+DynamicExample_1wltsn1: null
+PlaceholderExample_1dxcv5l: null
+PlaceholderExample_1ebkbf3: null`} />
 
         <p className="doc-description">
           <Translate>_%_Le stesse chiavi compaiono, nello stesso momento, anche nel file della lingua di default: mai come null lì, ma raggruppate sotto la stessa riga separatrice finché restano da tradurre in almeno un'altra lingua. È un'occasione pratica: puoi copiare quel blocco (testo reale, non null) e incollarlo in un LLM per farlo tradurre, poi incollare la risposta al posto dei null nel file della lingua di destinazione._%_</Translate>
         </p>
-        <CodeBlock language="js" code={`//  -------------------------------------------------
-//      italiano (Italia) (sourceLanguage)
-//       |    code: it-IT
-//       |    missing key: 4
-//       |    processed: 2026-07-27 12:37
-//  -------------------------------------------------
-export default {
-  "__builder__": {"v":260727,"languageName":"italiano (Italia)","incomplete":true},
+        <CodeBlock language="yaml" code={`#  -------------------------------------------------
+#      italiano (Italia) (sourceLanguage)
+#       |    code: it-IT
+#       |    missing key: 4
+#       |    processed: 2026-08-24 12:37
+#  -------------------------------------------------
+__builder__: {"v":260824,"languageName":"italiano (Italia)","incomplete":true}
+#  -------------------------------------------------
 
-  //  ----to be translated------------------------------------------
-  "BasicExample_1nke42v": "Benvenuto in viteTranslate",
-  "DynamicExample_1wltsn1": "Ciao %s, come stai?",
-  "PlaceholderExample_1dxcv5l": "Nome utente",
-  "PlaceholderExample_1ebkbf3": "Il nome verrà usato nel saluto",
-};`} />
+#  ----to be translated------------------------------------------
+BasicExample_1nke42v: "Benvenuto in viteTranslate"
+DynamicExample_1wltsn1: "Ciao %s, come stai?"
+PlaceholderExample_1dxcv5l: "Nome utente"
+PlaceholderExample_1ebkbf3: "Il nome verrà usato nel saluto"`} />
 
         <p className="doc-description">
           <Translate>_%_Sostituendo ogni null con il testo tradotto (mantenendo invariati eventuali %s) il file risulta completo, pronto per essere usato come lingua disponibile._%_</Translate>
         </p>
-        <CodeBlock language="js" code={`//  -------------------------------------------------
-//      français
-//       |    code: fr-FR
-//       |    missing key: 0
-//       |    processed: 2026-07-27 12:41
-//  -------------------------------------------------
-export default {
-  "__builder__": {"v":260727,"languageName":"français"},
-  "BasicExample_1nke42v": "Bienvenue sur viteTranslate",
-  "DynamicExample_1wltsn1": "Salut %s, comment ça va ?",
-  "PlaceholderExample_1dxcv5l": "Nom d'utilisateur",
-  "PlaceholderExample_1ebkbf3": "Le nom sera utilisé dans la salutation",
-};`} />
+        <CodeBlock language="yaml" code={`#  -------------------------------------------------
+#      français
+#       |    code: fr-FR
+#       |    missing key: 0
+#       |    processed: 2026-08-24 12:41
+#  -------------------------------------------------
+__builder__: {"v":260824,"languageName":"français"}
+#  -------------------------------------------------
+BasicExample_1nke42v: "Bienvenue sur viteTranslate"
+DynamicExample_1wltsn1: "Salut %s, comment ça va ?"
+PlaceholderExample_1dxcv5l: "Nom d'utilisateur"
+PlaceholderExample_1ebkbf3: "Le nom sera utilisé dans la salutation"`} />
 
         <p className="doc-description">
-          <Translate>_%_Ogni file .js trovato in localeDir diventa automaticamente disponibile: useTranslateLanguage() lo elenca e TranslateContainer lo carica pigramente alla richiesta, senza bisogno di registrarlo altrove._%_</Translate>
+          <Translate>_%_Ogni file .yml trovato in localeDir diventa automaticamente disponibile: useTranslateLanguage() lo elenca e TranslateContainer lo carica pigramente alla richiesta, senza bisogno di registrarlo altrove._%_</Translate>
         </p>
       </section>
     </section>

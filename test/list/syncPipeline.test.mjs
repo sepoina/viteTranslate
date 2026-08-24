@@ -16,7 +16,8 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import updateLanguage from "../../lib/dev/vite/updateLanguage.js";
 import guardMassErase from "../../lib/dev/vite/uty/guardMassErase.js";
-import importLanguageModule from "../../lib/dev/vite/uty/importLanguageModule.js";
+import readLanguageFile from "../../lib/dev/vite/uty/readLanguageFile.js";
+import { languageFileName } from "../../lib/dev/vite/uty/languageFileFormat.js";
 
 let fail = 0;
 const eq = (nome, atteso, ottenuto) => {
@@ -33,7 +34,7 @@ function progetto() {
   const localeDir = mkdtempSync(join(tmpdir(), "vt-sync-"));
   temporanee.push(localeDir);
 
-  const percorso = (tag) => join(localeDir, `${tag}.js`);
+  const percorso = (tag) => join(localeDir, languageFileName(tag));
   const api = {
     localeDir,
     /** La configurazione che cli.js costruisce, con la tabella appena "scansionata". */
@@ -51,7 +52,7 @@ function progetto() {
     },
     testo: (tag) => readFileSync(percorso(tag), "utf8"),
     scrivi: (tag, testo) => writeFileSync(percorso(tag), testo, "utf8"),
-    tabella: (tag) => importLanguageModule(percorso(tag)),
+    tabella: (tag) => readLanguageFile(percorso(tag)),
     file: () => readdirSync(localeDir).sort(),
     mtime: (tag) => statSync(percorso(tag)).mtimeMs,
     percorso,
@@ -76,7 +77,8 @@ async function zitto(fn) {
 /** Le chiavi di un file lingua, divise da quello che il serializzatore ha marcato come da tradurre. */
 function sezioni(testo) {
   const [prima, dopo = ""] = testo.split(SEPARATORE);
-  const chiavi = (pezzo) => [...pezzo.matchAll(/^ {2}"([^"]+)":/gm)].map((m) => m[1]);
+  // Una voce per riga, a colonna 0: le righe indentate o che cominciano per "#" non lo sono.
+  const chiavi = (pezzo) => [...pezzo.matchAll(/^([A-Za-z_][A-Za-z0-9_.-]*):/gm)].map((m) => m[1]);
   return { tradotte: chiavi(prima), daTradurre: chiavi(dopo) };
 }
 
@@ -93,8 +95,8 @@ console.log("\n== creazione da zero ==");
   const p = progetto();
   await p.sync({ App_a: "Ciao", App_b: "Mondo" });
 
-  eq("scrive solo la lingua sorgente", "it-IT.js", p.file().join(","));
-  const t = await p.tabella("it-IT");
+  eq("scrive solo la lingua sorgente", "it-IT.yml", p.file().join(","));
+  const t = p.tabella("it-IT");
   eq("chiavi scritte", "App_a,App_b", Object.keys(t).filter((k) => k !== "__builder__").sort().join(","));
   eq("valori scritti", "Ciao,Mondo", [t.App_a, t.App_b].join(","));
   eq("builder presente", 1, t.__builder__.v);
@@ -115,7 +117,7 @@ console.log("\n== una lingua nuova (file creato vuoto a mano) ==");
   const { tradotte, daTradurre } = sezioni(p.testo("en-US"));
   eq("solo il builder è 'tradotto'", "__builder__", tradotte.join(","));
   eq("tutto il resto è da tradurre", "App_a,App_b", daTradurre.join(","));
-  const t = await p.tabella("en-US");
+  const t = p.tabella("en-US");
   eq("le chiavi nuove valgono null", "null,null", [JSON.stringify(t.App_a), JSON.stringify(t.App_b)].join(","));
   eq("incomplete: true", true, t.__builder__.incomplete);
   eq("il nome della lingua è il suo, non quello della sorgente", "American English", t.__builder__.languageName);
@@ -132,11 +134,11 @@ console.log("\n== traduzione completata a mano ==");
   await p.sync({ App_a: "Ciao", App_b: "Mondo" });
   p.scrivi("en-US", "");
   await p.sync({ App_a: "Ciao", App_b: "Mondo" });
-  p.scrivi("en-US", p.testo("en-US").replace('"App_a": null', '"App_a": "Hello"').replace('"App_b": null', '"App_b": "World"'));
+  p.scrivi("en-US", p.testo("en-US").replace("App_a: null", 'App_a: "Hello"').replace("App_b: null", 'App_b: "World"'));
   await p.sync({ App_a: "Ciao", App_b: "Mondo" });
 
   eq("la sezione da tradurre sparisce", false, p.testo("en-US").includes(SEPARATORE));
-  const t = await p.tabella("en-US");
+  const t = p.tabella("en-US");
   eq("le traduzioni restano", "Hello,World", [t.App_a, t.App_b].join(","));
   eq("incomplete torna false", false, t.__builder__.incomplete);
   eq("la sorgente non elenca più nulla", false, p.testo("it-IT").includes(SEPARATORE));
@@ -166,11 +168,11 @@ console.log("\n== chiavi rimosse dal codice ==");
   await p.sync({ App_a: "Ciao", App_b: "Mondo" });
   p.scrivi("en-US", "");
   await p.sync({ App_a: "Ciao", App_b: "Mondo" });
-  p.scrivi("en-US", p.testo("en-US").replace('"App_a": null', '"App_a": "Hello"').replace('"App_b": null', '"App_b": "World"'));
+  p.scrivi("en-US", p.testo("en-US").replace("App_a: null", 'App_a: "Hello"').replace("App_b: null", 'App_b: "World"'));
   await p.sync({ App_a: "Ciao" }); // App_b non esiste più nei sorgenti
 
-  eq("sparisce dalla sorgente", "App_a", Object.keys(await p.tabella("it-IT")).filter((k) => k !== "__builder__").join(","));
-  eq("sparisce anche dalle sub-lingue", "App_a", Object.keys(await p.tabella("en-US")).filter((k) => k !== "__builder__").join(","));
+  eq("sparisce dalla sorgente", "App_a", Object.keys(p.tabella("it-IT")).filter((k) => k !== "__builder__").join(","));
+  eq("sparisce anche dalle sub-lingue", "App_a", Object.keys(p.tabella("en-US")).filter((k) => k !== "__builder__").join(","));
 }
 
 console.log("\n== stesso testo, id nuovo: la traduzione si eredita ==");
@@ -179,11 +181,11 @@ console.log("\n== stesso testo, id nuovo: la traduzione si eredita ==");
   await p.sync({ App_a: "Ciao" });
   p.scrivi("en-US", "");
   await p.sync({ App_a: "Ciao" });
-  p.scrivi("en-US", p.testo("en-US").replace('"App_a": null', '"App_a": "Hello"'));
+  p.scrivi("en-US", p.testo("en-US").replace("App_a: null", 'App_a: "Hello"'));
   // Il marcatore si è spostato in un altro file: stesso testo, prefisso (e quindi id) diverso.
   await p.sync({ Altro_a: "Ciao" });
 
-  const t = await p.tabella("en-US");
+  const t = p.tabella("en-US");
   eq("la chiave nuova prende la traduzione della vecchia", "Hello", t.Altro_a);
   eq("la vecchia non resta in giro", undefined, t.App_a);
   eq("e non risulta da tradurre", false, p.testo("en-US").includes(SEPARATORE));
@@ -195,13 +197,13 @@ console.log("\n== una traduzione vuota è una traduzione ==");
   await p.sync({ App_a: "Ciao" });
   p.scrivi("en-US", "");
   await p.sync({ App_a: "Ciao" });
-  p.scrivi("en-US", p.testo("en-US").replace('"App_a": null', '"App_a": ""'));
+  p.scrivi("en-US", p.testo("en-US").replace("App_a: null", 'App_a: ""'));
   await p.sync({ App_a: "Ciao" });
 
   // La distinzione è fra null (mai tradotta) e stringa vuota (tradotta con niente, per esempio
   // un'etichetta che in questa lingua non si scrive). Trattarle allo stesso modo rimetterebbe a
   // null una scelta deliberata a ogni sync.
-  eq("la stringa vuota resta", "", (await p.tabella("en-US")).App_a);
+  eq("la stringa vuota resta", "", (p.tabella("en-US")).App_a);
   eq("e non torna sotto il separatore", false, p.testo("en-US").includes(SEPARATORE));
 }
 
@@ -212,15 +214,15 @@ console.log("\n== file di lingua non leggibile ==");
   await p.sync({ App_a: "Ciao" });
   p.scrivi("en-US", "");
   await p.sync({ App_a: "Ciao" });
-  p.scrivi("en-US", p.testo("en-US").replace('"App_a": null', '"App_a": "Hello"'));
+  p.scrivi("en-US", p.testo("en-US").replace("App_a: null", 'App_a: "Hello"'));
   const salvato = p.testo("en-US");
-  p.scrivi("en-US", 'export default { "App_a": "Hello"'); // graffa mai chiusa
+  p.scrivi("en-US", 'App_a: Hello senza virgolette'); // valore non quotato
   const { detto } = await p.sync({ App_a: "Ciao" });
 
   eq("backup salvato", 1, backup(p, "corrupted").length);
-  eq("il backup contiene il file com'era", true, testoBackup(p, "corrupted").includes('"App_a": "Hello"'));
+  eq("il backup contiene il file com'era", true, testoBackup(p, "corrupted").includes("App_a: Hello senza virgolette"));
   eq("lo dice a chiare lettere", true, detto.includes("corrupted"));
-  eq("il file torna valido", "App_a", Object.keys(await p.tabella("en-US")).filter((k) => k !== "__builder__").join(","));
+  eq("il file torna valido", "App_a", Object.keys(p.tabella("en-US")).filter((k) => k !== "__builder__").join(","));
   eq("e riparte da tradurre", true, p.testo("en-US").includes(SEPARATORE));
   eq("il file precedente non è stato perso", true, salvato.includes("Hello"));
 }
@@ -229,12 +231,12 @@ console.log("\n== lingua sorgente non leggibile ==");
 {
   const p = progetto();
   await p.sync({ App_a: "Ciao" });
-  p.scrivi("it-IT", "questo non è un modulo }{");
+  p.scrivi("it-IT", "questa non e' una voce }{");
   const { detto } = await p.sync({ App_a: "Ciao" });
 
   eq("backup salvato", 1, backup(p, "corrupted").length);
   eq("lo dice", true, detto.includes("corrupted"));
-  eq("la sorgente viene rigenerata dalla scansione", "Ciao", (await p.tabella("it-IT")).App_a);
+  eq("la sorgente viene rigenerata dalla scansione", "Ciao", (p.tabella("it-IT")).App_a);
 }
 
 // -------------------------------------------------------------- guardia anti-azzeramento
@@ -308,7 +310,7 @@ console.log("\n== testi che il round-trip su file non deve alterare ==");
   };
   const p = progetto();
   await p.sync(difficili);
-  const t = await p.tabella("it-IT");
+  const t = p.tabella("it-IT");
   for (const [chiave, valore] of Object.entries(difficili)) {
     eq(`round-trip ${chiave}`, valore, t[chiave]);
   }
@@ -363,8 +365,9 @@ export default { plugins: [vitetranslate({ localeDir, sourceLanguage: "it-IT" })
     return { ...esito, uscita: (esito.stdout ?? "") + (esito.stderr ?? "") };
   };
   const tradotta = (radice) => {
-    const file = join(radice, "src/locale/it-IT.js");
-    return readdirSync(join(radice, "src/locale")).includes("it-IT.js") && readFileSync(file, "utf8").includes("Ciao dal comando");
+    const nome = languageFileName("it-IT");
+    const file = join(radice, "src/locale", nome);
+    return readdirSync(join(radice, "src/locale")).includes(nome) && readFileSync(file, "utf8").includes("Ciao dal comando");
   };
 
   for (const [nome, config] of [["vite.config.js", CONFIG_JS], ["vite.config.mjs", CONFIG_JS], ["vite.config.js (a funzione)", CONFIG_FUNZIONE]]) {

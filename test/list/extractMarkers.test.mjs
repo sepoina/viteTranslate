@@ -84,7 +84,7 @@ const CASI = [
   ["marcatore vuoto", `const a = "_%__%_";`, "/p/src/App.jsx"],
 ];
 
-for (const modo of [{}, { includeFallback: false }]) {
+for (const modo of [{ baseDir: "/p" }, { includeFallback: false, baseDir: "/p" }]) {
   const etichetta = modo.includeFallback === false ? "build (senza fallback)" : "dev (con fallback)";
   console.log(`\n== percorso veloce == plugin Babel — ${etichetta} ==`);
   for (const [nome, code, filename] of CASI) {

@@ -1,8 +1,8 @@
 {
   "name": "@sepoina/vitetranslate",
-  "version": "3.0.0",
-  "versionDescription": "Refactor plugin parameters and mark chars.",
-  "description": "Extract translatable strings straight from your JSX — a Vite plugin that auto-generates and syncs JS translation tables, with zero runtime dependencies.",
+  "version": "4.0.0",
+  "versionDescription": "Language files are data (.yml), not JS modules.",
+  "description": "Extract translatable strings straight from your JSX — a Vite plugin that auto-generates and syncs your translation tables, with zero runtime dependencies.",
   "author": {
     "name": "Giancarlo Ghigi",
     "email": "giancarlo.ghigi@gmail.com"
@@ -73,6 +73,7 @@
     "@babel/core": "^7.26.10",
     "@babel/preset-react": "^7.26.3",
     "entities": "^8.0.0",
+    "js-yaml": "^4.1.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "rolldown": "^1.0.0-rc.9"

@@ -37,6 +37,8 @@ export default (api, options = {}) => {
   // Passata esplicitamente dal chiamante invece di un globalThis condiviso implicitamente:
   // se non fornita, resta locale a questa singola chiamata.
   const table = options.table ?? {};
+  // Radice da cui relativizzare state.filename nel checksum (vedi registerMarker).
+  const baseDir = options.baseDir;
 
   return {
     // Il plugin non trasforma il JSX né i tipi TypeScript: si limita a leggerli, quindi
@@ -53,9 +55,9 @@ export default (api, options = {}) => {
       // Copre anche <Translate t="_%_testo_%_" /> e <Translate>_%_testo_%_</Translate>:
       // il testo va sempre marcato esplicitamente, non c'è auto-detect del testo semplice.
       // ---------------------------------------------------------------
-      StringLiteral: (p, state) => staticStringToTranslateTable(p, state, t, includeFallback, table),
-      JSXText: (p, state) => staticStringToTranslateTable(p, state, t, includeFallback, table),
-      TemplateElement: (p, state) => staticStringToTranslateTable(p, state, t, includeFallback, table),
+      StringLiteral: (p, state) => staticStringToTranslateTable(p, state, t, includeFallback, table, baseDir),
+      JSXText: (p, state) => staticStringToTranslateTable(p, state, t, includeFallback, table, baseDir),
+      TemplateElement: (p, state) => staticStringToTranslateTable(p, state, t, includeFallback, table, baseDir),
     },
   };
 };
@@ -66,12 +68,12 @@ export default (api, options = {}) => {
  * Trasforma "_%_testo_%_" in "_<_id_/_testo_>_" e lo salva nella tabella.
  * ---------------------------------------------------------------------
  */
-function staticStringToTranslateTable(p, state, t, includeFallback, table) {
+function staticStringToTranslateTable(p, state, t, includeFallback, table, baseDir) {
   const marked = markedTextOf(p.node);
   if (marked === null) return;
 
   const strToAdd = innerTextOf(marked);
-  const data_translate = registerMarker(strToAdd, state.filename || "unknown", table);
+  const data_translate = registerMarker(strToAdd, state.filename || "unknown", table, baseDir);
 
   // Il nodo è marcato da un capo all'altro, quindi il marcatore compilato è l'intero
   // valore nuovo: non serve una replace sul valore vecchio. Quella che c'era interpretava

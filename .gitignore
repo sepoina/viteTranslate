@@ -42,3 +42,8 @@ coverage/
 # lì come esempio da ispezionare. Si rigenerano a comando e seguono il playground, quindi
 # versionarli vorrebbe dire un diff di file generati a ogni modifica delle traduzioni.
 test/exampleCompiled/
+
+# backup lasciati dal comando di sync accanto ai file di lingua
+*.bak-corrupted-*
+*.bak-erased-*
+*.bak-migrated-*

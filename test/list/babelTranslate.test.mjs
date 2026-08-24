@@ -28,7 +28,7 @@ function run(code, filename = "/p/src/App.jsx", options = {}) {
 }
 
 const keysOf = (table) => Object.keys(table).sort().join(",");
-const valuesOf = (table) => Object.keys(table).sort().map((k) => table[k]).join("|");
+const valuesOf = (table) => Object.values(table).sort().join("|");
 
 // ------------------------------------------------------------------ forme riconosciute
 console.log("\n== forme di stringa riconosciute ==");
@@ -139,6 +139,38 @@ console.log("\n== id ==");
     console.warn = original;
   }
   eq("collisione segnalata", true, warnings.length === 1 && warnings[0].includes("id collision"));
+}
+
+// ------------------------------------------------------------ nome e checksum
+console.log("\n== id: nome sanificato e percorso nel checksum ==");
+{
+  // Trattini e underscore decadono: il nome resta solo [A-Za-z0-9], il "_" è riservato al
+  // separatore nome/checksum.
+  const { table } = run(`const a = "_%_x_%_";`, "/p/src/my-component_file.jsx");
+  eq("trattini e underscore decadono", true, Object.keys(table).every((k) => k.startsWith("mycomponentfile_")));
+}
+{
+  // Cifra iniziale: prefisso "n" per restare un identificatore valido.
+  const { table } = run(`const a = "_%_x_%_";`, "/p/src/1intro.jsx");
+  eq("nome che inizia per cifra", true, Object.keys(table).every((k) => k.startsWith("n1intro_")));
+}
+{
+  // Basename che si svuota del tutto (solo simboli): "unNamed".
+  const { table } = run(`const a = "_%_x_%_";`, "/p/src/---.jsx");
+  eq("nome che si svuota", true, Object.keys(table).every((k) => k.startsWith("unNamed_")));
+}
+{
+  // Il checksum copre ora anche il percorso relativo: due file con lo stesso basename e lo
+  // stesso testo, in cartelle diverse, non condividono più l'id (era il limite documentato).
+  const a = run(`const s = "_%_Salva_%_";`, "/p/src/a/index.jsx", { baseDir: "/p" });
+  const b = run(`const s = "_%_Salva_%_";`, "/p/src/b/index.jsx", { baseDir: "/p" });
+  eq("stesso basename e testo, cartelle diverse", false, Object.keys(a.table)[0] === Object.keys(b.table)[0]);
+}
+{
+  // Stesso percorso e testo: id stabile, non dipende dall'ordine o dal caso.
+  const a = run(`const s = "_%_Salva_%_";`, "/p/src/a/index.jsx", { baseDir: "/p" });
+  const b = run(`const s = "_%_Salva_%_";`, "/p/src/a/index.jsx", { baseDir: "/p" });
+  eq("stesso percorso e testo: id stabile", true, Object.keys(a.table)[0] === Object.keys(b.table)[0]);
 }
 
 console.log(fail === 0 ? "\nTUTTI OK" : `\n${fail} FALLITI`);

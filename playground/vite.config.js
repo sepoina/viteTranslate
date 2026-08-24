@@ -8,7 +8,7 @@ export default defineConfig({
   plugins: [
     pluginOnlyForPlayground({ useLocalLibrary: false }),
     vitetranslate({
-      localeDir: "src/locale",   // cartella con i moduli JS delle traduzioni (dentro src, non in public)
+      localeDir: "src/locale",   // cartella con i file .yml delle traduzioni (dentro src, non in public)
       sourceLanguage: "it-IT",   // lingua dei testi originali (quelli scritti nel sorgente)
       // Lingue importate staticamente: nessuna sospensione al primo render. Essendocene una,
       // in build la sorgente NON viene precaricata (ogni tabella compilata è autonoma) — in

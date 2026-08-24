@@ -75,7 +75,7 @@ export interface ErrorSolveOptions {
 
 /** Opzioni di `vitetranslate(...)`, da registrare fra i `plugins` di vite.config. */
 export interface VitetranslateOptions {
-  /** Cartella con i file di lingua JS, relativa a `baseDir` (es. `"src/locale"`). */
+  /** Cartella con i file di lingua (`.yml`), relativa a `baseDir` (es. `"src/locale"`). */
   localeDir: string;
   /** Tag BCP 47 della lingua in cui sono scritte le stringhe sorgente (es. `"it-IT"`). */
   sourceLanguage: string;
