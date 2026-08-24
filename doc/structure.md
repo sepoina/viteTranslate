@@ -1,78 +1,79 @@
-# Come funziona viteTranslate, dall'interno
+# How viteTranslate Works Under the Hood
 
-> Documento di riferimento sull'architettura: cosa succede a una stringa marcata dal momento in cui la scrivi al momento in cui il browser la mostra, quali file la trasformano e quali artefatti intermedi esistono lungo la strada.
+> Architecture reference document: what happens to a marked string from the moment you write it to when the browser displays it, which files transform it, and what intermediate artifacts exist along the way.
 >
-> Il [README](../README.md) racconta _come si usa_ la libreria; qui si racconta _come è fatta_.
+> The [README](../README.md) covers _how to use_ the library; this document covers _how it is built_.
 
-## Manutenzione — leggere prima di modificare la libreria
+## Maintenance — read before modifying the library
 
-**Questo documento è la fonte di verità sull'architettura, e va aggiornato nello stesso commit del codice che descrive.** Ogni sorgente in `lib/` porta in testa un puntatore alla sezione che lo riguarda: se stai cambiando il comportamento di un file, la sezione corrispondente è parte della modifica, non un lavoro successivo da ricordarsi.
+**This document is the source of truth for the architecture and must be updated in the same commit as the code it describes.** Every source file in `lib/` carries a pointer at the top referencing the relevant section: if you are changing a file's behavior, updating the corresponding section is part of the change, not a follow-up task to remember later.
 
-Vale per chiunque, sessioni LLM comprese: se ti hanno chiesto di toccare `lib/`, leggi prima la sezione pertinente e la lista degli [invarianti](#invarianti-da-non-rompere), poi aggiorna il documento insieme al codice.
+This applies to everyone, including LLM sessions: if you are asked to touch `lib/`, read the relevant section and the list of [invariants not to break](#invariants-not-to-break) first, then update the document alongside the code.
 
-L'ordine dei conti, quando qualcosa non torna: **il codice è ciò che gira**, quindi se diverge dal documento è il documento a essere in debito e va corretto — non il contrario. I link puntano sempre al file che decide davvero, così la verifica costa un clic.
+The order of truth when something doesn't match: **the code is what actually runs**, so if it diverges from the document, it's the document that needs to be fixed — not the other way around. Links always point directly to the file that makes the actual decision, making verification a single click away.
 
-Per ritrovare i puntatori: `grep -rn "doc/structure.md" lib/`.
-
----
-
-## Indice
-
-- [Manutenzione](#manutenzione--leggere-prima-di-modificare-la-libreria)
-- [L'idea in una pagina](#lidea-in-una-pagina)
-- [Mappa dei file](#mappa-dei-file)
-- [Fase 0 — Authoring: il marcatore](#fase-0--authoring-il-marcatore)
-- [Fase 1 — Precompilazione: il comando di sync](#fase-1--precompilazione-il-comando-di-sync)
-- [Fase 2 — Compilazione: i due transform di Vite](#fase-2--compilazione-i-due-transform-di-vite)
-- [Fase 3 — Il modulo virtuale e il code splitting](#fase-3--il-modulo-virtuale-e-il-code-splitting)
-- [Fase 4 — Runtime: la catena di risoluzione](#fase-4--runtime-la-catena-di-risoluzione)
-- [I file intermedi, in ordine](#i-file-intermedi-in-ordine)
-- [Distribuzione del pacchetto](#distribuzione-del-pacchetto)
-- [I test](#i-test)
-- [Invarianti da non rompere](#invarianti-da-non-rompere)
+To find all pointers in the codebase: `grep -rn "doc/structure.md" lib/`.
 
 ---
 
-## L'idea in una pagina
+## Table of Contents
 
-Tutte le librerie di i18n chiedono di inventare una chiave (`welcome.title`) e di tenerla allineata a mano con una tabella. viteTranslate toglie quel passaggio: **la chiave la calcola il build** a partire dal testo stesso.
+- [Maintenance — read before modifying the library](#maintenance--read-before-modifying-the-library)
+- [The core idea in one page](#the-core-idea-in-one-page)
+- [File map](#file-map)
+- [Phase 0 — Authoring: the marker](#phase-0--authoring-the-marker)
+- [Phase 1 — Precompilation: the sync command](#phase-1--precompilation-the-sync-command)
+- [Phase 2 — Compilation: the two Vite transforms](#phase-2--compilation-the-two-vite-transforms)
+- [Phase 3 — The virtual module and code splitting](#phase-3--the-virtual-module-and-code-splitting)
+- [Phase 4 — Runtime: the resolution chain](#phase-4--runtime-the-resolution-chain)
+- [Intermediate files, in order](#intermediate-files-in-order)
+- [Package distribution](#package-distribution)
+- [Testing](#testing)
+- [Invariants not to break](#invariants-not-to-break)
+- [Quick reference](#quick-reference)
 
-Scrivi `_%_Benvenuto_%_` nel sorgente. Da lì in poi:
+---
+
+## The core idea in one page
+
+All i18n libraries ask you to invent a key (`welcome.title`) and keep it manually aligned with a translation table. viteTranslate removes that step: **the key is computed during build** directly from the text itself.
+
+You write `_%_Welcome_%_` in your source code. From there on:
 
 ```mermaid
 kanban
-  in[Sorgente]
-    a1[Scritto dall'utente<br/>"\_%\_Benvenuto\_%\_"]
-  pre[Precompilazione]
-    b1[<b>Id stabile</b> calcolato dal testo<br/>App\_1nke42v]
-    c1[Scritto nel file di lingua<br/>it-IT.yml, en-US.yml]
-  comp[Compilazione]
-    d1[Marcatore <b>compilato</b> nel sorgente<br/>"\_<\_App\_1nke42v\_>\_"]
-    d2[Tabella convertita in <b>modulo di valori</b> già pronti]
+  in[Source]
+    a1[Written by user<br/>"\_%\_Welcome\_%\_"]
+  pre[Precompilation]
+    b1[<b>Stable ID</b> computed from text<br/>App\_1nke42v]
+    c1[Written to language file<br/>it-IT.yml, en-US.yml]
+  comp[Compilation]
+    d1[Marker <b>compiled</b> in source<br/>"\_<\_App\_1nke42v\_>\_"]
+    d2[Table converted to <b>module of pre-built values</b>]
   run[Runtime]
-    e1[<b>Chunk per lingua</b>, caricato su richiesta]
-    f1[Translate legge l'id nella tabella <b>attiva</b>]
+    e1[<b>Language chunk</b> loaded on demand]
+    f1[Translate looks up ID in <b>active</b> table]
 ```
 
-L'id è `<nome sanificato>_<hash FNV-1a in base36>`: il checksum copre il testo **e il percorso relativo del file** (normalizzato a `/`), mentre il prefisso è il basename ridotto a `[A-Za-z0-9]` — con `n` davanti se inizia per cifra, `unNamed` se si svuota. Deterministico: lo stesso testo nello stesso file produce sempre la stessa chiave, senza che nessuno la scriva.
+The ID is `<sanitized name>_<FNV-1a base36 hash>`: the checksum covers the text **and the file's relative path** (normalized to `/`), while the prefix is the basename reduced to `[A-Za-z0-9]` — prefixed with `n` if it starts with a digit, or `unNamed` if it collapses to nothing. Deterministic: the same text in the same file always produces the same key, without anyone having to write it.
 
-Le fasi sono tre, e **girano in momenti diversi**. È la cosa più importante da tenere a mente:
+There are three phases, running at **different moments in time**. This is the most important concept to keep in mind:
 
-| Fase | Quando gira | Chi la esegue | Cosa produce |
+| Phase | When it runs | Executed by | Output produced |
 | --- | --- | --- | --- |
-| **Precompilazione** | prima del build, comando a parte | [`cli.js`](../lib/dev/vite/cli.js) | i file di lingua `.yml` **su disco** |
-| **Compilazione** | durante `vite dev` / `vite build` | il plugin Vite | marcatori compilati + tabelle compilate **in memoria** |
-| **Runtime** | nel browser | il runtime React | il nodo da mostrare |
+| **Precompilation** | before the build, via CLI command | [`cli.js`](../lib/dev/vite/cli.js) | language `.yml` files **on disk** |
+| **Compilation** | during `vite dev` / `vite build` | Vite plugin | compiled markers + compiled tables **in memory** |
+| **Runtime** | in the browser | React runtime | the React node to render |
 
-Perché due passaggi separati e non uno solo? Perché fanno cose diverse in momenti diversi. La **precompilazione** scrive i file di lingua su disco, e lo fa **prima** che il build parta. La **compilazione** lavora invece **dentro** il build: legge quei file già pronti e li trasforma soltanto in memoria, senza mai toccare il disco.
+Why two separate steps instead of one? Because they perform different tasks at different times. **Precompilation** writes language files to disk **before** the build starts. **Compilation** works **inside** the build: it reads those pre-built files and transforms them in memory, without ever touching the disk.
 
-Se questi due compiti fossero uniti in un solo passaggio dentro il build, il risultato dipenderebbe da un dettaglio che nessuno controlla dall'esterno — in che ordine il build esegue le proprie fasi interne. Tenerli separati toglie quella dipendenza: quando il build comincia, i file di lingua sono già scritti e stabili, sempre, indipendentemente da come il bundler è organizzato al suo interno. (Per i dettagli implementativi vedi [`vitetranslate.js`](../lib/dev/vite/vitetranslate.js#L14).)
+If these two tasks were combined into a single step inside the build process, the result would depend on an internal build detail that no one controls from the outside — the order in which the bundler executes its internal hooks. Keeping them separate removes that dependency: when the build starts, the language files are already written and stable, always, regardless of how the bundler is organized internally. (For implementation details, see [`vitetranslate.js`](../lib/dev/vite/vitetranslate.js#L14).)
 
 ---
 
-## Mappa dei file
+## File map
 
-Prima il quadro d'insieme: cosa il pacchetto **espone** e cosa resta macchina interna. L'elenco completo, file per file, è nell'albero subito sotto.
+First, the high-level picture: what the package **exposes** versus what remains internal machinery. The complete file-by-file list follows right below.
 
 ```mermaid
 mindmap
@@ -106,82 +107,82 @@ mindmap
       utility.js
 ```
 
-Poi la mappa letterale. Ogni file porta in testa il rimando alla sezione che lo riguarda:
+Now the literal map. Each file carries a header reference to its relevant section:
 
 ```text
 lib/
-├── index.js .................... entry del plugin (esporta vitetranslate)
-├── htmlDialect.js .............. tag HTML ammessi — unica fonte di verità, letta dai due parser
-├── errorSolve.js ............... opzione errorSolve: default, controlli, risoluzione, gate console
-├── utility.js .................. log colorato del comando di sync
-├── index.d.ts · react.d.ts ..... tipi pubblici delle due entry
-├── virtual.d.ts ................ dichiarazione di "virtual:vitetranslate/languages"
+├── index.js .................... plugin entry (exports vitetranslate)
+├── htmlDialect.js .............. allowed HTML tags — single source of truth for both parsers
+├── errorSolve.js ............... errorSolve option: default, checks, resolution, console gates
+├── utility.js .................. color logging for the sync command
+├── index.d.ts · react.d.ts ..... public types for the two entry points
+├── virtual.d.ts ................ type declaration for "virtual:vitetranslate/languages"
 │
-├── dev/ ........................ tutto ciò che gira in Node, mai nel browser
+├── dev/ ........................ everything running in Node, never sent to browser
 │   ├── babel/
-│   │   ├── markerCore.js ....... regole del marcatore: hash, id, forma del marcatore compilato
-│   │   ├── extractMarkers.js ... parse + splice del sorgente (il cuore dell'estrazione)
-│   │   └── parserOptionsFor.js . quali plugin del parser servono per .js/.jsx/.ts/.tsx
+│   │   ├── markerCore.js ....... marker rules: hashing, ID format, compiled marker shape
+│   │   ├── extractMarkers.js ... parse + splice of source code (the extraction core)
+│   │   └── parserOptionsFor.js . parser plugins required for .js/.jsx/.ts/.tsx
 │   ├── compile/
-│   │   ├── compileTable.js ..... tabella di stringhe -> modulo JS di valori già pronti
-│   │   ├── parseMarkup.js ...... parser HTML del dialetto, senza DOM (build time)
-│   │   └── decodeEntities.js ... entità HTML -> caratteri
+│   │   ├── compileTable.js ..... string table -> JS module of pre-built values
+│   │   ├── parseMarkup.js ...... HTML dialect parser without DOM (build time)
+│   │   └── decodeEntities.js ... HTML entities -> characters
 │   └── vite/
-│       ├── vitetranslate.js .... i due plugin Vite + il modulo virtuale
-│       ├── cli.js .............. comando "vitetranslate-prepare-translation-table"
-│       ├── updateLanguage.js ... sync della lingua sorgente
-│       ├── updateAllSubLanguages.js  sync di tutte le altre
-│       └── uty/ ................ utilità della sync (lettura, scrittura, backup, ordinamento)
+│       ├── vitetranslate.js .... the two Vite plugins + the virtual module
+│       ├── cli.js .............. "vitetranslate-prepare-translation-table" CLI entry
+│       ├── updateLanguage.js ... source language synchronization
+│       ├── updateAllSubLanguages.js  sync for all target languages
+│       └── uty/ ................ sync utilities (reading, writing, backup, sorting)
 │
-├── react/ ...................... il runtime che finisce nel bundle dell'utente
-│   ├── index.js ................ superficie pubblica di "@sepoina/vitetranslate/react"
-│   ├── TranslateContainer.jsx .. stato della lingua, Suspense, transition
-│   ├── TranslateContext.js ..... il context (NON esportato di proposito)
-│   ├── Translate.js ............ il componente
-│   ├── useTranslateToString.js . ts() per le prop che vogliono una stringa
-│   ├── useTranslateLanguage.js . lingua corrente, elenco lingue, cambio lingua
-│   ├── languageResource.js ..... cache + Suspense + caricamento dei chunk
-│   ├── resolveEntry.js ......... la catena di fallback (e i prefissi 🔸 / 🔹)
-│   ├── parseCompiledMarker.js .. marcatore compilato -> chiave (con cache)
-│   ├── interpolate.js .......... %s sulle stringhe NON compilate
-│   ├── normalizeSource.js ...... forma a oggetto { t, a } -> stringa o tupla
-│   ├── withPrefix.js ........... attacca un prefisso diagnostico a una stringa o a un nodo
-│   └── basicHtmlToNodes.js ..... parser HTML sul DOM (solo dev + API pubblica)
+├── react/ ...................... runtime included in user's bundle
+│   ├── index.js ................ public surface of "@sepoina/vitetranslate/react"
+│   ├── TranslateContainer.jsx .. language state, Suspense, transition logic
+│   ├── TranslateContext.js ..... React context (intentionally NOT exported)
+│   ├── Translate.js ............ main component
+│   ├── useTranslateToString.js . ts() helper for string-only props
+│   ├── useTranslateLanguage.js . current language, list of languages, language switcher
+│   ├── languageResource.js ..... cache + Suspense + chunk loading
+│   ├── resolveEntry.js ......... fallback resolution chain (and 🔸 / 🔹 diagnostic prefixes)
+│   ├── parseCompiledMarker.js .. compiled marker -> key (cached)
+│   ├── interpolate.js .......... %s replacement for uncompiled strings
+│   ├── normalizeSource.js ...... object shape { t, a } -> string or tuple
+│   ├── withPrefix.js ........... attaches diagnostic prefix to string or React node
+│   └── basicHtmlToNodes.js ..... DOM-based HTML parser (dev mode + public API only)
 │
-└── dist/ ....................... output di rolldown (generato, non si edita)
+└── dist/ ....................... output generated by Rolldown (do not edit manually)
 ```
 
-Regola di lettura veloce: **`dev/` non entra mai nel browser, `react/` non tocca mai il disco.** I due file condivisi fra i due mondi sono [`htmlDialect.js`](../lib/htmlDialect.js) e [`errorSolve.js`](../lib/errorSolve.js), che infatti non importano nulla — né React né Node. Sono regole con più di un lettore, e scritte una volta sola non possono divergere.
+Quick reading rule: **`dev/` never enters the browser, `react/` never touches the disk.** The two files shared between both worlds are [`htmlDialect.js`](../lib/htmlDialect.js) and [`errorSolve.js`](../lib/errorSolve.js), which accordingly import nothing — neither React nor Node. They represent logic with multiple consumers, written once so it cannot diverge.
 
 ---
 
-## Fase 0 — Authoring: il marcatore
+## Phase 0 — Authoring: the marker
 
-L'utente scrive testo dentro `_%_..._%_`. Il riconoscimento è volutamente rigido: il valore del nodo deve essere **per intero** un marcatore.
+The author writes text inside `_%_..._%_`. Detection is intentionally strict: the value of the node must be **entirely** a marker.
 
 ```jsx
-<Translate>_%_Benvenuto_%_</Translate>                    // ✔ JSXText
-<Translate t={["_%_Ciao %s_%_", nome]} />                 // ✔ StringLiteral
-ts(`_%_Ciao_%_`)                                          // ✔ TemplateElement
-<Translate t="prefisso _%_Ciao_%_" />                     // ✘ non è tutto il valore
+<Translate>_%_Welcome_%_</Translate>                    // ✔ JSXText
+<Translate t={["_%_Hello %s_%_", name]} />                 // ✔ StringLiteral
+ts(`_%_Hello_%_`)                                          // ✔ TemplateElement
+<Translate t="prefix _%_Hello_%_" />                     // ✘ not the full value
 ```
 
-Il perché di questa rigidità sta in [`extractMarkers.js`](../lib/dev/babel/extractMarkers.js): siccome il nodo viene sostituito _interamente_, la riscrittura può essere uno splice di offset sul sorgente invece di una rigenerazione dell'AST. Le regole di riconoscimento vivono tutte in [`markerCore.js`](../lib/dev/babel/markerCore.js), che è l'unico posto in cui è scritto cosa sia un marcatore e come si calcoli il suo id.
+The reason for this strictness lies in [`extractMarkers.js`](../lib/dev/babel/extractMarkers.js): because the node is replaced _in its entirety_, the rewriting can be implemented as an offset splice on the source string rather than full AST regeneration. Marker detection rules all live in [`markerCore.js`](../lib/dev/babel/markerCore.js), which is the single place defining what constitutes a marker and how its ID is generated.
 
-Due casi limite sono segnalati con un `console.warn` invece che in silenzio, perché entrambi si vedrebbero solo a schermo, tardi:
+Two edge cases trigger a `console.warn` instead of failing silently, as both would otherwise only be noticed late on screen:
 
-- **marcatori annidati** (`"_%_uno_%_ e _%_due_%_"`): l'apertura del primo si accoppia con la chiusura del secondo, e ne esce **una** chiave sola;
-- **collisione di id**: due testi diversi, stesso file, stesso hash a 32 bit → uno dei due sparirebbe dalla tabella.
+- **Nested markers** (`"_%_one_%_ and _%_two_%_"`): the opening tag of the first pairs with the closing tag of the second, resulting in **one** single combined key;
+- **ID collision**: two different texts, same file, same 32-bit hash → one of the two texts would vanish from the translation table.
 
 ---
 
-## Fase 1 — Precompilazione: il comando di sync
+## Phase 1 — Precompilation: the sync command
 
 ```bash
-npx vitetranslate-prepare-translation-table   # tipicamente come "prebuild"
+npx vitetranslate-prepare-translation-table   # typically executed as a "prebuild" script
 ```
 
-È l'unico momento in cui qualcosa **scrive** nella cartella delle lingue.
+This is the only phase that **writes** into the localization directory.
 
 ```mermaid
 sequenceDiagram
@@ -191,232 +192,232 @@ sequenceDiagram
   participant GU as guardMassErase
   participant LO as localeDir
 
-  CLI->>CLI: legge vitetranslateConfig da vite.config.*
-  CLI->>CLI: walk di srcDir, esclusi node_modules e localeDir
+  CLI->>CLI: reads vitetranslateConfig from vite.config.*
+  CLI->>CLI: walks srcDir, excluding node_modules and localeDir
 
-  loop per ogni sorgente che contiene _%_
-    CLI->>EX: parse con rewrite false
-    EX-->>CLI: id e testo, accumulati in sourceTable
+  loop for every source file containing _%_
+    CLI->>EX: parse with rewrite = false
+    EX-->>CLI: returns ID and text, accumulated in sourceTable
   end
-  Note over CLI,EX: un file illeggibile o non parsabile<br/>è un avviso, non un errore: viene saltato
+  Note over CLI,EX: unreadable or unparseable file<br/>emits warning and is skipped
 
-  CLI->>GU: sourceTable e numero di file saltati
-  alt perdita sospetta
-    GU->>LO: backup .bak-erased-* di OGNI lingua
-    GU-->>CLI: segnalato, la sync prosegue comunque
-  else perdita normale
-    GU-->>CLI: nessuna azione
+  CLI->>GU: evaluates sourceTable and count of skipped files
+  alt suspicious loss detected
+    GU->>LO: creates .bak-erased-* backup for EVERY language
+    GU-->>CLI: warns, sync continues regardless
+  else normal operations
+    GU-->>CLI: no action taken
   end
 
-  CLI->>LO: updateLanguage sulla lingua sorgente
-  CLI->>LO: updateAllSubLanguages sulle altre
-  Note over LO: riscrittura solo se il contenuto<br/>è davvero cambiato
+  CLI->>LO: calls updateLanguage for source language
+  CLI->>LO: calls updateAllSubLanguages for target languages
+  Note over LO: writes to disk only if<br/>content actually changed
 ```
 
-Punti che vale la pena conoscere:
+Key aspects worth knowing:
 
-**Nessun file di config separato.** Il plugin espone la propria configurazione già risolta sull'oggetto che restituisce (`vitetranslateConfig`), e il CLI la rilegge da lì: una sola fonte di verità. Per questo [`cli.js`](../lib/dev/vite/cli.js) importa `vite.config.*` e cerca il plugin `name: "vitetranslate"` dopo un `flat(Infinity)` — il plugin restituisce un **array** di due plugin, e l'appiattimento serve a ritrovarlo.
+**No separate config file.** The plugin exposes its resolved configuration directly on the object it returns (`vitetranslateConfig`), and the CLI re-reads it from there: a single source of truth. For this reason [`cli.js`](../lib/dev/vite/cli.js) imports `vite.config.*` and searches for the plugin with `name: "vitetranslate"` after applying `flat(Infinity)` — the plugin returns an **array** of two plugins, and flattening is necessary to find it.
 
-Il config lo carica Node, non Vite: si cercano le sei estensioni che Vite stesso accetta (`.js .mjs .ts .cjs .mts .cts`, nel suo ordine di preferenza) e si accetta sia l'oggetto sia la forma a funzione di `defineConfig` (chiamata con `{ command: "build", mode: "production" }`). Il limite che resta è quello di Node: un config TypeScript richiede una versione che sappia togliere i tipi (23.6+, o `--experimental-strip-types`), e la sintassi che non si limita alle annotazioni non passa comunque — il messaggio d'errore lo dice invece di lasciare un `ERR_MODULE_NOT_FOUND` opaco.
+Config loading is handled by Node, not Vite: it searches for the six file extensions accepted by Vite (`.js .mjs .ts .cjs .mts .cts`, using Vite's preference order) and accepts both raw config objects and the factory function form of `defineConfig` (invoked with `{ command: "build", mode: "production" }`). The remaining limitation is Node's own runtime capability: loading a TypeScript config requires a Node version capable of stripping type annotations (23.6+, or `--experimental-strip-types`), and non-type TS syntax will fail — throwing an explicit error message instead of an opaque `ERR_MODULE_NOT_FOUND`.
 
-**La scansione gira solo per il suo effetto collaterale.** `rewrite: false` si ferma al parse: il codice riscritto non servirebbe a nessuno, quindi non viene proprio prodotto.
+**Scanning runs purely for its side effects.** Setting `rewrite: false` stops right after AST parsing: rewritten code is not needed here, so it is never generated.
 
-**Un file rotto non fa cadere la sync**, viene saltato con un avviso — ma quel conteggio è poi uno dei segnali che accendono la guardia qui sotto.
+**A broken source file does not abort the sync process.** It is skipped with a warning — but that skip count acts as one of the signals evaluating safety in the guard below.
 
-**`guardMassErase`** ([file](../lib/dev/vite/uty/guardMassErase.js)) è la rete di sicurezza più importante del comando. La tabella estratta è la sola fonte di verità per la cancellazione: tutto ciò che non compare lì viene eliminato da ogni lingua. È il comportamento voluto, ma dà per scontato che la scansione abbia funzionato. Se uno di questi tre segnali è acceso — _nessun marcatore trovato_, _file saltati dalla scansione_, _oltre metà delle chiavi in cancellazione_ — la guardia non blocca nulla, ma **fotografa** lo stato di prima salvando un `.bak-erased-*` di ogni file di lingua e dicendolo a chiare lettere.
+**`guardMassErase`** ([file](../lib/dev/vite/uty/guardMassErase.js)) is the primary safety net of the command. The extracted translation table is the sole source of truth for key deletion: anything not present in it gets removed from all language files. This is intended, but assumes the scan succeeded cleanly. If any of three triggers fire — _no markers found_, _skipped source files_, _more than half of keys scheduled for deletion_ — the guard does not block execution, but **snapshots** the prior state by saving a `.bak-erased-*` file for every language and printing a prominent warning.
 
-**I rename mantengono la traduzione.** Se un testo cambia file (quindi cambia id) ma resta lo stesso testo, `matchRenamedKeys` in [`updateLanguage.js`](../lib/dev/vite/updateLanguage.js) abbina la chiave decaduta a quella emergente con lo stesso valore, e le sub-lingue ereditano la traduzione già fatta invece di ripartire da `null`.
+**Renames preserve translations.** If text moves to a new file (changing its ID) while keeping identical contents, `matchRenamedKeys` in [`updateLanguage.js`](../lib/dev/vite/updateLanguage.js) matches the deprecated key to the newly introduced key with identical value. Target languages inherit the existing translation instead of resetting to `null`.
 
-**Si riscrive solo se serve.** Il confronto passa da [`stableStringify`](../lib/dev/vite/uty/stableStringify.js) (chiavi ordinate a ogni livello) e [`splitAndSortEntries`](../lib/dev/vite/uty/splitAndSortEntries.js) (ordinamento con locale `"en"` **esplicito**, altrimenti lo stesso file si ordinerebbe in modo diverso su macchine con locale diverso e risulterebbe "cambiato" senza esserlo).
+**Disk writes occur only when necessary.** Content comparison uses [`stableStringify`](../lib/dev/vite/uty/stableStringify.js) (sorting keys at every nesting level) and [`splitAndSortEntries`](../lib/dev/vite/uty/splitAndSortEntries.js) (sorting with an **explicit** `"en"` locale, preventing identical files from sorting differently on machines configured with different system locales).
 
-### Il file di lingua prodotto
+### Generated language file format
 
 ```yaml
 #  -------------------------------------------------
-#      italiano (Italia) (sourceLanguage)
+#      Italian (Italy) (sourceLanguage)
 #       |    code: it-IT
 #       |    missing key: 1
 #       |    processed: 2026-08-24 12:37
 #  -------------------------------------------------
-__builder__: {"v":260824,"languageName":"italiano (Italia)","incomplete":true}
+__builder__: {"v":260824,"languageName":"Italian (Italy)","incomplete":true}
 #  -------------------------------------------------
-App_1nke42v: "Benvenuto"
+App_1nke42v: "Welcome"
 
 #  ----to be translated------------------------------------------
-App_1wltsn1: "Ciao %s, come stai?"
+App_1wltsn1: "Hello %s, how are you?"
 ```
 
-### Perché `.yml` e non `.js` (dalla 4.0)
+### Why `.yml` and not `.js` (since 4.0)
 
-Fino alla 3.x il file era un modulo JS (`export default { … }`). Funzionava, ma per **leggere** dei dati bisognava **eseguire** del codice, e da lì veniva un intero sottosistema: un contesto `vm` senza globali per la forma piatta, un ripiego su `import()` per tutto il resto, e con quello la cache dei moduli ESM di Node — che non si svuota mai, non ha API di sfratto e tratteneva ~24 kB per ogni salvataggio del traduttore — più una query di cache-busting che doveva essere un hash del contenuto e non l'mtime, perché due scritture nello stesso tick del filesystem condividevano la chiave e Node serviva in silenzio la versione precedente. Un file di lingua è un dato: adesso si legge con `readFileSync` e si parsa, e quella classe di bug non ha più dove vivere.
+Up to 3.x the file was a JS module (`export default { … }`). It worked, but **reading** data required **executing** code, and an entire subsystem grew out of that: a globals-free `vm` context for the flat form, a fallback to `import()` for everything else, and with it Node's ESM module cache — which is never flushed, has no eviction API, and retained ~24 kB per translator file save — plus a cache-busting query that had to be a hash of the content rather than the mtime, because two writes within the same filesystem tick shared the key and Node silently served the previous version. A language file is data: it is now read with `readFileSync` and parsed, and that whole class of bug has nowhere left to live.
 
-L'estensione cambia solo **chi legge il file da disco**, non cosa finisce nel bundle: i file di lingua non entrano mai nel grafo così come sono, li sostituisce il transform `vitetranslate:compile-locale` (vedi Fase 2). L'output resta un `.js` per lingua, identico a prima.
+The extension only changes **who reads the file from disk**, not what ends up in the bundle: language files never enter the module graph as they are — the `vitetranslate:compile-locale` transform replaces them (see Phase 2). The output is still one `.js` per language, identical to before.
 
-### Il formato: un sottoinsieme STRETTO di YAML
+### The format: a STRICT subset of YAML
 
-Non è YAML: è un sottoinsieme che **YAML legge allo stesso modo**. La differenza è tutto il punto, perché YAML pieno su questo contenuto sbaglia in silenzio — sono i valori che un traduttore scrive davvero:
+It is not YAML: it is a subset that **YAML reads the same way**. The difference is the whole point, because full YAML fails silently on this content — and these are values a translator really writes:
 
-| scritto non quotato | cosa ne fa YAML |
+| written unquoted | what YAML makes of it |
 | --- | --- |
-| `App_a: %s è pronto` | **errore di sintassi** (`%` è un indicatore riservato — ed è il nostro segnaposto) |
-| `App_a: prezzo 5 # sconto` | `"prezzo 5"` — **troncato in silenzio** |
-| `App_a: Nota: importante` | errore di sintassi |
-| `App_a: 1.20` / `007` | il numero `1.2` / `7` |
-| `App_a: null` | il `null` "da tradurre", non il testo "null" |
-| `App_a: [uno, due]` | un array |
-| `App_a:·· ai bordi ··` (con spazi ai bordi) | spazi ai bordi persi |
+| `App_a: %s is ready` | **syntax error** (`%` is a reserved indicator — and it is our placeholder) |
+| `App_a: price 5 # discount` | `"price 5"` — **silently truncated** |
+| `App_a: Note: important` | syntax error |
+| `App_a: 1.20` / `007` | the number `1.2` / `7` |
+| `App_a: null` | the "to be translated" `null`, not the text "null" |
+| `App_a: [one, two]` | an array |
+| `App_a:·· padded ··` (with edge spaces) | edge spaces lost |
 
-Quindi si accetta poco, e in modo severo. Le forme ammesse, una per riga, **tutte a colonna 0**:
+So the parser accepts little, and strictly. The permitted forms, one per line, **all at column 0**:
 
 ```yaml
-# commento su riga intera            (l'intestazione generata è fatta così)
-Chiave_abc: "testo"                  # JSON.parse del valore
-Chiave_abc: null                     # non ancora tradotta
-Chiave_abc:                          # idem — è ciò che resta cancellando il null
-__builder__: {"v":1,…}               # solo questa chiave può contenere un oggetto
+# whole-line comment                 (the generated header is made of these)
+Key_abc: "text"                      # JSON.parse of the value
+Key_abc: null                        # not yet translated
+Key_abc:                             # same — what remains after deleting the null
+__builder__: {"v":1,…}               # only this key may hold an object
 ```
 
-Tutto il resto è un errore con il **numero di riga**: valore non quotato, riga indentata, due punti senza spazio dopo (`Chiave:"x"` per YAML è una stringa, non una mappa), commento in coda a una riga con valore, chiave duplicata (js-yaml stesso li rifiuta, e un parser a righe farebbe vincere l'ultima in silenzio). Il parser è [`parseLanguageFile.js`](../lib/dev/vite/uty/parseLanguageFile.js), ~40 righe, nessuna dipendenza.
+Everything else is an error carrying the **line number**: unquoted value, indented line, colon without a following space (`Key:"x"` is a string to YAML, not a map), trailing comment on a line with a value, duplicate key (js-yaml itself rejects them, and a line-based parser would silently let the last one win). The parser is [`parseLanguageFile.js`](../lib/dev/vite/uty/parseLanguageFile.js), ~40 lines, no dependencies.
 
-La regola che tiene insieme il tutto sta in scrittura: **ogni valore passa da `JSON.stringify` e da nient'altro**. JSON è un sottoinsieme di YAML 1.2, quindi ciò che scriviamo è leggibile identico dai due lati. Basta "abbellire" una riga a mano — togliere le virgolette a una chiave dentro `__builder__`, per dire — perché i due comincino a leggere cose diverse senza dirlo. `languageFileIO.test.mjs` verifica proprio questo: serializza una tabella di valori ostili e confronta il nostro parser con `js-yaml`, riga per riga.
+The rule that holds it all together lives on the writing side: **every value goes through `JSON.stringify` and nothing else**. JSON is a subset of YAML 1.2, so what we write is read identically by both sides. It only takes "prettifying" a line by hand — dropping the quotes around a key inside `__builder__`, say — for the two to start reading different things without saying so. `languageFileIO.test.mjs` checks exactly this: it serializes a table of hostile values and compares our parser against `js-yaml`, line by line.
 
-Le chiavi non hanno bisogno di virgolette e non possono averne bisogno: `sanitizeName` in [`markerCore.js`](../lib/dev/babel/markerCore.js) le riduce a `[A-Za-z0-9]` più il checksum, quindi non contengono mai `:` — ed è questo che rende sicuro tagliare la riga al primo carattere `:`.
+Keys need no quotes and cannot ever need them: `sanitizeName` in [`markerCore.js`](../lib/dev/babel/markerCore.js) reduces them to `[A-Za-z0-9]` plus the checksum, so they never contain `:` — and that is what makes it safe to cut the line at the first `:` character.
 
-L'intestazione e `__builder__` sono bookkeeping rigenerato a ogni sync — si guarda, non si edita; `incomplete` viene scritto solo quando è `true`, perché `false` è il valore implicito ripristinato in lettura.
+The header and `__builder__` are bookkeeping regenerated on every sync — look, don't edit; `incomplete` is written only when `true`, because `false` is the implicit value restored on reading.
 
-### Vuoto non è svuotato
+### Empty is not emptied
 
-Due stati che si assomigliano e vanno tenuti distinti:
+Two states that look alike and must be kept apart:
 
-- **file vuoto** (zero byte, o solo spazi) → è il modo documentato per aggiungere una lingua: viene popolato con le chiavi della sorgente a `null`, senza backup, perché non c'è niente da perdere;
-- **file con contenuto ma nessuna voce** (righe cancellate lasciando l'intestazione) → **non** è una lingua nuova, è una lingua svuotata. `parseLanguageFile` lo segnala come errore apposta, così finisce nel ramo del backup `.bak-corrupted-*` invece che nel ripopolamento silenzioso.
+- **empty file** (zero bytes, or whitespace only) → this is the documented way to add a language: it gets populated with the source keys set to `null`, with no backup, because there is nothing to lose;
+- **file with content but no entries** (entries deleted, header left behind) → this is **not** a new language, it is an emptied one. `parseLanguageFile` reports it as an error on purpose, so it lands in the `.bak-corrupted-*` backup branch instead of being silently repopulated.
 
-### Migrazione dalla 3.x
+### Migrating from 3.x
 
-`vitetranslate-prepare-translation-table --migrate` converte i `<tag>.js` di `localeDir` in `<tag>.yml` e rinomina gli originali in `.bak-migrated-*` invece di cancellarli; poi si rilancia il comando senza il flag per risincronizzare. Gira solo su richiesta esplicita — riscrive dei file, e farlo da solo dentro una `prebuild` che nessuno sta guardando sarebbe la cosa sbagliata. Il plugin, se trova `localeDir` ancora piena di `.js`, si ferma dicendo esattamente questo invece del generico "sourceLanguage non trovata". [`migrateLegacyLanguages.js`](../lib/dev/vite/uty/migrateLegacyLanguages.js) è l'unico punto della libreria in cui si esegue ancora del codice per leggere dei dati, e vive in un comando che si lancia a mano, una volta.
+`vitetranslate-prepare-translation-table --migrate` converts the `<tag>.js` files in `localeDir` into `<tag>.yml` and renames the originals to `.bak-migrated-*` instead of deleting them; then you re-run the command without the flag to resync. It runs only on explicit request — it rewrites files, and doing that on its own inside a `prebuild` nobody is watching would be the wrong thing. If the plugin finds `localeDir` still full of `.js`, it stops and says exactly that instead of the generic "sourceLanguage not found". [`migrateLegacyLanguages.js`](../lib/dev/vite/uty/migrateLegacyLanguages.js) is the only place left in the library where code is still executed to read data, and it lives in a command you run by hand, once.
 
-Nelle sub-lingue le chiavi non tradotte valgono `null`. Nella lingua sorgente non c'è mai un `null`, ma le stesse chiavi finiscono sotto il separatore finché mancano **in almeno un'altra lingua**: è la scorciatoia documentata per copiare il blocco di testo vero e darlo a un traduttore (umano o LLM).
+In target languages, untranslated keys hold `null` values. In the source language file, keys are never `null`, but missing translations remain listed below the separator comment as long as they lack translation **in at least one other target language**: this provides a documented shortcut to copy the block of missing source strings directly to a translator (human or LLM).
 
 ---
 
-## Fase 2 — Compilazione: i due transform di Vite
+## Phase 2 — Compilation: the two Vite transforms
 
-[`vitetranslate(defs)`](../lib/dev/vite/vitetranslate.js) restituisce **due** plugin, non uno. Non è un dettaglio implementativo: lavorano su insiemi di file **disgiunti**, con filtri diversi, e ciascuno ignora completamente i file dell'altro.
+[`vitetranslate(defs)`](../lib/dev/vite/vitetranslate.js) returns **two** plugins, not one. This is an architectural boundary: they operate on **disjoint** sets of files using different filters, and each plugin completely ignores the other's targets.
 
-### Plugin 1 — `vitetranslate`: trasforma i tuoi sorgenti
+### Plugin 1 — `vitetranslate`: transforms your source files
 
-Gira sui `.js` `.jsx` `.ts` `.tsx` del progetto e sostituisce ogni marcatore con la sua forma compilata. Il testo `_%_Benvenuto_%_` diventa `_<_App_1nke42v_/_Benvenuto_>_` in sviluppo (con il testo di riserva incorporato) o `_<_App_1nke42v_>_` in build.
-
-```mermaid
-kanban
-  in[parsing]
-    i1[<b><u>Ingresso</u></b><br/>Sorgenti del progetto <b>.js .jsx .ts .tsx</b>, esclusi node_modules e localeDir]
-    f1[<b><u>Filtro</u></b><br/>Il codice deve contenere il marcatore <b>"\_%\_"</b>, filtro eseguito in Rust dal bundler prima che il nostro codice venga chiamato<br/>si attiva su <b>"\_%\_Benvenuto\_%\_"</b>, scarta un file senza marcatori]
-  lavoro[Trasformazione]
-    t1[extractMarkers <b>si ferma a parseSync</b>, poi fa splice sugli offset dei nodi trovati]
-    t2[Il codice non marcato esce <b>byte per byte</b> come era entrato]
-  out[Uscita]
-    o1[Stesso sorgente, ogni marcatore sostituito dal suo <b>id compilato</b><br/>dev <b>\_<\_App\_1nke42v\_/\_Benvenuto\_>\_</b><br/>build <b>\_<\_App\_1nke42v\_>\_</b>]
-    o2[Sourcemap riga-a-riga, <b>solo se la build le richiede</b>]
-```
-
-### Plugin 2 — `vitetranslate:compile-locale`: trasforma i file di lingua
-
-Gira sui `.yml` dentro `localeDir` e li converte da tabella di stringhe a modulo JS di valori già pronti da usare. Il file su disco non viene toccato: la conversione vive solo nel grafo dei moduli del bundler.
+Runs on project source files (`.js`, `.jsx`, `.ts`, `.tsx`) and replaces every marker string with its compiled representation. Text like `_%_Welcome_%_` becomes `_<_App_1nke42v_/_Welcome_>_` in dev mode (embedding the fallback string) or `_<_App_1nke42v_>_` in production build.
 
 ```mermaid
 kanban
-  lin[selezione]
-    l1[<b><u>Ingresso</u></b><br/>File di lingua dentro localeDir — la <b>tabella di stringhe</b> che il traduttore edita]
-    l2[<b><u>Filtro</u></b><br/>L'id deve stare dentro <b>localeDir</b> e finire in .yml — niente sottocartelle, è la stessa convenzione con cui il plugin scopre le lingue<br/>passa "src/locale/en-US.yml", non passa "src/locale/vecchie/en-US.yml"]
-  llavoro[Trasformazione]
-    l3[parseLanguageFile legge la tabella dal contenuto già letto da Vite — <b>si parsa, non si esegue</b>: nessun import(), nessun vm, niente che resti dietro]
-    l4[compileLanguageModule converte ogni voce in <b>stringa, elemento React o funzione</b> con segnaposto]
-    l5[La tabella della lingua sorgente riempie le chiavi non ancora tradotte, e rende il modulo <b>autonomo</b>]
-  lout[Uscita]
-    l6[Modulo di valori già pronti, vivo <b>solo nel grafo dei moduli</b> del bundler<br/>da testo tradotto a valore React <b>già costruito</b>]
-    l7[<b>Nessuna sourcemap</b> — il modulo emesso non ha più corrispondenza riga a riga con il file su disco]
+  in[Parsing]
+    i1[<b><u>Input</u></b><br/>Project source files <b>.js .jsx .ts .tsx</b>, excluding node_modules and localeDir]
+    f1[<b><u>Filter</u></b><br/>File must contain <b>"\_%\_"</b> substring, evaluated in Rust by the bundler before JS runs<br/>Triggers on <b>"\_%\_Welcome\_%\_"</b>, discards files without markers]
+  lavoro[Transformation]
+    t1[extractMarkers <b>stops at parseSync</b>, executing string splice at node offsets]
+    t2[Unmarked code passes through <b>byte for byte</b> unchanged]
+  out[Output]
+    o1[Same source code, every marker replaced with <b>compiled ID</b><br/>dev: <b>\_<\_App\_1nke42v\_/\_Welcome\_>\_</b><br/>build: <b>\_<\_App\_1nke42v\_>\_</b>]
+    o2[Line-by-line sourcemap, <b>only if requested by build config</b>]
 ```
 
-### Perché due e non uno
+### Plugin 2 — `vitetranslate:compile-locale`: transforms language files
 
-Un plugin Vite/Rollup espone **un solo** hook `transform`, e quell'hook ha **un solo** filtro. I due lavori non possono condividerlo, per due motivi indipendenti:
+Runs on the `.yml` files inside `localeDir` and converts them from a string table into a JS module of ready-to-use values. The file on disk is never touched: the conversion lives only in the bundler's module graph.
 
-1. **Il filtro del primo è basato sul contenuto, non sul percorso.** È dichiarato come `filter: { code: "_%_" }`: il bundler lo valuta in Rust, prima ancora che il nostro codice venga chiamato, e scarta ogni file il cui testo non contenga quella sottostringa. Un file di lingua contiene testo già tradotto (`"Ciao %s"`), mai il marcatore `_%_`: per costruzione non supererà **mai** quel filtro, qualunque cosa scriva l'handler. Agganciare lì la compilazione delle tabelle produrrebbe codice morto, non un ramo alternativo.
-2. **Anche allargando il filtro, resterebbe un solo handler per due trasformazioni opposte.** I sorgenti vogliono un `parseSync` chirurgico che tocca solo i marcatori (2a); i file di lingua vogliono rileggere l'intera tabella e ricostruirla da zero (2b). Sono due algoritmi diversi su due input diversi: tenerli in un solo `transform` vorrebbe dire smistare a mano dentro l'handler ciò che il filtro di Rust farebbe gratis fuori da JS.
+```mermaid
+kanban
+  lin[Selection]
+    l1[<b><u>Input</u></b><br/>Language files in localeDir — the <b>string table</b> edited by translators]
+    l2[<b><u>Filter</u></b><br/>Module ID must reside inside <b>localeDir</b> and end in .yml — no subdirectories, the same convention the plugin uses to discover languages<br/>Matches "src/locale/en-US.yml", ignores "src/locale/old/en-US.yml"]
+  llavoro[Transformation]
+    l3[parseLanguageFile reads the table from the content Vite already loaded — <b>parsed, not executed</b>: no import(), no vm, nothing left behind]
+    l4[compileLanguageModule converts each entry into <b>string, React element, or interpolation function</b>]
+    l5[Source language table fills untranslated keys, rendering the module <b>self-contained</b>]
+  lout[Output]
+    l6[Pre-compiled value module, residing <b>exclusively in module graph</b><br/>from translation text to <b>pre-constructed</b> React values]
+    l7[<b>No sourcemap emitted</b> — transformed module no longer correlates line-by-line with disk representation]
+```
 
-Da qui la scelta: [`vitetranslate(defs)`](../lib/dev/vite/vitetranslate.js) restituisce **due oggetti plugin distinti** — ciascuno con il proprio `transform` e il proprio filtro — invece di uno solo con logica interna più complicata.
+### Why two plugins instead of one
 
-### 2a. Estrazione: parse e splice, non un transform
+A Vite/Rollup plugin exposes **one** `transform` hook, bound to **one** filter. The two compilation steps cannot share a single transform for two independent reasons:
 
-Il modo "ovvio" di sostituire un nodo con Babel è: parse, cammina l'AST con un visitor completo (`NodePath`, scope tracking), sostituisci il nodo, rigenera il sorgente con `generate()`. [`extractMarkers.js`](../lib/dev/babel/extractMarkers.js) salta tutto questo tranne il parse: trova gli offset dei nodi marcati nell'AST e li rimpiazza con un semplice taglia-e-cuci (`splice`) sulla stringa originale, senza mai rigenerare nulla.
+1. **The first plugin's filter is content-based, not path-based.** It is declared as `filter: { code: "_%_" }`: the bundler evaluates this in Rust before invoking JavaScript, discarding any file whose code lacks that substring. A language translation file contains translated text (`"Hello %s"`), never the marker syntax `_%_`: by definition, it would **never** pass that filter regardless of handler logic. Attaching translation table compilation there would result in dead code.
+2. **Even with a wider filter, a single handler would have to process two opposite transformations.** Source files need a surgical `parseSync` modifying only markers (2a); language files need to read full tables and rebuild them completely from scratch (2b). These are different algorithms operating on different inputs: combining them into one `transform` would force manual JS dispatching for work that Rust filters execute natively.
 
-Può permetterselo perché la sostituzione è puntuale — solo nodi il cui valore è **per intero** un marcatore — quindi bastano gli offset di inizio/fine. Misurato sui sorgenti del playground: **2,3 ms** per il solo parse contro **18,7 ms** per il transform completo con `generate()` e sourcemap: il parser non era il collo di bottiglia, lo era tutto il resto (visitor, scope, rigenerazione).
+Therefore, [`vitetranslate(defs)`](../lib/dev/vite/vitetranslate.js) exports **two distinct plugin objects** — each with its dedicated `transform` hook and filter — avoiding complex conditional dispatch logic inside a single handler.
 
-Il beneficio collaterale è che il codice non marcato esce **byte per byte** com'era entrato: commenti, formattazione e direttive (`@__PURE__`, `@vite-ignore`) comprese, che una rigenerazione avrebbe potuto alterare o perdere.
+### 2a. Extraction: parse and splice, not a transform pipeline
 
-Questa scelta (offset e splice invece di un AST rigenerato) impone tre accorgimenti, altrimenti il risultato sarebbe codice sintatticamente valido ma sbagliato:
+The conventional AST transformation approach in Babel is: parse code, traverse the full AST using visitor patterns (`NodePath`, scope tracking), replace nodes, and re-generate code with `generate()`. [`extractMarkers.js`](../lib/dev/babel/extractMarkers.js) skips everything after parsing: it identifies exact character offsets of marked nodes in the AST and replaces them via string `splice` on the original source code.
 
-- **Dentro un nodo di testo JSX (`JSXText`), il rimpiazzo non può essere testo puro.** Il marcatore compilato contiene un `<` letterale (es. `_<_App_1nke42v_>_`), e un `<` dentro un nodo di testo JSX verrebbe letto come l'inizio di un nuovo tag, non come carattere. Va quindi incapsulato in un'espressione — `{"_<_App_1nke42v_>_"}` — che per JSX è una stringa qualunque, e lascia la struttura del markup intatta per chi legge il JSX dopo di noi.
-- **Le righe consumate da un `JSXText` sostituito vengono restituite come newline in coda al rimpiazzo.** Un blocco di testo scritto su tre righe sorgente, se sostituito con un'espressione su una riga sola, sposterebbe in su di due tutto il resto del file. Non sarebbe un problema se tutti i passaggi successivi leggessero le posizioni da una sourcemap — ma il plugin React che gira dopo di noi scrive il numero di riga direttamente dentro ogni chiamata `jsxDEV(...)` come _valore letterale_ incorporato nel codice, non come voce di mappatura. Se lo spostamento di righe fosse reale, quel valore risulterebbe sbagliato (stack di errore e DevTools che puntano alla riga vecchia). Reincollare gli a-capo "inghiottiti" mantiene invariato il conteggio delle righe, a costo zero: sono a-capo dentro spazi bianchi, che JSX scarterebbe comunque.
-- **Il plugin non compila il JSX, e dichiara solo i parser plugin necessari a farlo _leggere_ correttamente da Babel.** Gira con `enforce: "pre"`, cioè prima del plugin React del progetto: il suo unico compito è sostituire i marcatori lasciando il JSX così com'è, non trasformarlo in `jsxDEV(...)`. Per questo [`parserOptionsFor.js`](../lib/dev/babel/parserOptionsFor.js) attiva solo i plugin di parsing per JSX/TypeScript (necessari perché `parseSync` accetti quella sintassi), invece di caricare `@babel/preset-react` — che il JSX lo trasformerebbe davvero. Così `jsxDEV`, `jsxImportSource` e Fast Refresh restano decisioni del plugin React del progetto, non le nostre.
+This is feasible because replacements are strictly bounded — affecting only nodes whose value is **entirely** a marker string — requiring only start/end character offsets. Benchmarked on playground sources: **2.3 ms** for parse-only versus **18.7 ms** for full AST visitor transformation with `generate()` and sourcemaps. Parsing was never the bottleneck; AST traversal and code generation were.
 
-### 2b. Compilazione delle tabelle: il passaggio meno ovvio
+A side benefit is that unmarked code remains **byte-for-byte identical** to the source input: retaining original comments, formatting, and annotations (`@__PURE__`, `@vite-ignore`) that AST code generation might otherwise mutate or strip.
 
-Qui sta l'idea che distingue la versione attuale dalle precedenti. La tabella su disco è fatta di **stringhe**; il modulo che arriva al bundler è fatto di **valori già pronti**. [`compileTable.js`](../lib/dev/compile/compileTable.js) sceglie fra quattro forme:
+Using string slicing instead of AST regeneration requires three specific handling rules to maintain syntax validity:
 
-| Il testo è… | Diventa… |
+- **Inside JSX text nodes (`JSXText`), replacements cannot be raw strings.** A compiled marker contains literal `<` characters (e.g., `_<_App_1nke42v_>_`). A literal `<` inside JSX text would be parsed as an opening element tag rather than text. It must be wrapped in a JSX expression — `{"_<_App_1nke42v_>_"}` — which JSX treats as a standard string expression, preserving valid markup syntax.
+- **Newlines spanned by a replaced `JSXText` node are re-appended at the end of the replacement string.** Replacing a multi-line string block with a single-line replacement expression would shift subsequent line numbers upward. While sourcemaps handle position mapping for many tools, React's compilation plugin injects source line numbers directly as *literal runtime arguments* inside `jsxDEV(...)` calls. If line counts shifted, DevTools and error stack traces would point to incorrect source lines. Re-injecting swallowed newline characters preserves exact line counts at zero cost (as JSX collapses trailing whitespace newlines anyway).
+- **The plugin does not compile JSX syntax; it configures Babel parser plugins solely to *parse* it.** Running with `enforce: "pre"`, it executes before the project's React transformation plugin. Its sole duty is substituting marker syntax while leaving JSX intact. Consequently, [`parserOptionsFor.js`](../lib/dev/babel/parserOptionsFor.js) enables syntax parsing options for JSX/TypeScript without applying `@babel/preset-react`. This leaves decisions regarding `jsxDEV`, `jsxImportSource`, and Fast Refresh entirely to the project's configured React plugin.
+
+### 2b. Table compilation: pre-building values
+
+This step converts raw text tables on disk into optimized JavaScript module structures. [`compileTable.js`](../lib/dev/compile/compileTable.js) converts entries into one of four representation shapes:
+
+| Input text structure | Compiled module representation |
 | --- | --- |
-| testo semplice | una stringa letterale |
-| testo + `%s` | `a => _cat(["...", _arg(a, 0), "..."])` |
-| markup | un elemento React costruito **una volta sola** |
-| markup + `%s` | `a => jsxs(...)` con i segnaposto come figli JSX |
+| plain text | literal string |
+| plain text with `%s` placeholders | `a => _cat(["...", _arg(a, 0), "..."])` |
+| HTML markup | pre-constructed React element tree (built **once**) |
+| HTML markup with `%s` | `a => jsxs(...)` with placeholders as React JSX children |
 
-Conseguenze concrete:
+Concrete consequences:
 
-1. **Il parser HTML sparisce dal runtime.** Il markup viene interpretato a build time da [`parseMarkup.js`](../lib/dev/compile/parseMarkup.js), che non usa il DOM — quindi `<Translate>` funziona anche in SSR.
-2. **Un argomento può essere un nodo React.** `t={["_%_Accesso come <b>%s</b>_%_", <Link/>]}` mette davvero l'elemento dentro il `<b>`, perché il `%s` è un figlio JSX, non un pezzo di stringa. E non è mai interpretato come HTML: React lo escapa come qualunque altro figlio.
-3. **Le voci senza segnaposto hanno identità stabile fra i render**, il che permette a React di saltare la riconciliazione del sottoalbero. È il motivo per cui `<Translate>` non ha un `useMemo`: la stabilità arriva già dalla tabella.
-4. **Ogni tabella compilata è autonoma.** Passando anche la `sourceTable`, ogni chiave `null` o assente porta con sé il testo della lingua sorgente, già compilato nella stessa forma. Chi consuma la tabella non ha più bisogno che la lingua sorgente sia caricata per mostrare qualcosa di sensato.
+1. **HTML parser execution is removed from runtime.** Markup syntax is parsed at build time by [`parseMarkup.js`](../lib/dev/compile/parseMarkup.js) without needing a DOM environment — enabling `<Translate>` to render seamlessly during Server-Side Rendering (SSR).
+2. **Arguments can be arbitrary React nodes.** Calling `t={["_%_Logged in as <b>%s</b>_%_", <Link/>]}` inserts the actual React element inside the `<b>` element, because `%s` compiles into a JSX child rather than string concatenation. Values are handled safely without unescaped HTML injection.
+3. **Static markup entries maintain stable identity across renders**, allowing React to bypass subtree re-rendering automatically. `<Translate>` requires no internal `useMemo`: reference stability is guaranteed by the compiled module structure.
+4. **Every compiled language module is self-contained.** By cross-referencing `sourceTable`, any key that is `null` or missing in a target language is automatically populated with the compiled source language fallback value. Consumers do not need to load the source language bundle separately to display fallback content.
 
-Il punto 4 ha però un prezzo, ed è il motivo per cui esiste `__untranslated__`: **dopo la sostituzione una voce non tradotta è indistinguibile da una tradotta bene.** L'informazione non è recuperabile più tardi — a runtime non resta niente da guardare. Con l'opzione `emitUntranslated` (accesa solo quando il prefisso `errorSolve.mark.untranslated` è acceso) il modulo porta quindi anche una chiave riservata:
+However, point 4 introduces a constraint: **after compilation, an untranslated fallback entry is indistinguishable from a genuinely translated string.** To preserve diagnostic capabilities, enabling `emitUntranslated` (active when the diagnostic mark `errorSolve.mark.untranslated` is enabled) embeds an internal tracking map inside the compiled module:
 
 ```js
 export default {
   "App_1nke42v": "Hello world",
-  "App_1wltsn1": "Ciao %s",                      // riempita dalla sorgente: non tradotta
-  "__untranslated__": { "App_1wltsn1": 1 },      // ...e questo è l'unico posto che lo dice
+  "App_1wltsn1": "Ciao %s",                      // populated from source fallback: untranslated
+  "__untranslated__": { "App_1wltsn1": 1 },      // explicit tracking key
 };
 ```
 
-Ci finiscono sia le chiavi a `null` sia quelle che la lingua non ha proprio — dopo l'emissione si assomigliano anche loro. La forma è una mappa a `1` e non un array perché il lettore ([`prefixFor`](../lib/react/resolveEntry.js)) fa un lookup per chiave a ogni render, non una scansione. Con i default in produzione non viene emessa affatto.
+This map records keys that were `null` or omitted in the source translation file. The structure uses a key-to-`1` map object so runtime checks ([`prefixFor`](../lib/react/resolveEntry.js)) perform $O(1)$ property lookups on render instead of array scans. In default production builds, this object is omitted entirely.
 
-Gli helper `_arg` e `_cat` sono emessi **inline in ogni chunk** invece di essere importati dal runtime: il chunk resta autosufficiente, non dipende dalla risolvibilità di un path del pacchetto da dentro la cartella dell'utente, e il minifier li accorcia comunque a un carattere.
+Helper functions `_arg` and `_cat` are **inlined directly within each compiled chunk** rather than imported from the package runtime. This ensures language chunks remain completely self-contained without relying on module path resolution from user output directories, while bundler minifiers compress helper definitions down to single-character identifiers.
 
-`_cat` merita una riga: ricompone un testo senza markup i cui `%s` sono già risolti. Nel caso normale restituisce una stringa; ma se anche **uno solo** degli argomenti non è primitivo, diventa un frammento. Una concatenazione con `+` avrebbe prodotto `"[object Object]"` in silenzio, e per giunta in modo dipendente dalla lingua.
+`_cat` handles string concatenation when placeholders are resolved: if all arguments are primitive types, it returns a plain string; if **any** argument is a non-primitive value (such as a React element), it constructs a React Fragment. Standard `+` string concatenation would produce stringified `"[object Object]"` output.
 
-> Il file su disco **non viene mai toccato** da questa fase. La compilazione vive solo nel grafo dei moduli del bundler: il lato Node continua a leggere le stringhe di cui ha bisogno.
+> Source files on disk **are never altered** during this compilation phase. Table compilation exists strictly in the bundler's module graph.
 
-### Il dialetto HTML, in un posto solo
+### HTML dialect specification
 
-`<b> <strong> <i> <em> <u> <small> <code> <br> <hr> <wbr>`. Qualunque altro tag viene **sciolto conservando il contenuto** (`<div>ciao</div>` → `ciao`), nessun attributo sopravvive mai.
+Allowed tags are restricted to: `<b> <strong> <i> <em> <u> <small> <code> <br> <hr> <wbr>`. Any other tag is **stripped while retaining its inner text content** (`<div>hello</div>` → `hello`); attributes are stripped unconditionally.
 
-Le liste stanno in [`htmlDialect.js`](../lib/htmlDialect.js) e sono lette da entrambi i parser — quello di build e quello sul DOM. Erano scritte a mano in due posti con un commento che chiedeva di tenerle allineate: la prima divergenza avrebbe prodotto un testo che si comporta in un modo in sviluppo e in un altro nel bundle, senza che nulla lo segnalasse.
+Tag lists are defined in [`htmlDialect.js`](../lib/htmlDialect.js), consumed by both the build-time parser and the runtime DOM parser. Shared definition prevents discrepancies between development behavior and compiled production bundles.
 
-L'unica divergenza nota fra i due parser sono i **tag incrociati** (`<b>x <i>y</b> z</i>`): il browser riapre `<i>` sul testo che segue (la "adoption agency" di HTML), il build no. È segnalata con un avviso invece di essere replicata.
+The single known structural difference between parsers involves **overlapping/misnested tags** (`<b>x <i>y</b> z</i>`): browser DOM parsing automatically repairs markup by re-opening `<i>` on subsequent text nodes (HTML5 adoption agency algorithm), whereas the build parser does not. A build-time warning is logged when misnested tags are detected.
 
 ---
 
-## Fase 3 — Il modulo virtuale e il code splitting
+## Phase 3 — The virtual module and code splitting
 
-`virtual:vitetranslate/languages` è l'unico punto di contatto fra il lato build e il lato browser. Viene generato da `generateLanguagesModule()` in [`vitetranslate.js`](../lib/dev/vite/vitetranslate.js) e ha questa forma:
+`virtual:vitetranslate/languages` serves as the primary bridge between build execution and browser runtime. Generated by `generateLanguagesModule()` in [`vitetranslate.js`](../lib/dev/vite/vitetranslate.js), it outputs the following structure:
 
 ```js
-import __vt_pre_0 from "/percorso/src/locale/it-IT.yml"; // precaricate: import STATICO
+import __vt_pre_0 from "/path/to/src/locale/it-IT.yml"; // eager language: STATIC import
 
 export const languages = {
-  "it-IT": { name: "italiano (Italia)", preloaded: true, table: __vt_pre_0, load: () => Promise.resolve({ default: __vt_pre_0 }) },
-  "en-US": { name: "English (US)", preloaded: false, load: () => import("/percorso/src/locale/en-US.yml") }, // -> chunk a parte
+  "it-IT": { name: "Italian (Italy)", preloaded: true, table: __vt_pre_0, load: () => Promise.resolve({ default: __vt_pre_0 }) },
+  "en-US": { name: "English (US)", preloaded: false, load: () => import("/path/to/src/locale/en-US.yml") }, // dynamic chunk
 };
 export const sourceLanguage = "it-IT";
 export const fallbackTable = __vt_pre_0;
@@ -424,30 +425,30 @@ export const errorSolve = { badData: "🚫", malformed: "‼️", untranslated: 
 export const partiallyTranslated = { "App_1wltsn1": 1 };
 ```
 
-Una lingua = una riga, con tutto ciò che il runtime deve sapere. Erano tre mappe parallele da tenere allineate a mano.
+Each configured language is represented by an entry containing its loading state and metadata.
 
-Gli ultimi due export sono la diagnostica, e portano già i valori **risolti**: `markOnlyDev` e la scelta fra `warningDev` e `warningBuild` sono state applicate qui, dove `isProduction` è noto, così il runtime legge dei valori invece di doverli interpretare — non ragiona su `import.meta.env` e non conosce l'opzione dell'utente. Un carattere vuoto è un mark spento, ed è quello che una build di produzione con i default emette per tutti e quattro i diagnostici.
+The diagnostic options exported (`errorSolve`) contain pre-resolved values: options like `markOnlyDev` and decisions between `warningDev`/`warningBuild` are evaluated at build time based on `isProduction`. The runtime consumes plain configuration values directly without reading `import.meta.env`. Empty strings indicate disabled diagnostic marks, which is what default production builds output.
 
-`errorSolve` qui è **`errorSolve.mark` di `vite.config.js`**, con gli stessi nomi: `resolveErrorSolve` copia e spegne, non rinomina. In più c'è solo `warn`, che è l'esito della scelta fra i due interruttori della console. Un vocabolario solo per la stessa cosa: chi legge il manifest generato riconosce ciò che ha scritto, e aggiungere un mark nuovo è una riga in un posto invece che una coppia di nomi da tenere allineata.
+`errorSolve` mirrors the configuration structure of `errorSolve.mark` in `vite.config.js`. The exported `warn` boolean represents the active console logging state.
 
-`partiallyTranslated` è l'unico posto in cui può stare: dice quali chiavi restano non tradotte in **qualche** lingua, e per rispondere servono tutte le tabelle insieme. Una tabella compilata sa dire cosa manca a sé stessa (`__untranslated__`, § 2b), non altrove. Qui le tabelle ci sono già, lette poco sopra per costruire il manifest, quindi non costa nessun accesso al disco in più. Vuoto quando quel prefisso è spento.
+`partiallyTranslated` identifies keys that lack translation in **at least one** configured language. Computing this requires inspecting all language tables concurrently during build. (While individual compiled tables track their own missing keys via `__untranslated__`, cross-language completeness requires a holistic view.) The manifest builds this map using the tables already loaded in memory, avoiding extra disk I/O. If the corresponding diagnostic indicator is disabled, an empty object is emitted.
 
-**Quali lingue sono eager** dipende dall'ambiente, ed è una delle regole più sottili del progetto:
+**Eager language bundling behavior** varies by environment:
 
-| | eager |
+| Environment | Eagerly loaded languages |
 | --- | --- |
-| **dev** | `[...preloadedLanguages, sourceLanguage]` — la sorgente è sempre inclusa: è la lingua che stai scrivendo, averla sincrona evita una sospensione a ogni ricarica |
-| **build** | `preloadedLanguages` se ce ne sono, altrimenti `sourceLanguage` |
+| **dev** | `[...preloadedLanguages, sourceLanguage]` — source language is always included statically to avoid React Suspense triggers during active feature development |
+| **build** | `preloadedLanguages` if non-empty; otherwise `sourceLanguage` |
 
-In build la sorgente smette di essere obbligatoria proprio perché ogni tabella compilata è autonoma: spedirla sarebbe una seconda copia degli stessi contenuti.
+In production builds, forcing the source language to load eagerly is unnecessary because compiled target tables are already self-contained.
 
-L'ordine però è vincolato: la sourceLanguage va **in coda**, non in testa, così "la prima precaricata" vale `preloadedLanguages[0] ?? sourceLanguage` in entrambi gli ambienti. Altrimenti un'app che non passa `initialLanguage` partirebbe in una lingua durante lo sviluppo e in un'altra una volta pubblicata.
+Array ordering is strictly preserved: `sourceLanguage` is placed **at the end** of the eager list, ensuring "first preloaded language" consistently evaluates to `preloadedLanguages[0] ?? sourceLanguage` in both development and production. This guarantees that applications without an explicit `initialLanguage` start on the same language in dev as in production.
 
-Il flag `preloaded` **viaggia nel bundle** invece di essere dedotto a runtime: è ciò che permette a `TranslateContainer` di avvisare _anche in produzione_ se la lingua iniziale non è precaricata — in dev il controllo direbbe sempre di sì.
+The `preloaded` boolean flag is bundled directly into language descriptors, enabling `TranslateContainer` to issue warnings in production if an initial language was requested without being preloaded.
 
-### Perché il plugin si auto-esclude dal pre-bundling
+### Dependency optimization exclusion
 
-`lib/dist/react.es.js` importa `virtual:vitetranslate/languages`, un id che esiste **solo** attraverso questo plugin. Il pre-bundling delle dipendenze però gira in un processo esbuild separato, che i plugin del progetto non li vede: su Vite ≤ 7 il dev server muore in partenza con
+`lib/dist/react.es.js` imports `virtual:vitetranslate/languages`, a virtual ID that exists **only** via this plugin. Esbuild's dependency pre-bundling step runs in a separate process that does not execute Vite project plugins. On Vite ≤ 7, the development server would fail on startup with:
 
 ```text
 ✘ [ERROR] Could not resolve "virtual:vitetranslate/languages"
@@ -455,233 +456,207 @@ Il flag `preloaded` **viaggia nel bundle** invece di essere dedotto a runtime: �
 Error: Error during dependency optimization
 ```
 
-Per questo l'hook `config()` dichiara `optimizeDeps: { exclude: ["@sepoina/vitetranslate"] }` (il prefisso copre anche `/react`, che è poi l'unico sottopercorso che entra nel grafo del browser). L'esclusione la dichiara il plugin, non il consumer: è una conseguenza di come è fatta la libreria, non una scelta di chi la usa.
+To prevent this, the plugin's `config()` hook automatically sets `optimizeDeps: { exclude: ["@sepoina/vitetranslate"] }` (covering `/react` as well). The plugin handles this exclusion automatically, requiring no manual consumer setup.
 
-⚠️ **Il playground non copre questo caso**: usa `"@sepoina/vitetranslate": "file:.."`, e i pacchetti linkati non vengono pre-bundlati. Il guasto si vede solo installando da npm — cioè su ogni progetto vero. Vale come regola generale: prima di considerare verificato un cambiamento su `lib/dist/`, provarlo su un progetto con la libreria **installata dal registry**, non linkata.
+⚠️ **Local workspace testing note**: If a test playground uses local path dependencies (`"@sepoina/vitetranslate": "file:.."`), linked packages bypass dependency pre-bundling. Resolution errors of this type are only reproducible when testing packages installed as npm registry dependencies. Always test build artifacts against registry-installed packages before releasing.
 
-### Il ciclo di dev
+### Dev server hot reload behavior
 
-`configureServer` mette in ascolto `localeDir` e distingue due casi:
+`configureServer` sets up file system watching on `localeDir` and handles updates as follows:
 
-- **file aggiunto/rimosso** → cambia l'_insieme_ delle lingue → invalida il modulo virtuale;
-- **file modificato** → il manifest resta valido, ma serve comunque un full-reload, perché le tabelle vivono in una cache a livello di modulo lato client che un hot update non svuoterebbe. E se il file modificato è la **lingua sorgente**, vengono invalidati _tutti_ i moduli compilati: ogni lingua incorpora il testo sorgente per le chiavi non tradotte, e Vite non può dedurlo dal grafo — quel testo entra durante il transform, non attraverso un import.
+- **Language file added or deleted** → changes the set of available languages → invalidates the virtual module;
+- **Language file content modified** → virtual module manifest remains valid, but a full browser reload is triggered because client-side modules cache compiled tables in memory. If the modified file is the **source language**, *all* compiled language modules are invalidated: target language transforms embed source fallback strings into their compiled output, a dependency Vite cannot infer automatically from module import graphs.
 
-Al secondo caso c'è **un'eccezione**, ed è il prefisso `🔹`: `partiallyTranslated` è calcolato leggendo tutte le lingue, quindi tradurre una stringa lo cambia. Con quel prefisso acceso il manifest va rigenerato anche quando cambia solo il contenuto di un file — altrimenti il `🔹` resterebbe a schermo su una stringa appena tradotta, fino al riavvio. Spento (ogni build di produzione con i default) la rilettura non avviene e la regola resta quella di sopra.
+An **exception** to full reloads occurs when the `🔹` (`partiallyTranslated`) indicator is active: changing translations alters cross-language completeness. When this diagnostic mark is enabled, modifying any language file re-compiles the virtual manifest immediately to clear the `🔹` indicator on newly translated strings without requiring a server restart.
 
-Il filtro sull'estensione `.yml` non è cosmetico: senza, i backup `.bak-corrupted-*` / `.bak-erased-*` / `.bak-migrated-*` lasciati lì accanto dalla sync facevano ricaricare la pagina.
+The `.yml` extension filter is not cosmetic: without it, the `.bak-corrupted-*` / `.bak-erased-*` / `.bak-migrated-*` backups left alongside by the sync command triggered page reloads.
 
-### Lingue create al volo
+### Automatic language file creation
 
-Il plugin è tollerante in modo asimmetrico, e la ragione è la stessa in entrambi i casi — la dichiarazione esplicita vale più dello scan:
+The plugin handles file creation gracefully based on configuration rules:
 
-- un `.yml` trovato nella cartella ma **vuoto** → è una lingua nuova, viene popolata al volo con le chiavi della sorgente a `null`;
-- un `.yml` **invalido** (una riga fuori formato, o nessuna voce) → escluso con un errore che riporta il numero di riga, mai sovrascritto alla cieca: dentro potrebbe esserci lavoro recuperabile;
-- una `preloadedLanguages` il cui file **manca del tutto** → creata al volo, perché è una dichiarazione esplicita in `vite.config.js`, non una scoperta.
+- A `.yml` file found in the directory but **empty** → recognized as a new language, populated on the fly with all source keys set to `null`;
+- An **invalid** `.yml` file (a malformed line, or no entries at all) → excluded with an error reporting the line number, never blindly overwritten: it may contain recoverable work;
+- A language listed in `preloadedLanguages` whose file **does not exist at all** → created on the fly, because it is an explicit declaration in `vite.config.js`, not a discovery.
 
 ---
 
-## Fase 4 — Runtime: la catena di risoluzione
+## Phase 4 — Runtime: the resolution chain
 
 ```mermaid
 sequenceDiagram
   participant T as Translate
   participant M as parseCompiledMarker
   participant R as resolveEntry
-  participant Tb as tabella lingua attiva
-  participant F as fallbackTable (eager)
+  participant Tb as Active Language Table
+  participant F as Fallback Table (Eager)
 
-  T->>M: markerKey del marcatore compilato
-  M-->>T: "App_1nke42v" (in cache, stessa istanza)
-  T->>R: resolveEntry(table, fallbackTable, key, args, marker)
-  R->>Tb: table[key]
-  alt trovata
-    Tb-->>R: stringa | elemento | funzione(args)
-  else assente
-    R->>F: fallbackTable[key]
-    alt assente anche lì
-      Note over R: dev -> testo incorporato nel marcatore<br/>build -> chiave grezza
+  T->>M: passes markerKey from compiled marker
+  M-->>T: returns key "App_1nke42v" (cached)
+  T->>R: calls resolveEntry(table, fallbackTable, key, args, marker)
+  R->>Tb: checks table[key]
+  alt found in active table
+    Tb-->>R: returns string | React Element | interpolation function(args)
+  else missing
+    R->>F: checks fallbackTable[key]
+    alt missing in fallback
+      Note over R: dev -> uses embedded text from marker<br/>build -> displays raw key identifier
     end
   end
-  R-->>T: ReactNode
+  R-->>T: returns final ReactNode
 ```
 
-Ordine completo: **lingua attiva → `fallbackTable` → fallback incorporato nel marcatore (solo dev) → chiave grezza.** Il principio è "mostra sempre qualcosa": nemmeno un chunk che non si carica produce un crash — [`readLanguage`](../lib/react/languageResource.js) ricade sulla tabella eager.
+Lookup resolution precedence: **Active language table → Eager fallback table → Marker-embedded text (dev only) → Raw key string.** The system guarantees rendering output under all circumstances: even network failures when loading language chunks fall back gracefully to the eager table without crashing.
 
-Il fallback incorporato esiste per una condizione precisa e **normale in sviluppo**: hai appena scritto una stringa nuova, il marcatore compilato esiste già, ma il file di lingua la conoscerà solo dopo la sync. In produzione `includeFallback` è `false` per default (la sync gira nel prebuild, quindi sarebbe ridondante) e il ramo sparisce dal bundle insieme al suo import di `basicHtmlToNodes` — verificato ricostruendo il playground: il bundle resta byte-identico.
+Embedded fallback text exists specifically for development workflows: when a developer writes a new string, the compiled marker contains the text immediately, but locale files on disk only receive the key after running the sync command. In production builds, `includeFallback` defaults to `false` (since prebuild scripts execute sync prior to bundling), stripping fallback text parsing code and `basicHtmlToNodes` imports from the client bundle.
 
-### I prefissi diagnostici
+### Diagnostic prefixes
 
-"Mostra sempre qualcosa" ha un rovescio: se qualcosa si vede sempre, non si vede mai che è andata storta. `errorSolve` mette un carattere davanti al testo — **in sviluppo**, di default — e chiude il buco senza toccare il principio.
+To prevent missing translations from silently rendering fallback text unnoticed during development, `errorSolve` prepends visible diagnostic indicator characters in development builds by default:
 
-| Prefisso | Condizione | Chi lo sa |
+| Prefix | Condition | Source of truth |
 | --- | --- | --- |
-| `‼️` | testo che la traduzione non ha mai visto (salvo `skipMark`), o prop incompatibili fra loro | `Translate.js` / `useTranslateToString.js`, sul posto |
-| `🔸` | la lingua attiva non ha una traduzione per questa chiave | `table.__untranslated__` (§ 2b), oppure la chiave che dalla tabella manca |
-| `🔹` | tradotta qui, ma assente in almeno un'altra lingua | `partiallyTranslated` dal modulo virtuale (§ Fase 3) |
-| `🚫` | in posizione testo c'è un valore che testo non è: nessun testo da mostrare | `Translate.js`, sul posto — vedi § "Quando testo non ce n'è" |
+| `‼️` | String was not wrapped in a translation marker (unless `skipMark` is passed), or invalid property combinations were passed | Evaluated directly inside `Translate.js` / `useTranslateToString.js` |
+| `🔸` | Active language lacks a translation for this key | Checked against `table.__untranslated__` (§ 2b) or missing key entry |
+| `🔹` | Key is translated in active language, but missing in at least one other language | Checked against `partiallyTranslated` map (§ Phase 3) |
+| `🚫` | Non-textual value passed where text was expected: nothing to display | Evaluated inside `Translate.js` (see section below) |
 
-**Uno solo per stringa, e il primo della lista vince.** Se manca la traduzione proprio nella lingua che si sta guardando, dire anche che ne manca una altrove non aggiunge niente. Lo stesso vale nel percorso di salvataggio: quando `‼️` ha già vinto, il testo recuperato attraversa la catena con la variante `diag.malformedOnly`, che ha gli altri due spenti — altrimenti si prenderebbe un secondo prefisso per strada. `🚫` non partecipa alla precedenza perché non è mai in competizione: si accende solo dove testo davanti a cui stare non ce n'è.
+**Only one prefix is rendered per string, adhering strictly to priority order.** If a translation is missing in the currently viewed language (`🔸`), showing that it is also missing in another language (`🔹`) adds no value. During recovery paths, when `‼️` triggers, text passes through using `diag.malformedOnly`, which suppresses lower-priority prefixes. `🚫` does not participate in precedence ordering because it only applies when there is no text content to display.
 
-`‼️` si porta dietro un cambio di contratto: **una stringa non marcata non è più un errore fatale.** Prima in sviluppo `<Translate>` lanciava e rendeva `[...]`, cancellando il testo; ma non tutto il testo che passa da una prop è traducibile — un numero di telefono, il nome di un campo configurato altrove, una descrizione che arriva dal server. Chi ne aveva doveva ispezionare il marcatore _prima_ di chiamare il componente, cioè riscrivere fuori una decisione che è di qui. Ora il marcatore è il discriminante e ad applicarlo è il componente.
+`‼️` alters runtime behavior for unmarked strings: **unmarked text no longer throws fatal render errors.** Previously, passing unmarked text to `<Translate>` in dev mode threw an error and rendered `[...]`. However, string properties often receive non-translatable dynamic data (e.g., phone numbers, dynamic IDs, backend response values). Forcing callers to check marker presence before rendering placed internal library format checks onto user code. Component rendering now inspects inputs gracefully:
 
-Per la stessa ragione gli usi scorretti non lanciano più: `salvage()` recupera il miglior testo disponibile fra `o`, `t` e `children` — la stringa, il primo elemento della tupla, il campo `t` dell'oggetto — e lo rende preceduto da `‼️`. Un oggetto senza campo `t` non è la forma `{ t, a }` e non contiene testo: è una variante di `null` e rende vuoto come lui, senza prefisso, prima ancora del salvataggio. La differenza si vede in produzione: prima un errore nelle _tue_ prop lo pagava chi legge lo schermo.
+Invalid usage attempts recovery: `salvage()` extracts the best available text candidate among `o`, `t`, and `children` properties — returning string content prepended with `‼️`. Passing an object lacking a `t` property is not recognized as a valid `{ t, a }` tuple structure and renders empty string output without prefixes.
 
-#### Quando testo non ce n'è: `🚫[func]`
+#### Missing text data: `🚫[type]`
 
-Resta il fondo del percorso: `salvage()` ha guardato in `o`, `t` e `children` e non ha trovato niente di testuale. Una funzione, un simbolo, un elemento React nel primo posto della tupla, una tupla vuota. Qui il principio "mostra sempre qualcosa" non si può applicare — qualcosa da mostrare non esiste — e l'unica informazione che resta è **cosa** c'era al posto del testo.
+When `salvage()` evaluates `o`, `t`, and `children` without finding valid text (e.g., functions, symbols, React elements passed as translation keys, or empty tuples), no text content exists to display. The runtime identifies the unexpected data type instead:
 
-Prima usciva `[...]`, uguale per tutti e visibile anche in produzione. Diceva due cose sbagliate insieme: a chi sviluppa non diceva niente che non sapesse già (che qualcosa era andato storto lo si vedeva dal buco), e a chi legge la pagina diceva qualcosa che non lo riguarda. Ora `mark.badData` prende il posto di entrambi:
-
-| Valore | Resa in sviluppo |
+| Provided Input Value | Rendered Output (Dev Mode) |
 | --- | --- |
 | `t={() => {}}` | `🚫[func]` |
 | `t={Symbol("x")}` | `🚫[symbol]` |
 | `t={true}` | `🚫[true]` |
 | `t={[]}` | `🚫[array]` |
 | `t={[null]}` | `🚫[nullArray]` |
-| `t={[<i/>]}`, `t`+`children` entrambi elementi, `o`+`t` entrambi elementi | `🚫[badDom]` |
-| qualunque altra forma illeggibile | `🚫[badData]` |
+| `t={[<i/>]}`, `t`+`children` both elements, `o`+`t` both elements | `🚫[badDom]` |
+| any other unrenderable shape | `🚫[badData]` |
 
-Il nome si ricava scendendo nella **prima posizione utile** — il primo elemento della tupla, il campo `t` dell'oggetto — perché è lì che il testo doveva essere: di `t={[<i/>]}` la cosa da dire è che c'è un nodo dove andava il testo, non che c'è un array. `array` e `nullArray` restano per le tuple in cui quella posizione non esiste o è vuota, dove il nome dell'involucro **è** l'informazione. La discesa ha un limite di profondità, e non è teorico: `const a = []; a[0] = a;` senza guardia sarebbe un `RangeError` dentro un render, cioè una diagnostica trasformata in crash — vale per `badDataKind()` e per `textOf()`, che percorrono la stessa struttura.
+Type names are extracted by inspecting the **first argument position** (e.g., `t` inside objects or first tuple item). For `t={[<i/>]}`, the relevant error is that an element was supplied where text belonged. `array` and `nullArray` identify tuple structures whose target text position is missing or null. Inspection depth is strictly limited to guard against cyclic structures (e.g. `const a = []; a[0] = a;`), preventing `RangeError` call stack overflows during rendering.
 
-Il glifo passa da `markOnlyDev` come gli altri tre, e **spento non si rende niente**: il nome del tipo da solo sarebbe rumore per chi legge la pagina, e la resa vuota è già quella dell'altro "niente da mostrare" del componente, l'oggetto senza campo `t`. Quindi in ogni build di produzione con i default questi casi rendono `""` — dove prima si vedeva `[...]`. La segnalazione in console resta, sotto `warningDev`/`warningBuild` come sempre.
+These indicators are controlled by `markOnlyDev` like all diagnostic marks. **When disabled, they render an empty string**: displaying internal data type names directly to end users in production is undesirable. In default production builds, invalid inputs render as `""` (where older versions rendered `[...]`). Warnings continue logging to the browser console according to `warningDev`/`warningBuild` settings.
 
-### Cosa può stare nella posizione del testo
+### Dynamic non-marked values: `skipMark`
 
-Il marcatore discrimina, ma non tutto ciò che arriva a `t` / `o` / `children` è una stringa che un marcatore potrebbe avere. Il caso che li genera tutti è lo stesso: **una prop sola, servita da un solo componente foglia, che a volte porta testo traducibile e a volte no.** Il chiamante non sempre sa quale delle due gli arriverà, e prima doveva deciderlo _fuori_ — cioè riconoscere il marcatore da sé, duplicando `_%_` e `_<_`, che sono formato interno.
+String inspection alone cannot determine intent: an unmarked string could be an accidentally omitted marker or intentionally non-translatable dynamic text (e.g. API field values, URLs, user names).
 
-Guardati in ordine di percorso in [`Translate.js`](../lib/react/Translate.js):
-
-| Valore in posizione testo | Cosa fa | Perché |
-| --- | --- | --- |
-| `false`, `null`, `undefined`, `""` | `""` | niente da mostrare — `false` è anche la sentinella delle prop non passate |
-| numero, bigint | reso così com'è, **nessun prefisso** | dato di dominio: un conteggio, un interno, un codice. Marcato non ci può passare |
-| elemento React | restituito così com'è, **nessuna diagnostica** | non è ambiguo, e sa già renderizzarsi |
-| oggetto senza `t` | `""` + segnalazione | una variante di `null`: non è la forma `{ t, a }` e testo non ne contiene |
-| tutto il resto non-stringa | `salvage()`, e se non trova testo `🚫[tipo]` | funzione, simbolo: qui il testo non c'è davvero |
-
-⚠️ Due limiti voluti, e vanno tenuti: la **tupla** `[testo, ...argomenti]` non partecipa alle prime due righe — nel primo posto c'è il testo, e un elemento lì è davvero un errore da segnalare (un elemento _fra gli argomenti_ è invece supportato da sempre). E **`ts()` non accetta elementi**: deve restituire una stringa primitiva, quindi un nodo montato resta un errore — con un messaggio suo, che dice proprio quello.
-
-Il controllo del vuoto è `source === false || null || undefined || ""` e non `!source`, che è la differenza fra la sentinella e il valore: con `!source` un `t={0}` spariva dallo schermo senza segnalazione, perché il controllo nato per intercettare il default delle prop prendeva anche i conteggi a zero. Resta indistinguibile un `t={false}` esplicito, che come testo non ha comunque senso; chiuderlo del tutto vorrebbe dire un simbolo privato al posto di `false`.
-
-### `skipMark`: dichiarare che il non marcato è normale
-
-Resta il caso che nessuna ispezione del valore può risolvere: una **stringa** non marcata ha due significati opposti — marcatore dimenticato, oppure valore che un marcatore non l'avrà mai (un numero di telefono, una uri, il nome di un campo configurato in un pannello di amministrazione, il messaggio di un'eccezione). Da dentro il componente si vedono identici. A saperlo è solo il punto di chiamata.
-
-`skipMark` è quella dichiarazione, e ha esattamente due effetti quando il testo **non** è marcato: niente `‼️` e niente `reportOnce`. Tutto il resto — `stripSourceMarker`, l'interpolazione dei `%s` — non cambia.
+Passing `skipMark` explicitly declares that an unmarked string is expected. It suppresses `‼️` indicators and duplicate console reporting while retaining standard placeholder interpolation and marker stripping behavior:
 
 ```jsx
 <Translate t={row.label} skipMark />
-ts(row.label, args, { skipMark: true })   // stessa via d'uscita per la variante stringa
+ts(row.label, args, { skipMark: true })   // functional API counterpart
 ```
 
-Su un testo **marcato** la prop non ha alcun effetto: la catena di risoluzione procede normalmente e `🔸` / `🔹` restano accesi. Questo è il punto, e non un dettaglio: non vuol dire "non tradurre", vuol dire "qui il non marcato non è un errore" — che è ciò che serve alla prop che porta l'uno o l'altro a seconda della riga. Nemmeno copre le prop incompatibili fra loro: quelle restano un errore e continuano a passare da `salvage()`.
+On **marked** strings, `skipMark` has no effect: standard translation lookup occurs, and missing translation indicators (`🔸` / `🔹`) continue to display normally. `skipMark` does not mean "bypass translation"; it means "unmarked string input is valid here".
 
-L'alternativa che sembra equivalente ma non lo è: `errorSolve.mark.malformed: false` spegne la diagnostica **ovunque**, cioè anche dove il marcatore era davvero dimenticato. `skipMark` la spegne dove è stato dichiarato e la lascia accesa altrove.
+Setting `errorSolve.mark.malformed: false` globally disables malformed string warnings across the entire application, masking genuinely forgotten markers. `skipMark` selectively suppresses warnings at specific call sites while keeping global diagnostics active.
 
-### La console, e il suo interruttore
+### Console logging control
 
-`warningDev` / `warningBuild` governano **tutto** l'output che la libreria stampa nel browser, non solo le diagnostiche nuove: ogni chiamata passa da `report()` in [`errorSolve.js`](../lib/errorSolve.js). Chi mette a tacere il pacchetto in produzione si aspetta che taccia.
+`warningDev` and `warningBuild` govern **all** console logging produced by the library at runtime via `report()` in [`errorSolve.js`](../lib/errorSolve.js).
 
-⚠️ Conseguenza da tenere presente: con il default `warningBuild: false` tacciono anche le segnalazioni di guasto vero — chunk di lingua non caricato, tag inesistente, `initialLanguage` non precaricata. Quest'ultima era deliberatamente fuori dal gate `import.meta.env.DEV`, perché in dev direbbe sempre che va tutto bene; ora l'ultima parola ce l'ha l'opzione, ed è una scelta di chi configura. `warningBuild: true` le riaccende tutte.
+⚠️ Note: Setting `warningBuild: false` suppresses all production console output, including critical runtime warnings (such as failed chunk downloads or missing preloaded languages). Setting `warningBuild: true` re-enables production console logging.
 
-I messaggi del plugin — lato Node, a build time, prefissati `[vitetranslate]` — restano fuori: non sono output di runtime.
+Build-time plugin warnings logged in Node during compilation (prefixed with `[vitetranslate]`) operate independently of runtime console settings.
 
-### Suspense e cambio lingua
+### Suspense integration and language switching
 
-[`languageResource.js`](../lib/react/languageResource.js) tiene una cache a livello di modulo condivisa da tutte le istanze del container. È ciò che rende usabile Suspense: `readLanguage` va chiamata **durante il render** e, se la lingua non è pronta, lancia la Promise — stesso meccanismo di `React.lazy`. Senza una cache stabile ogni render lancerebbe una Promise nuova, cioè un loop infinito di sospensione.
+[`languageResource.js`](../lib/react/languageResource.js) maintains a module-level cache shared across container instances, enabling seamless React Suspense integration: `readLanguage` executes **during the render phase** and throws a loading Promise if the target language chunk is pending — matching `React.lazy` semantics.
 
-Un caricamento **fallito non resta in cache come tale**: un chunk può fallire per un buco di rete, e tenerne memoria per sempre significherebbe che quella lingua non è più selezionabile per tutta la vita della pagina.
+Failed network requests **are not stored permanently in the cache**: a failed chunk download (e.g., due to temporary network failure) can be retried later without permanently locking the user out of selecting that language.
 
-Il cambio lingua passa da `React.startTransition`: React tiene visibile la lingua corrente finché la nuova non è pronta, invece di mostrare il fallback di Suspense. Siccome il render legge sempre lo stato `lang` corrente, le risposte lente di richieste ormai superate vengono ignorate da sole — niente guardia "last request wins" da mantenere.
+Language changes execute within `React.startTransition`: React keeps rendering the current language UI until the newly requested language chunk resolves. Because render passes evaluate current state, stale promises from outdated rapid language switches are discarded automatically.
 
-#### Il ritentativo, e perché lo stato è un oggetto
+#### Retry handling and state structure
 
-Lo stato del container è `{ tag, epoch }` e non il solo tag. `epoch` non lo legge nessuno: esiste per dare un'**identità nuova** all'oggetto, che è l'unica cosa che fa ri-renderizzare.
+Container state is stored as an object `{ tag, epoch }` rather than a plain string tag. `epoch` serves specifically to generate a **new object reference**, forcing React to schedule a re-render.
 
-La ragione è il caso del ritentativo. Dopo un caricamento fallito il tag è **già** quello richiesto — è stato impostato prima che il chunk fallisse — quindi riproporlo, cioè il pulsante "riprova" di un language switcher, faceva `setLang(stessoTag)`: React incontra il bailout sullo stato eager e non pianifica nessun render. `ensureLanguage` riarmava davvero il caricamento, il chunk arrivava, `onDone(true)` diceva che era andata bene, e a schermo restava la tabella di fallback finché un render qualunque, per tutt'altra ragione, non ripassava da `readLanguage`.
+This structure handles manual retry actions. If a language chunk download fails, the active state `tag` matches the requested tag. Calling `setLang(sameTag)` directly would trigger React's state bail-out optimization, skipping re-rendering. `ensureLanguage` resets the failed cache state, and updating `epoch` forces a fresh render pass that re-executes `readLanguage`.
 
-[`nextLanguageState`](../lib/react/languageResource.js) distingue i due casi e restituisce `prev` — cioè "niente da fare" — solo quando la proposta non cambia nulla di osservabile. `hasFailedLanguage(tag)` va campionata **prima** di `ensureLanguage`, che riarmando cancella la traccia dell'errore.
+[`nextLanguageState`](../lib/react/languageResource.js) evaluates state transitions, returning the existing state reference `prev` only when no observable UI change would occur. `hasFailedLanguage(tag)` is checked **before** calling `ensureLanguage`, as re-arming the resource clears error state records.
 
-#### `id` è la lingua che si vede, non quella che si è chiesta
+#### Rendered language identifier vs requested language tag
 
-Quando il caricamento fallisce `readLanguage` ricade sulla tabella eager: a schermo c'è **quella** lingua. Il context espone quindi `firstPreloadedLanguage`, non il tag richiesto — altrimenti `useTranslateLanguage().id` risponderebbe `"fr-FR"` mentre la pagina è in italiano, e un selettore evidenzierebbe una voce che non corrisponde a niente, senza avere modo di accorgersene.
+If a language chunk fails to download, `readLanguage` falls back to rendering the eager fallback table. The component context exposes `firstPreloadedLanguage` as the active display tag rather than the failed requested tag: this ensures `useTranslateLanguage().id` accurately reflects what is currently rendered on screen.
 
-La lingua della tabella eager è `firstPreloadedLanguage` per costruzione: il plugin emette `fallbackTable` dal primo tag precaricato, che è anche il primo di `preloadedLanguages`.
+### Private APIs
 
-La sospensione avviene in `TranslateProvider`, un componente **interno** al boundary: se avvenisse in `TranslateContainer` non sarebbe il suo `<Suspense>` a catturarla.
+`TranslateContext` is intentionally kept private: context value structures expose `table` maps whose internal schema must remain free to evolve. Applications should interact with language state exclusively via `useTranslateLanguage()`.
 
-### Cosa NON è esportato
+### Immutable runtime structures
 
-`TranslateContext` resta privato di proposito: il valore del context contiene `table`, la mappa interna delle traduzioni, che deve restare libera di cambiare forma. Lingua corrente, elenco e cambio passano tutti da `useTranslateLanguage()`.
+Shared runtime objects exposed to external application code are protected using `Object.freeze`:
 
-### Cosa è congelato, e perché
-
-Tutto ciò che è insieme **condiviso da tutta l'app** e **consegnato a codice che non controlliamo** è `Object.freeze`-ato:
-
-| valore | dove |
+| Structure | Location |
 | --- | --- |
-| `languages`, array e singole voci | [`useTranslateLanguage.js`](../lib/react/useTranslateLanguage.js) |
-| l'oggetto restituito dall'hook | idem — è memoizzato, quindi condiviso da tutti i componenti finché la lingua non cambia |
-| `preloadedLanguages` | [`languageResource.js`](../lib/react/languageResource.js) |
+| `languages` array and items | [`useTranslateLanguage.js`](../lib/react/useTranslateLanguage.js) |
+| Object returned by `useTranslateLanguage()` | [`useTranslateLanguage.js`](../lib/react/useTranslateLanguage.js) |
+| `preloadedLanguages` array | [`languageResource.js`](../lib/react/languageResource.js) |
 
-Non è simmetria estetica: `languages` è un singleton di modulo, e una singola scrittura di troppo lo corrompe **per tutti i lettori e per tutta la vita della pagina**, con il sintomo che compare lontanissimo dalla causa. Il caso reale che ha portato al freeze è un `filter(l => l.tag = id)` — `=` invece di `===` — dentro un language switcher: azzerava il `tag` di ogni lingua al primo render, e sembrava un bug della libreria. I moduli ESM sono sempre in strict mode, quindi ora quella riga lancia un `TypeError` sul posto. Il `.d.ts` dichiara gli stessi campi `readonly`, così TypeScript lo segnala già a compile time.
+`languages` is a module-level singleton: mutating its properties directly would corrupt language state globally across the application lifetime. Freezing these structures ensures accidental mutations (such as array sorting or assignment typos like `filter(l => l.tag = id)`) throw explicit `TypeError` exceptions immediately at the mutation site rather than causing silent runtime bugs.
 
-Il congelamento vale **anche in produzione**, come tutte le altre garanzie di questa libreria: un comportamento che cambia fra dev e build è un comportamento che non è stato verificato. Il costo è due `Object.freeze` all'inizializzazione del modulo, non uno per render.
+Object freezing remains active in production builds. The performance cost is limited to initial module evaluation.
 
-Restano **non** congelati, di proposito: il valore del context (privato, non lo tocca nessuno da fuori) e le tabelle compilate (una passata su ogni voce di ogni lingua, per proteggere una struttura che il codice utente non vede).
-
-⚠️ Conseguenza da tenere presente: `languages.sort()` e `languages.reverse()` ora lanciano. Chi riordina l'elenco deve farlo su una copia, `[...languages]` — che è poi ciò che andrebbe fatto comunque su un valore condiviso.
+`languages.sort()` and `languages.reverse()` mutate arrays in-place and will throw on frozen arrays. Code that sorts language lists must operate on a copied array (`[...languages]`).
 
 ---
 
-## I file intermedi, in ordine
+## Intermediate files, in order
 
-Il punto che confonde più spesso: **quali artefatti esistono davvero su disco e quali vivono solo in memoria.**
+Understanding **which artifacts exist physically on disk versus those residing purely in memory**:
 
 ```mermaid
 flowchart TD
-  A["src/**/*.jsx<br/><em>disco — lo scrivi tu</em>"]
-  B["sourceTable: id -> testo<br/><em>memoria — vive quanto la sync</em>"]
-  C["src/locale/*.yml<br/><em>disco — lo edita il traduttore</em>"]
-  D["sorgente con marcatori compilati<br/><em>memoria — grafo dei moduli</em>"]
-  E["modulo di lingua compilato<br/><em>memoria — grafo dei moduli</em>"]
-  F["virtual:vitetranslate/languages<br/><em>memoria — modulo virtuale</em>"]
-  G["dist/assets/*.js<br/><em>disco — un chunk per lingua</em>"]
+  A["src/**/*.jsx<br/><em>disk — authored code</em>"]
+  B["sourceTable: id -> text<br/><em>memory — lifecycle of sync execution</em>"]
+  C["src/locale/*.yml<br/><em>disk — edited by translators</em>"]
+  D["source code with compiled markers<br/><em>memory — bundler module graph</em>"]
+  E["compiled language module<br/><em>memory — bundler module graph</em>"]
+  F["virtual:vitetranslate/languages<br/><em>memory — virtual module</em>"]
+  G["dist/assets/*.js<br/><em>disk — output language chunks</em>"]
 
-  A -- "sync (rewrite:false)" --> B
+  A -- "sync (rewrite: false)" --> B
   B -- "updateLanguage" --> C
-  A -- "transform del plugin" --> D
-  C -- "transform compile-locale" --> E
-  C -- "scan della cartella" --> F
+  A -- "plugin transform" --> D
+  C -- "compile-locale transform" --> E
+  C -- "directory scan" --> F
   D --> G
   E --> G
   F --> G
 ```
 
-| Artefatto | Dove vive | Chi lo scrive | Si edita a mano? |
+| Artifact | Location | Written by | Hand-edited? |
 | --- | --- | --- | --- |
-| `src/locale/it-IT.yml` (sorgente) | disco | la sync, interamente | **no**, è autogenerato |
-| `src/locale/xx-XX.yml` (altre) | disco | la sync per le chiavi, **tu** per i valori | sì, solo i valori |
-| intestazione + `__builder__` | disco, dentro i file sopra | la sync | **no**, riscritti ogni volta |
-| `.bak-corrupted-*` / `.bak-erased-*` | disco, accanto ai file | le reti di sicurezza | sono copie, si leggono |
-| tabella compilata | solo nel grafo dei moduli | il plugin `compile-locale` | non esiste come file |
-| modulo virtuale | solo nel grafo dei moduli | il plugin | non esiste come file |
-| `lib/dist/*` | disco, nel repo | `rolldown -c` | **no**, output di build |
+| `src/locale/it-IT.yml` (source) | disk | sync command, entirely | **no**, fully auto-generated |
+| `src/locale/xx-XX.yml` (targets) | disk | sync command (keys), **human** (values) | yes, translation values only |
+| Top header comment + `__builder__` | disk, inside locale files | sync command | **no**, overwritten on sync |
+| `.bak-corrupted-*` / `.bak-erased-*` | disk, alongside locale files | safety backup routines | backup copies for inspection |
+| Compiled language tables | bundler module graph only | `compile-locale` plugin | does not exist as physical file |
+| Virtual language manifest module | bundler module graph only | `vitetranslate` plugin | does not exist as physical file |
+| `lib/dist/*` | disk, inside package repo | `rolldown -c` | **no**, build output |
 
-Per **vedere** una tabella compilata — cioè quello che il bundler riceve davvero — c'è uno strumento apposta:
+To **inspect** compiled translation tables as transformed by the bundler:
 
 ```bash
-npm run dump   # test/exampleLangCompile.mjs -> test/exampleCompiled/ (git-ignored)
+npm run dump   # outputs test/exampleLangCompile.mjs to test/exampleCompiled/ (git-ignored)
 ```
 
 ---
 
-## Distribuzione del pacchetto
+## Package distribution
 
 ```mermaid
 flowchart LR
-  subgraph src["sorgenti"]
+  subgraph src["Source files"]
     I1["lib/index.js"]
     I2["lib/react/index.js"]
   end
@@ -689,102 +664,98 @@ flowchart LR
     B1["vitetranslate.es.js + .cjs"]
     B2["react.es.js + .cjs"]
   end
-  subgraph exp["exports di package.json"]
+  subgraph exp["package.json exports"]
     E1["@sepoina/vitetranslate"]
     E2["@sepoina/vitetranslate/react"]
     E3["bin: vitetranslate-prepare-translation-table"]
   end
   I1 --> B1 --> E1
   I2 --> B2 --> E2
-  I1 -.->|"lib/dev/vite/cli.js<br/>NON bundlato"| E3
+  I1 -.->|"lib/dev/vite/cli.js<br/>NOT bundled"| E3
 ```
 
-Quattro output da [`rolldown.config.js`](../rolldown.config.js), due entry point più un binario. Le scelte che contano:
+Bundled into four distribution outputs via [`rolldown.config.js`](../rolldown.config.js) across two entry points and one executable binary:
 
-- **il CLI non è bundlato**: `bin` punta direttamente a [`lib/dev/vite/cli.js`](../lib/dev/vite/cli.js), che gira come sorgente ESM in Node;
-- **externals del plugin**: `path`, `fs`, `url`, `vm`, `@babel/core` — Babel resta una peer dependency **opzionale**, non entra mai nel bundle;
-- **externals del runtime**: `react`, i due jsx-runtime e `virtual:vitetranslate/languages`, che per definizione lo risolve il consumer attraverso il plugin;
-- **`.jsx` compilato da Babel** in un plugin locale del config, con `runtime: "automatic"`;
-- **il CJS definisce `import.meta.env` a `{}`**: non ha un bundler che lo fornisca, quindi si comporta sempre come produzione, ed è reso esplicito per non generare warning;
-- **`version` è inlinata** dal `package.json` a build time — niente `fs` a runtime nel browser, e chi consuma la libreria può mostrare la versione senza duplicarla a mano.
+- **CLI executable remains unbundled**: `bin` points directly to [`lib/dev/vite/cli.js`](../lib/dev/vite/cli.js), running as native ESM in Node;
+- **Plugin externals**: `path`, `fs`, `url`, `vm`, `@babel/core` — Babel is an **optional** peer dependency and is never bundled into client output;
+- **Runtime externals**: `react`, `react/jsx-runtime`, `react/jsx-dev-runtime`, and `virtual:vitetranslate/languages`;
+- **JSX compilation**: processed via Babel during build using `runtime: "automatic"`;
+- **CJS fallback environments**: sets `import.meta.env` to `{}` to ensure clean execution without bundler injection;
+- **Version string inlining**: package version is injected directly from `package.json` at build time, avoiding runtime file system access.
 
-Il campo `files: ["lib"]` fa sì che sul pacchetto npm finisca `lib/` per intero: sia `dist/` sia i sorgenti di `dev/`, che servono al CLI. `playground/`, `test/` e `doc/` restano fuori.
+The `files: ["lib"]` manifest rule includes `lib/` in published npm packages, containing both production assets and `dev/` source files required by the CLI. Directories like `playground/`, `test/`, and `doc/` are omitted from published npm tarballs.
 
-La pubblicazione avviene da GitHub Actions con npm trusted publishing (OIDC): ogni versione porta un'attestazione di provenienza che lega il tarball al commit esatto.
+Releases publish via GitHub Actions using npm OIDC trusted publishing, linking published package tarballs directly to source commit SHAs.
 
 ---
 
-## I test
+## Testing
 
-`npm test` esegue [`test/run.mjs`](../test/run.mjs), che lancia ogni `test/list/*.test.mjs` in un processo separato. Nessun framework: un test è un file che esce con `0`. La scoperta è automatica — "cosa gira" è il contenuto di una cartella, non una lista da tenere aggiornata.
+Running `npm test` executes [`test/run.mjs`](../test/run.mjs), invoking each test script in `test/list/*.test.mjs` in isolated processes without test framework dependencies: a test succeeds if its process exits with code `0`. Test discovery runs automatically against directory contents.
 
 ```bash
-npm test                    # tutta la suite
-npm test -- markup marker   # solo i test il cui nome contiene una di queste parole
-npm test -- -v              # mostra anche l'output dei test che passano
+npm test                    # run full suite
+npm test -- markup marker   # run tests whose names match search terms
+npm test -- -v              # verbose output including passing assertions
 ```
 
-La scelta metodologica interessante: dove un comportamento ha un **riferimento reale**, i test si confrontano con quello invece che con aspettative scritte a mano.
+Where behavior correlates with external standards, tests validate against reference implementations:
 
-| Test | Confrontato contro |
+| Test suite | Validated reference source |
 | --- | --- |
-| `decodeEntities` | il pacchetto [`entities`](https://github.com/fb55/entities), dev dependency mai spedita |
-| `markupParity` | una registrazione vera di Chrome, congelata in `list/markupExpected.mjs` |
-| `babelTranslate` | un'implementazione Babel lineare, `list/babelTranslateReference.mjs` |
+| `decodeEntities` | validated against [`entities`](https://github.com/fb55/entities) package output |
+| `markupParity` | verified against recorded Chrome DOM parser output in `list/markupExpected.mjs` |
+| `babelTranslate` | verified against standard AST implementation in `list/babelTranslateReference.mjs` |
 
-Quest'ultimo merita una nota: `extractMarkers` è veloce perché fa splice invece di rigenerare, e il modo "ovvio" di fare la stessa cosa è conservato come termine di paragone. Le **regole semantiche** stanno però in [`markerCore.js`](../lib/dev/babel/markerCore.js), condiviso dai due: se divergessero produrrebbero id diversi per lo stesso testo — cioè traduzioni che spariscono senza che nulla lo segnalasse. Tenendo lì tutto ciò che è semantico, al confronto resta da mettere alla prova la sola meccanica della riscrittura, che è il punto.
+`extractMarkers` uses string slicing for performance. A conventional AST visitor implementation is maintained in tests as a comparative baseline. Core translation rules reside in [`markerCore.js`](../lib/dev/babel/markerCore.js) shared by both approaches, ensuring fast slicing algorithms remain behaviorally identical to standard AST transformations.
 
-Un'aspettativa scritta a mano è giusta solo quanto il giorno in cui è stata scritta.
+### React runtime test coverage
 
-### Il runtime React
+Three focused test suites validate the runtime resolution layer:
 
-Tre test partono da punti diversi della stessa catena, ed è voluto: presi insieme coprono dalle prop del componente fino allo stato della lingua.
-
-| Test | Da dove parte |
+| Test file | Scope |
 | --- | --- |
-| `translateComponent` | le prop di `<Translate>` e le chiamate a `ts()`, e guarda l'HTML che ne esce |
-| `languageResource` | la giuntura fra il manifest generato dal plugin e il runtime che lo consuma |
-| `translateContainer` | il componente montato: sospensione, lingua iniziale, chunk che non arriva |
+| `translateComponent` | verifies `<Translate>` props, `ts()` execution, and HTML output rendering |
+| `languageResource` | verifies manifest integration and resource loading mechanics |
+| `translateContainer` | mounts full container trees verifying Suspense state, initial language selection, and network failure paths |
 
-`translateContainer` compila il `.jsx` con Babel come fa `rolldown.config.js`, e si scrive un manifest a mano perché serve un `load()` pilotabile — è l'unico modo per far fallire un chunk a comando. Ogni scenario carica **copie private** dei moduli: la cache delle lingue vive a livello di modulo, e due scenari che se la condividessero si racconterebbero l'un l'altro caricamenti già andati. Per la stessa ragione le copie si importano senza query di cache-busting: una query renderebbe l'istanza del test diversa da quella che il container importa per percorso relativo, cioè due cache invece di una.
-
-Un limite dichiarato: `react-dom/server` non ha stato fra un render e l'altro, quindi `proposeNewLanguage` non si può guidare fino allo schermo senza un DOM (jsdom non è una dipendenza, e non vale un test). Il meccanismo del ritentativo si verifica dove è stato messo apposta per essere verificabile — `hasFailedLanguage` e `nextLanguageState`, funzioni con un nome e una ragione, non artefatti di test. Resta scoperta la sola riga di cablaggio dentro il `useCallback`.
+`translateContainer` compiles `.jsx` test fixtures via Babel dynamically, injecting mock manifests with controllable `load()` promises to simulate chunk load failures on demand. Tests import isolated module instances to prevent state pollution across test runs.
 
 ---
 
-## Invarianti da non rompere
+## Invariants not to break
 
-Raccolta delle cose che, se cambiate senza accorgersene, rompono qualcosa in modo **silenzioso** — il tipo di rottura che si vede solo a schermo, tardi, in produzione.
+Architectural constraints that must be preserved to prevent subtle or silent failures:
 
-1. **`markerCore.js` è l'unica definizione di cosa sia un marcatore e di come si calcoli il suo id.** Il checksum copre testo **e percorso relativo**: plugin e CLI devono relativizzare dalla stessa radice (`baseDir`), altrimenti la stessa stringa produce chiavi diverse ai due lati. Cambiare l'hash cambia ogni chiave esistente — le traduzioni sopravvivono solo se `matchRenamedKeys` le riabbina per valore.
-2. **`htmlDialect.js` è l'unica lista dei tag ammessi.** I due parser devono leggerla, mai riscriverla. Vale identico per [`errorSolve.js`](../lib/errorSolve.js), che ha quattro lettori — chi scrive l'opzione, il plugin che la normalizza, il plugin che la risolve, il runtime che ne legge l'esito.
-3. **La prima lingua precaricata deve essere la stessa in dev e in build** (`preloadedLanguages[0] ?? sourceLanguage`), altrimenti l'app parte in una lingua diversa una volta pubblicata.
-4. **La sync scrive, il plugin no.** Se il plugin cominciasse a scrivere file di lingua durante il build, tornerebbe la dipendenza dall'ordine degli hook che ha portato a estrarre il CLI.
-5. **Il transform dei sorgenti non deve toccare `localeDir`**, nemmeno se una stringa tradotta contiene `_%_` per coincidenza: sono dati, non sorgente.
-6. **Un file di lingua si legge, non si esegue.** Nessun `import()`, nessun `vm`: la lettura passa da [`parseLanguageFile.js`](../lib/dev/vite/uty/parseLanguageFile.js) e basta. È il motivo della 4.0: finché il file era un modulo JS serviva la cache dei moduli ESM di Node, che non viene mai rilasciata e non ha API di sfratto (misurato: 24 kB trattenuti per ogni salvataggio del traduttore, 7 MB dopo 300). L'unica eccezione è `--migrate`, che è un comando a mano, si lancia una volta e serve proprio a togliere di mezzo i moduli JS.
-   Corollario che vale quanto la regola: **ciò che il parser accetta, un parser YAML vero lo deve leggere allo stesso modo.** Vale finché ogni valore lo scrive `JSON.stringify`; il test di parità in `languageFileIO.test.mjs` è lì per accorgersene se smette di valere.
-   E ancora: **file vuoto ≠ file svuotato.** Il primo è una lingua nuova da popolare, il secondo è un errore che deve far scattare il backup. Collassarli vuol dire ripopolare di `null` un file che conteneva traduzioni, senza rete.
-7. **`splitAndSortEntries` ordina con locale esplicito.** Senza, la stessa tabella si ordina diversamente fra macchina di sviluppo e CI, e i file risultano "cambiati" senza esserlo.
-8. **Ogni divergenza fra build e runtime va segnalata, non nascosta.** È la regola che ha prodotto gli avvisi su marcatori annidati, collisioni di id e tag incrociati.
-9. **La diagnostica non deve costare niente dove è spenta.** `errorSolve` è risolto a build time, quindi con i default una build di produzione non spedisce né i prefissi né i dati che li alimentano: `__untranslated__` non viene emesso nei chunk di lingua e `partiallyTranslated` resta vuoto. Chi aggiunge un prefisso nuovo aggiunge anche la condizione che ne evita l'emissione — altrimenti ogni visitatore paga byte per un'informazione che nessuno leggerà. Vale anche per i **messaggi**: un template literal si valuta prima della chiamata, quindi un messaggio che contiene `describeValue()` — cioè un `JSON.stringify` — va passato a `reportOnce` come lambda insieme a una chiave statica, altrimenti gira a ogni render pure con la console spenta, che in produzione è il default.
-10. **Un solo prefisso per stringa.** La precedenza è `‼️` → `🔸` → `🔹`, e il percorso di salvataggio usa `diag.malformedOnly` proprio per non sommarne un secondo. Due glifi davanti allo stesso testo non dicono più del primo, e rendono illeggibile ciò che si stava cercando di mostrare.
+1. **`markerCore.js` is the sole authority for what a marker is and how its ID is computed.** The checksum covers the text **and the relative path**: plugin and CLI must relativize from the same root (`baseDir`), otherwise the same string produces different keys on the two sides. Changing the hash invalidates every existing key — translations survive only if `matchRenamedKeys` re-matches them by value.
+2. **`htmlDialect.js` is the single source of truth for allowed HTML tags.** Both parsers must read it, never restate it. The same holds for [`errorSolve.js`](../lib/errorSolve.js), which has four readers — whoever writes the option, the plugin that normalizes it, the plugin that resolves it, and the runtime that reads the outcome.
+3. **The first eager language must resolve identically in development and production** (`preloadedLanguages[0] ?? sourceLanguage`), otherwise the app starts in a different language once published.
+4. **The sync command writes; the plugin does not.** If the plugin started writing language files during the build, the hook-order dependency that led to extracting the CLI would come right back.
+5. **Source code transformation must never touch `localeDir`**, not even if a translated string happens to contain `_%_`: those are data, not source.
+6. **A language file is read, not executed.** No `import()`, no `vm`: reading goes through [`parseLanguageFile.js`](../lib/dev/vite/uty/parseLanguageFile.js) and nothing else. This is the reason for 4.0: as long as the file was a JS module, Node's ESM module cache was involved — never released and with no eviction API (measured: 24 kB retained per translator file save, 7 MB after 300). The only exception is `--migrate`, a manual command you run once, whose whole purpose is getting the JS modules out of the way.
+   A corollary that carries as much weight as the rule: **whatever the parser accepts, a real YAML parser must read the same way.** That holds as long as every value is written by `JSON.stringify`; the parity test in `languageFileIO.test.mjs` exists to notice if it stops holding.
+   And further: **empty file ≠ emptied file.** The first is a new language to populate, the second is an error that must trigger the backup. Collapsing them means repopulating with `null` a file that held translations, with no safety net.
+7. **`splitAndSortEntries` must sort with an explicit locale (`"en"`).** Without it, the same table sorts differently between a development machine and CI, and files look "changed" without being so.
+8. **Every divergence between build and runtime must be reported, not hidden.** This is the rule that produced the warnings about nested markers, ID collisions, and crossed tags.
+9. **Diagnostics must cost nothing where they are off.** `errorSolve` is resolved at build time, so with the defaults a production build ships neither the prefixes nor the data feeding them: `__untranslated__` is not emitted in the language chunks and `partiallyTranslated` stays empty. Anyone adding a new prefix also adds the condition that avoids emitting it — otherwise every visitor pays bytes for information nobody will read. The same goes for **messages**: a template literal is evaluated before the call, so a message containing `describeValue()` — that is, a `JSON.stringify` — must be passed to `reportOnce` as a lambda together with a static key, otherwise it runs on every render even with the console off, which is the production default.
+10. **At most one prefix per string.** Priority is `‼️` → `🔸` → `🔹`, and the saving path uses `diag.malformedOnly` precisely to avoid stacking a second one. Two glyphs in front of the same text say nothing more than the first, and make unreadable the very thing they were trying to show.
 
 ---
 
-## Riferimenti rapidi
+## Quick reference
 
-| Vuoi capire… | Leggi |
+| Topic | Primary implementation file |
 | --- | --- |
-| come si riconosce un marcatore | [`markerCore.js`](../lib/dev/babel/markerCore.js) |
-| come viene riscritto il sorgente | [`extractMarkers.js`](../lib/dev/babel/extractMarkers.js) |
-| che forma ha una voce compilata | [`compileTable.js`](../lib/dev/compile/compileTable.js) |
-| il formato del file di lingua | [`parseLanguageFile.js`](../lib/dev/vite/uty/parseLanguageFile.js) · [`serializeLanguageFile.js`](../lib/dev/vite/uty/serializeLanguageFile.js) |
-| il dialetto HTML ammesso | [`htmlDialect.js`](../lib/htmlDialect.js) · [`parseMarkup.js`](../lib/dev/compile/parseMarkup.js) |
-| i due plugin e il modulo virtuale | [`vitetranslate.js`](../lib/dev/vite/vitetranslate.js) |
-| il comando di sync | [`cli.js`](../lib/dev/vite/cli.js) · [`updateLanguage.js`](../lib/dev/vite/updateLanguage.js) |
-| le reti di sicurezza sui dati | [`guardMassErase.js`](../lib/dev/vite/uty/guardMassErase.js) · [`backupLanguageFile.js`](../lib/dev/vite/uty/backupLanguageFile.js) |
-| Suspense e cambio lingua | [`languageResource.js`](../lib/react/languageResource.js) · [`TranslateContainer.jsx`](../lib/react/TranslateContainer.jsx) |
-| la catena di fallback | [`resolveEntry.js`](../lib/react/resolveEntry.js) |
-| i prefissi diagnostici e l'interruttore console | [`errorSolve.js`](../lib/errorSolve.js) · [`withPrefix.js`](../lib/react/withPrefix.js) |
-| i tag BCP 47 | [`bcp47.md`](bcp47.md) |
-| come contribuire, come girano i test | [`CONTRIBUTING.md`](../CONTRIBUTING.md) |
+| How a marker is recognized | [`markerCore.js`](../lib/dev/babel/markerCore.js) |
+| How source code is rewritten | [`extractMarkers.js`](../lib/dev/babel/extractMarkers.js) |
+| What shape a compiled entry has | [`compileTable.js`](../lib/dev/compile/compileTable.js) |
+| The language file format | [`parseLanguageFile.js`](../lib/dev/vite/uty/parseLanguageFile.js) · [`serializeLanguageFile.js`](../lib/dev/vite/uty/serializeLanguageFile.js) |
+| The allowed HTML dialect | [`htmlDialect.js`](../lib/htmlDialect.js) · [`parseMarkup.js`](../lib/dev/compile/parseMarkup.js) |
+| The two plugins and the virtual module | [`vitetranslate.js`](../lib/dev/vite/vitetranslate.js) |
+| The sync command | [`cli.js`](../lib/dev/vite/cli.js) · [`updateLanguage.js`](../lib/dev/vite/updateLanguage.js) |
+| The safety nets on data | [`guardMassErase.js`](../lib/dev/vite/uty/guardMassErase.js) · [`backupLanguageFile.js`](../lib/dev/vite/uty/backupLanguageFile.js) |
+| Suspense and language switching | [`languageResource.js`](../lib/react/languageResource.js) · [`TranslateContainer.jsx`](../lib/react/TranslateContainer.jsx) |
+| The fallback chain | [`resolveEntry.js`](../lib/react/resolveEntry.js) |
+| Diagnostic prefixes and the console switch | [`errorSolve.js`](../lib/errorSolve.js) · [`withPrefix.js`](../lib/react/withPrefix.js) |
+| BCP 47 tags | [`bcp47.md`](bcp47.md) |
+| How to contribute, how tests run | [`CONTRIBUTING.md`](../CONTRIBUTING.md) |

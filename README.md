@@ -16,7 +16,7 @@ No keys to invent. No separate extraction step. No runtime dependencies.
 [![Donate](https://img.shields.io/badge/support-PayPal-00457C?logo=paypal&logoColor=white)](https://www.paypal.com/paypalme/giancarloghigi)
 [![Buy Me a Coffee](https://img.shields.io/badge/buy%20me%20a-coffee-FFDD00?logo=buymeacoffee&logoColor=black)](https://www.buymeacoffee.com/giancarlogy)
 
-[**Live playground**](https://sepoina.github.io/viteTranslate/) · [**StackBlitz**](https://stackblitz.com/edit/vitejs-vite-aa9rcqtt?file=README.md) · [Quick start](#-quick-start) · [API](#-api) · [Architecture](doc/structure.md)
+[**Live playground**](https://sepoina.github.io/viteTranslate/) · [**StackBlitz**](https://stackblitz.com/edit/vitejs-vite-aa9rcqtt?file=md!README.md) · [Quick start](#-quick-start) · [API](#-api) · [Architecture](doc/structure.md)
 
 <br />
 <br />
