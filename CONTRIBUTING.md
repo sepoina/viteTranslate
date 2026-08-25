@@ -12,6 +12,7 @@ Found an actual bug? Open an [Issue](https://github.com/sepoina/viteTranslate/is
 npm install
 npm test             # the whole suite
 npm run playground   # runnable example in playground/, with a dev server
+npm run edge         # edge-case table in playEdge/, port 3001 (see playEdge/README.md)
 ```
 
 ## Tests

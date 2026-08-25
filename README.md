@@ -16,7 +16,7 @@ No keys to invent. No separate extraction step. No runtime dependencies.
 [![Donate](https://img.shields.io/badge/support-PayPal-00457C?logo=paypal&logoColor=white)](https://www.paypal.com/paypalme/giancarloghigi)
 [![Buy Me a Coffee](https://img.shields.io/badge/buy%20me%20a-coffee-FFDD00?logo=buymeacoffee&logoColor=black)](https://www.buymeacoffee.com/giancarlogy)
 
-[**Live playground**](https://sepoina.github.io/viteTranslate/) · [**StackBlitz**](https://stackblitz.com/edit/vitejs-vite-aa9rcqtt?file=md!README.md) · [Quick start](#-quick-start) · [API](#-api) · [Architecture](doc/structure.md)
+[**Live playground**](https://sepoina.github.io/viteTranslate/) · [Edge cases](https://sepoina.github.io/viteTranslate/edge/) · [**StackBlitz**](https://stackblitz.com/edit/vitejs-vite-aa9rcqtt?file=md!README.md) · [Quick start](#-quick-start) · [API](#-api) · [Architecture](doc/structure.md)
 
 <br />
 <br />
@@ -739,6 +739,19 @@ A runnable example lives in [`playground/`](playground) and is deployed at **[se
 ```bash
 npm run playground         # vite dev
 npm run playground:build   # vite build
+```
+
+Alongside it, **[/edge/](https://sepoina.github.io/viteTranslate/edge/)** (also reachable as
+`?edge=true` on the playground URL) is a table of edge cases — one row per case, showing what
+you write, what `<Translate>` renders, and what it should render: malformed markers, `%s`
+without an argument, mis-nested markup, values that are not text. It is a separate Vite app
+([`playEdge/`](playEdge)) because it needs its own plugin configuration — every diagnostic
+mark switched on, and kept on in production builds too.
+
+```bash
+npm run edge:install       # deps + the working-tree library in place of the npm one
+npm run edge               # vite dev, port 3001
+npm run edge:build         # vite build
 ```
 
 ---

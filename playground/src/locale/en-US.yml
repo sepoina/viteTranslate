@@ -2,7 +2,7 @@
 #      American English
 #       |    code: en-US
 #       |    missing key: 0
-#       |    processed: 2026-08-24 17:18
+#       |    processed: 2026-08-25 09:09
 #  -------------------------------------------------
 __builder__: {"v":260824,"languageName":"American English"}
 #  -------------------------------------------------
@@ -47,6 +47,7 @@ StrengthsSection_wlo9da: "<strong>Under 5 kB gzip in the final bundle.</strong> 
 StrengthsSection_wv4ype: "<strong>Automatic table sync.</strong> A single command updates all languages and flags what remains to be translated."
 TableOfContents_1bvsbql: "Section index"
 TableOfContents_1epa0dl: "Strengths"
+TableOfContents_1go0hgj: "Edge cases"
 TableOfContents_gcxopo: "Contents"
 TableOfContents_t5pn9: "Installation"
 TableOfContents_zmqhrh: "Playground"

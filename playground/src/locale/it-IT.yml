@@ -2,7 +2,7 @@
 #      italiano (Italia) (sourceLanguage)
 #       |    code: it-IT
 #       |    missing key: 0
-#       |    processed: 2026-08-24 17:18
+#       |    processed: 2026-08-25 09:09
 #  -------------------------------------------------
 __builder__: {"v":260824,"languageName":"italiano (Italia)"}
 #  -------------------------------------------------
@@ -47,6 +47,7 @@ StrengthsSection_wlo9da: "<strong>Meno di 5 kB gzip nel bundle finale.</strong> 
 StrengthsSection_wv4ype: "<strong>Sincronizzazione automatica delle tabelle.</strong> Un solo comando aggiorna tutte le lingue e segnala cosa resta da tradurre."
 TableOfContents_1bvsbql: "Indice delle sezioni"
 TableOfContents_1epa0dl: "Punti di forza"
+TableOfContents_1go0hgj: "Edge case"
 TableOfContents_gcxopo: "Indice"
 TableOfContents_t5pn9: "Installazione"
 TableOfContents_zmqhrh: "Playground"

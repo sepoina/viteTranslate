@@ -2,7 +2,7 @@
 #      中文（中国）
 #       |    code: zh-CN
 #       |    missing key: 0
-#       |    processed: 2026-08-24 17:18
+#       |    processed: 2026-08-25 09:09
 #  -------------------------------------------------
 __builder__: {"v":260824,"languageName":"中文（中国）"}
 #  -------------------------------------------------
@@ -47,6 +47,7 @@ StrengthsSection_wlo9da: "<strong>最终产物中不到 5 kB gzip。</strong>真
 StrengthsSection_wv4ype: "<strong>自动同步翻译表。</strong> 一条命令即可更新所有语言并标出仍需翻译的内容。"
 TableOfContents_1bvsbql: "章节索引"
 TableOfContents_1epa0dl: "优势"
+TableOfContents_1go0hgj: "边界情况"
 TableOfContents_gcxopo: "目录"
 TableOfContents_t5pn9: "安装"
 TableOfContents_zmqhrh: "演练场"
