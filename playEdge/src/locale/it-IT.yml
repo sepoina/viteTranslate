@@ -1,11 +1,13 @@
 #  -------------------------------------------------
 #      italiano (Italia) (sourceLanguage)
 #       |    code: it-IT
-#       |    missing key: 0
-#       |    processed: 2026-08-25 09:07
+#       |    missing key: 59
+#       |    processed: 2026-08-25 10:40
 #  -------------------------------------------------
-__builder__: {"v":260824,"languageName":"italiano (Italia)"}
+__builder__: {"v":260824,"languageName":"italiano (Italia)","incomplete":true}
 #  -------------------------------------------------
+
+#  ----to be translated------------------------------------------
 App_hk4mqd: " viteTranslate &nbsp;<b>%s</b>"
 testCases_10juq10: "t"
 testCases_1229fe3: "niente: %s"

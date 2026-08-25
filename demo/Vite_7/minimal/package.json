@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "prebuild": "vitetranslate-prepare-translation-table",
+    "prebuild": "vtranslate-cli",
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview"

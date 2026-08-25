@@ -30,7 +30,7 @@ export default (api, options = {}) => {
   const { types: t } = api;
   // In dev il fallback resta embeddato nel marcatore compilato (_<_id_/_fallback_>_):
   // serve a vedere subito il testo anche prima che una build abbia sincronizzato i file lingua.
-  // In produzione si può omettere (_<_id_>_): il comando di prepare-translation-table
+  // In produzione si può omettere (_<_id_>_): il comando `vtranslate-cli`
   // gira sempre prima della build, quindi la lingua base è già garantita completa.
   const includeFallback = options.includeFallback !== false;
   // Tabella id -> testo originale, popolata come side effect del transform.

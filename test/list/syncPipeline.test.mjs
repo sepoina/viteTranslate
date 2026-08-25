@@ -44,11 +44,17 @@ function progetto() {
       sourceTable: { __builder__: { v: 1, languageName: "italiano", incomplete: false }, ...tabella },
       notTranslated: {},
     }),
-    /** Una sincronizzazione completa, con l'output del comando catturato invece che stampato. */
+    /**
+     * Una sincronizzazione completa, con l'output del comando catturato invece che stampato.
+     * `esito` è quello che updateLanguage restituisce: da lì in poi il comando non racconta
+     * più i propri passi mentre li fa, li riferisce — e quello che va verificato è il
+     * riferito, non come chi chiama sceglie di stamparlo.
+     */
     sync: async (tabella) => {
       const servizio = api.servizio(tabella);
-      const detto = await zitto(() => updateLanguage(servizio));
-      return { detto, servizio };
+      let esito;
+      const detto = await zitto(async () => { esito = await updateLanguage(servizio); });
+      return { detto, esito, servizio };
     },
     testo: (tag) => readFileSync(percorso(tag), "utf8"),
     scrivi: (tag, testo) => writeFileSync(percorso(tag), testo, "utf8"),
@@ -110,10 +116,11 @@ console.log("\n== una lingua nuova (file creato vuoto a mano) ==");
   const p = progetto();
   await p.sync({ App_a: "Ciao", App_b: "Mondo" });
   p.scrivi("en-US", "");
-  const { detto } = await p.sync({ App_a: "Ciao", App_b: "Mondo" });
+  const { esito } = await p.sync({ App_a: "Ciao", App_b: "Mondo" });
 
   eq("nessun backup: un file vuoto non ha nulla da perdere", 0, backup(p, "corrupted").length);
-  eq("riconosciuto come lingua nuova", true, detto.includes("is empty"));
+  eq("riconosciuto come lingua nuova", "new language, was empty", esito.languages.find((l) => l.tag === "en-US")?.note);
+  eq("con le sue chiavi da tradurre", 2, esito.languages.find((l) => l.tag === "en-US")?.missing);
   const { tradotte, daTradurre } = sezioni(p.testo("en-US"));
   eq("solo il builder è 'tradotto'", "__builder__", tradotte.join(","));
   eq("tutto il resto è da tradurre", "App_a,App_b", daTradurre.join(","));
@@ -152,13 +159,14 @@ console.log("\n== una seconda sync a codice fermo non riscrive niente ==");
   p.scrivi("en-US", "");
   await p.sync({ App_a: "Ciao", App_b: "Mondo" });
   const prima = { it: p.mtime("it-IT"), en: p.mtime("en-US") };
-  const { detto } = await p.sync({ App_a: "Ciao", App_b: "Mondo" });
+  const { esito } = await p.sync({ App_a: "Ciao", App_b: "Mondo" });
 
   // Il confronto è sulla mtime e non sul contenuto: l'intestazione ha un timestamp al minuto,
   // quindi una riscrittura inutile produrrebbe comunque gli stessi byte e passerebbe liscia.
   eq("la lingua sorgente non viene toccata", prima.it, p.mtime("it-IT"));
   eq("la sub-lingua non viene toccata", prima.en, p.mtime("en-US"));
-  eq("e lo dice", true, detto.includes("No changes to write"));
+  eq("e lo dice", false, esito.written);
+  eq("senza chiavi cambiate", "no changes detected", esito.action);
 }
 
 // ------------------------------------------------------ chiavi che vanno e vengono
@@ -237,6 +245,66 @@ console.log("\n== lingua sorgente non leggibile ==");
   eq("backup salvato", 1, backup(p, "corrupted").length);
   eq("lo dice", true, detto.includes("corrupted"));
   eq("la sorgente viene rigenerata dalla scansione", "Ciao", (p.tabella("it-IT")).App_a);
+}
+
+// ------------------------------------------------- quello che non si apre non si riscrive
+console.log("\n== un file di cui non sappiamo niente resta dov'e' ==");
+{
+  // Una CARTELLA chiamata come un file di lingua: nasce da un mkdir sbagliato, da un archivio
+  // scompattato male, da un tool che ci mette dentro i suoi file. Passava ogni controllo —
+  // il nome finisce per ".yml" — e falliva molto piu' avanti, con un EISDIR in mezzo a un
+  // messaggio che parlava di sintassi, dopo aver lasciato lì un backup vuoto.
+  const p = progetto();
+  await p.sync({ App_a: "Ciao" });
+  p.scrivi("en-US", "");
+  await p.sync({ App_a: "Ciao" });
+  mkdirSync(p.percorso("de-DE"));
+  const { detto } = await p.sync({ App_a: "Ciao", App_b: "Nuova" });
+
+  eq("nessun backup inventato", 0, backup(p, "corrupted").length);
+  eq("la cartella e' ancora una cartella", true, statSync(p.percorso("de-DE")).isDirectory());
+  eq("e non compare fra le lingue", false, detto.includes("de-DE"));
+  eq("le altre lingue si sincronizzano lo stesso", true, "App_b" in p.tabella("en-US"));
+}
+{
+  // La lingua SORGENTE che non si apre. Prima veniva rigenerata dalla sola scansione del
+  // codice — cioe' sostituita da una tabella inventata — dopo un backup vuoto che diceva di
+  // essere una copia. Le sub-lingue si sincronizzano comunque: il loro riferimento e' la
+  // scansione, non questo file.
+  const p = progetto();
+  await p.sync({ App_a: "Ciao" });
+  p.scrivi("en-US", "");
+  await p.sync({ App_a: "Ciao" });
+  rmSync(p.percorso("it-IT"));
+  mkdirSync(p.percorso("it-IT"));
+  const { detto, esito } = await p.sync({ App_a: "Ciao", App_b: "Nuova" });
+
+  eq("lo dice", true, detto.includes("cannot be read"));
+  eq("e non finge di averla riscritta", false, esito.written);
+  eq("nessun backup vuoto lasciato in giro", 0, backup(p, "corrupted").length);
+  eq("la sub-lingua riceve comunque la chiave nuova", true, "App_b" in p.tabella("en-US"));
+}
+
+console.log("\n== il backup e' una copia, non una trascrizione ==");
+{
+  // Un file di lingua salvato in UTF-16 (il Blocco note di Windows alla voce "Unicode") e'
+  // uno dei modi in cui un file diventa "corrotto" per noi. Il backup lo scriveva ridecodificato
+  // come UTF-8: ogni byte che la decodifica non aveva saputo leggere diventava un carattere di
+  // sostituzione, e siccome subito dopo l'originale veniva riscritto, quella era la fine del
+  // contenuto. Adesso si copiano i byte.
+  const p = progetto();
+  await p.sync({ App_a: "Ciao" });
+  p.scrivi("en-US", "");
+  await p.sync({ App_a: "Ciao" });
+  const originale = Buffer.from('__builder__: {"v":1}\nApp_a: "citt\u00e0 perduta"\n', "utf16le");
+  writeFileSync(p.percorso("en-US"), originale);
+  await p.sync({ App_a: "Ciao" });
+
+  const nomi = backup(p, "corrupted");
+  eq("backup salvato", 1, nomi.length);
+  const copia = readFileSync(join(p.localeDir, nomi[0]));
+  eq("byte per byte come l'originale", true, originale.equals(copia));
+  eq("il file torna leggibile", true, p.tabella("en-US") !== undefined);
 }
 
 // -------------------------------------------------------------- guardia anti-azzeramento
@@ -327,7 +395,7 @@ console.log("\n== testi che il round-trip su file non deve alterare ==");
 }
 
 // ------------------------------------------------- il comando, dalla riga di comando
-console.log("\n== vitetranslate-prepare-translation-table: trovare la config ==");
+console.log("\n== vtranslate-cli: trovare la config ==");
 {
   const HERE = dirname(fileURLToPath(import.meta.url));
   const CLI = join(resolve(HERE, "../.."), "lib/dev/vite/cli.js");

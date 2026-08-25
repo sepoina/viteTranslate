@@ -1,6 +1,6 @@
 {
   "name": "@sepoina/vitetranslate",
-  "version": "4.0.1",
+  "version": "4.0.2",
   "versionDescription": "Language files are data (.yml), not JS modules.",
   "description": "Extract translatable strings straight from your JSX — a Vite plugin that auto-generates and syncs your translation tables, with zero runtime dependencies.",
   "author": {
@@ -41,6 +41,7 @@
   "module": "./lib/dist/vitetranslate.es.js",
   "types": "./lib/index.d.ts",
   "bin": {
+    "vtranslate-cli": "./lib/dev/vite/cli.js",
     "vitetranslate-prepare-translation-table": "./lib/dev/vite/cli.js"
   },
   "exports": {

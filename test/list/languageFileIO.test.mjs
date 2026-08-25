@@ -161,6 +161,58 @@ console.log("\n== parseLanguageFile: cosa si rifiuta, e a quale riga ==");
   eq("__proto__ rifiutato come chiave", true, errore(CON('__proto__: "x"')).includes("__proto__"));
 }
 
+// ------------------------------------------------------- malformazioni che non si vedono
+console.log("\n== le rotture che passavano il parser e cadevano altrove ==");
+{
+  // Ogni nome che un oggetto ha GIÀ. `__proto__` era già rifiutato perché assegnarlo non crea
+  // una proprietà; gli altri la creano, ma erano "presenti" ancora prima — e la sincronizzazione
+  // decide con `chiave in tabella`, che guarda anche il prototipo. Una chiave `toString` in una
+  // sub-lingua non risultava mai in eccesso, quindi non veniva mai tolta: restava nel file per
+  // sempre. Nessuna di queste può uscire da sanitizeName: qui si chiude la porta.
+  for (const chiave of ["__proto__", "constructor", "toString", "valueOf", "hasOwnProperty"]) {
+    eq(`"${chiave}" rifiutata come chiave`, true, errore(CON(`${chiave}: "x"`)).includes(chiave));
+  }
+  // Il nome ci somiglia ma è una chiave normale: non deve finire nella stessa rete.
+  eq("una chiave che somiglia e basta passa", "x", parseLanguageFile(CON('toStringify_a1: "x"'), "x.yml").toStringify_a1);
+}
+{
+  // `__builder__` è l'unica voce che il resto della libreria dereferenzia senza chiedere
+  // permesso (`sourceTable.__builder__.v` quando genera una lingua nuova). Cancellarne il
+  // valore a mano la lasciava passare come null: il file si leggeva benissimo, e la build
+  // cadeva molto più tardi su un TypeError senza numero di riga.
+  const casi = [
+    ["__builder__ svuotato", "__builder__:"],
+    ["__builder__ a null", "__builder__: null"],
+    ["__builder__ come testo", '__builder__: "v1"'],
+  ];
+  for (const [nome, riga] of casi) {
+    const testo = `${riga}\nApp_a: "x"`;
+    eq(nome + " -> riga 1", "line 1", rigaDi(testo));
+    eq(nome + " -> motivo", true, errore(testo).includes("must hold a JSON object"));
+  }
+  // E quello vero continua a passare.
+  eq("__builder__ oggetto: nessun errore", 1, parseLanguageFile('__builder__: {"v":1}\nApp_a: "x"', "x.yml").__builder__.v);
+}
+{
+  // Un file salvato in UTF-16 (il Blocco note di Windows alla voce "Unicode") letto come UTF-8
+  // è il testo giusto con un NUL fra un carattere e l'altro: senza un controllo apposta
+  // l'errore parlava di sintassi, e la causa — la codifica — non era indovinabile.
+  const utf16 = Buffer.from('__builder__: {"v":1}\nApp_a: "Ciao"\n', "utf16le").toString("utf8");
+  eq("UTF-16 riconosciuto per quello che è", true, errore(utf16).includes("not UTF-8 text"));
+  eq("...e dice cosa fare", true, errore(utf16).includes("save it again as UTF-8"));
+  eq("il numero di riga c'è comunque", "line 1", rigaDi(utf16));
+  // Il NUL lo si trova ovunque sia, e la riga indicata e' la sua: su un file UTF-16 e'
+  // sempre la prima, ma il conteggio non deve dipendere da quel caso.
+  eq("riga del NUL, ovunque si trovi", "line 3", rigaDi(CON('App_a: "x"', 'App_b: "y\u0000"')));
+}
+{
+  // Il messaggio d'errore esce a terminale e cita la riga che l'ha causato: una riga che
+  // contiene una sequenza ANSI non deve poter ricolorare il messaggio o cancellarlo.
+  const conAnsi = CON("\u001b[2K\u001b[31m non e' una voce");
+  eq("nessun carattere di controllo nel messaggio", false, /[\u0000-\u001f]/.test(errore(conAnsi)));
+  eq("ma la riga si riconosce lo stesso", true, errore(conAnsi).includes("non e' una voce"));
+}
+
 // ------------------------------------------------------------ vuoto contro svuotato
 console.log("\n== un file vuoto è una lingua nuova; uno svuotato no ==");
 {

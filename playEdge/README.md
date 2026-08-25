@@ -1,71 +1,66 @@
-# viteTranslate — edge case
+# viteTranslate — edge cases
 
-Una tabella sola, un caso per riga: cosa scrive chi programma, cosa rende `<Translate>`,
-cosa dovrebbe rendere. Serve a fissare per iscritto i comportamenti di confine — marcatori
-malformati, `%s` senza argomento, markup incrociato, valori che testo non sono — dove la
-documentazione a prosa diventa vaga e i test unitari non si guardano.
+One table, one case per row: what you write, what `<Translate>` renders, what it should render. It exists to pin down the edge behaviours in writing — malformed markers, `%s` without an argument, crossed markup, values that aren't text — right where prose docs go vague and unit tests don't show themselves.
 
 **Live:** [sepoina.github.io/viteTranslate/edge/](https://sepoina.github.io/viteTranslate/edge/)
-(dal playground: voce «Edge case» nell'indice, oppure `?edge=true` sull'indirizzo del playground)
+(from the playground: the "Edge case" entry in the index, or `?edge=true` on the playground URL)
 
-I casi stanno tutti in [`src/testCases.jsx`](src/testCases.jsx), come quaterne
-`[titolo, elemento, atteso, sorgente]`. Il quarto elemento — il sorgente mostrato passando
-sopra l'icona `</>` — è scritto a mano e non ricavato dall'elemento: quando l'elemento arriva
-alla tabella il transform ha già riscritto i marcatori, e ricostruirlo da lì vorrebbe dire
-raccontare il primo meccanismo fidandosi del secondo.
+Every case lives in [`src/testCases.jsx`](src/testCases.jsx), as a four-tuple
+`[title, element, expected, source]`. The fourth item — the source shown when hovering the
+`</>` icon — is written by hand rather than derived from the element: by the time the element
+reaches the table, the transform has already rewritten the markers, and reconstructing it from
+there would mean explaining the first mechanism by trusting the second.
 
-## Perché non è una pagina del playground
+## Why this isn't a playground page
 
-Il playground e questa pagina sono due app Vite distinte, e devono restarlo: il modulo
-virtuale delle lingue ha un id unico, quindi **due configurazioni di `vitetranslate()` nella
-stessa build non convivono**. Qui servono impostazioni che al playground non servono e
-viceversa:
+The playground and this page are two separate Vite apps, and need to stay that way: the
+virtual languages module has a single id, so **two `vitetranslate()` configs in the same build
+don't coexist**. This page needs settings the playground doesn't, and vice versa:
 
-| | playground | edge case |
+| | playground | edge cases |
 | --- | --- | --- |
-| `errorSolve.mark` | i default | tutti e cinque accesi |
-| `markOnlyDev` | il default (`true`) | `false`: i mark restano anche in build |
-| lingua iniziale | `en-US` | `it-IT`, la sorgente |
-| tabelle di lingua | i testi del playground | i casi limite, marcatori rotti compresi |
+| `errorSolve.mark` | defaults | all five switched on |
+| `markOnlyDev` | default (`true`) | `false`: marks stay on in build too |
+| initial language | `en-US` | `it-IT`, the source |
+| language tables | the playground's own text | the edge cases, broken markers included |
 
-Se i casi limite finissero nella `localeDir` del playground, le sue tabelle si porterebbero
-dietro marcatori deliberatamente malformati e un warning di sync a ogni build.
+If the edge cases ended up in the playground's `localeDir`, its tables would carry
+deliberately malformed markers along with them, plus a sync warning on every build.
 
-In pubblicazione le due build si ricongiungono: il `dist` di questa cartella viene copiato in
-`dist/edge/` del playground (vedi
+At publish time the two builds merge back together: this folder's `dist` gets copied into the
+playground's `dist/edge/` (see
 [`.github/workflows/deploy-playground.yml`](../.github/workflows/deploy-playground.yml)).
 
-## Uso
+## Usage
 
-Dalla radice del repo:
+From the repo root:
 
 ```bash
-npm run build          # la libreria
-npm run edge:install   # dipendenze + working tree della libreria al posto di quella npm
-npm run edge           # dev server sulla 3001
-npm run edge:build     # build di produzione
+npm run build          # the library
+npm run edge:install   # deps + the library's working tree in place of the npm one
+npm run edge           # dev server on port 3001
+npm run edge:build     # production build
 ```
 
-`npm run edge:install` fa due cose: `npm install` normale, poi
-`npm install .. --install-links --no-save`, che mette il working tree della libreria in
-`node_modules` **senza toccare `package.json`**. Il file continua a dichiarare la versione
-npm, così la cartella resta importabile su StackBlitz così com'è, ed è la stessa coppia di
-comandi che gira in CI.
+`npm run edge:install` does two things: a normal `npm install`, then
+`npm install .. --install-links --no-save`, which puts the library's working tree in
+`node_modules` **without touching `package.json`**. The file keeps declaring the npm version,
+so the folder stays importable on StackBlitz as-is — the same pair of commands CI runs.
 
-Con entrambi i dev server accesi (`npm run playground` sulla 3000, `npm run edge` sulla 3001)
-i link fra le due pagine funzionano.
+With both dev servers up (`npm run playground` on 3000, `npm run edge` on 3001), the links
+between the two pages work.
 
-## Warning attesi
+## Expected warnings
 
-Due, e non vanno «sistemati»: sono i casi che la tabella descrive.
+Two of them, and they're not bugs to "fix" — they're exactly the cases the table describes.
 
 ```text
 [vitetranslate] nested markers in "src/testCases.jsx": "uno_%_ e _%_due" was read as a single text.
 [vitetranslate] mis-nested markup: </b> closes across <i> in "<b>x <i>y</b> z</i>".
 ```
 
-## Il resto
+## The rest
 
-- **Libreria** — [github.com/sepoina/viteTranslate](https://github.com/sepoina/viteTranslate), con l'[architettura](../doc/structure.md)
+- **Library** — [github.com/sepoina/viteTranslate](https://github.com/sepoina/viteTranslate), with the [architecture doc](../doc/structure.md)
 - **Playground** — [sepoina.github.io/viteTranslate](https://sepoina.github.io/viteTranslate/)
 - **npm** — [@sepoina/vitetranslate](https://www.npmjs.com/package/@sepoina/vitetranslate)

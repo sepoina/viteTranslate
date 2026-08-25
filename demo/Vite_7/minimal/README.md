@@ -1,44 +1,44 @@
-# Vite 7 + React 18 (solo JS/JSX)
+# Vite 7 + React 18 (JS/JSX only)
 
-Setup minimale, senza TypeScript, con ESLint 10 in flat config. È la stessa app della cartella
-`Vite_8`, portata sulla riga 7 di Vite e su React 18 — la combinazione più probabile in un
-progetto esistente, ed è anche il minimo che la libreria dichiara di supportare
-(`react: ^18.0.0 || ^19.0.0`). Il sorgente dell'app è identico a quello della copia React 19:
-niente nel runtime della libreria richiede il 19.
+Minimal setup, no TypeScript, ESLint 10 in flat config. It's the same app as the `Vite_8`
+folder, ported to Vite's row 7 and to React 18 — the most likely combination in an existing
+project, and also the minimum the library declares support for (`react: ^18.0.0 || ^19.0.0`).
+The app's source is identical to the React 19 copy: nothing in the library's runtime requires
+19.
 
-## Uso
+## Usage
 
 ```bash
 npm install
 npm run dev      # dev server
-npm run build    # build di produzione (Rollup)
-npm run preview  # anteprima della build
+npm run build    # production build (Rollup)
+npm run preview  # preview the build
 npm run lint     # ESLint
 ```
 
-## Cosa cambia rispetto alla versione Vite 8
+## What differs from the Vite 8 version
 
 | | Vite 8 | Vite 7 |
 | --- | --- | --- |
-| bundler di build | Rolldown | Rollup |
-| pre-bundling in dev | passa dai plugin del progetto | processo esbuild separato |
+| build bundler | Rolldown | Rollup |
+| dev pre-bundling | goes through the project's plugins | separate esbuild process |
 | `react` / `react-dom` | `^19` | `^18` |
-| `@vitejs/plugin-react` | `^6` | `^5` — il 6 richiede `vite ^8.0.0` |
-| pacchetti Rolldown | `rolldown`, `@rolldown/binding-wasm32-wasi` | non servono |
+| `@vitejs/plugin-react` | `^6` | `^5` — 6 requires `vite ^8.0.0` |
+| Rolldown packages | `rolldown`, `@rolldown/binding-wasm32-wasi` | not needed |
 
-Nel codice dell'app e nel `vite.config.js` **non cambia nulla**: le differenze stanno tutte nel
+Nothing changes in the app code or in `vite.config.js` — the differences are all in
 `package.json`.
 
-Vale la pena sapere perché, però. Su Vite 7 il pre-bundling delle dipendenze gira in un processo
-esbuild separato, che non vede i plugin del progetto e quindi non sa risolvere
-`virtual:vitetranslate/languages` — l'id che il plugin genera. Fino alla **2.2.1** il dev server
-moriva in partenza e serviva un `optimizeDeps: { exclude: ['@sepoina/vitetranslate'] }` scritto a
-mano qui; dalla **2.2.2** l'esclusione la dichiara il plugin stesso, quindi la configurazione
-resta identica a quella della copia Vite 8. Su Vite 8 il problema non si presenta: lì l'optimizer
-passa dal plugin container.
+Worth knowing why, though. On Vite 7, dependency pre-bundling runs in a separate esbuild
+process that doesn't see the project's plugins, so it can't resolve
+`virtual:vitetranslate/languages` — the id the plugin generates. Up to **2.2.1** the dev
+server died on startup and needed a hand-written
+`optimizeDeps: { exclude: ['@sepoina/vitetranslate'] }` here; from **2.2.2** the plugin
+declares the exclusion itself, so the config is identical to the Vite 8 copy. On Vite 8 the
+issue doesn't come up: there, the optimizer goes through the plugin container.
 
 ## StackBlitz
 
-Importa lo zip da https://stackblitz.com (New project > Import).
-Vite 7 usa Rollup e esbuild, entrambi già disponibili in WebContainer: nessun binding WASM da
-installare.
+Import the zip from https://stackblitz.com (New project > Import).
+Vite 7 uses Rollup and esbuild, both already available in WebContainer: no WASM binding to
+install.
