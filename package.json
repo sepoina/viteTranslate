@@ -68,7 +68,7 @@
     "playground:previewpages": "npm run build && npm --prefix playground run preview -- --base=/viteTranslate/",
     "edge": "npm --prefix playEdge run dev",
     "edge:build": "npm --prefix playEdge run build",
-    "edge:install": "npm --prefix playEdge install && npm --prefix playEdge run link:lib"
+    "edge:install": "npm --prefix playEdge install --no-workspaces && npm --prefix playEdge run link:lib"
   },
   "files": [
     "lib"

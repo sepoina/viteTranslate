@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "link:lib": "npm install .. --install-links --no-save",
+    "link:lib": "npm install .. --install-links --no-save --no-workspaces",
     "prebuild": "vtranslate-cli",
     "build": "vite build",
     "lint": "eslint .",
