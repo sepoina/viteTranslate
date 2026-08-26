@@ -1,13 +1,11 @@
 #  -------------------------------------------------
 #      italiano (Italia) (sourceLanguage)
 #       |    code: it-IT
-#       |    missing key: 158
-#       |    processed: 2026-08-26 22:42
+#       |    missing key: 0
+#       |    processed: 2026-08-27 00:33
 #  -------------------------------------------------
-__builder__: {"v":260824,"languageName":"italiano (Italia)","incomplete":true}
+__builder__: {"v":260824,"languageName":"italiano (Italia)"}
 #  -------------------------------------------------
-
-#  ----to be translated------------------------------------------
 App_1dtvcsy: "\n          <small>\n              La colonna <b>Atteso</b> vale in <b>sviluppo</b>, con la lingua sorgente attiva e i file di lingua già sincronizzati. I mark <code>🔸</code> (non tradotto qui) e <code>🔹</code> (non tradotto altrove) non sono riportati: dipendono dallo stato dei file di              lingua, non dalla riga. <code>‼️</code>, <code>🚫</code> <code>⁇</code> invece fanno parte del risultato atteso. In build i mark diagnostici spariscono — dove qui si legge <code>🚫[tipo]</code> non si rende più niente — mentre <code>⁇</code> resta: quello non è una diagnostica ma una resa normale.<br /> Passando sopra <code>&lt;/&gt;</code> accanto al nome della riga si vede il codice che l'ha prodotta.            \n          </small>            \n          "
 App_hk4mqd: " viteTranslate &nbsp;<b>%s</b>"
 ShowAllRowTests_1gizqwy: "atteso in origine (IT)"

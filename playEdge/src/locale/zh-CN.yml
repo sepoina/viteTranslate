@@ -1,168 +1,166 @@
 #  -------------------------------------------------
 #      中文（中国）
 #       |    code: zh-CN
-#       |    missing key: 158
-#       |    processed: 2026-08-26 22:42
+#       |    missing key: 0
+#       |    processed: 2026-08-27 00:33
 #  -------------------------------------------------
-__builder__: {"v":260824,"languageName":"中文（中国）","incomplete":true}
+__builder__: {"v":260824,"languageName":"中文（中国）"}
 #  -------------------------------------------------
-
-#  ----to be translated------------------------------------------
-App_1dtvcsy: null
-App_hk4mqd: null
-ShowAllRowTests_1gizqwy: null
-ShowAllRowTests_1lotodh: null
-ShowAllRowTests_1oi7rcq: null
-ShowAllRowTests_1x6xmd2: null
-testCases_1015p5c: null
-testCases_10avr89: null
-testCases_10juq10: null
-testCases_10zo5kj: null
-testCases_1229fe3: null
-testCases_12b9qh5: null
-testCases_12c3wfh: null
-testCases_12rzvj8: null
-testCases_12x5tm3: null
-testCases_136tvg5: null
-testCases_13i4n0q: null
-testCases_13k0zlx: null
-testCases_148mqvr: null
-testCases_14lo3kf: null
-testCases_14ymzl: null
-testCases_15az47p: null
-testCases_15lq2h4: null
-testCases_160tlru: null
-testCases_163xm7n: null
-testCases_16ajmyh: null
-testCases_16bth0c: null
-testCases_16gb0b4: null
-testCases_16sn23u: null
-testCases_17mblfp: null
-testCases_17upwns: null
-testCases_17vcyfj: null
-testCases_1847zac: null
-testCases_18h5vfc: null
-testCases_18zbtzb: null
-testCases_18zqfgk: null
-testCases_197f8dh: null
-testCases_19ob9hi: null
-testCases_19uvgmu: null
-testCases_1ab65x0: null
-testCases_1aho165: null
-testCases_1bfbpa2: null
-testCases_1bllfjz: null
-testCases_1dm5tlt: null
-testCases_1e7o4ea: null
-testCases_1ey32a0: null
-testCases_1f4xoc1: null
-testCases_1g4wa1r: null
-testCases_1gbn4wh: null
-testCases_1gfjn1e: null
-testCases_1haerus: null
-testCases_1ig51d9: null
-testCases_1jf8cs8: null
-testCases_1jguvma: null
-testCases_1jhnaa7: null
-testCases_1jwkm5m: null
-testCases_1knwcuc: null
-testCases_1kpydr8: null
-testCases_1ksaziu: null
-testCases_1l8e2fd: null
-testCases_1ln0iqw: null
-testCases_1lubv64: null
-testCases_1n0cng3: null
-testCases_1nfof1h: null
-testCases_1nxgay6: null
-testCases_1o3vuek: null
-testCases_1oj1z0q: null
-testCases_1ol54lh: null
-testCases_1oytq90: null
-testCases_1qafmi6: null
-testCases_1qq2ozd: null
-testCases_1qry1o0: null
-testCases_1rukk5o: null
-testCases_1sma0gc: null
-testCases_1suzgx: null
-testCases_1sy5io3: null
-testCases_1symss6: null
-testCases_1umlgzy: null
-testCases_1v2i3su: null
-testCases_1vadnil: null
-testCases_1vdrpvy: null
-testCases_1vkigaw: null
-testCases_1xyuey7: null
-testCases_1y3smxy: null
-testCases_1yeneho: null
-testCases_1yx8jru: null
-testCases_246nv6: null
-testCases_2yxw4l: null
-testCases_3ehfvq: null
-testCases_3qd2u: null
-testCases_3rvzfl: null
-testCases_3t0ugc: null
-testCases_454e6s: null
-testCases_4m5ywr: null
-testCases_56e3f2: null
-testCases_5frbug: null
-testCases_5j1r63: null
-testCases_5jmg0p: null
-testCases_6j7o60: null
-testCases_6rykk2: null
-testCases_73j7az: null
-testCases_78zvok: null
-testCases_7jj1m7: null
-testCases_8es2ru: null
-testCases_8tq3mg: null
-testCases_9517u3: null
-testCases_amvuoc: null
-testCases_b2s675: null
-testCases_bk556q: null
-testCases_clemkf: null
-testCases_cn15gz: null
-testCases_crq59k: null
-testCases_d33iw2: null
-testCases_dbac5o: null
-testCases_epstm0: null
-testCases_f2gbnd: null
-testCases_f2wykg: null
-testCases_f8r6hu: null
-testCases_f9w1dd: null
-testCases_fmudwv: null
-testCases_g0svii: null
-testCases_gj346u: null
-testCases_gxwnjf: null
-testCases_i210zq: null
-testCases_i87bkx: null
-testCases_ig57ws: null
-testCases_jkofyp: null
-testCases_jzp848: null
-testCases_k077xr: null
-testCases_k6grhs: null
-testCases_kaqnx6: null
-testCases_kip62: null
-testCases_kkelu8: null
-testCases_lanzby: null
-testCases_lxx74c: null
-testCases_m9brgn: null
-testCases_mkxjh0: null
-testCases_nbmuoc: null
-testCases_ncbzo3: null
-testCases_pesk6e: null
-testCases_phbl2h: null
-testCases_pt7hwu: null
-testCases_r64ayo: null
-testCases_rx8mbg: null
-testCases_t35d5l: null
-testCases_tz3f07: null
-testCases_u3tcxv: null
-testCases_u5j6d3: null
-testCases_uckzsq: null
-testCases_uizbul: null
-testCases_uqpo4p: null
-testCases_v67l0m: null
-testCases_xqgcmo: null
-testCases_yj32e9: null
-testCases_yp610a: null
-testCases_yv0w7z: null
-testCases_zmrpz5: null
-testCases_zzrrzd: null
+App_1dtvcsy: "\n          <small>\n              <b>预期值</b>列在<b>开发</b>环境中有效，此时源语言处于激活状态且语言文件已同步。标记 <code>🔸</code>（此处未翻译）和 <code>🔹</code>（其他位置未翻译）不会显示：它们取决于语言文件的状态，而非当前行。而 <code>‼️</code>、<code>🚫</code>、<code>⁇</code> 则属于预期结果的一部分。在构建版本中，诊断标记会消失 — 即此处显示 <code>🚫[tipo]</code> 的位置将不再渲染任何内容 — 但 <code>⁇</code> 会保留：它不是诊断标记，而是正常渲染内容。<br /> 将鼠标悬停在行名旁边的 <code>&lt;/&gt;</code> 上，可以查看生成该行的代码。\n          </small>\n          "
+App_hk4mqd: " viteTranslate &nbsp;<b>%s</b>"
+ShowAllRowTests_1gizqwy: "原始预期值（IT）"
+ShowAllRowTests_1lotodh: "结果"
+ShowAllRowTests_1oi7rcq: "来源：%s"
+ShowAllRowTests_1x6xmd2: "类型"
+testCases_1015p5c: "true"
+testCases_10avr89: "仅 %s"
+testCases_10juq10: "t"
+testCases_10zo5kj: "未配对的闭合标签"
+testCases_1229fe3: "空：%s"
+testCases_12b9qh5: "<b> 内的元素"
+testCases_12c3wfh: "<b>%s</b>"
+testCases_12rzvj8: "t 内部周围有空格"
+testCases_12x5tm3: "o 中的对象，%s"
+testCases_136tvg5: "null"
+testCases_13i4n0q: "你有 %s 条消息"
+testCases_13k0zlx: "不带 a 的 o"
+testCases_148mqvr: "t 元组 [text, arg]"
+testCases_14lo3kf: "中间有 %s null"
+testCases_14ymzl: "%s null"
+testCases_15az47p: "空：%s"
+testCases_15lq2h4: "重音符号 + %s"
+testCases_160tlru: "多个 %s（嵌套数组）"
+testCases_163xm7n: "单词内的 %s"
+testCases_16ajmyh: "真实文本"
+testCases_16bth0c: "%s"
+testCases_16gb0b4: "你好 %s"
+testCases_16sn23u: "对象 { t: null }"
+testCases_17mblfp: "元素作为参数"
+testCases_17upwns: "t + children"
+testCases_17vcyfj: "第1行\n第2行"
+testCases_1847zac: "零：%s"
+testCases_18h5vfc: ""
+testCases_18zbtzb: "空标记"
+testCases_18zqfgk: "元组 + a"
+testCases_197f8dh: "t=\"\" + children"
+testCases_19ob9hi: "表情符号"
+testCases_19uvgmu: "%s 零"
+testCases_1ab65x0: "br"
+testCases_1aho165: "<b class=\"x\" title=\"y\" onclick=\"boom()\">仅粗体</b>"
+testCases_1bfbpa2: "skipMark"
+testCases_1bllfjz: "<b>x <i>y</b> z</i>"
+testCases_1dm5tlt: "带 a 的 o 可扩展"
+testCases_1e7o4ea: "只产生 null 的元组"
+testCases_1ey32a0: "不兼容的属性：文本不再丢失"
+testCases_1f4xoc1: "skipMark + %s"
+testCases_1g4wa1r: "跨多行的长文本"
+testCases_1gbn4wh: "a 数字"
+testCases_1gfjn1e: "带标记的重音符号"
+testCases_1haerus: "函数"
+testCases_1ig51d9: "未闭合的标签"
+testCases_1jf8cs8: "实体"
+testCases_1jguvma: "未标记"
+testCases_1jhnaa7: "o 覆盖 children"
+testCases_1jwkm5m: "children 不会消失"
+testCases_1knwcuc: "<b>保持打开"
+testCases_1kpydr8: "a false"
+testCases_1ksaziu: "字面量 %s 作为数据"
+testCases_1l8e2fd: "大括号中的 children"
+testCases_1ln0iqw: " "
+testCases_1lubv64: "运行时打开的标记"
+testCases_1n0cng3: "签名为 <b>%s</b>"
+testCases_1nfof1h: "Привет · Γειά σου · 你好 · こんにちは"
+testCases_1nxgay6: "西里尔文 / 希腊文 / 中日韩文字"
+testCases_1o3vuek: "\"双引号\"、'单引号' 和 \\ 反斜杠"
+testCases_1oj1z0q: "非文本的值"
+testCases_1ol54lh: "%s 和 %s"
+testCases_1oytq90: "这是一段非常长的重复文本：重复 重复 重复\n      重复 重复 重复 重复 重复 重复 重复 重复 重复 重复\n      重复 重复 重复。"
+testCases_1qafmi6: "作为 React 节点的参数"
+testCases_1qq2ozd: "带元组的 o"
+testCases_1qry1o0: "无 props"
+testCases_1rukk5o: "带标记的 children"
+testCases_1sma0gc: "Symbol"
+testCases_1suzgx: "o 对象 { t, a }"
+testCases_1sy5io3: "o + children"
+testCases_1symss6: "t 对象 { t, a }"
+testCases_1umlgzy: "带 %s 的元组"
+testCases_1v2i3su: "此处 skipMark 无效"
+testCases_1vadnil: "插值 %s"
+testCases_1vdrpvy: "多个 %s（展开）"
+testCases_1vkigaw: "% 后不跟 s"
+testCases_1xyuey7: "HTML 注释"
+testCases_1y3smxy: "你好 %s，最近怎么样？"
+testCases_1yeneho: "%s%s%s"
+testCases_1yx8jru: "空数组"
+testCases_246nv6: "未标记文本和 skipMark"
+testCases_2yxw4l: "<script>alert(1)</script>"
+testCases_3ehfvq: "对标记文本使用 skipMark"
+testCases_3qd2u: "什么会成为标记，什么不会"
+testCases_3rvzfl: "t 模板字面量"
+testCases_3t0ugc: "a 可扩展"
+testCases_454e6s: "为什么这已经是个机会？À È Ì Ò Ù à è ì ò ù"
+testCases_4m5ywr: "忽略多余的 %s"
+testCases_56e3f2: "之前<!-- 隐藏 -->之后"
+testCases_5frbug: "引号和反斜杠"
+testCases_5j1r63: "假：%s"
+testCases_5jmg0p: "元组第一个槽位中的元素"
+testCases_6j7o60: "调用形式"
+testCases_6rykk2: "对象优先"
+testCases_73j7az: "无参数的 %s"
+testCases_78zvok: "t 字符串"
+testCases_7jj1m7: "混合 children"
+testCases_8es2ru: "a 数组"
+testCases_8tq3mg: "5 &lt; 10 &amp; 10 &gt; 5"
+testCases_9517u3: "括号内：（%s）"
+testCases_amvuoc: "第一行<br>第二行"
+testCases_b2s675: "仅一个空格"
+testCases_bk556q: "o null"
+testCases_clemkf: "<div>独立</div> 和 <span>还有</span>"
+testCases_cn15gz: "文本 </b> 未配对"
+testCases_crq59k: "少了 %s"
+testCases_d33iw2: "文本 <b>粗体</b> 和 <i>斜体</i>"
+testCases_dbac5o: "undefined"
+testCases_epstm0: "标记内的 HTML 方言"
+testCases_f2gbnd: "仅 %s"
+testCases_f2wykg: "独立的 script"
+testCases_f8r6hu: "&lt;b&gt;非粗体&lt;/b&gt;"
+testCases_f9w1dd: "%s 加 %s 等于 %s"
+testCases_fmudwv: "null：%s"
+testCases_g0svii: "作为 JSX 的标记（破损）"
+testCases_gj346u: "嵌套标记"
+testCases_gxwnjf: "uno_%_ 和 _%_due"
+testCases_i210zq: "带 ${} 的模板"
+testCases_i87bkx: "欢迎 👋 🚀"
+testCases_ig57ws: "b / i"
+testCases_jkofyp: "t 优先"
+testCases_jzp848: "文本 %s 是字面量"
+testCases_k077xr: "看起来像标签的实体"
+testCases_k6grhs: "运行时关闭的标记"
+testCases_kaqnx6: "零"
+testCases_kip62: "多个 %s（通过 a）"
+testCases_kkelu8: "o + t"
+testCases_lanzby: "传入 o 的数组"
+testCases_lxx74c: "不带 t 的对象"
+testCases_m9brgn: "BigInt"
+testCases_mkxjh0: "中间的标记"
+testCases_nbmuoc: "t + children，两者都不是文本"
+testCases_ncbzo3: "带重音符号的未标记文本"
+testCases_pesk6e: "独立的未知标签"
+testCases_phbl2h: "代替文本的元素"
+testCases_pt7hwu: "t 中的对象，%s"
+testCases_r64ayo: "今日 50% 折扣，100% 保证"
+testCases_rx8mbg: "换行"
+testCases_t35d5l: "被丢弃的属性"
+testCases_tz3f07: "children"
+testCases_u3tcxv: "带可扩展 a 的 o：%s"
+testCases_u5j6d3: "折扣 100%安全"
+testCases_uckzsq: "%s-%s-%s"
+testCases_uizbul: "空字符串"
+testCases_uqpo4p: "未标记 + %s"
+testCases_v67l0m: "连续的 %s"
+testCases_xqgcmo: "数字"
+testCases_yj32e9: "交叉标签"
+testCases_yp610a: "<b> 内的 %s"
+testCases_yv0w7z: "%s + %s"
+testCases_zmrpz5: "a 空数组"
+testCases_zzrrzd: "%s 空字符串"
