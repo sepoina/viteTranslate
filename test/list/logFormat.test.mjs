@@ -136,7 +136,10 @@ console.log("\n== la traversa non spezza il montante ==");
   const traversa = senzaColori(grezzo(() => logRule()))[0];
 
   eq("il ╟ è nella colonna del ║", normale.indexOf("║"), traversa.indexOf("╟"));
-  eq("e non sfonda i 120", true, displayWidth(traversa) <= LOG_WIDTH);
+  // La larghezza esatta, non solo il limite: la traversa è l'unica riga che arriva fino in
+  // fondo, quindi è quella che denuncia subito se il filetto e LOG_WIDTH divergono. Scritti
+  // come due numeri indipendenti lo erano già: 76 su una riga da 100 sfondava di due colonne.
+  eq("arriva esattamente a LOG_WIDTH", LOG_WIDTH, displayWidth(traversa));
   eq("la traversa può nominare il blocco", true, senzaColori(grezzo(() => logRule("viteTranslate")))[0].includes("viteTranslate"));
 
   const testa = senzaColori(grezzo(() => logHeader("viteTranslate", "v4.0.2", "source: \"src\"")));
@@ -146,8 +149,12 @@ console.log("\n== la traversa non spezza il montante ==");
   eq("e il testo dopo il montante", true, testa[1].split("║")[1].includes('source: "src"'));
   eq("chiude con una traversa", true, testa[2].includes("╟"));
   eq("le tre righe restano incolonnate", 1, new Set(testa.map((r) => Math.max(r.indexOf("║"), r.indexOf("╟")))).size);
-  // Senza versione l'intestazione non lascia un buco che sembra un dato mancante.
-  eq("versione assente: etichetta vuota", "", senzaColori(grezzo(() => logHeader("x", "", "y")))[1].split("║")[0].replace(/[:\s]/g, ""));
+  // Senza versione l'intestazione non lascia un glifo appeso, che si leggerebbe come un dato
+  // mancante. Il confronto è con la colonna di una riga a etichetta vuota invece che con una
+  // stringa scritta qui: così non dà per scontato di cosa sia fatto il prefisso a sinistra.
+  const etichettaDi = (r) => r.split("║")[0];
+  const vuota = etichettaDi(senzaColori(grezzo(() => logEchoColored("", "y")))[0]);
+  eq("versione assente: etichetta vuota", vuota, etichettaDi(senzaColori(grezzo(() => logHeader("x", "", "y")))[1]));
 }
 
 console.log("\n== dove separa già una traversa, l'avviso non stacca ==");
