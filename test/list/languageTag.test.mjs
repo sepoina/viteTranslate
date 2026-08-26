@@ -11,6 +11,7 @@
 //
 //   node test/list/languageTag.test.mjs
 import validateLanguageTag, { LANGUAGE_TAG_RE } from "../../lib/dev/vite/uty/validateLanguageTag.js";
+import { shortAutonym } from "../../lib/dev/vite/uty/languageAutonym.js";
 import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -88,6 +89,28 @@ console.log("\n== la regex è una sola, esportata ==");
   eq("fil-PH passa la regex", true, LANGUAGE_TAG_RE.test("fil-PH"));
   eq("it-IT passa la regex", true, LANGUAGE_TAG_RE.test("it-IT"));
   eq("it-it non passa la regex", false, LANGUAGE_TAG_RE.test("it-it"));
+}
+
+// ------------------------------------------------------- autonimo corto
+console.log("\n== il nome della lingua senza la regione ==");
+{
+  // Serve al riepilogo del sync, che elenca le lingue in fila su una riga sola: lì la regione
+  // è quasi sempre rumore, e ripeterla per ognuna manda la riga a capo.
+  eq("parentesi tonde via", "italiano", shortAutonym("it-IT"));
+  // Le parentesi a tutta larghezza sono un carattere diverso: cercare solo "(" le lasciava lì,
+  // e proprio sulle lingue per cui questa libreria esiste.
+  eq("parentesi a tutta larghezza via", "中文", shortAutonym("zh-CN"));
+  // Niente parentesi, niente da togliere: il nome è già corto.
+  eq("un nome senza regione resta intero", "American English", shortAutonym("en-US"));
+  // Il limite dichiarato: dove la regione non è fra parentesi ma dentro la frase, resta. Non è
+  // un difetto da correggere a mano — una lista di eccezioni per lingua divergerebbe dall'ICU
+  // al primo aggiornamento di Node.
+  eq("la regione dentro la frase resta", true, shortAutonym("pt-PT").includes("europeu"));
+  // La ragione per cui chi stampa più lingue insieme deve disambiguare: due varianti possono
+  // collassare sullo stesso nome, ed è il caso in cui sapere di quale si parla conta di più.
+  eq("due varianti possono collidere", true, shortAutonym("zh-CN") === shortAutonym("zh-TW"));
+  // Un tag che l'ICU non conosce ricade sul tag stesso, e non deve svuotarsi.
+  eq("un tag ignoto non sparisce", "xy-AB", shortAutonym("xy-AB"));
 }
 
 console.log(fail ? `\n${fail} asserzioni fallite` : "\ntutto ok");

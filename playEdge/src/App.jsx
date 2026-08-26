@@ -8,12 +8,6 @@ import testCases from './testCases.jsx';
 import CodeIcon from './CodeIcon.jsx';
 import ShowAllTests from './ShowAllRowTests.jsx';
 
-// Da dove si torna al playground. In build questa pagina sta in una sottocartella del
-// suo dist (base "/viteTranslate/edge/"), quindi "../" è già l'indirizzo giusto e non
-// va scritto a mano da nessuna parte. In sviluppo sono due server distinti: il
-// playground è sulla 3000, questa pagina sulla 3001.
-const PLAYGROUND_URL = import.meta.env.DEV ? 'http://localhost:3000/' : '../';
-
 export default function App() {
   //
   // hook che legge lo stato del sistema di traduzione, e fornisce la lingua corrente
@@ -51,14 +45,6 @@ export default function App() {
   return (
     <>
       <br />
-      {/* Il playground vive una cartella sopra in build (dist/edge/ dentro il suo
-          dist) e su un altro dev server mentre si lavora: PLAYGROUND_URL sa quale
-          dei due. */}
-      <a href={PLAYGROUND_URL} style={{ opacity: 0.6, fontSize: '0.85em' }}>
-        ↖ playground
-      </a>
-      <br />
-      <br />
       <button
         onClick={() => next.tag && proposeNewLanguage({ lang: next.tag })}
       >
@@ -77,25 +63,13 @@ export default function App() {
           <h3>
             <Translate t={'_%_ viteTranslate &nbsp;<b>%s</b>_%_'} a={version} />
           </h3>
+          <Translate
+            t={`_%_
           <small>
-            La colonna <b>Atteso</b> vale con la lingua <b>sorgente</b> attiva.
-            I mark <code>🔸</code> (non tradotto qui) e <code>🔹</code> (non
-            tradotto altrove) non compaiono in nessuna riga: dipendono dallo
-            stato dei file di lingua, non dal caso, e qui entrambe le lingue
-            sono complete. <code>‼️</code>, <code>🚫</code> e <code>⁇</code>{' '}
-            invece fanno parte del risultato atteso.
-            <br />
-            Questa pagina tiene i mark accesi <b>anche in build</b> (
-            <code>markOnlyDev: false</code> in <code>vite.config.js</code>),
-            altrimenti pubblicherebbe una tabella senza la colonna che la
-            giustifica. Il default della libreria è l'opposto: in un'app vera,
-            dove qui si legge <code>🚫[tipo]</code> la build non rende più
-            niente. <code>⁇</code> resta comunque — quello non è una
-            diagnostica ma una resa normale.
-            <br />
-            Passando sopra <code>&lt;/&gt;</code> accanto al nome della riga si
-            vede il codice che l'ha prodotta.
-          </small>
+              La colonna <b>Atteso</b> vale in <b>sviluppo</b>, con la lingua sorgente attiva e i file di lingua già sincronizzati. I mark <code>🔸</code> (non tradotto qui) e <code>🔹</code> (non tradotto altrove) non sono riportati: dipendono dallo stato dei file di              lingua, non dalla riga. <code>‼️</code>, <code>🚫</code> <code>⁇</code> invece fanno parte del risultato atteso. In build i mark diagnostici spariscono — dove qui si legge <code>🚫[tipo]</code> non si rende più niente — mentre <code>⁇</code> resta: quello non è una diagnostica ma una resa normale.<br /> Passando sopra <code>&lt;/&gt;</code> accanto al nome della riga si vede il codice che l'ha prodotta.            
+          </small>            
+          _%_`}
+          />
         </header>
         <table>
           <tbody>

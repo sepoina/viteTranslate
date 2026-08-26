@@ -235,5 +235,49 @@ console.log("\n== due marcatori nella stessa stringa ==");
   eq("marcatori separati: nessun avviso", 0, warnings.length);
 }
 
+// ------------------------------------------------------- marcatori malformati
+console.log("\n== una stringa che contiene _%_ senza esserne avvolta ==");
+{
+  // Il riconoscimento guarda l'inizio e la fine, quindi qui non c'è NIENTE da estrarre: la
+  // chiave non nasce, il testo resta com'è, e l'unico sintomo era una traduzione che non
+  // compariva mai — che si scopre a schermo, molto dopo. È quasi sempre un delimitatore
+  // dimenticato o un marcatore messo in mezzo alla frase.
+  const raccolti = (sorgente, filename = "/p/src/App.jsx") => {
+    const warnings = [];
+    const original = console.warn;
+    console.warn = (m) => warnings.push(m);
+    let table;
+    try {
+      ({ table } = viaSplice(sorgente, filename));
+    } finally {
+      console.warn = original;
+    }
+    return { warnings, table };
+  };
+
+  const casi = [
+    ["marcatore in mezzo alla frase", `const a = <p>ciao _%_mondo_%_ qui</p>;`],
+    ["chiusura dimenticata", `const a = "_%_mondo";`],
+    ["apertura dimenticata", `const a = "mondo_%_";`],
+  ];
+  for (const [nome, sorgente] of casi) {
+    const { warnings, table } = raccolti(sorgente);
+    eq(`${nome}: nessuna chiave estratta`, 0, Object.keys(table).length);
+    eq(`${nome}: segnalato`, true, warnings.length === 1 && warnings[0].includes("malformed marker"));
+    // Il percorso relativo alla radice, come per gli annidati: è quello che VS Code
+    // trasforma in un link, ed è la sola parte del messaggio che dice dove andare a guardare.
+    eq(`${nome}: dice in quale file`, true, warnings[0].includes("src/App.jsx"));
+  }
+
+  // E il contrario, che è la metà che conta: un marcatore normale non deve diventare rumoroso.
+  eq("un marcatore valido non segnala nulla", 0, raccolti(`const a = "_%_ciao_%_";`).warnings.length);
+  eq("e nemmeno una stringa senza marcatori", 0, raccolti(`const a = "ciao";`).warnings.length);
+  // Il falso positivo noto, dichiarato qui perché non è un difetto nascosto ma il prezzo della
+  // regola: una stringa che CITA un marcatore (documentazione, snippet) è indistinguibile da
+  // una che ne ha sbagliato uno. Per questo è un avviso, e per questo il sync lo tiene a conteggio.
+  eq("una stringa che cita un marcatore: segnalata lo stesso", 1,
+    raccolti('const a = "<code>_%_testo_%_</code>";').warnings.length);
+}
+
 console.log(fail === 0 ? "\nTUTTI OK" : `\n${fail} FALLITI`);
 process.exit(fail === 0 ? 0 : 1);

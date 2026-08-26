@@ -9,7 +9,7 @@
 //
 //   node test/list/logFormat.test.mjs
 import { join, sep } from "node:path";
-import { wrapLog, displayWidth, logEchoColored, logWarning, logError, colorize, LOG_WIDTH } from "../../lib/utility.js";
+import { wrapLog, displayWidth, logEchoColored, logWarning, logError, logRule, logHeader, colorize, LOG_WIDTH } from "../../lib/utility.js";
 import shortPath from "../../lib/dev/vite/uty/shortPath.js";
 
 let fail = 0;
@@ -124,6 +124,42 @@ console.log("\n== WARNING ed ERROR si trovano senza leggere ==");
   eq("una riga normale non stacca", 1, normale.length);
   eq("e resta tenue", true, normale[0].includes("\x1b[2m"));
   eq("senza colori d'allarme", false, normale[0].includes("38;5;208") || normale[0].includes("1;31"));
+}
+
+// ------------------------------------------------------- traverse e intestazione
+console.log("\n== la traversa non spezza il montante ==");
+{
+  // Il punto della traversa: separare i blocchi SENZA usare la riga vuota, che è già presa —
+  // è il modo in cui un avviso si annuncia. Se il "╟" non cadesse nella colonna del "║", la
+  // verticale che tiene insieme tutto l'output si spezzerebbe proprio sui separatori.
+  const normale = senzaColori(grezzo(() => logEchoColored("x", "y")))[0];
+  const traversa = senzaColori(grezzo(() => logRule()))[0];
+
+  eq("il ╟ è nella colonna del ║", normale.indexOf("║"), traversa.indexOf("╟"));
+  eq("e non sfonda i 120", true, displayWidth(traversa) <= LOG_WIDTH);
+  eq("la traversa può nominare il blocco", true, senzaColori(grezzo(() => logRule("viteTranslate")))[0].includes("viteTranslate"));
+
+  const testa = senzaColori(grezzo(() => logHeader("viteTranslate", "v4.0.2", "source: \"src\"")));
+  eq("l'intestazione è tre righe", 3, testa.length);
+  eq("apre con la traversa che porta il nome", true, testa[0].includes("╟") && testa[0].includes("viteTranslate"));
+  eq("la versione sta nella colonna dell'etichetta", true, testa[1].split("║")[0].includes("v4.0.2"));
+  eq("e il testo dopo il montante", true, testa[1].split("║")[1].includes('source: "src"'));
+  eq("chiude con una traversa", true, testa[2].includes("╟"));
+  eq("le tre righe restano incolonnate", 1, new Set(testa.map((r) => Math.max(r.indexOf("║"), r.indexOf("╟")))).size);
+  // Senza versione l'intestazione non lascia un buco che sembra un dato mancante.
+  eq("versione assente: etichetta vuota", "", senzaColori(grezzo(() => logHeader("x", "", "y")))[1].split("║")[0].replace(/[:\s]/g, ""));
+}
+
+console.log("\n== dove separa già una traversa, l'avviso non stacca ==");
+{
+  // Due separatori di fila spendono una riga per fare un segnale più debole, non più forte.
+  const conStacco = grezzo(() => logWarning("attenzione"));
+  const senzaStacco = grezzo(() => logWarning("attenzione", { stacco: false }));
+
+  eq("il default stacca ancora", 2, conStacco.length);
+  eq("con stacco: false è una riga sola", 1, senzaStacco.length);
+  eq("ma resta un WARNING acceso", true, senzaColori(senzaStacco)[0].includes("WARNING"));
+  eq("e vale anche per ERROR", 1, grezzo(() => logError("rotto", { stacco: false })).length);
 }
 
 // ------------------------------------------------------- percorsi

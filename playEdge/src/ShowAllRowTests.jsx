@@ -1,6 +1,6 @@
 import { Fragment, useState } from 'react';
 import CodeIcon from './CodeIcon.jsx';
-
+import { Translate, useTranslateToString } from '@sepoina/vitetranslate/react';
 //
 // Una riga è la quaterna:
 //   [ titolo, cosa rende <Translate>, cosa dovrebbe uscire, il sorgente come testo ]
@@ -13,7 +13,16 @@ import CodeIcon from './CodeIcon.jsx';
 //
 // Una stringa da sola al posto della quaterna è un titolo di sezione.
 //
+//
+// I titoli di riga sono marcati come tutto il resto, e alcuni contengono un `%s`
+// che fa parte del nome del caso ("%s in meno"): passandone qualcuno come argomento
+// ogni `%s` torna a essere se stesso invece di diventare `⁇` — è la stessa mossa
+// della riga "%s letterale come dato". Gli argomenti in più vengono ignorati.
+//
+const S = ['%s', '%s', '%s', '%s'];
+
 export default function ShowAllTests({ data, onShow, onHide }) {
+  const ts = useTranslateToString();
   return (
     <>
       {data.map((row, index) =>
@@ -21,18 +30,18 @@ export default function ShowAllTests({ data, onShow, onHide }) {
           <Fragment key={index}>
             <tr>
               <th colSpan={3}>
-                <h3 style={{ paddingTop: '3em', color: '#800000' }}>{row}</h3>
+                <h3 style={{ paddingTop: '3em', color: '#800000' }}><Translate t={row} /></h3>
               </th>
             </tr>
             <tr style={{ borderBottom: '4px solid #800000' }}>
               <th scope="col" style={{ fontWeight: 'bold' }}>
-                Kind
+                <Translate t={"_%_tipo_%_"} />
               </th>
               <th scope="col" style={{ fontWeight: 'bold' }}>
-                Result
+                <Translate t={"_%_risultato_%_"} />
               </th>
               <th scope="col" style={{ fontWeight: 'bold' }}>
-                Atteso
+                <Translate t={"_%_atteso in origine (IT)_%_"} />
               </th>
             </tr>
           </Fragment>
@@ -43,7 +52,7 @@ export default function ShowAllTests({ data, onShow, onHide }) {
                   e focus/blur sono gli stessi due eventi di enter/leave. */}
               <button
                 type="button"
-                aria-label={`Sorgente di: ${row[0]}`}
+                aria-label={ts('_%_Sorgente di: %s_%_', ts(row[0], S))}
                 onMouseEnter={() =>
                   onShow(row[3] ?? '// sorgente non indicato')
                 }
@@ -64,7 +73,9 @@ export default function ShowAllTests({ data, onShow, onHide }) {
               >
                 <CodeIcon />
               </button>
-              <b>{row[0]}</b>
+              <b>
+                <Translate t={row[0]} a={S} />
+              </b>
             </td>
             <td>
               <em>«</em>
