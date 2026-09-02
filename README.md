@@ -2,10 +2,10 @@
 
 <img src="doc/logo.svg" alt="viteTranslate" width="380" height="68" />
 
-**Extract translatable strings straight from your source.** <br/>
-No keys to invent. No separate extraction step. No runtime dependencies.
+**Extract translatable strings straight from your JSX with Vite.** <br/>
+No translation keys to maintain. No separate extraction workflow. No runtime dependencies.
 
-[![Vite](https://img.shields.io/badge/Vite-5%20|%206%20|%207%20|%208-646CFF?logo=vite&logoColor=white)](https://vite.dev)
+[![Vite](https://img.shields.io/badge/Vite-5%20%7C%206%20%7C%207%20%7C%208-646CFF?logo=vite&logoColor=white)](https://vite.dev)
 [![publish](https://img.shields.io/github/actions/workflow/status/sepoina/viteTranslate/publish.yml?logo=githubactions&logoColor=white&label=publish)](https://github.com/sepoina/viteTranslate/actions/workflows/publish.yml)
 [![runtime size](https://img.shields.io/badge/runtime-%3C%205%20kB%20gzip-4c1)](#-why-vitetranslate)
 
@@ -22,10 +22,10 @@ No keys to invent. No separate extraction step. No runtime dependencies.
 <br />
 <br />
 
-  <a href="https://youtu.be/K_fefd3VLKQ">
-    <img src="doc/youplay.png" alt="Watch viteTranslate in action" width="60%" />
-  </a>
-  
+<a href="https://youtu.be/GmCxrAU9CYM">
+  <img src="doc/youplay.png" alt="Watch viteTranslate in action" width="60%" />
+</a>
+
 </div>
 
 <br />
@@ -33,7 +33,7 @@ No keys to invent. No separate extraction step. No runtime dependencies.
 
 ---
 
-Install with [npm](https://www.npmjs.com/package/@sepoina/vitetranslate) the last version 
+Install the latest version with [npm](https://www.npmjs.com/package/@sepoina/vitetranslate):
 
 ```sh
 npm install @sepoina/vitetranslate
@@ -54,7 +54,7 @@ function Welcome({ name }) {
 }
 ```
 
-That is the whole authoring workflow. Wrap a string in `_%_..._%_`, render it through `<Translate>`, and the translation tables are generated and kept in sync for you.
+That is the whole authoring workflow. Mark a string with `_%_..._%_`, render it through `<Translate>`, and viteTranslate extracts it and keeps your YAML translation tables in sync automatically.
 
 ## Contents
 
@@ -78,31 +78,43 @@ That is the whole authoring workflow. Wrap a string in `_%_..._%_`, render it th
 | :--- | :---: | :---: | :---: | :---: |
 | **Keyless / Natural text syntax** ¹ | ✅ | ❌ | ✅ | 🟡 |
 | **Auto-synced YAML tables** | ✅ | ❌ | ❌ | ❌ |
-| **Zero-CLI workflow** *(extract & compile in dev)* ² | ✅ | ❌ | ❌ | ❌ |
+| **Integrated extraction workflow** ² | ✅ | ❌ | ❌ | ❌ |
 | **Zero runtime dependencies** | ✅ | ❌ | ❌ | ❌ |
-| **Tiny runtime (≤ 5 kB gzip)** ³ | ✅ | ❌ | ✅ | ❌ |
+| **Tiny runtime (≤ 5 kB gzip)** ³ | ✅ | ❌ | 🟡 | ❌ |
 | **Build-time message compilation** ⁴ | ✅ | ❌ | ✅ | ✅ |
-| **No runtime message parsing** ⁴ | ✅ | ❌ | ✅ | ✅ |
+| **No runtime message parsing** ⁴ | ✅ | ❌ | 🟡 | 🟡 |
 | **Lazy-loaded locales** | ✅ | ✅ | ✅ | ✅ |
-| **Native Vite integration** | ✅ | ❌ | ✅ | ❌ |
+| **Native Vite integration** | ✅ | ❌ | 🟡 | ❌ |
 | **License** | Apache-2.0 | MIT | MIT | Apache-2.0 |
+
+> 🟡 Available with additional tooling or configuration, but not part of the core default workflow.
 
 <details>
 <summary><b>🔍 View detailed notes & clarifications</b></summary>
 
-* **¹ Keyless syntax:** Lingui and viteTranslate natively use source strings as keys. FormatJS can omit manual IDs by auto-generating content hashes using Babel/SWC plugins.
-* **² Zero-CLI workflow:** Lingui and FormatJS require separate CLI commands (e.g., `lingui extract`/`compile` or `formatjs extract`) or dedicated watcher processes, whereas viteTranslate handles synchronization directly during Vite dev/build cycles.
-* **³ Runtime size:** Lingui (`@lingui/core`) has a tiny footprint (~2 kB gzip). i18next and FormatJS runtimes typically exceed 10 kB min+gzip depending on plugins and polyfills.
-* **⁴ Compilation & parsing:** Lingui and FormatJS eliminate runtime parsing when using their optional build-time compilation tools (`lingui compile`, `@formatjs/cli compile`).
+* **¹ Keyless syntax:** Lingui and viteTranslate can use source strings directly instead of manually maintained translation keys. FormatJS can also omit manual IDs by generating message identifiers through Babel or SWC tooling.
+* **² Integrated extraction workflow:** viteTranslate performs extraction and table synchronization as part of the Vite development and build lifecycle. Other solutions generally rely on separate extraction and compilation commands or watcher processes.
+* **³ Runtime size:** viteTranslate adds less than 5 kB gzip for its browser runtime. Other solutions vary depending on imported packages, tree-shaking, plugins and optional polyfills, so exact bundle sizes are not directly comparable.
+* **⁴ Compilation & parsing:** Lingui and FormatJS can move message parsing and compilation to build time when their compilation tooling is enabled.
+
 * ⚖️ **Under 5 kB gzip in your bundle** — The runtime that reaches the browser (`<Translate>`, `TranslateContainer`, `useTranslateLanguage`) adds under 5 kB gzip. Translation payloads scale with your content, not with the library.
+
 * 🪶 **Zero dependencies** — The package declares no `dependencies` at all. `@babel/core`, Vite and React are *peer* dependencies — they run the plugin and the CLI on your machine, never enter the bundle.
+
 * 📍 **Mark text in place** — No keys to invent or maintain. The marker is extracted at build time; the component resolves it against the current language table at runtime.
-* 📦 **Lazy language loading** — Each language is a separate chunk, dynamically `import()`-ed only when selected.
+
+* 📦 **Lazy-loaded locales** — Each locale is a separate chunk and is dynamically `import()`-ed only when selected.
+
 * ⚙️ **Tables compiled at build time** — Ready-made values — plain strings, React elements built once, functions where there are placeholders. No HTML parser at runtime, so `<Translate>` renders server-side too.
+
 * 🔀 **Vite 7 and Vite 8 alike** — Same codebase, no config switch.
+
 * 👁️ **Dev fallback, always visible** — Until a translation exists the original text is shown — never a blank string, never a crash.
+
 * 🔄 **One command syncs every language** — Adds missing keys, removes stale ones, reports what's left to translate.
+
 * 🏷️ **Renamed keys keep their translation** — If a string's id changes but the text doesn't, the existing translation is carried over.
+
 * 🔒 **Small, safe HTML subset** — `<b> <strong> <i> <em> <u> <small> <code> <br> <hr> <wbr>` are allowed inside translated strings; everything else is unwrapped to plain text, no attribute ever forwarded.
 
 </details>
@@ -120,8 +132,8 @@ import { vitetranslate } from "@sepoina/vitetranslate";
 export default defineConfig({
   plugins: [
     vitetranslate({
-      localeDir: "src/locale",  // folder with the language files (.yml)
-      sourceLanguage: "it-IT",  // source language tag (BCP 47)
+      localeDir: "src/locale",
+      sourceLanguage: "it-IT",
     }),
     react(),
   ],
@@ -141,14 +153,16 @@ ReactDOM.createRoot(document.getElementById("root")).render(
 );
 ```
 
-Then mark your strings — `<Translate>_%_Welcome_%_</Translate>` — and sync the tables before every build:
+Then mark your strings — `<Translate>_%_Welcome_%_</Translate>`. During development, viteTranslate extracts marked strings and keeps the translation tables synchronized as part of the Vite lifecycle.
+
+For a production build, add the sync command before `vite build` to make sure the source-language table is up to date:
 
 ```json
 { "scripts": { "prebuild": "vtranslate-cli", "build": "vite build" } }
 ```
 
 > [!IMPORTANT]
-> The source language file must already exist before the first `vite dev` / `vite build` — `TranslateContainer` reads it immediately on load. Run the sync command once to generate it (the `localeDir` folder itself doesn't need to exist beforehand, the plugin creates it).
+> The source-language file must exist before the first `vite dev` or `vite build`, because `TranslateContainer` reads it immediately when the application starts. Run `vtranslate-cli` once to generate the initial table. The `localeDir` directory itself does not need to exist beforehand — viteTranslate creates it automatically.
 
 ---
 
@@ -172,7 +186,11 @@ Everything past "hello world" lives in `doc/`, one topic per page:
 
 ## 🔬 How it works
 
-Strings flow through four stages: **extraction** (Babel finds `_%_..._%_` and assigns an id), **compilation** (tables become ready-made React values at build time), **resolution** (components look up ids at runtime), and **delivery** (languages load lazily as chunks, eager ones in the initial bundle). Every compiled table is **self-contained** — keys a language hasn't translated yet already carry the source text inside, so no app ships a fallback table on top of its own.
+Strings move through four stages: **extraction**, **compilation**, **resolution**, and **delivery**.
+
+During extraction, Babel finds `_%_..._%_` markers and assigns each string an id. During compilation, translation tables become ready-made values for the browser. At runtime, components resolve those ids against the current locale. Finally, locales are delivered as lazy-loaded chunks, while eager locales can be included in the initial bundle.
+
+Every compiled table is **self-contained**: untranslated entries already contain the source text, so the application does not need to ship a separate fallback table alongside each locale.
 
 > [!TIP]
 > 📖 **Want the full picture?** [`doc/structure.md`](doc/structure.md) walks through the architecture with diagrams and links to every source file involved.
@@ -186,8 +204,6 @@ Strings flow through four stages: **extraction** (Babel finds `_%_..._%_` and as
 > - **Markers must be whole strings.** One embedded in a longer string, or a template literal with `${...}` inside, is not extracted — use a `%s` placeholder instead.
 > - **The CLI loads your Vite config with Node itself**, not Vite — a TypeScript config needs a Node that strips types (23.6+).
 > - **`basicHtmlToNodes()` still needs the DOM** if called directly. `<Translate>` no longer does.
-
----
 
 ---
 
@@ -208,8 +224,8 @@ These are peer dependencies — install them if your project doesn't already hav
 A runnable example lives in [`playground/`](playground), deployed at **[sepoina.github.io/viteTranslate](https://sepoina.github.io/viteTranslate/)**.
 
 ```bash
-npm run playground         # vite dev
-npm run playground:build   # vite build
+npm run playground
+npm run playground:build
 ```
 
 Alongside it, **[/edge/](https://sepoina.github.io/viteTranslate/edge/)** is a table of edge cases — malformed markers, `%s` without an argument, mis-nested markup, values that aren't text — in its own app, [`playEdge/`](playEdge), which needs every diagnostic mark on, in production too.
