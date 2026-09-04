@@ -238,7 +238,7 @@ Which languages are eager depends on the environment:
 
 ```js
 vitetranslate({
-  localeDir: "src/locale",
+  localeDir: "locale",
   sourceLanguage: "it-IT",        // source language: eager in dev, and in build if no preload is declared
   preloadedLanguages: ["en-US"],  // instant first paint instead of a loading frame
 })

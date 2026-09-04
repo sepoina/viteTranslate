@@ -1,7 +1,7 @@
 {
   "name": "@sepoina/vitetranslate",
-  "version": "4.0.4",
-  "versionDescription": "Language files are data (.yml), not JS modules.",
+  "version": "4.0.5",
+  "versionDescription": "Plain-log mode, a cross-session cache, and a dev server that stops instead of repeating itself.",
   "description": "Extract translatable strings straight from your JSX — a Vite plugin that auto-generates and syncs your translation tables, with zero runtime dependencies.",
   "author": {
     "name": "Giancarlo Ghigi",

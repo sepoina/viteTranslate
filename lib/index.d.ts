@@ -100,6 +100,11 @@ export interface VitetranslateOptions {
    * Ogni campo è facoltativo; omettere l'opzione lascia tutti i default.
    */
   errorSolve?: ErrorSolveOptions;
+  /**
+   * Log del plugin senza colonna d'etichetta né traverse: solo `:::` e il testo, indentato.
+   * Stessi colori, righe più corte. Utile in CI o in un terminale stretto. Default: `false`.
+   */
+  simpleLog?: boolean;
 }
 
 /**

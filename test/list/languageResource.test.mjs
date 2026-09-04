@@ -32,7 +32,7 @@ const eq = (nome, atteso, ottenuto) => {
 async function loadRuntime({ preloadedLanguages, isProduction }) {
   const [localeCompiler, plugin] = vitetranslate({
     baseDir: join(ROOT, "playground"),
-    localeDir: "src/locale",
+    localeDir: "locale",
     sourceLanguage: "it-IT",
     ...(preloadedLanguages ? { preloadedLanguages } : {}),
   });

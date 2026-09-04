@@ -6,7 +6,7 @@ export default defineConfig({
   plugins: [
     react(),
     vitetranslate({
-      localeDir: 'src/locale',
+      localeDir: 'locale',
       sourceLanguage: 'it-IT',
       // Una sola lingua precaricata: il pulsante in cima commuta fra sorgente e
       // traduzione senza sospensione al primo render.

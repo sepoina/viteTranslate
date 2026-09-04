@@ -27,7 +27,7 @@ import { vitetranslate } from "@sepoina/vitetranslate";
 export default defineConfig({
   plugins: [
     vitetranslate({
-      localeDir: "src/locale",   // cartella con i file di traduzione
+      localeDir: "locale",       // cartella con i file di traduzione
       sourceLanguage: "it-IT",   // lingua di default
     }),
     react(),
@@ -35,13 +35,14 @@ export default defineConfig({
 });`} />
 
         <p className="doc-description">
-          <Translate>_%_Ecco come appare src una volta configurato il plugin: locale è una sottocartella come le altre, indicata da localeDir, con dentro un file .yml per ogni lingua._%_</Translate>
+          <Translate>_%_Ecco come appare il progetto una volta configurato il plugin: locale è una cartella accanto a src, indicata da localeDir, con dentro un file .yml per ogni lingua._%_</Translate>
         </p>
-        <CodeBlock language="text" code={`src/
-├── main.jsx
-├── App.jsx
-├── components/
-│   └── ...
+        <CodeBlock language="text" code={`.
+├── vite.config.js
+├── src/
+│   ├── main.jsx
+│   ├── App.jsx
+│   └── components/
 └── locale/              ← localeDir
     ├── it-IT.yml        ← lingua di default
     ├── en-US.yml
@@ -74,7 +75,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
         </p>
         <CodeBlock language="json" code={`{
   "scripts": {
-    "prebuild": "vitetranslate-prepare-translation-table",
+    "prebuild": "vtranslate-cli",
     "build": "vite build"
   }
 }`} />
@@ -109,10 +110,9 @@ PlaceholderExample_1ebkbf3: "Il nome verrà usato nel saluto"`} />
           <Translate>_%_. Il file della lingua di default viene creato e tenuto aggiornato in automatico dal comando di sincronizzazione: non va scritto a mano, solo tradotto se serve._%_</Translate>
         </p>
         <p className="doc-description">
-          <Translate>_%_Per aggiungere una nuova lingua crea un file vuoto con il nome del tag scelto, poi rilancia il comando di sincronizzazione: aggiunge in coda tutte le chiavi mancanti con valore null e segnala nel log quali restano da tradurre. Basta sostituire quei null con il testo tradotto._%_</Translate>
+          <Translate>_%_Per aggiungere una nuova lingua usa il flag --add del comando di sincronizzazione: crea subito il file con il tag scelto, già popolato con tutte le chiavi trovate nel sorgente (valore null), e chiude con il riepilogo di quante restano da tradurre. Basta sostituire quei null con il testo tradotto._%_</Translate>
         </p>
-        <CodeBlock language="bash" code={`touch src/locale/fr-FR.yml
-npx vitetranslate-prepare-translation-table`} />
+        <CodeBlock language="bash" code={`npx vtranslate-cli --add fr-FR`} />
 
         <p className="doc-description">
           <Translate>_%_Subito dopo il comando il file contiene già tutte le chiavi trovate nel sorgente, ma non tradotte (valore null): sotto la riga separatrice trovi l'elenco esatto di ciò che manca._%_</Translate>

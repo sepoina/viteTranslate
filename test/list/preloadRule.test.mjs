@@ -27,7 +27,7 @@ const VIRTUAL = "\0virtual:vitetranslate/languages";
 async function generate({ preloadedLanguages, isProduction }) {
   const [, plugin] = vitetranslate({
     baseDir: join(ROOT, "playground"),
-    localeDir: "src/locale",
+    localeDir: "locale",
     sourceLanguage: "it-IT",
     ...(preloadedLanguages ? { preloadedLanguages } : {}),
   });

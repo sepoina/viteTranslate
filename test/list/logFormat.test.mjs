@@ -9,7 +9,7 @@
 //
 //   node test/list/logFormat.test.mjs
 import { join, sep } from "node:path";
-import { wrapLog, displayWidth, logEchoColored, logWarning, logError, logRule, logHeader, colorize, LOG_WIDTH } from "../../lib/utility.js";
+import { wrapLog, displayWidth, logEchoColored, logWarning, logError, logRule, logHeader, logBullet, colorize, LOG_WIDTH, setLogStyle, isSimpleLog } from "../../lib/utility.js";
 import shortPath from "../../lib/dev/vite/uty/shortPath.js";
 
 let fail = 0;
@@ -177,9 +177,11 @@ console.log("\n== i percorsi si scrivono relativi alla radice ==");
   // link, perché lo risolve contro la propria cwd. Da cui la scelta di `process.cwd()` come
   // radice: relativizzare contro un'altra cartella darebbe un percorso corto e un link rotto.
   const root = join(sep, "progetto");
-  eq("dentro la radice: relativo", "src/locale/it-IT.yml", shortPath(join(root, "src", "locale", "it-IT.yml"), root));
+  eq("dentro la radice: relativo", "locale/it-IT.yml", shortPath(join(root, "locale", "it-IT.yml"), root));
   eq("sempre con /", true, !shortPath(join(root, "src", "App.jsx"), root).includes("\\"));
-  eq("una cartella si accorcia uguale", "src/locale", shortPath(join(root, "src", "locale"), root));
+  eq("una cartella si accorcia uguale", "locale", shortPath(join(root, "locale"), root));
+  eq("più livelli, un solo separatore per livello", "src/components/ui/Bottone.jsx",
+    shortPath(join(root, "src", "components", "ui", "Bottone.jsx"), root));
 
   // Fuori dal progetto accorciare non accorcia: darebbe un "../../.." lungo uguale e ambiguo
   // su dove sia il file. L'assoluto è comunque un link.
@@ -187,6 +189,54 @@ console.log("\n== i percorsi si scrivono relativi alla radice ==");
   eq("fuori dalla radice: assoluto", fuori, shortPath(fuori, root));
   eq("la radice stessa: assoluta", root, shortPath(root, root));
 }
+
+// ------------------------------------------------------- logBullet
+console.log("\n== logBullet: in rich mode è logEchoColored(\"\", \"- \" + msg) ==");
+{
+  const a = senzaColori(grezzo(() => logBullet("qualcosa da vedere")));
+  const b = senzaColori(grezzo(() => logEchoColored("", "- qualcosa da vedere")));
+  eq("stesso output di prima", b.join("\n"), a.join("\n"));
+}
+
+// ------------------------------------------------------- simple mode
+console.log("\n== simple mode: niente montanti, tutto comincia con ::: ==");
+try {
+  setLogStyle({ simple: true });
+  eq("isSimpleLog() lo dice", true, isSimpleLog());
+
+  {
+    const righe = senzaColori(grezzo(() => logEchoColored("updateLanguage", "parola ".repeat(40).trim())));
+    eq("niente montante ║", 0, righe.filter((r) => r.includes("║")).length);
+    eq("niente traversa ╟", 0, righe.filter((r) => r.includes("╟")).length);
+    eq("ogni riga comincia con :::", true, righe.every((r) => r.startsWith(":::")));
+    eq("nessuna riga oltre LOG_WIDTH", 0, righe.filter((r) => displayWidth(r) > LOG_WIDTH).length);
+  }
+
+  eq("etichetta: riga propria, indent 0", "::: WARNING",
+    senzaColori(grezzo(() => logWarning("qualcosa", { stacco: false })))[0]);
+  eq("riga normale: indent 2", ":::   testo",
+    senzaColori(grezzo(() => logEchoColored("", "testo")))[0]);
+  eq("puntato: indent 4, col trattino", ":::     - testo",
+    senzaColori(grezzo(() => logBullet("testo")))[0]);
+  eq("traversa senza etichetta: nuda", ":::",
+    senzaColori(grezzo(() => logRule()))[0]);
+  eq("traversa con etichetta: come un'etichetta", "::: X",
+    senzaColori(grezzo(() => logRule("X")))[0]);
+
+  {
+    const testa = senzaColori(grezzo(() => logHeader("viteTranslate", "v9.9.9", "sources: \"src\"")));
+    eq("l'intestazione è due righe, non tre", 2, testa.length);
+    eq("nome e versione su una riga sola", "::: viteTranslate v9.9.9", testa[0]);
+    eq("la riga delle cartelle a indent 0", "::: sources: \"src\"", testa[1]);
+  }
+} finally {
+  // Rischio noto: `setLogStyle` è stato di modulo, non un parametro. Se questo blocco
+  // lasciasse simpleLog acceso e un'asserzione sopra fallisse a metà, ogni test scritto DOPO
+  // in questo stesso file (e chiunque lo importi da un altro script) erediterebbe la forma
+  // sbagliata senza che nulla lo dica.
+  setLogStyle({ simple: false });
+}
+eq("torna in rich mode dopo il finally", false, isSimpleLog());
 
 console.log(fail ? `\n${fail} asserzioni fallite` : "\ntutto ok");
 process.exit(fail ? 1 : 0);

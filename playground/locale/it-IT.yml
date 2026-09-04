@@ -2,28 +2,28 @@
 #      italiano (Italia) (sourceLanguage)
 #       |    code: it-IT
 #       |    missing key: 0
-#       |    processed: 2026-08-25 09:09
+#       |    processed: 2026-09-04 02:12
 #  -------------------------------------------------
 __builder__: {"v":260824,"languageName":"italiano (Italia)"}
 #  -------------------------------------------------
 App_18e29q3: "Playground"
-App_dlm7c5: "Plugin Vite per estrarre stringhe dal sorgente (marcatore %s e componente <code>&#60;Translate&#62;</code> ) e generare/sincronizzare le tabelle di traduzione. I file di lingua sono dati (.yml), non moduli JS, e vengono raggruppati in src (non in public, per evitare di servire moduli iniettabili) e caricati pigramente uno alla volta: il cambio lingua a runtime scarica solo il chunk necessario, senza appesantire il bundle iniziale con le lingue non usate."
+App_8faavq: "Plugin Vite per estrarre stringhe dal sorgente (marcatore %s e componente <code>&#60;Translate&#62;</code> ) e generare/sincronizzare le tabelle di traduzione. I file di lingua sono dati (.yml), non moduli JS, e stanno in una cartella tutta loro, indicata da localeDir, caricati pigramente uno alla volta: il cambio lingua a runtime scarica solo il chunk necessario, senza appesantire il bundle iniziale con le lingue non usate."
 AppplaygroundStringfromjs_1vtdae9: "📚"
 BasicExample_1ujwz35: "Benvenuto in viteTranslate"
 DynamicExample_kiyc37: "Ciao %s, come stai?"
 InstallSection_104nql7: "Prima del primo avvio serve che il file della lingua di default esista già: TranslateContainer lo cerca subito e, se manca, il caricamento fallisce (la cartella localeDir non serve che esista in anticipo, la crea il plugin). Se non l'hai ancora generato, lancia una volta il comando descritto in Build linguistico: alla fine avrai già la tabella della lingua di default, pronta per essere letta."
 InstallSection_12ynmbk: ". È esattamente il file che localeDir deve già contenere al primo avvio, come richiesto in Esecuzione dev."
 InstallSection_1a5vici: "Prima della build di produzione, sincronizza le tabelle di traduzione con tutte le stringhe trovate nel sorgente lanciando il comando come step \"prebuild\": garantisce che la lingua di default sia sempre completa."
-InstallSection_1inn77d: "Ecco come appare src una volta configurato il plugin: locale è una sottocartella come le altre, indicata da localeDir, con dentro un file .yml per ogni lingua."
 InstallSection_1rl7c67: "Ogni lingua è un file .yml dentro localeDir, con lo stesso nome del suo tag"
 InstallSection_1w2c6tx: "Le stesse chiavi compaiono, nello stesso momento, anche nel file della lingua di default: mai come null lì, ma raggruppate sotto la stessa riga separatrice finché restano da tradurre in almeno un'altra lingua. È un'occasione pratica: puoi copiare quel blocco (testo reale, non null) e incollarlo in un LLM per farlo tradurre, poi incollare la risposta al posto dei null nel file della lingua di destinazione."
 InstallSection_3809a4: ". Il file della lingua di default viene creato e tenuto aggiornato in automatico dal comando di sincronizzazione: non va scritto a mano, solo tradotto se serve."
-InstallSection_az53ni: "Per aggiungere una nuova lingua crea un file vuoto con il nome del tag scelto, poi rilancia il comando di sincronizzazione: aggiunge in coda tutte le chiavi mancanti con valore null e segnala nel log quali restano da tradurre. Basta sostituire quei null con il testo tradotto."
+InstallSection_89ggya: "Ecco come appare il progetto una volta configurato il plugin: locale è una cartella accanto a src, indicata da localeDir, con dentro un file .yml per ogni lingua."
 InstallSection_b1j9f6: "Installazione"
 InstallSection_dhlwwk: "Avvolgi l'app in TranslateContainer indicando la lingua iniziale da caricare: espone il contesto usato da Translate e dagli altri hook per leggere la tabella di traduzione corrente. In sviluppo il fallback resta incorporato nel codice compilato, quindi l'app mostra già il testo tradotto senza dover lanciare altri comandi."
 InstallSection_eqg418: "Registra il plugin viteTranslate in vite.config.js: gli va indicata la cartella dei file di lingua e la lingua di default. Il plugin si occupa sia dell'estrazione delle stringhe da tradurre via Babel sia della generazione del modulo virtuale che elenca le lingue disponibili."
 InstallSection_fc81ky: "Installa il pacchetto nel tuo progetto Vite + React: React e Vite sono peer dependency, quindi devono già essere presenti."
 InstallSection_fhcky6: "Subito dopo il comando il file contiene già tutte le chiavi trovate nel sorgente, ma non tradotte (valore null): sotto la riga separatrice trovi l'elenco esatto di ciò che manca."
+InstallSection_sn8wj: "Per aggiungere una nuova lingua usa il flag --add del comando di sincronizzazione: crea subito il file con il tag scelto, già popolato con tutte le chiavi trovate nel sorgente (valore null), e chiude con il riepilogo di quante restano da tradurre. Basta sostituire quei null con il testo tradotto."
 InstallSection_t4vmjs: "Lanciando semplicemente questo comando, anche a progetto appena creato e senza altri file di lingua presenti, viene generata la prima tabella linguistica: quella della lingua indicata come lingua di default in"
 InstallSection_t5nanj: "Sostituendo ogni null con il testo tradotto (mantenendo invariati eventuali %s) il file risulta completo, pronto per essere usato come lingua disponibile."
 InstallSection_uq5uv6: "Ogni file .yml trovato in localeDir diventa automaticamente disponibile: useTranslateLanguage() lo elenca e TranslateContainer lo carica pigramente alla richiesta, senza bisogno di registrarlo altrove."
@@ -37,11 +37,11 @@ PlaceholderExample_nd4d0f: "Il placeholder necessita di una stringa, non un JSX,
 PlaceholderExample_rwflob: "Nome utente"
 StrengthsSection_146suvo: "<strong>Marcatura diretta del testo nel sorgente.</strong> Nessuna chiave da creare o gestire a mano."
 StrengthsSection_15r2z3b: "<strong>Nuove lingue rilevate in automatico.</strong> Basta aggiungere un file .yml nella cartella delle lingue, senza registrarlo altrove nel codice."
+StrengthsSection_1ecmosj: "<strong>Le tabelle sono dati, non moduli JS.</strong> Un file di lingua non porta codice eseguibile: viene compilato in fase di build, non servito com’è."
 StrengthsSection_1r3j0je: "<strong>Fallback automatico in sviluppo.</strong> Finché una traduzione non è pronta resta visibile il testo originale, mai una stringa vuota o un errore."
 StrengthsSection_1rplbik: "<strong>Caricamento delle lingue lazy.</strong> Il cambio lingua a runtime scarica solo il chunk necessario, senza appesantire il bundle iniziale con le lingue non usate."
 StrengthsSection_1uxxl2f: "Punti di forza"
 StrengthsSection_7t8nu9: "<strong>Le traduzioni sopravvivono ai rename.</strong> Se lo stesso testo cambia solo id, la sincronizzazione eredita la traduzione già fatta invece di farla ripartire da zero."
-StrengthsSection_nvb5y8: "<strong>File di lingua al sicuro in src, non in public.</strong> Evita di servire tabelle di traduzione modificabili lato client."
 StrengthsSection_qgqq5v: "<strong>Compatibile con Vite 7 e Vite 8.</strong> Stesso codice per entrambi: su Vite 7 gira su Rollup (build) ed esbuild (dev), su Vite 8 gira su Rolldown (bundler Rust) e Oxc (compilatore), senza bisogno di configurazione diversa."
 StrengthsSection_wlo9da: "<strong>Meno di 5 kB gzip nel bundle finale.</strong> Il runtime che arriva al browser (<code>&#60;Translate&#62;</code>, <code>TranslateContainer</code>, <code>useTranslateLanguage</code>) pesa meno di 5 kB gzip, misurati confrontando una build di produzione con e senza la libreria. Il payload delle traduzioni scala con i tuoi contenuti, non con la libreria."
 StrengthsSection_wv4ype: "<strong>Sincronizzazione automatica delle tabelle.</strong> Un solo comando aggiorna tutte le lingue e segnala cosa resta da tradurre."

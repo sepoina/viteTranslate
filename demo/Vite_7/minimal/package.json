@@ -13,7 +13,7 @@
   "dependencies": {
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "@sepoina/vitetranslate": "2.2.2"
+    "@sepoina/vitetranslate": "4.0.5"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

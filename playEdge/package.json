@@ -4,9 +4,10 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
+    "predev": "vtranslate-cli",
     "dev": "vite",
     "link:lib": "npm install .. --install-links --no-save",
-    "prebuild": "vitetranslate-prepare-translation-table",
+    "prebuild": "vtranslate-cli",
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview"

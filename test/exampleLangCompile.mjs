@@ -22,7 +22,7 @@ const { default: readLanguageFile } = await import(`${ROOT}/lib/dev/vite/uty/rea
 const { languageFileName } = await import(`${ROOT}/lib/dev/vite/uty/languageFileFormat.js`);
 
 const tag = process.argv[2] ?? "en-US";
-const localeDir = process.argv[3] ?? join(ROOT, "playground/src/locale");
+const localeDir = process.argv[3] ?? join(ROOT, "playground/locale");
 const sourcePath = join(localeDir, languageFileName(tag));
 
 // La lingua sorgente serve a riempire le chiavi non tradotte: il modulo prodotto dal bundler

@@ -10,7 +10,7 @@ A string that doesn't reach the screen translated is not always a bug you can se
 
 ```js
 vitetranslate({
-  localeDir: "src/locale",
+  localeDir: "locale",
   sourceLanguage: "it-IT",
   errorSolve: {
     mark: {
@@ -99,3 +99,5 @@ A number and a React element don't need the declaration: neither can ever come f
 > With `warningBuild: false` (the default) a published app is completely silent, including the messages that report a real failure — a language chunk that didn't load, a tag that doesn't exist. Set `warningBuild: true` to keep them.
 
 Plugin messages (build time, prefixed `[vitetranslate]`) are not affected: they are not runtime output.
+
+**Plugin messages during `vite dev` follow their own rule: one warning per category, the rest on request.** A typo in a language file used to print a line on every save — the manifest regenerates each time a language file changes — and ten broken files printed ten lines at once. Now the first message in a given category (an invalid language file, an empty one, a malformed marker, and so on) prints in full; the rest of that category are just counted, closing with `+N more: run "npx vtranslate-cli --status" for the full list`. The block appears a quarter of a second after the last warning of the batch, so one page load is one block and not five. Reloading a page with the exact same problems as before prints nothing a second time — but only within the same `vite dev` process: restarting it always shows the full picture at least once, and if the count is unchanged from the previous run the closing line just says so ("same as the previous session").

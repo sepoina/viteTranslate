@@ -414,17 +414,17 @@ console.log("\n== vtranslate-cli: trovare la config ==");
 
   const CONFIG_JS = `
 import { vitetranslate } from ${JSON.stringify(PLUGIN)};
-export default { plugins: [vitetranslate({ localeDir: "src/locale", sourceLanguage: "it-IT" })] };
+export default { plugins: [vitetranslate({ localeDir: "locale", sourceLanguage: "it-IT" })] };
 `;
   // La forma a funzione di { command, mode }: comunissima appena la config guarda l'ambiente.
   const CONFIG_FUNZIONE = `
 import { vitetranslate } from ${JSON.stringify(PLUGIN)};
-export default ({ mode }) => ({ plugins: [vitetranslate({ localeDir: "src/locale", sourceLanguage: "it-IT" })], mode });
+export default ({ mode }) => ({ plugins: [vitetranslate({ localeDir: "locale", sourceLanguage: "it-IT" })], mode });
 `;
   // Annotazioni di tipo vere: è ciò che rende il file un .ts e non un .js con un'altra estensione.
   const CONFIG_TS = `
 import { vitetranslate } from ${JSON.stringify(PLUGIN)};
-const localeDir: string = "src/locale";
+const localeDir: string = "locale";
 export default { plugins: [vitetranslate({ localeDir, sourceLanguage: "it-IT" })] };
 `;
 
@@ -434,8 +434,8 @@ export default { plugins: [vitetranslate({ localeDir, sourceLanguage: "it-IT" })
   };
   const tradotta = (radice) => {
     const nome = languageFileName("it-IT");
-    const file = join(radice, "src/locale", nome);
-    return readdirSync(join(radice, "src/locale")).includes(nome) && readFileSync(file, "utf8").includes("Ciao dal comando");
+    const file = join(radice, "locale", nome);
+    return readdirSync(join(radice, "locale")).includes(nome) && readFileSync(file, "utf8").includes("Ciao dal comando");
   };
 
   for (const [nome, config] of [["vite.config.js", CONFIG_JS], ["vite.config.mjs", CONFIG_JS], ["vite.config.js (a funzione)", CONFIG_FUNZIONE]]) {

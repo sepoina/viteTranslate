@@ -11,7 +11,7 @@ npx vtranslate-cli
 Reads the `vitetranslate` config from `vite.config.*` in the current working directory, scans `srcDir` for `_%_..._%_` markers, and syncs every language file in `localeDir`: adds new keys, removes stale ones (carrying over translations when a key was only renamed), and reports what's left untranslated. Intended to run as a `prebuild` step.
 
 ```text
-::: viteTranslate        ║  source: "src" (32 files),  translations: "src/locale" (59 keys)
+::: viteTranslate        ║  source: "src" (32 files),  translations: "locale" (59 keys)
 :::                      ║
 ::: status               ║  it-IT.yml - 2 key(s) added, 1 removed
 :::                      ║  [en-US.yml, zh-CN.yml] - complete translations!
@@ -27,6 +27,9 @@ vtranslate-cli --add fr-FR de-DE
 
 Adds one or more languages, syncs as usual — so the new files come out already filled with every key to translate (`null`) — and closes with the `--status` report, where the languages just added show up with their missing counts. Tags must be in the `<language>-<REGION>` form and name a real language and region ([supported list](bcp47.md)); every tag is validated before anything is written, and a language already present is left untouched.
 
+> [!TIP]
+> This is also the fix for `vite dev` refusing to start on a brand new project: without a readable `sourceLanguage` file in `localeDir`, the dev server prints what's missing and stops instead of starting anyway and failing later on the first page load. Running `vtranslate-cli --add <sourceLanguage>` is exactly the command it points you to.
+
 ```bash
 vtranslate-cli --status
 ```
@@ -34,7 +37,7 @@ vtranslate-cli --status
 Reports every translation table and exits **without writing anything**: keys, missing translations, tables out of sync with the source code, and errors — an unreadable language file, a missing source language, files still in the 3.x format. The reference is the source code as it is now, not the source language file, so it also answers "do I need to re-run the sync?".
 
 ```text
-::: status               ║  translation tables in "src/locale"
+::: status               ║  translation tables in "locale"
 :::                      ║  source language "it-IT" · 53 key(s) found in 17 scanned source file(s)
 :::                      ║
 :::                      ║  CODE   LANGUAGE            KEYS  MISSING  STATUS
@@ -57,6 +60,12 @@ vtranslate-cli --migrate
 ```
 
 One-off conversion of 3.x language files (`<tag>.js`) to the 4.0 format (`<tag>.yml`) — see [migrating from 3.x](#migrating-from-3x) below. It only converts and exits; nothing else runs.
+
+```bash
+vtranslate-cli --simpleLog
+```
+
+Plain, un-boxed output: no label column, no rules — same colors, just shorter lines. Useful in a CI log or a narrow terminal. Same as the plugin's `simpleLog` option ([plugin options](plugin-options.md)); when both are set, this flag wins.
 
 ```bash
 vtranslate-cli --help
