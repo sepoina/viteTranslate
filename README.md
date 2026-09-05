@@ -197,14 +197,14 @@ The plugin compiles markers, but it never writes to your tables. Only `vtranslat
 {
   "scripts": {
     "dev": "vite",
-    "predev": "vtranslate-cli",
+    "predev": "vtranslate-cli --fastverify",
     "prebuild": "vtranslate-cli",
     "build": "vite build"
   }
 }
 ```
 
-`predev` resyncs at every dev server start, `prebuild` only before a production build. Pick one, or both.
+`predev` resyncs at every dev server start — `--fastverify` makes it skip the scan when nothing changed — and `prebuild` runs before a production build.
 
 ---
 

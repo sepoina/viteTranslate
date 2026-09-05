@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "predev": "vtranslate-cli",
+    "predev": "vtranslate-cli --fastverify",
     "dev": "vite",
     "link:lib": "npm install .. --install-links --no-save",
     "prebuild": "vtranslate-cli",

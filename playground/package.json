@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "predev": "vtranslate-cli",
+    "predev": "vtranslate-cli --fastverify",
     "prebuild": "vtranslate-cli",
     "build": "vite build",
     "preview": "vite preview"

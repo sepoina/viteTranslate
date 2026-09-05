@@ -25,7 +25,9 @@ function babelJsx() {
   };
 }
 
-const pluginExternal = ["path", "fs", "url", "vm", "@babel/core"];
+// "module" in più di prima: extractMarkers.js carica @babel/core pigramente con
+// createRequire(import.meta.url), e createRequire arriva da lì.
+const pluginExternal = ["path", "fs", "url", "vm", "module", "@babel/core"];
 const componentExternal = [
   "react", "react/jsx-runtime", "react/jsx-dev-runtime",
   // risolto a build-time dal consumer via il plugin vitetranslate, non dal bundle della libreria

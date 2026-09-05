@@ -1,7 +1,7 @@
 {
   "name": "@sepoina/vitetranslate",
-  "version": "4.0.5",
-  "versionDescription": "Plain-log mode, a cross-session cache, and a dev server that stops instead of repeating itself.",
+  "version": "4.0.6",
+  "versionDescription": "A predev that stops re-scanning what did not change, and a config that no longer drags Babel in.",
   "description": "Extract translatable strings straight from your JSX — a Vite plugin that auto-generates and syncs your translation tables, with zero runtime dependencies.",
   "author": {
     "name": "Giancarlo Ghigi",

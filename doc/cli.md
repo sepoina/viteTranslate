@@ -62,6 +62,25 @@ vtranslate-cli --migrate
 One-off conversion of 3.x language files (`<tag>.js`) to the 4.0 format (`<tag>.yml`) — see [migrating from 3.x](#migrating-from-3x) below. It only converts and exits; nothing else runs.
 
 ```bash
+vtranslate-cli --fastverify
+```
+
+Skips the whole sync when nothing relevant changed since the last one: it compares source file timestamps against a small record left by the last run and, if nothing moved, prints one line and exits — **without loading `vite.config` and without writing anything**, not even that record. The moment it finds anything worth a second look (a file touched, `vite.config` itself, the tables in `localeDir`), it falls back to the exact same full sync as running the command with no flags, plus one line saying why:
+
+```text
+::: viteTranslate        ║  sources: "src" (3000 files, 53 sentences),  translations: "locale"
+:::                      ║  fastverify: nothing changed.
+:::                      ║  2 marker warning(s), to see them terminal:
+:::                      ║  $ npx vtranslate-cli --status
+:::                      ╟─────────────────────────────────────────────────────────
+```
+
+> [!TIP]
+> This is the flag for `predev`, where the full scan runs at every dev server start whether or not you touched anything since the last one. It is *not* for `prebuild`: before a production build, paying the full scan for the certainty of freshly rebuilt tables is the right trade.
+
+Running the plain command (no flags) never looks at that record — it always re-scans and rewrites it — so it is also the way out of any doubt about whether the fast path might be hiding something.
+
+```bash
 vtranslate-cli --simpleLog
 ```
 
