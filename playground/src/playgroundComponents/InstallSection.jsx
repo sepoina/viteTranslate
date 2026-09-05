@@ -91,9 +91,9 @@ ReactDOM.createRoot(document.getElementById("root")).render(
 #       |    code: it-IT
 #       |    missing key: 0
 #       |    processed: 2026-08-24 12:37
+#       |    TableVersion: 260905
 #  -------------------------------------------------
-__builder__: {"v":260824,"languageName":"italiano (Italia)"}
-#  -------------------------------------------------
+#
 BasicExample_1nke42v: "Benvenuto in viteTranslate"
 DynamicExample_1wltsn1: "Ciao %s, come stai?"
 PlaceholderExample_1dxcv5l: "Nome utente"
@@ -122,9 +122,9 @@ PlaceholderExample_1ebkbf3: "Il nome verrà usato nel saluto"`} />
 #       |    code: fr-FR
 #       |    missing key: 4
 #       |    processed: 2026-08-24 12:37
+#       |    TableVersion: 260905
 #  -------------------------------------------------
-__builder__: {"v":260824,"languageName":"français","incomplete":true}
-#  -------------------------------------------------
+#
 
 #  ----to be translated------------------------------------------
 BasicExample_1nke42v: null
@@ -140,9 +140,9 @@ PlaceholderExample_1ebkbf3: null`} />
 #       |    code: it-IT
 #       |    missing key: 4
 #       |    processed: 2026-08-24 12:37
+#       |    TableVersion: 260905
 #  -------------------------------------------------
-__builder__: {"v":260824,"languageName":"italiano (Italia)","incomplete":true}
-#  -------------------------------------------------
+#
 
 #  ----to be translated------------------------------------------
 BasicExample_1nke42v: "Benvenuto in viteTranslate"
@@ -158,9 +158,9 @@ PlaceholderExample_1ebkbf3: "Il nome verrà usato nel saluto"`} />
 #       |    code: fr-FR
 #       |    missing key: 0
 #       |    processed: 2026-08-24 12:41
+#       |    TableVersion: 260905
 #  -------------------------------------------------
-__builder__: {"v":260824,"languageName":"français"}
-#  -------------------------------------------------
+#
 BasicExample_1nke42v: "Bienvenue sur viteTranslate"
 DynamicExample_1wltsn1: "Salut %s, comment ça va ?"
 PlaceholderExample_1dxcv5l: "Nom d'utilisateur"

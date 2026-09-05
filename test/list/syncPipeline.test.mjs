@@ -41,7 +41,7 @@ function progetto() {
     servizio: (tabella) => ({
       localeDir,
       sourceLanguage: "it-IT",
-      sourceTable: { __builder__: { v: 1, languageName: "italiano", incomplete: false }, ...tabella },
+      sourceTable: { ...tabella },
       notTranslated: {},
     }),
     /**
@@ -58,7 +58,7 @@ function progetto() {
     },
     testo: (tag) => readFileSync(percorso(tag), "utf8"),
     scrivi: (tag, testo) => writeFileSync(percorso(tag), testo, "utf8"),
-    tabella: (tag) => readLanguageFile(percorso(tag)),
+    tabella: (tag) => readLanguageFile(percorso(tag)).table,
     file: () => readdirSync(localeDir).sort(),
     mtime: (tag) => statSync(percorso(tag)).mtimeMs,
     percorso,
@@ -103,11 +103,11 @@ console.log("\n== creazione da zero ==");
 
   eq("scrive solo la lingua sorgente", "it-IT.yml", p.file().join(","));
   const t = p.tabella("it-IT");
-  eq("chiavi scritte", "App_a,App_b", Object.keys(t).filter((k) => k !== "__builder__").sort().join(","));
+  eq("chiavi scritte", "App_a,App_b", Object.keys(t).sort().join(","));
   eq("valori scritti", "Ciao,Mondo", [t.App_a, t.App_b].join(","));
-  eq("builder presente", 1, t.__builder__.v);
   eq("niente da tradurre", false, p.testo("it-IT").includes(SEPARATORE));
   eq("intestazione: 0 mancanti", true, /missing key: 0/.test(p.testo("it-IT")));
+  eq("intestazione con TableVersion", true, /TableVersion: \d+/.test(p.testo("it-IT")));
 }
 
 // --------------------------------------------------------------- una lingua in più
@@ -122,12 +122,11 @@ console.log("\n== una lingua nuova (file creato vuoto a mano) ==");
   eq("riconosciuto come lingua nuova", "new language, was empty", esito.languages.find((l) => l.tag === "en-US")?.note);
   eq("con le sue chiavi da tradurre", 2, esito.languages.find((l) => l.tag === "en-US")?.missing);
   const { tradotte, daTradurre } = sezioni(p.testo("en-US"));
-  eq("solo il builder è 'tradotto'", "__builder__", tradotte.join(","));
+  eq("niente è ancora 'tradotto'", "", tradotte.join(","));
   eq("tutto il resto è da tradurre", "App_a,App_b", daTradurre.join(","));
   const t = p.tabella("en-US");
   eq("le chiavi nuove valgono null", "null,null", [JSON.stringify(t.App_a), JSON.stringify(t.App_b)].join(","));
-  eq("incomplete: true", true, t.__builder__.incomplete);
-  eq("il nome della lingua è il suo, non quello della sorgente", "American English", t.__builder__.languageName);
+  eq("intestazione: 2 mancanti", true, /missing key: 2/.test(p.testo("en-US")));
 
   // Il file della lingua sorgente segnala le chiavi che mancano ALTROVE: è lì che si vede
   // che c'è ancora lavoro da fare, senza aprire tutte le lingue una per una.
@@ -147,8 +146,18 @@ console.log("\n== traduzione completata a mano ==");
   eq("la sezione da tradurre sparisce", false, p.testo("en-US").includes(SEPARATORE));
   const t = p.tabella("en-US");
   eq("le traduzioni restano", "Hello,World", [t.App_a, t.App_b].join(","));
-  eq("incomplete torna false", false, t.__builder__.incomplete);
+  eq("intestazione: 0 mancanti", true, /missing key: 0/.test(p.testo("en-US")));
   eq("la sorgente non elenca più nulla", false, p.testo("it-IT").includes(SEPARATORE));
+
+  // Il caso che motivava "incomplete": una sub-lingua che si completa fa riscrivere anche il
+  // file della lingua sorgente (la sua sezione "to be translated" cambia). Confermato sopra.
+  // Qui si verifica l'altra metà: una volta riscritti, un'altra sync a codice fermo non li
+  // tocca di nuovo — il confronto è sugli mtime, non sul contenuto, perché una riscrittura
+  // inutile produrrebbe comunque gli stessi byte (a parte il timestamp) e passerebbe liscia.
+  const prima = { it: p.mtime("it-IT"), en: p.mtime("en-US") };
+  await p.sync({ App_a: "Ciao", App_b: "Mondo" });
+  eq("la sorgente non viene ritoccata", prima.it, p.mtime("it-IT"));
+  eq("la sub-lingua completata non viene ritoccata", prima.en, p.mtime("en-US"));
 }
 
 // ------------------------------------------------------------------- idempotenza
@@ -179,8 +188,8 @@ console.log("\n== chiavi rimosse dal codice ==");
   p.scrivi("en-US", p.testo("en-US").replace("App_a: null", 'App_a: "Hello"').replace("App_b: null", 'App_b: "World"'));
   await p.sync({ App_a: "Ciao" }); // App_b non esiste più nei sorgenti
 
-  eq("sparisce dalla sorgente", "App_a", Object.keys(p.tabella("it-IT")).filter((k) => k !== "__builder__").join(","));
-  eq("sparisce anche dalle sub-lingue", "App_a", Object.keys(p.tabella("en-US")).filter((k) => k !== "__builder__").join(","));
+  eq("sparisce dalla sorgente", "App_a", Object.keys(p.tabella("it-IT")).join(","));
+  eq("sparisce anche dalle sub-lingue", "App_a", Object.keys(p.tabella("en-US")).join(","));
 }
 
 console.log("\n== stesso testo, id nuovo: la traduzione si eredita ==");
@@ -230,7 +239,7 @@ console.log("\n== file di lingua non leggibile ==");
   eq("backup salvato", 1, backup(p, "corrupted").length);
   eq("il backup contiene il file com'era", true, testoBackup(p, "corrupted").includes("App_a: Hello senza virgolette"));
   eq("lo dice a chiare lettere", true, detto.includes("corrupted"));
-  eq("il file torna valido", "App_a", Object.keys(p.tabella("en-US")).filter((k) => k !== "__builder__").join(","));
+  eq("il file torna valido", "App_a", Object.keys(p.tabella("en-US")).join(","));
   eq("e riparte da tradurre", true, p.testo("en-US").includes(SEPARATORE));
   eq("il file precedente non è stato perso", true, salvato.includes("Hello"));
 }

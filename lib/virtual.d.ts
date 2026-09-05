@@ -40,7 +40,7 @@ declare module 'virtual:vitetranslate/languages' {
 
   /** Una lingua trovata in localeDir, con tutto ciò che al runtime serve saperne. */
   export interface LanguageEntry {
-    /** Nome nativo (autonimo), calcolato a sync-time e salvato in `__builder__`. */
+    /** Nome nativo (autonimo), calcolato con Intl.DisplayNames alla generazione del manifest. */
     name: string;
     /**
      * Importata staticamente: la tabella è già in bundle e il primo render non sospende.

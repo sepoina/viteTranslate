@@ -1,12 +1,13 @@
 #  -------------------------------------------------
 #      American English
 #       |    code: en-US
-#       |    missing key: 1
-#       |    processed: 2026-09-04 18:37
+#       |    missing key: 0
+#       |    processed: 2026-09-05 23:37
+#       |    TableVersion: 260905
 #  -------------------------------------------------
-__builder__: {"v":260824,"languageName":"American English","incomplete":true}
-#  -------------------------------------------------
+#
 App_18e29q3: "Playground"
+App_8faavq: "Vite plugin to extract strings from source code (%s marker and <Translate> component) and generate/synchronize translation tables. Language files are data files (.yml), not JS modules, stored in their own folder specified by localeDir, and lazily loaded one at a time: switching languages at runtime downloads only the necessary chunk, without bloating the initial bundle with unused languages."
 AppplaygroundStringfromjs_1vtdae9: "🗿"
 BasicExample_1ujwz35: "Welcome to viteTranslate"
 DynamicExample_kiyc37: "Hi %s, how are you?"
@@ -58,6 +59,3 @@ ZZZsnippetList_dhbcpz: "Dynamic translation"
 ZZZsnippetList_i9kzvl: "Format t={[text, arg1, arg2, ...]} to interpolate variables into the translated text."
 ZZZsnippetList_jbhldw: "Static translation"
 ZZZsnippetList_ska6o3: "Language switch"
-
-#  ----to be translated------------------------------------------
-App_8faavq: null

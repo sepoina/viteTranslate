@@ -14,6 +14,8 @@ import { mkdtempSync, rmSync, writeFileSync, readdirSync, statSync } from "node:
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { collectStatus } from "../../lib/dev/vite/uty/languageStatus.js";
+import buildLanguageHeader from "../../lib/dev/vite/uty/buildLanguageHeader.js";
+import { BUILDER_VERSION } from "../../lib/dev/vite/uty/builderVersion.js";
 
 let fail = 0;
 const eq = (nome, atteso, ottenuto) => {
@@ -22,7 +24,7 @@ const eq = (nome, atteso, ottenuto) => {
   console.log(ok ? "  ok  " : "  KO  ", nome.padEnd(52), "->", JSON.stringify(ottenuto), ok ? "" : `(atteso ${JSON.stringify(atteso)})`);
 };
 
-const V = 260824; // la versione di schema attesa, come BUILDER_VERSION in cli.js
+const V = BUILDER_VERSION; // la versione di schema attesa, come BUILDER_VERSION in cli.js
 const temporanee = [];
 
 /** Una localeDir usa e getta. `scrivi` prende il testo grezzo: il formato lo decide il test. */
@@ -32,11 +34,12 @@ function progetto() {
   return {
     localeDir,
     scrivi: (file, testo) => writeFileSync(join(localeDir, file), testo, "utf8"),
-    /** Una tabella di lingua ben formata, per i casi in cui il formato non è il punto. */
+    /** Una tabella di lingua ben formata (intestazione vera), per i casi in cui il formato non
+     * è il punto. */
     tabella: (tag, voci) =>
-      [`__builder__: {"v":${V},"languageName":"x","incomplete":false}`, ...voci].join("\n") + "\n",
+      [buildLanguageHeader({ tag, isSource: true, missingCount: 0, now: new Date() }), ...voci].join("\n") + "\n",
     stato: (sourceTable, sourceLanguage = "it-IT") =>
-      collectStatus({ localeDir, sourceLanguage, sourceTable: { __builder__: { v: V }, ...sourceTable } }, V),
+      collectStatus({ localeDir, sourceLanguage, sourceTable }, V),
   };
 }
 const riga = (stato, tag) => stato.rows.find((r) => r.tag === tag) ?? {};
@@ -52,7 +55,7 @@ console.log("\n== una tabella completa e allineata non ha niente da dire ==");
   eq("due lingue trovate", 2, s.rows.length);
   eq("nessun problema in tutto", "ok", s.level);
   eq("la sorgente è riconosciuta come tale", true, riga(s, "it-IT").isSource);
-  eq("chiavi contate senza __builder__", 1, riga(s, "fr-FR").keys);
+  eq("chiavi contate (solo contenuto)", 1, riga(s, "fr-FR").keys);
   eq("la lingua tradotta è ok", "ok", riga(s, "fr-FR").level);
 }
 
@@ -128,7 +131,7 @@ console.log("\n== i file 3.x non sono lingue: sono una migrazione da fare ==");
 console.log("\n== localeDir che non esiste ancora ==");
 {
   const s = collectStatus(
-    { localeDir: join(tmpdir(), "vt-status-inesistente-mai-creata"), sourceLanguage: "it-IT", sourceTable: { __builder__: { v: V } } },
+    { localeDir: join(tmpdir(), "vt-status-inesistente-mai-creata"), sourceLanguage: "it-IT", sourceTable: {} },
     V,
   );
   eq("nessuna riga", 0, s.rows.length);

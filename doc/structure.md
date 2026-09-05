@@ -273,10 +273,10 @@ Tags are checked by [`validateLanguageTag.js`](../lib/dev/vite/uty/validateLangu
 #      Italian (Italy) (sourceLanguage)
 #       |    code: it-IT
 #       |    missing key: 1
-#       |    processed: 2026-08-24 12:37
+#       |    processed: 2026-09-05 12:37
+#       |    TableVersion: 260905
 #  -------------------------------------------------
-__builder__: {"v":260824,"languageName":"Italian (Italy)","incomplete":true}
-#  -------------------------------------------------
+#
 App_1nke42v: "Welcome"
 
 #  ----to be translated------------------------------------------
@@ -307,39 +307,40 @@ So the parser accepts little, and strictly. The permitted forms, one per line, *
 
 ```yaml
 # whole-line comment                 (the generated header is made of these)
+#  ⋮   TableVersion: 260905          (the ONE comment line any code reads back — see below)
 Key_abc: "text"                      # JSON.parse of the value
 Key_abc: null                        # not yet translated
 Key_abc:                             # same — what remains after deleting the null
-__builder__: {"v":1,…}               # only this key may hold an object
 ```
 
-Everything else is an error carrying the **line number**: unquoted value, indented line, colon without a following space (`Key:"x"` is a string to YAML, not a map), trailing comment on a line with a value, duplicate key (js-yaml itself rejects them, and a line-based parser would silently let the last one win). The parser is [`parseLanguageFile.js`](../lib/dev/vite/uty/parseLanguageFile.js), ~40 lines, no dependencies.
+Everything else is an error carrying the **line number**: unquoted value (an object literal on any key included — nothing may hold one, not even the header), indented line, colon without a following space (`Key:"x"` is a string to YAML, not a map), trailing comment on a line with a value, duplicate key (js-yaml itself rejects them, and a line-based parser would silently let the last one win). The parser is [`parseLanguageFile.js`](../lib/dev/vite/uty/parseLanguageFile.js), ~40 lines, no dependencies.
 
-Three more rejections exist for one reason each — every one of them used to parse cleanly and fail somewhere else, far from the line that caused it:
+Two more rejections exist for one reason each — both used to parse cleanly and fail somewhere else, far from the line that caused it:
 
 | rejected | because |
 | --- | --- |
-| `__builder__:` / `: null` / `: "v1"` | it is the one entry the rest of the library dereferences without asking (`sourceTable.__builder__.v`). Clearing its value by hand read fine and dropped the build much later, on a `TypeError` with no line number. |
 | `toString:`, `constructor:`, `__proto__:`, … | names every object already has. `__proto__` does not even create a property; the others do, but they were "present" before the file existed — and the sync decides with `key in table`, which walks the prototype. Such a key never counts as surplus, so it is never removed: it stays in the file forever. `sanitizeName` cannot produce any of them. |
 | a NUL byte anywhere | the file is not UTF-8. A language file saved as UTF-16 (Windows Notepad, "Unicode") reads back as the right text with a NUL between every character; the error used to talk about syntax, and the encoding was unguessable. |
 
 Error messages quote the offending line, and that quote is stripped of control characters first: the text comes from a file that is by definition not what we expected, and an ANSI sequence left in it would not appear in the message — it would recolour it, or erase the line it is being written on.
 
-The rule that holds it all together lives on the writing side: **every value goes through `JSON.stringify` and nothing else**. JSON is a subset of YAML 1.2, so what we write is read identically by both sides. It only takes "prettifying" a line by hand — dropping the quotes around a key inside `__builder__`, say — for the two to start reading different things without saying so. `languageFileIO.test.mjs` checks exactly this: it serializes a table of hostile values and compares our parser against `js-yaml`, line by line.
+The rule that holds it all together lives on the writing side: **every value goes through `JSON.stringify` and nothing else**. JSON is a subset of YAML 1.2, so what we write is read identically by both sides. It only takes "prettifying" a line by hand — quoting a number, say, to make it look intentional — for the two to start reading different things without saying so. `languageFileIO.test.mjs` checks exactly this: it serializes a table of hostile values and compares our parser against `js-yaml`, line by line — and asserts that no value in the round-tripped table is ever an object, only a string or `null`.
 
 Keys need no quotes and cannot ever need them: `sanitizeName` in [`markerCore.js`](../lib/dev/babel/markerCore.js) reduces them to `[A-Za-z0-9]` plus the checksum, so they never contain `:` — and that is what makes it safe to cut the line at the first `:` character.
 
-The header and `__builder__` are bookkeeping regenerated on every sync — look, don't edit; `incomplete` is written only when `true`, because `false` is the implicit value restored on reading.
+The header is bookkeeping regenerated on every sync — look, don't edit. It carries exactly one line any code reads back: `TableVersion`, matched by a regex anchored to the leading `#`, so a translated value that happens to contain that literal text on a non-comment line can never be mistaken for it. A file written by 4.0.6 or earlier carried the version in a `__builder__` table entry instead; that entry is still recognized on read (for compatibility, once) and then discarded — it never reappears in the table, and the next sync rewrites the file in the current format. The header's last line is a bare `#`: no information in it, just visual breathing room before the first key — a comment rather than a blank line, so the header stays a block of comments with no odd line in the middle.
 
 ### Empty, emptied, unreadable
 
-Three states that look alike from a distance and lead to three different decisions:
+Three states that look alike from a distance and lead to three different decisions — but only two of them are still told apart by the parser:
 
 - **empty file** (zero bytes, or whitespace only) → this is the documented way to add a language: it gets populated with the source keys set to `null`, with no backup, because there is nothing to lose;
-- **file with content but no entries** (entries deleted, header left behind) → this is **not** a new language, it is an emptied one. `parseLanguageFile` reports it as an error on purpose, so it lands in the `.bak-corrupted-*` backup branch instead of being silently repopulated;
+- **file with content, however little** → `parseLanguageFile` returns whatever table it finds, even an empty one (`{}`). Before 4.0.7 a table with zero entries was rejected on the spot, because `__builder__` counted as an entry and its absence meant "every real key was deleted by hand" — a shape the parser alone could tell apart from a brand-new file. Without that sentinel, an **emptied** file (entries deleted, header left behind) and a legitimately **empty** table look identical from the parser's side: both come back as `{}`. Telling them apart now needs the reference table from the source scan, which only the caller has: [`updateAllSubLanguages.js`](../lib/dev/vite/updateAllSubLanguages.js) backs up the file — under `.bak-corrupted-*`, same as any other corruption — and repopulates it whenever the reference table has keys but the file has none. The source language file gets no equivalent check: it is fully regenerable from the source scan, so the normal sync just rewrites it;
 - **file that does not open at all** (a *directory* named `fr-FR.yml`, permissions, a dangling symlink) → we do not know what is in it, so it is neither backed up nor rewritten: **nothing that could not be read is ever overwritten**. It is reported and left exactly where it is, while every other language syncs as usual. Backing it up would have written an empty file and called it a copy; rewriting it would have replaced unknown content with a table reconstructed from the scan.
 
-The three are told apart by [`readLanguageFile`](../lib/dev/vite/uty/readLanguageFile.js), which returns `undefined` for the first and throws for the other two — with `unreadable: true` on the third. The error also carries the text it was parsing (`sourceText`), so the caller that has to back it up does not read the file a second time: between the two reads the file can change, and the backup would then snapshot something other than what caused it.
+[`readLanguageFile`](../lib/dev/vite/uty/readLanguageFile.js) returns `{ table, meta }`: `table` is `undefined` for the first case, an object (possibly empty) for the second, and reading throws for the third — with `unreadable: true` on the error. The error also carries the text it was parsing (`sourceText`), so the caller that has to back it up does not read the file a second time: between the two reads the file can change, and the backup would then snapshot something other than what caused it.
+
+One side effect is accepted knowingly: `checkSetup` no longer reports `source-invalid` for a source file that has been emptied by hand — it only checks `table !== undefined`, and an emptied table is `{}`, not `undefined`. The dev server starts with an empty table, and the next sync rebuilds it. It is a startup gate, not a data guard.
 
 ### Migrating from 3.x
 
@@ -733,7 +734,7 @@ flowchart TD
 | --- | --- | --- | --- |
 | `locale/it-IT.yml` (source) | disk | sync command, entirely | **no**, fully auto-generated |
 | `locale/xx-XX.yml` (targets) | disk | sync command (keys), **human** (values) | yes, translation values only |
-| Top header comment + `__builder__` | disk, inside locale files | sync command | **no**, overwritten on sync |
+| Top header comment | disk, inside locale files | sync command | **no**, overwritten on sync |
 | `.bak-corrupted-*` / `.bak-erased-*` | disk, alongside locale files | safety backup routines | backup copies for inspection |
 | Compiled language tables | bundler module graph only | `compile-locale` plugin | does not exist as physical file |
 | Virtual language manifest module | bundler module graph only | `vitetranslate` plugin | does not exist as physical file |
@@ -829,13 +830,14 @@ Architectural constraints that must be preserved to prevent subtle or silent fai
 5. **Source code transformation must never touch `localeDir`**, not even if a translated string happens to contain `_%_`: those are data, not source.
 6. **A language file is read, not executed.** No `import()`, no `vm`: reading goes through [`parseLanguageFile.js`](../lib/dev/vite/uty/parseLanguageFile.js) and nothing else. This is the reason for 4.0: as long as the file was a JS module, Node's ESM module cache was involved — never released and with no eviction API (measured: 24 kB retained per translator file save, 7 MB after 300). The only exception is `--migrate`, a manual command you run once, whose whole purpose is getting the JS modules out of the way.
    A corollary that carries as much weight as the rule: **whatever the parser accepts, a real YAML parser must read the same way.** That holds as long as every value is written by `JSON.stringify`; the parity test in `languageFileIO.test.mjs` exists to notice if it stops holding.
-   And further: **empty file ≠ emptied file ≠ unreadable file.** The first is a new language to populate, the second is an error that must trigger the backup, the third must be reported and left untouched. Collapsing the first two means repopulating with `null` a file that held translations, with no safety net; collapsing the third into the second means writing an empty file, calling it a backup, and overwriting content nobody ever read.
+   And further: **empty file ≠ emptied file ≠ unreadable file.** The first is a new language to populate. The second and the first are `{}` alike as far as the parser can tell since 4.0.7 (see [Empty, emptied, unreadable](#empty-emptied-unreadable)): telling them apart needs the reference table from the source scan, and it is the caller — not the parser — that backs one up before repopulating it. The third must be reported and left untouched: collapsing it into the second means writing an empty file, calling it a backup, and overwriting content nobody ever read.
 7. **`splitAndSortEntries` must sort with an explicit locale (`"en"`).** Without it, the same table sorts differently between a development machine and CI, and files look "changed" without being so.
 8. **Every divergence between build and runtime must be reported, not hidden.** This is the rule that produced the warnings about nested markers, ID collisions, and crossed tags.
 9. **Diagnostics must cost nothing where they are off.** `errorSolve` is resolved at build time, so with the defaults a production build ships neither the prefixes nor the data feeding them: `__untranslated__` is not emitted in the language chunks and `partiallyTranslated` stays empty. Anyone adding a new prefix also adds the condition that avoids emitting it — otherwise every visitor pays bytes for information nobody will read. The same goes for **messages**: a template literal is evaluated before the call, so a message containing `describeValue()` — that is, a `JSON.stringify` — must be passed to `reportOnce` as a lambda together with a static key, otherwise it runs on every render even with the console off, which is the production default.
 10. **Never write over what could not be read.** It applies to a language file that does not open and to the directory that holds them: `readdirSync` returns names, and a name says nothing about what is behind it — a directory called `fr-FR.yml` used to become a language like any other. [`listLanguageFiles.js`](../lib/dev/vite/uty/listLanguageFiles.js) is the one place that asks, and every scan of `localeDir` goes through it.
 11. **At most one prefix per string.** Priority is `‼️` → `🔸` → `🔹`, and the saving path uses `diag.malformedOnly` precisely to avoid stacking a second one. Two glyphs in front of the same text say nothing more than the first, and make unreadable the very thing they were trying to show.
 12. **Nothing is ever written on the basis of a cached config.** `--fastverify` (see [Fast verify: the two-stage check](#fast-verify-the-two-stage-check)) decides only whether to *exit early*; the moment it finds anything worth a second look it falls through to loading `vite.config.*` for real and running the exact same full sync as the plain command. A cached `srcDir`/`localeDir`/`sourceLanguage` is good enough to answer "is there work to do?" — it is never good enough to decide what goes on disk.
+13. **The header carries exactly one machine-read line.** `TableVersion` is it, for as long as this format exists. The day "missing key" (or anything else in the header) also needs to be read back by code, the header stops being decoration and starts being a configuration file — a much bigger promise, and one that should be made on purpose, not by accretion. Whoever adds a second machine-read line to the header should read this rule and the corollary in point 6 together first.
 
 ---
 

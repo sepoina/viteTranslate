@@ -221,8 +221,8 @@ console.log("\n== il modulo virtuale generato dal plugin ==");
   };
   try {
     mkdirSync(locale, { recursive: true });
-    scrivi("it-IT", { __builder__: { v: 1, languageName: "italiano" }, App_a: "uno", App_b: "due", App_c: "tre" });
-    scrivi("en-US", { __builder__: { v: 1, languageName: "English", incomplete: true }, App_a: "one", App_b: null });
+    scrivi("it-IT", { App_a: "uno", App_b: "due", App_c: "tre" });
+    scrivi("en-US", { App_a: "one", App_b: null });
 
     const genera = async (errorSolve, isProduction) => {
       const [, plugin] = vitetranslate({ baseDir: dir, localeDir: "locale", sourceLanguage: "it-IT", preloadedLanguages: ["en-US"], errorSolve });

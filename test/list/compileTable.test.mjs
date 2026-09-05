@@ -98,7 +98,6 @@ const { table: L } = await load({
   minoreLetterale: "se a < b allora",
   argDentroTagIgnoto: "<span>ciao %s</span>",
   nullo: null,
-  __builder__: { v: 260727, languageName: "italiano (Italia)" },
 });
 
 eq("stringa vuota", "", show(L.vuoto));
@@ -117,9 +116,6 @@ eq("commento rimosso", "primadopo", show(L.commento));
 eq("< letterale non e' un tag", "se a < b allora", show(L.minoreLetterale));
 eq("arg dentro tag sciolto", "ciao aldo", show(L.argDentroTagIgnoto(["aldo"])));
 eq("null passa come null", null, L.nullo);
-// I metadati di sincronizzazione non hanno lettori nel bundle (il nome lingua arriva da
-// `languageNames`): restano sul file su disco e non vengono spediti al browser.
-eq("__builder__ escluso dal compilato", undefined, L.__builder__);
 
 eq("entita in testo puro resta stringa", "string", typeof L.entitaSoloTesto);
 eq("< letterale resta stringa", "string", typeof L.minoreLetterale);
@@ -148,7 +144,6 @@ eq("nessun helper se non ci sono args", false, soloTesto.includes("_arg"));
 // risoluzione dipendeva dall'avere la tabella sorgente sempre in bundle.
 console.log("\n== tabella autonoma ==");
 const SORGENTE = {
-  __builder__: { v: 1, languageName: "italiano" },
   tradotta: "originale",
   daTradurre: "testo non ancora tradotto",
   conMarkup: "resta <b>in grassetto</b>",
@@ -156,7 +151,6 @@ const SORGENTE = {
   soloNellaSorgente: "chiave che la sub-lingua non ha ancora",
 };
 const SUB = {
-  __builder__: { v: 1, languageName: "english" },
   tradotta: "translated",
   daTradurre: null,
   conMarkup: null,

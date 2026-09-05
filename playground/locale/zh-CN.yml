@@ -1,12 +1,13 @@
 #  -------------------------------------------------
 #      中文（中国）
 #       |    code: zh-CN
-#       |    missing key: 1
-#       |    processed: 2026-09-04 18:37
+#       |    missing key: 0
+#       |    processed: 2026-09-05 23:37
+#       |    TableVersion: 260905
 #  -------------------------------------------------
-__builder__: {"v":260824,"languageName":"中文（中国）","incomplete":true}
-#  -------------------------------------------------
+#
 App_18e29q3: "演练场"
+App_8faavq: "Vite 插件，用于从源码中提取字符串（%s 标记和 <Translate> 组件）并生成/同步翻译表。语言文件是数据文件（.yml），而非 JS 模块，存放在由 localeDir 指定的专用文件夹中，按需逐个懒加载：运行时切换语言只会下载所需的 chunk，不会因为未使用的语言而使初始 bundle 变得臃肿。"
 AppplaygroundStringfromjs_1vtdae9: "🐅"
 BasicExample_1ujwz35: "欢迎使用 viteTranslate"
 DynamicExample_kiyc37: "你好 %s，你好吗？"
@@ -58,6 +59,3 @@ ZZZsnippetList_dhbcpz: "动态翻译"
 ZZZsnippetList_i9kzvl: "使用 t={[文本, arg1, arg2, ...]} 格式将变量插值到已翻译的文本中。"
 ZZZsnippetList_jbhldw: "静态翻译"
 ZZZsnippetList_ska6o3: "语言切换"
-
-#  ----to be translated------------------------------------------
-App_8faavq: null

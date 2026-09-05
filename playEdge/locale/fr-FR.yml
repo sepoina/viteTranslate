@@ -2,10 +2,10 @@
 #      français (France)
 #       |    code: fr-FR
 #       |    missing key: 0
-#       |    processed: 2026-08-26 18:30
+#       |    processed: 2026-09-05 23:37
+#       |    TableVersion: 260905
 #  -------------------------------------------------
-__builder__: {"v":260824,"languageName":"français (France)"}
-#  -------------------------------------------------
+#
 App_1dtvcsy: "\n          <small>\n              La colonne <b>Attendu</b> vaut en <b>développement</b>, avec la langue source active et les fichiers de langue déjà synchronisés. Les marques <code>🔸</code> (non traduit ici) et <code>🔹</code> (non traduit ailleurs) ne sont pas rapportées : elles dépendent de l'état des fichiers de langue, pas de la ligne. <code>‼️</code>, <code>🚫</code> <code>⁇</code> font en revanche partie du résultat attendu. En build, les marques diagnostiques disparaissent — là où on lit <code>🚫[type]</code> ici, on ne rend plus rien — tandis que <code>⁇</code> reste : ce n'est pas un diagnostic mais un rendu normal.<br /> En passant la souris sur <code>&lt;/&gt;</code> à côté du nom de la ligne, on voit le code qui l'a produite.            \n          </small>            \n          "
 App_hk4mqd: " viteTranslate &nbsp;<b>%s</b>"
 ShowAllRowTests_1gizqwy: "attendu dans la source (IT)"

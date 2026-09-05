@@ -26,14 +26,13 @@ const localeDir = process.argv[3] ?? join(ROOT, "playground/locale");
 const sourcePath = join(localeDir, languageFileName(tag));
 
 // La lingua sorgente serve a riempire le chiavi non tradotte: il modulo prodotto dal bundler
-// è autonomo, e il dump deve mostrare esattamente quello. Si ricava dal file di lingua che
-// dichiara `__builder__` senza essere questo tag — in mancanza di config, la si passa come
-// terzo argomento.
+// è autonomo, e il dump deve mostrare esattamente quello. In mancanza di config, il tag si
+// passa come terzo argomento.
 const sourceTag = process.argv[4] ?? "it-IT";
-const table = readLanguageFile(sourcePath);
+const { table } = readLanguageFile(sourcePath);
 const sourceTable = sourceTag === tag
   ? null
-  : (() => { try { return readLanguageFile(join(localeDir, languageFileName(sourceTag))); } catch { return null; } })();
+  : (() => { try { return readLanguageFile(join(localeDir, languageFileName(sourceTag))).table; } catch { return null; } })();
 const compiled = compileLanguageModule(table, tag, sourceTable);
 
 const outPath = join(OUT_DIR, `${tag}.compiled.js`);

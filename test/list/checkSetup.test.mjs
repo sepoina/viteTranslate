@@ -9,6 +9,7 @@ import { mkdtempSync, rmSync, writeFileSync, mkdirSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import checkSetup from "../../lib/dev/vite/uty/checkSetup.js";
+import buildLanguageHeader from "../../lib/dev/vite/uty/buildLanguageHeader.js";
 
 let fail = 0;
 const eq = (nome, atteso, ottenuto) => {
@@ -24,8 +25,9 @@ function cartellaVuota() {
   return dir;
 }
 const scrivi = (dir, file, testo) => writeFileSync(join(dir, file), testo, "utf8");
-const V = 260824;
-const builder = (extra = "") => `__builder__: {"v":${V},"languageName":"x","incomplete":false${extra}}`;
+// L'intestazione vera, non un letterale a mano: così questi test non divergono dal contratto
+// verificato in headerContract.test.mjs.
+const builder = () => buildLanguageHeader({ tag: "it-IT", isSource: true, missingCount: 0, now: new Date() });
 const tabellaOk = (voci = []) => [builder(), ...voci].join("\n") + "\n";
 
 // ------------------------------------------------------- ok
@@ -123,6 +125,19 @@ console.log("\n== il file della sorgente c'è ma non è nel formato: source-inva
   const r = checkSetup({ localeDir: dir, localeDirLabel: "locale", sourceLanguage: "it-IT" });
   eq("non ok", false, r.ok);
   eq("reason", "source-invalid", r.reason);
+}
+
+// Effetto collaterale accettato della rimozione di __builder__ (vedi doc/ImplementationPlans/
+// 4_0_7.md, "Rischi"): senza quella voce a fare da sentinella, un'intestazione con zero chiavi
+// non si distingue più, nella FORMA, da una lingua legittimamente vuota — solo la sync, che
+// conosce il riferimento, può farlo. checkSetup non lo sa e non deve più bloccare l'avvio: la
+// sync successiva ricostruisce il file.
+console.log("\n== il file della sorgente ha l'intestazione ma zero chiavi: non più source-invalid ==");
+{
+  const dir = cartellaVuota();
+  scrivi(dir, "it-IT.yml", tabellaOk());
+  const r = checkSetup({ localeDir: dir, localeDirLabel: "locale", sourceLanguage: "it-IT" });
+  eq("ok", true, r.ok);
 }
 
 // ------------------------------------------------------- sola lettura
