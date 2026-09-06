@@ -303,6 +303,44 @@ console.log("\n== usi scorretti: si salva il testo, non si esplode ==");
   eq("un errore già visto non si ripete", prima, errori.length);
 }
 
+// ------------------------------------------------------------- ts() allineato a <Translate>
+console.log("\n== ts(): gli stessi usi scorretti di <Translate> ==");
+{
+  // Il difetto che questo piano corregge: con i mark diagnostici SPENTI — una build di
+  // produzione con i default, come in questo manifest — ts() scriveva "[object Object]",
+  // "() => {}", "undefined", "null", "true" dentro un aria-label. <Translate> rende "" per
+  // gli stessi cinque input: qui si verifica che i due siano allineati, non il valore in sé.
+  const casi = [
+    ["elemento dentro la tupla", [h("b", null, "x")]],
+    ["funzione dentro la tupla", [() => {}]],
+    ["tupla vuota", []],
+    ["tupla con solo null", [null]],
+    ["booleano true", true],
+  ];
+  for (const [nome, valore] of casi) {
+    eq(`<Translate> ${nome}`, "", rendi({ t: valore }, linguaAttiva));
+
+    // Solo su ts(): è la parte nuova, e nessun test precedente l'ha già esercitata con questi
+    // valori, quindi la chiave di reportOnce è garantita fresca (il registro è globale al
+    // processo — vedi errorSolve.js — e alcuni di questi "generi" di valore, `badDom` e `func`
+    // in testa, sono già stati segnalati più sopra per <Translate>, con lo stesso identificativo
+    // di `badDataKind`: riverificarlo qui sarebbe un falso negativo dovuto all'ordine dei test,
+    // non un difetto).
+    const contaTs = errori.length;
+    eq(`ts() ${nome}`, "", ts(valore, undefined, linguaAttiva));
+    eq(`ts() ${nome}: un errore in console`, true, errori.length > contaTs);
+  }
+}
+
+console.log("\n== ts(): tupla senza argomenti propri (Punto 3, l'asimmetria da conservare) ==");
+{
+  // Una tupla a un elemento solo non porta argomenti (`embedded === undefined`): a differenza
+  // di <Translate>, ts() non rifiuta la combinazione e lascia vincere l'argomento passato a
+  // parte, perché lì è naturale poterli passare entrambi.
+  eq("la tupla senza argomenti propri lascia vincere l'argomento posizionale",
+    "x Mario", ts(["_%_x %s_%_"], "Mario", linguaAttiva));
+}
+
 // ------------------------------------------------------------------------------- ts()
 console.log("\n== ts(): stringhe per le prop del DOM ==");
 {
@@ -432,6 +470,27 @@ export const partiallyTranslated = { "App_markup": 1 };
   // Le prop incompatibili restano un errore anche con skipMark: quella dichiara la natura del
   // valore, non mette a tacere il componente.
   eq("skipMark non copre le prop incompatibili", "‼️Hello world", rendiDiag({ t: marcatore("App_saluto"), children: marcatore("App_markup"), skipMark: true }));
+
+  console.log("\n== invariante 11: al massimo un prefisso per stringa ==");
+  // L'invariante che questo piano può rompere in silenzio, perché `salvage` passa
+  // `diag.malformedOnly` e il refactoring ne cambia il chiamante. Nelle due righe pari non
+  // deve mai comparire `‼️🔸` o `‼️🔹`: `‼️` ha già vinto, e il testo recuperato attraversa la
+  // catena con i prefissi di traduzione spenti.
+  eq("🔸 chiave non tradotta, da sola", "🔸Ciao Mario, come stai?", rendiDiag({ t: marcatore("App_conArg"), a: "Mario" }));
+  eq("🔸 con t e children insieme: solo ‼️", "‼️Ciao Mario, come stai?", rendiDiag({ t: marcatore("App_conArg"), a: "Mario", children: marcatore("App_saluto") }));
+  eq("🔹 chiave non tradotta altrove, da sola", "🔹text in <b>bold</b>", rendiDiag({ t: marcatore("App_markup") }));
+  eq("🔹 con t e children insieme: solo ‼️", "‼️text in <b>bold</b>", rendiDiag({ t: marcatore("App_markup"), children: marcatore("App_saluto") }));
+
+  console.log("\n== <Translate>: l'ordine dei controlli conta (Punto 2) ==");
+  // `v.tuple && a !== false` va deciso PRIMA di `v.domain`: con l'ordine invertito
+  // `t={[42]} a={[1]}` renderebbe silenziosamente "42" invece di andare al salvataggio. Il
+  // prefisso `‼️` è la prova visibile che è passato di lì, e non dal ramo diretto del numero
+  // (che non lo porta mai, vedi "nessun ‼️ per un numero" più sopra).
+  eq('t={[42]} a={[1]}: va al salvataggio, non "42" diretto', "‼️42", rendiDiag({ t: [42], a: [1] }));
+  // `tuple` è vero indipendentemente da quanti elementi porta: una tupla di un solo elemento
+  // insieme ad `a` resta un errore, esattamente come una tupla più lunga. Dedurlo da `embedded`
+  // (qui `undefined`, come "nessun argomento imbarcato") lo lascerebbe passare senza `‼️`.
+  eq('t={[marcatore]} a={[1]}: errore anche con la tupla a un elemento solo', "‼️Ciao 1, come stai?", rendiDiag({ t: [marcatore("App_conArg")], a: [1] }));
 
   console.log("\n== errorSolve: gli stessi prefissi da ts() ==");
   eq("ts() tradotta e completa", "Hello world", tsDiag(marcatore("App_saluto")));

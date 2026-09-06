@@ -7,10 +7,18 @@
 import type { FC, ReactElement, ReactNode } from 'react';
 
 /**
- * Valori che sostituiscono i `%s`, in ordine. Uno scalare vale come lista di un elemento;
- * un segnaposto rimasto senza valore diventa `⁇`. Un argomento può essere un nodo React.
+ * Un valore interpolabile in un `%s`. `ReactNode` e non `unknown`: copre stringhe, numeri,
+ * bigint, booleani, `null`, `undefined` ed elementi React — che sono esattamente le cose che
+ * la tabella compilata sa mettere in un buco — ed esclude funzioni e simboli, che a runtime
+ * finivano stringificati dentro un aria-label.
  */
-export type TranslateArgs = unknown | readonly unknown[];
+export type TranslateArg = ReactNode;
+
+/**
+ * Valori che sostituiscono i `%s`, in ordine. Uno scalare vale come lista di un elemento;
+ * un segnaposto rimasto senza valore diventa `⁇`.
+ */
+export type TranslateArgs = TranslateArg | readonly TranslateArg[];
 
 /** La forma a oggetto: testo e argomenti in un valore solo. */
 export interface TranslateObjectForm {

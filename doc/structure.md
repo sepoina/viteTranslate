@@ -150,6 +150,7 @@ lib/
 │   ├── parseCompiledMarker.js .. compiled marker -> key (cached)
 │   ├── interpolate.js .......... %s replacement for uncompiled strings
 │   ├── normalizeSource.js ...... object shape { t, a } -> string or tuple
+│   ├── readSource.js ........... shared verdict: EMPTY / ELEMENT / NOT_TEXT / TEXT (§ Phase 4)
 │   ├── withPrefix.js ........... attaches diagnostic prefix to string or React node
 │   └── basicHtmlToNodes.js ..... DOM-based HTML parser (dev mode + public API only)
 │
@@ -606,6 +607,32 @@ Lookup resolution precedence: **Active language table → Eager fallback table �
 
 Embedded fallback text exists specifically for development workflows: when a developer writes a new string, the compiled marker contains the text immediately, but locale files on disk only receive the key after running the sync command. In production builds, `includeFallback` defaults to `false` (since prebuild scripts execute sync prior to bundling), stripping fallback text parsing code and `basicHtmlToNodes` imports from the client bundle.
 
+### Shared normalization: `readSource.js`
+
+Before either emitter can reach `resolveEntry`, whatever was passed as `t` / `o` / `children` has to be reduced to one of four verdicts. [`readSource.js`](../lib/react/readSource.js) does exactly that reduction, and only that — nothing downstream of the verdict is shared:
+
+| `kind` | fields | meaning |
+| --- | --- | --- |
+| `EMPTY` | — | nothing to render: sentinel, `null`, `undefined`, `""` |
+| `ELEMENT` | `node` | a React element sits where text was expected |
+| `NOT_TEXT` | `why`, `source` | no text at all — `why` is `"noField"` (object without a `t` key) or `"badValue"` (function, symbol, an element inside the tuple…) |
+| `TEXT` | `text`, `tuple`, `embedded`, `domain` | there is text: `text` is always a primitive string, `tuple` says the value **was** an array regardless of length, `embedded` is the tuple's own arguments (`undefined`, never `[]`, when it carried none), `domain` is `true` for a number/bigint |
+
+`<Translate>` and `ts()` both call `readSource` and then diverge on purpose, because past the verdict the two really do have different rules:
+
+- **Recovery.** `<Translate>` has `salvage()` and `badData()` — it renders a node and can name what it found. `ts()` must return a primitive string, so a `NOT_TEXT` or `ELEMENT` verdict just renders `""`; nothing from `salvage`/`badData` is shared with it.
+- **Prop-combination checks.** `o` with `t`, `t` with `children`, `a` with the tuple form — these are props of a component. `ts()` takes positional arguments and never sees this.
+- **Argument precedence.** `<Translate>` rejects `a` alongside the tuple form outright. `ts()` lets the tuple win only if it actually carried arguments (`embedded !== undefined`), otherwise falling back to the positional argument — see "The order matters" below.
+
+The one thing this file fixed by existing: before it, `<Translate>` and `ts()` each re-implemented this same seven-step chain by hand, and the copies had drifted — `ts()` was missing the last step entirely, so a non-text value (a function, an element inside a tuple, an empty tuple) fell straight through to `String(value)` and printed `"[object Object]"`, `"() => {}"`, `"undefined"` inside an `aria-label`, where `<Translate>` already rendered `""`. `readSource` is the single place that decision is made now, so the two can't drift apart on it again.
+
+#### The order matters
+
+Two checks in the caller have to run in a specific order relative to the verdict, and getting it backwards changes behavior without failing anything:
+
+1. **`v.tuple && a !== false` before `v.domain`.** `t={[42]} a={[1]}` must go to `<Translate>`'s recovery path, not silently render `"42"`.
+2. **`tuple` is `true` regardless of how many elements the array has.** `t={["_%_x_%_"]} a={[1]}` is still an error even though the tuple carries no arguments of its own (`embedded === undefined`) — deriving "was a tuple" from "carried embedded args" would let this combination through silently.
+
 ### Diagnostic prefixes
 
 To prevent missing translations from silently rendering fallback text unnoticed during development, `errorSolve` prepends visible diagnostic indicator characters in development builds by default:
@@ -835,7 +862,7 @@ Architectural constraints that must be preserved to prevent subtle or silent fai
 8. **Every divergence between build and runtime must be reported, not hidden.** This is the rule that produced the warnings about nested markers, ID collisions, and crossed tags.
 9. **Diagnostics must cost nothing where they are off.** `errorSolve` is resolved at build time, so with the defaults a production build ships neither the prefixes nor the data feeding them: `__untranslated__` is not emitted in the language chunks and `partiallyTranslated` stays empty. Anyone adding a new prefix also adds the condition that avoids emitting it — otherwise every visitor pays bytes for information nobody will read. The same goes for **messages**: a template literal is evaluated before the call, so a message containing `describeValue()` — that is, a `JSON.stringify` — must be passed to `reportOnce` as a lambda together with a static key, otherwise it runs on every render even with the console off, which is the production default.
 10. **Never write over what could not be read.** It applies to a language file that does not open and to the directory that holds them: `readdirSync` returns names, and a name says nothing about what is behind it — a directory called `fr-FR.yml` used to become a language like any other. [`listLanguageFiles.js`](../lib/dev/vite/uty/listLanguageFiles.js) is the one place that asks, and every scan of `localeDir` goes through it.
-11. **At most one prefix per string.** Priority is `‼️` → `🔸` → `🔹`, and the saving path uses `diag.malformedOnly` precisely to avoid stacking a second one. Two glyphs in front of the same text say nothing more than the first, and make unreadable the very thing they were trying to show.
+11. **At most one prefix per string.** Priority is `‼️` → `🔸` → `🔹`, and the saving path uses `diag.malformedOnly` precisely to avoid stacking a second one. Two glyphs in front of the same text say nothing more than the first, and make unreadable the very thing they were trying to show. Guarded by `translateComponent.test.mjs`, section "invariante 11: al massimo un prefisso per stringa".
 12. **Nothing is ever written on the basis of a cached config.** `--fastverify` (see [Fast verify: the two-stage check](#fast-verify-the-two-stage-check)) decides only whether to *exit early*; the moment it finds anything worth a second look it falls through to loading `vite.config.*` for real and running the exact same full sync as the plain command. A cached `srcDir`/`localeDir`/`sourceLanguage` is good enough to answer "is there work to do?" — it is never good enough to decide what goes on disk.
 13. **The header carries exactly one machine-read line.** `TableVersion` is it, for as long as this format exists. The day "missing key" (or anything else in the header) also needs to be read back by code, the header stops being decoration and starts being a configuration file — a much bigger promise, and one that should be made on purpose, not by accretion. Whoever adds a second machine-read line to the header should read this rule and the corollary in point 6 together first.
 

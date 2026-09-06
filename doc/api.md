@@ -48,6 +48,8 @@
 
 Since translation tables are compiled at build time, a `%s` inside markup is a real JSX child, not a piece of string. So an argument can be any React node, and it is **never** interpreted as HTML — React escapes it like any other child. A `%s` left without a value renders as `⁇` (configurable, see [Diagnostics](diagnostics.md)).
 
+In TypeScript, an argument's type is `TranslateArg = ReactNode` (`TranslateArgs` is one of those, or a list of them). A `Date` used to slip through here, formatted with `String()` — the browser's own locale, not the app's — and is no longer accepted: format it before passing it in.
+
 A string **without** the marker is not an error: it is rendered as it is, and in development it carries a `‼️` in front of it so you can see the prop is receiving something nobody will translate. That is what lets one leaf component accept both translatable text and domain data without a wrapper deciding for it.
 
 ### Props
@@ -108,6 +110,8 @@ An optional third argument carries what are props on `<Translate>`:
 ```
 
 `{ skipMark: true }` says the same thing as the prop: an unmarked string is legitimate here, so no `‼️` and no console warning. A React element is the one form `ts()` does **not** take — it has to return a primitive string, so a mounted node is a real error and gets a message of its own.
+
+Anything else that isn't text either — a function, a symbol, an element inside the tuple form — renders `""`, same as `<Translate>` does for the same values, with a console warning during development.
 
 ## `useTranslateLanguage()`
 

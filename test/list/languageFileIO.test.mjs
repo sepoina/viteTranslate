@@ -412,6 +412,12 @@ console.log("\n== updateKeys: cosa è entrato e cosa è uscito ==");
   // updateKeys guarda le CHIAVI, non i valori: un testo sorgente riscritto senza cambiare id
   // non esiste (l'id è l'hash del testo), quindi qui non c'è nulla da rilevare.
   eq("stesso insieme di chiavi: nessuna variazione", false, fermo.changed);
+
+  // Pura: non tocca gli argomenti. Prima cancellava le chiavi in eccesso direttamente
+  // dall'oggetto ricevuto, mutandolo oltre a restituirne uno nuovo.
+  const argomento = { App_a: "a", App_b: "b" };
+  updateKeys(argomento, { App_a: "a" });
+  eq("l'argomento conserva tutte le sue chiavi", "App_a,App_b", Object.keys(argomento).sort().join(","));
 }
 
 for (const dir of temporanee) rmSync(dir, { recursive: true, force: true });
