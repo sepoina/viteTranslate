@@ -1,6 +1,6 @@
 {
   "name": "@sepoina/vitetranslate",
-  "version": "4.1.0",
+  "version": "4.1.1",
   "versionDescription": "A language table that holds nothing but text, and a header that carries its own format version.",
   "description": "Extract translatable strings straight from your JSX — a Vite plugin that auto-generates and syncs your translation tables, with zero runtime dependencies.",
   "author": {
