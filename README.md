@@ -64,18 +64,18 @@ The key is generated for you, the sync is a single command, and the runtime that
 
 Every library in this table solves the same problem. They differ in how much machinery you have to run, and how much of it ships to your users.
 
-| Feature | viteTranslate | i18next | Lingui | FormatJS |
-| :--- | :---: | :---: | :---: | :---: |
-| **Keyless / Natural text syntax** ¹ | ✅ | ❌ | ✅ | 🟡 |
-| **Auto-synced YAML tables** | ✅ | ❌ | ❌ | ❌ |
-| **Integrated extraction workflow** ² | ✅ | ❌ | ❌ | ❌ |
-| **Zero runtime dependencies** | ✅ | ❌ | ❌ | ❌ |
-| **Tiny runtime (≤ 5 kB gzip)** ³ | ✅ | ❌ | 🟡 | ❌ |
-| **Build-time message compilation** ⁴ | ✅ | ❌ | ✅ | ✅ |
-| **No runtime message parsing** ⁴ | ✅ | ❌ | 🟡 | 🟡 |
-| **Lazy-loaded locales** | ✅ | ✅ | ✅ | ✅ |
-| **Native Vite integration** | ✅ | ❌ | 🟡 | ❌ |
-| **License** | Apache-2.0 | MIT | MIT | Apache-2.0 |
+| Feature                              | viteTranslate | i18next | Lingui |  FormatJS  |
+| :----------------------------------- | :-----------: | :-----: | :----: | :--------: |
+| **Keyless / Natural text syntax** ¹  |      ✅       |   ❌    |   ✅   |     🟡     |
+| **Auto-synced YAML tables**          |      ✅       |   ❌    |   ❌   |     ❌     |
+| **Integrated extraction workflow** ² |      ✅       |   ❌    |   ❌   |     ❌     |
+| **Zero runtime dependencies**        |      ✅       |   ❌    |   ❌   |     ❌     |
+| **Tiny runtime (≤ 5 kB gzip)** ³     |      ✅       |   ❌    |   🟡   |     ❌     |
+| **Build-time message compilation** ⁴ |      ✅       |   ❌    |   ✅   |     ✅     |
+| **No runtime message parsing** ⁴     |      ✅       |   ❌    |   🟡   |     🟡     |
+| **Lazy-loaded locales**              |      ✅       |   ✅    |   ✅   |     ✅     |
+| **Native Vite integration**          |      ✅       |   ❌    |   🟡   |     ❌     |
+| **License**                          |  Apache-2.0   |   MIT   |  MIT   | Apache-2.0 |
 
 > 🟡 Available with additional tooling or configuration, but not part of the core default workflow.
 
@@ -157,7 +157,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
 );
 ```
 
-Then mark your strings, one at a time, with `_%_..._%_`, and render them through `<Translate>`:
+Then mark your strings, one at a time, with `_%_..._%_`, and render them through `<Translate>` (follow these links for more complex examples of [language switching](https://sepoina.github.io/viteTranslate/#cambio-lingua), [dynamic variables](https://sepoina.github.io/viteTranslate/#traduzione-dinamica), and [placeholders & attributes](https://sepoina.github.io/viteTranslate/#placeholder-e-attributi)):
 
 ```jsx
 // App.jsx
@@ -187,7 +187,7 @@ Adding a language is the same command with a flag:
 npx vtranslate-cli --add fr-FR
 ```
 
-The new file arrives with every key listed and `null` where each translation goes. See [the file format](doc/translations.md) for how to fill it in, and [the CLI guide](doc/cli.md) for the other flags.
+The new file arrives (see here for [showcase](https://sepoina.github.io/viteTranslate/#install-nuova-lingua)) with every key listed and `null` where each translation goes. See [the file format](doc/translations.md) for how to fill it in, and [the CLI guide](doc/cli.md) for the other flags.
 
 ### Running the sync automatically
 
@@ -212,17 +212,17 @@ The plugin compiles markers, but it never writes to your tables. Only `vtranslat
 
 Everything past "hello world" lives in `doc/`, one topic per page:
 
-| Guide | Covers |
-| :--- | :--- |
-| [**CLI**](doc/cli.md) | `vtranslate-cli` flags, `--status`, migrating from 3.x |
-| [**API reference**](doc/api.md) | `<Translate>`, `useTranslateToString`, `useTranslateLanguage`, `TranslateContainer`, preloading & Suspense |
-| [**Plugin options**](doc/plugin-options.md) | Full `vitetranslate(options)` reference |
-| [**Translation file format**](doc/translations.md) | The `.yml` layout, adding a new language |
-| [**Diagnostics**](doc/diagnostics.md) | `errorSolve` — what each on-screen mark means and when it fires |
-| [**BCP 47 codes**](doc/bcp47.md) | Supported language/region tags |
-| [**Architecture**](doc/structure.md) | How a marked string travels from source to browser, with diagrams |
-| [**Known limitations**](doc/limitations.md) | Edge cases and constraints to be aware of |
-| [**Requirements**](doc/requirements.md) | Supported peer dependency versions |
+| Guide                                              | Covers                                                                                                     |
+| :------------------------------------------------- | :--------------------------------------------------------------------------------------------------------- |
+| [**CLI**](doc/cli.md)                              | `vtranslate-cli` flags, `--status`, migrating from 3.x                                                     |
+| [**API reference**](doc/api.md)                    | `<Translate>`, `useTranslateToString`, `useTranslateLanguage`, `TranslateContainer`, preloading & Suspense |
+| [**Plugin options**](doc/plugin-options.md)        | Full `vitetranslate(options)` reference                                                                    |
+| [**Translation file format**](doc/translations.md) | The `.yml` layout, adding a new language                                                                   |
+| [**Diagnostics**](doc/diagnostics.md)              | `errorSolve` — what each on-screen mark means and when it fires                                            |
+| [**BCP 47 codes**](doc/bcp47.md)                   | Supported language/region tags                                                                             |
+| [**Architecture**](doc/structure.md)               | How a marked string travels from source to browser, with diagrams                                          |
+| [**Known limitations**](doc/limitations.md)        | Edge cases and constraints to be aware of                                                                  |
+| [**Requirements**](doc/requirements.md)            | Supported peer dependency versions                                                                         |
 
 🧪 **[Edge cases, live](https://sepoina.github.io/viteTranslate/edge/)** — every call form and diagnostic, side by side with what it renders.
 
@@ -231,11 +231,6 @@ Everything past "hello world" lives in `doc/`, one topic per page:
 ## 🎮 Playground
 
 A runnable example lives in [`playground/`](playground), deployed at **[sepoina.github.io/viteTranslate](https://sepoina.github.io/viteTranslate/)**.
-
-```bash
-npm run playground
-npm run playground:build
-```
 
 Alongside it, **[/edge/](https://sepoina.github.io/viteTranslate/edge/)** tables the edge cases — malformed markers, `%s` without an argument, mis-nested markup, values that aren't text — from its own app, [`playEdge/`](playEdge), which keeps every diagnostic mark on even in production.
 
