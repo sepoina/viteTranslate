@@ -1,6 +1,7 @@
 import {
-  markedTextOf, innerTextOf, compiledMarker, escapeTemplateRaw, registerMarker,
+  markedTextOf, innerTextOf, escapeTemplateRaw, registerMarker,
 } from "../../lib/dev/babel/markerCore.js";
+import { compiledMarker } from "../../lib/markerSyntax.js";
 
 // IMPLEMENTAZIONE DI RIFERIMENTO — non fa parte della libreria e non viene distribuita.
 //
