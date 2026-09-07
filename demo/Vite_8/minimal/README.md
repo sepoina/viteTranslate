@@ -29,11 +29,11 @@ npm run preview  # preview the build
 npm run lint     # ESLint
 ```
 
-The dev server doesn't update the tables — the `vtranslate-cli` command does, exposed here as
-`npm run prebuild` and already hooked into `npm run build` through npm's lifecycle. So after
-adding or changing a marked string in the source, `npm run prebuild` (or `npm run build`
-directly) is the step that brings the change into `locale/`. In dev, saving a language
-file reloads the page, so a translation you just wrote shows up right away.
+Both `npm run dev` and `npm run build` keep `locale/` in sync by themselves — no `predev` or
+`prebuild` script to run — so adding or changing a marked string in the source just needs a
+restart of the dev server (or a build) to show up in the tables. The `vtranslate-cli` command
+is still there for `--add`, `--status` and `--migrate`. In dev, saving a language file reloads
+the page, so a translation you just wrote shows up right away.
 
 ## StackBlitz
 

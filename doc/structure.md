@@ -104,6 +104,8 @@ mindmap
       vite
         updateLanguage.js
         updateAllSubLanguages.js
+        syncCore.js
+        autoSync.js
         uty
     shared
       htmlDialect.js
@@ -137,7 +139,9 @@ lib/
 │       ├── vitetranslate.js .... the "vitetranslate" plugin: options, transform, virtual module hooks
 │       ├── buildManifest.js .... the virtual module content (languages, preloads, fallback table)
 │       ├── compileLocale.js .... the "vitetranslate:compile-locale" transform
-│       ├── cli.js .............. "vtranslate-cli" CLI entry
+│       ├── cli.js .............. "vtranslate-cli" CLI entry: argument parsing, calls syncCore.js
+│       ├── syncCore.js ......... the sync itself, extracted from cli.js — two callers: cli.js and autoSync.js
+│       ├── autoSync.js ......... the fourteen guards deciding WHETHER to sync from the plugin's `config` hook
 │       ├── updateLanguage.js ... source language synchronization
 │       ├── updateAllSubLanguages.js  sync for all target languages
 │       └── uty/ ................ sync utilities (listing, reading, writing, backup, sorting) —
@@ -190,12 +194,29 @@ Two edge cases trigger a `console.warn` instead of failing silently, as both wou
 ## Phase 1 — Precompilation: the sync command
 
 ```bash
-npx vtranslate-cli   # typically executed as a "prebuild" script
+npx vtranslate-cli   # --add, --status, --migrate — the flags you reach for on purpose
 ```
 
 The bin is `vtranslate-cli` from 4.1; the previous name, `vitetranslate-prepare-translation-table`, stays registered in `"bin"` as an alias so existing `prebuild` scripts keep working. Only the new one appears in the messages: `CLI_NAME` in [`cli.js`](../lib/dev/vite/cli.js) is the single place it is written, because a command that names itself two different ways is worse than one that picks.
 
 This is the only phase that **writes** into the localization directory.
+
+### Auto-sync at config time
+
+Since 4.2, running this command by hand at every dev server start or before every build is no longer required: the plugin does it for you, from inside Vite's `config` hook — the one moment before a server exists, before a module has been resolved, before anything could see a half-written table (see [invariant 4](#invariants-not-to-break)). Same code, same output, called for you instead of a `predev`/`prebuild` script you had to remember to write and keep in sync across every project.
+
+The fourteen guards that decide **whether** to run live in [`autoSync.js`](../lib/dev/vite/autoSync.js); the sync itself was extracted out of `cli.js` into [`syncCore.js`](../lib/dev/vite/syncCore.js), so the CLI and the plugin call the exact same function instead of two copies of the same logic drifting apart. In short, cheapest first:
+
+- `VITETRANSLATE_NO_SYNC` (any non-empty value) turns both off without touching `vite.config.*` — the way in from a read-only checkout.
+- Never runs under Vitest or `vite preview`, and never a second time for the same build's SSR pass.
+- `autoSyncDev` and `autoSyncBuild` gate `serve`/`build` independently (see [plugin options](plugin-options.md)); only `false` turns one off.
+- Concurrent or repeated calls for the same config wait on the same run instead of starting a second one — keyed on the **config**, not a process-level flag, because Vite reimports `vite.config.*` on every dev-server restart while this module stays in Node's module cache; a boolean would survive the restart and block the very resync a changed `sourceLanguage` needs.
+- A missing `@babel/core` degrades to a warning that names the CLI — it never kills the dev server over an optional peer dependency.
+- 3.x language files (`<tag>.js`) sitting next to no migrated source table stop it, pointing at `--migrate`, rather than let auto-sync create a brand new source table as if they never existed.
+- In dev it uses the same fast verify `--fastverify` uses, cross-checked against the **live** config (see [Fast verify](#fast-verify-the-two-stage-check)); in build it always runs the full scan. The fast path is silent when there is nothing to do — no header, no line, nothing.
+- A real failure is printed and re-thrown, so `vite dev`/`vite build` exits non-zero — the same outcome a failing `predev` used to produce.
+
+Set `autoSyncDev: false` and `autoSyncBuild: false` to get back exactly the pre-4.2 behavior: nothing runs until `vtranslate-cli` is called by hand.
 
 ```mermaid
 sequenceDiagram
@@ -361,13 +382,15 @@ A successful run of `vtranslate-cli` leaves two small files inside `<baseDir>/no
 
 **`session.json`**, written by [`sessionStore.js`](../lib/dev/vite/uty/sessionStore.js), holds `localeDir`, `sourceLanguage`, and `lastLanguage` (the last `--add`, or otherwise the last language the sync touched) — not written by `--status`, which writes nothing at all. The store is built around one rule: it must never be the reason a build fails. `readSession` returns `null` — never throws — on a missing file, a corrupted one, or one written by a schema version other than the one this code expects; `writeSession` does nothing at all if `node_modules` does not exist yet (a project not `npm install`ed, or a package manager in a mode that skips it), and otherwise writes through a temp file plus `rename` in the same directory, so a `vite dev` and a `vtranslate-cli` run from another terminal at the same time do not corrupt each other's write. The plugin writes to the same file at dev server startup once its own setup check passes (see [Phase 3](#phase-3--the-virtual-module-and-code-splitting)), and the dev reporter records the signature of the last warnings shown (see [Console output during dev](#console-output-during-dev)) — three writers, one merge-and-rewrite helper, `version`/`updatedAt`/`pkgVersion` always stamped by the store itself rather than by whoever calls it.
 
-**`scan.json`**, written by [`scanRecord.js`](../lib/dev/vite/uty/scanRecord.js), is a separate file rather than a few more fields on `session.json`: on a few thousand source files it runs to roughly 200 kB, and `session.json` is parsed at every dev server startup just to print one line — making that read pay for a record it never needs would be the exact waste `--fastverify` exists to remove. It shares `sessionStore.js`'s two disk-safety helpers (`leggiJson`/`scriviJson`: read never throws, write does nothing without `node_modules`) but differs on two points, both deliberate: `writeScan` **replaces** the record instead of merging into it — it is rebuilt whole on every sync, and a merge would leave stale entries for deleted files lying around — and there is a `clearScan`, which `session.json` has no equivalent for: a sync that skipped files on the way (see `skipped` in [Phase 1](#phase-1--precompilation-the-sync-command)) must **remove** the old record rather than leave it describing a state that is no longer true.
+**`scan.json`**, written by [`scanRecord.js`](../lib/dev/vite/uty/scanRecord.js), is a separate file rather than a few more fields on `session.json`: on a few thousand source files it runs to roughly 200 kB, and `session.json` is parsed at every dev server startup just to print one line — making that read pay for a record it never needs would be the exact waste `--fastverify` exists to remove. It has a second reader since 4.2: the plugin's own auto-sync (see [Auto-sync at config time](#auto-sync-at-config-time)) calls `fastVerify` too, from inside the `config` hook. It shares `sessionStore.js`'s two disk-safety helpers (`leggiJson`/`scriviJson`: read never throws, write does nothing without `node_modules`) but differs on two points, both deliberate: `writeScan` **replaces** the record instead of merging into it — it is rebuilt whole on every sync, and a merge would leave stale entries for deleted files lying around — and there is a `clearScan`, which `session.json` has no equivalent for: a sync that skipped files on the way (see `skipped` in [Phase 1](#phase-1--precompilation-the-sync-command)) must **remove** the old record rather than leave it describing a state that is no longer true.
 
 #### Fast verify: the two-stage check
 
-`--fastverify` (see [the CLI guide](cli.md)) exists because loading `vite.config.*` — not walking the source tree — is where a `predev` re-scan actually spends its time. Measured on this repo's 17-file `playground`, `import()`-ing the config costs **668 ms**, 386 of which are `@babel/core` pulled in by the plugin's own import chain (see [Phase 2's note on lazy Babel](#lazy-babel-why-createrequire-and-not-a-dynamic-import) below); measured on a synthetic 3000-file tree, walking every source file and `stat`-ing it costs 26 ms, and reading and hashing only the handful that changed since the last sync costs less still. A cache that still loads the config to decide whether to skip the rest would save perhaps 3% of that — so [`fastVerify.js`](../lib/dev/vite/uty/fastVerify.js) is built to answer "is there anything to do?" without ever importing `vite.config` at all, reading `scan.json` and the filesystem instead.
+`--fastverify` (see [the CLI guide](cli.md)) exists because loading `vite.config.*` — not walking the source tree — is where a `predev` re-scan actually spends its time. Measured on this repo's 17-file `playground`, `import()`-ing the config costs **668 ms**, 386 of which are `@babel/core` pulled in by the plugin's own import chain (see [Phase 2's note on lazy Babel](#lazy-babel-why-createrequire-and-not-a-dynamic-import) below); measured on a synthetic 3000-file tree, walking every source file and `stat`-ing it costs 26 ms, and reading and hashing only the handful that changed since the last sync costs less still. A cache that still loads the config to decide whether to skip the rest would save perhaps 3% of that — so [`fastVerify.js`](../lib/dev/vite/uty/fastVerify.js) is built to answer "is there anything to do?" without ever importing `vite.config` at all, reading `scan.json` and the filesystem instead. That 668 ms figure is the CLI's cost, run as a separate process that has to `import()` the config from scratch. Called from inside the plugin's own `config` hook (see [Auto-sync at config time](#auto-sync-at-config-time)), Vite has already paid that cost on the caller's behalf — what is left is the same `stat` walk, 26 ms on the synthetic 3000-file tree, and it is what makes running this check at every dev server start affordable in the first place.
 
 The check runs in two stages, cheapest first: stage one `stat`s every file under `srcDir` and compares `[mtimeMs, size]` against the record — an unreadable, deleted, or renamed marked file is caught here too, since its path simply stops appearing; stage two reads and hashes only the files stage one flagged as changed, distinguishing a real edit (`source-changed`), a marker deleted from a file that had one (`markers-removed`), and a file touched or rewritten byte-for-byte identical (nothing — the record stays fresh). Both `vite.config.*`'s own `[mtimeMs, size]` and a signature of `localeDir` (file count, an FNV hash of the sorted names, the newest `mtimeMs`) are checked first and cheaply, since either changing invalidates everything that follows. Two invariants hold regardless of which branch runs: **nothing is ever written on the basis of a cached config** — the fast path only ever decides whether to *exit early*, never what to write, so the moment it finds anything to double-check it falls through to the exact same full sync as running the command with no flags at all; and **`fastVerify` never throws** — an unreadable `srcDir`, a `localeDir` that turned into a plain file, a corrupted `scan.json`, all collapse to "run the full sync" rather than to a crash, because the one mistake this check cannot afford is reporting "nothing changed" when something did.
+
+An optional `expect` parameter (`{ srcDir, localeDir, sourceLanguage }`) lets a caller cross-check the record against a config it holds live in memory, not just against `vite.config.*`'s own `mtime`/`size` — the two can diverge without the file changing at all: an environment variable the config reads, a config built inline, a second project in a monorepo sharing the same `node_modules` and therefore the same `scan.json`. The CLI can never pass it — it has not loaded anything yet, which is the entire point of `--fastverify` — so it stays optional and the CLI's own path is untouched; the plugin's auto-sync (see [Auto-sync at config time](#auto-sync-at-config-time)) is the one caller with a live config to compare against, and a mismatch reports `config-mismatch` the same way any other change would.
 
 ---
 
@@ -611,7 +634,7 @@ sequenceDiagram
 
 Lookup resolution precedence: **Active language table → Eager fallback table → Marker-embedded text (dev only) → Raw key string.** The system guarantees rendering output under all circumstances: even network failures when loading language chunks fall back gracefully to the eager table without crashing.
 
-Embedded fallback text exists specifically for development workflows: when a developer writes a new string, the compiled marker contains the text immediately, but locale files on disk only receive the key after running the sync command. In production builds, `includeFallback` defaults to `false` (since prebuild scripts execute sync prior to bundling), stripping fallback text parsing code and `basicHtmlToNodes` imports from the client bundle.
+Embedded fallback text exists specifically for development workflows: when a developer writes a new string, the compiled marker contains the text immediately, but locale files on disk only receive the key after running the sync command. In production builds, `includeFallback` defaults to `false` (the tables are already synced by the time bundling starts — see [Auto-sync at config time](#auto-sync-at-config-time)), stripping fallback text parsing code and `basicHtmlToNodes` imports from the client bundle.
 
 ### Shared normalization: `readSource.js`
 
@@ -859,7 +882,7 @@ Architectural constraints that must be preserved to prevent subtle or silent fai
 1. **`markerCore.js` is the sole authority for what a marker is and how its ID is computed.** The checksum covers the text **and the relative path**: plugin and CLI must relativize from the same root (`baseDir`), otherwise the same string produces different keys on the two sides. Changing the hash invalidates every existing key — translations survive only if `matchRenamedKeys` re-matches them by value.
 2. **`htmlDialect.js` is the single source of truth for allowed HTML tags.** Both parsers must read it, never restate it. The same holds for [`errorSolve.js`](../lib/errorSolve.js), which has four readers — whoever writes the option, the plugin that normalizes it, the plugin that resolves it, and the runtime that reads the outcome.
 3. **The first eager language must resolve identically in development and production** (`preloadedLanguages[0] ?? sourceLanguage`), otherwise the app starts in a different language once published.
-4. **The sync command writes; the plugin does not.** If the plugin started writing language files during the build, the hook-order dependency that led to extracting the CLI would come right back.
+4. **The plugin writes in exactly one hook: `config`.** Not `buildStart`, not `configureServer`, not `transform`. `config` is not a Rollup hook: it runs before the watcher exists, before the module graph exists, before the server listens — the same moment in time a `predev` script occupied, from inside the process. Every other hook is still forbidden, and for the original reason: a write from there brings back the hook-order dependency that had the CLI extracted in the first place. `autoSyncHookPosition.test.mjs` is what keeps this honest.
 5. **Source code transformation must never touch `localeDir`**, not even if a translated string happens to contain `_%_`: those are data, not source.
 6. **A language file is read, not executed.** No `import()`, no `vm`: reading goes through [`parseLanguageFile.js`](../lib/dev/vite/uty/parseLanguageFile.js) and nothing else. This is the reason for 4.0: as long as the file was a JS module, Node's ESM module cache was involved — never released and with no eviction API (measured: 24 kB retained per translator file save, 7 MB after 300). The only exception is `--migrate`, a manual command you run once, whose whole purpose is getting the JS modules out of the way.
    A corollary that carries as much weight as the rule: **whatever the parser accepts, a real YAML parser must read the same way.** That holds as long as every value is written by `JSON.stringify`; the parity test in `languageFileIO.test.mjs` exists to notice if it stops holding.
@@ -885,7 +908,8 @@ Architectural constraints that must be preserved to prevent subtle or silent fai
 | The language file format | [`parseLanguageFile.js`](../lib/dev/vite/uty/parseLanguageFile.js) · [`serializeLanguageFile.js`](../lib/dev/vite/uty/serializeLanguageFile.js) |
 | The allowed HTML dialect | [`htmlDialect.js`](../lib/htmlDialect.js) · [`parseMarkup.js`](../lib/dev/compile/parseMarkup.js) |
 | The two plugins and the virtual module | [`vitetranslate.js`](../lib/dev/vite/vitetranslate.js) |
-| The sync command | [`cli.js`](../lib/dev/vite/cli.js) · [`updateLanguage.js`](../lib/dev/vite/updateLanguage.js) |
+| The sync command | [`cli.js`](../lib/dev/vite/cli.js) · [`syncCore.js`](../lib/dev/vite/syncCore.js) · [`updateLanguage.js`](../lib/dev/vite/updateLanguage.js) |
+| Auto-sync from the plugin's `config` hook, and its guards | [`autoSync.js`](../lib/dev/vite/autoSync.js) |
 | The safety nets on data | [`guardMassErase.js`](../lib/dev/vite/uty/guardMassErase.js) · [`backupLanguageFile.js`](../lib/dev/vite/uty/backupLanguageFile.js) · [`listLanguageFiles.js`](../lib/dev/vite/uty/listLanguageFiles.js) |
 | The dev server startup check, the cross-session cache, deduped console warnings | [`checkSetup.js`](../lib/dev/vite/uty/checkSetup.js) · [`sessionStore.js`](../lib/dev/vite/uty/sessionStore.js) · [`devReporter.js`](../lib/dev/vite/uty/devReporter.js) |
 | `--fastverify`'s two-stage check and its record | [`fastVerify.js`](../lib/dev/vite/uty/fastVerify.js) · [`scanRecord.js`](../lib/dev/vite/uty/scanRecord.js) · [`walkSource.js`](../lib/dev/vite/uty/walkSource.js) |

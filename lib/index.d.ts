@@ -91,6 +91,24 @@ export interface VitetranslateOptions {
   /** Cartella dei sorgenti scansionata dalla CLI. Default: `"src"`. */
   srcDir?: string;
   /**
+   * Sincronizza le tabelle all'avvio del **dev server**, dentro l'hook `config` di Vite —
+   * cioè prima che il server esista. Rende inutile lo script `predev`. Usa la verifica
+   * veloce: quando nessun sorgente è cambiato dall'ultima sincronizzazione non fa nulla e
+   * non stampa nulla. Default: `true`. A `false` si torna al comportamento precedente alla
+   * 4.2, in cui scrive solo `vtranslate-cli`.
+   */
+  autoSyncDev?: boolean;
+  /**
+   * Come `autoSyncDev`, ma prima di una **build**, e con la scansione piena invece della
+   * verifica veloce: davanti a una build vale la certezza di tabelle appena ricostruite.
+   * Rende inutile lo script `prebuild`. Default: `true`.
+   *
+   * Vale per entrambe: solo `false` spegne: qualunque altro valore conta come acceso. La
+   * variabile d'ambiente `VITETRANSLATE_NO_SYNC` le spegne tutte e due senza toccare
+   * `vite.config.*`.
+   */
+  autoSyncBuild?: boolean;
+  /**
    * Incorpora il testo originale come fallback nel marcatore compilato.
    * Default: `true` in sviluppo, `false` in produzione (risolto da `configResolved`).
    */

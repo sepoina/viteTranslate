@@ -8,7 +8,7 @@ npx vtranslate-cli
 
 > **Renamed in 4.1.** The command used to be `vitetranslate-prepare-translation-table`. That name is still registered and keeps working, so a `prebuild` script you already wrote does not break — but `vtranslate-cli` is the one to use, and the only one the messages mention.
 
-Reads the `vitetranslate` config from `vite.config.*` in the current working directory, scans `srcDir` for `_%_..._%_` markers, and syncs every language file in `localeDir`: adds new keys, removes stale ones (carrying over translations when a key was only renamed), and reports what's left untranslated. Intended to run as a `prebuild` step.
+Reads the `vitetranslate` config from `vite.config.*` in the current working directory, scans `srcDir` for `_%_..._%_` markers, and syncs every language file in `localeDir`: adds new keys, removes stale ones (carrying over translations when a key was only renamed), and reports what's left untranslated. The plugin runs this for you now, at dev server startup and before every build (see [plugin options](plugin-options.md)); this command is what you reach for when you want it on purpose — `--add`, `--status`, `--migrate`, or a check in CI.
 
 ```text
 ::: viteTranslate        ║  source: "src" (32 files),  translations: "locale" (59 keys)
@@ -76,7 +76,7 @@ Skips the whole sync when nothing relevant changed since the last one: it compar
 ```
 
 > [!TIP]
-> This is the flag for `predev`, where the full scan runs at every dev server start whether or not you touched anything since the last one. It is *not* for `prebuild`: before a production build, paying the full scan for the certainty of freshly rebuilt tables is the right trade.
+> This is the flag the plugin itself uses internally at dev server startup (see `autoSyncDev` in [plugin options](plugin-options.md)), so most projects never need to type it by hand. It still has a use on its own: a CI job that wants to check freshness without paying the full scan, or a project that has turned `autoSyncDev` off and wants the same cheap check `predev` used to give. It is *not* for `prebuild`/`autoSyncBuild`: before a production build, paying the full scan for the certainty of freshly rebuilt tables is the right trade.
 
 Running the plain command (no flags) never looks at that record — it always re-scans and rewrites it — so it is also the way out of any doubt about whether the fast path might be hiding something.
 

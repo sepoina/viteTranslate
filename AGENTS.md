@@ -1,6 +1,6 @@
 ## REGOLE 
 
-- README.md inferiore a 10kb, le sezioni nei tags "details" non contano, usa il codice sotto per calcolare. In caso di esubero in README.md un richiamo a funzioni e un link a nuovo file di dettaglio in doc.
+- README.md inferiore a 10kb, le sezioni nei tags "details" non contano, usa il codice sotto per calcolare. In caso di esubero in README.md usa la tecnica di mettere solo richiamo alle funzioni e sul richiamo un link ad un nuovo file di dettaglio che creerai in doc.
 
 ```bash
 node -e "const s=require('fs').readFileSync('README.md','utf8').replace(/<!--[\s\S]*?-->/g,'').replace(/<details[\s\S]*?<\/details>/gi,'');console.log(Buffer.byteLength(s),'bytes',s.split('\n').length,'lines')"
@@ -11,6 +11,7 @@ node -e "const s=require('fs').readFileSync('README.md','utf8').replace(/<!--[\s
 - ogni file di documentazione deve essere rivolto all'utente, ad incentivo. Discorsività minima per una lettura veloce, elementi essenziali, eventuale ironia.
 - i testi vanno scritti in inglese. Se l'originale è in italiano proporre (ask) traduzione ed adattamento.
 - quando un testo va ridotto analizza i punti confusi e pensa prima a come riorganizzarlo per renderlo più leggibile, alla luce di questo procedi. 
+- in chiusura di ogni bundle di release e a ogni revisione di versione, rilanciare `npm run estimateSize` (vedi `test/measureReactBundle.mjs` per cosa misura) e riportare il numero di byte esatto in README.md, dove si parla di "Under 5 kB gzip": non un controllo occasionale ("se cambia"), un aggiornamento sistematico ad ogni chiusura, nello stesso commit.
 
 ## REGOLE DI PLAN
 
@@ -28,4 +29,3 @@ node -e "const s=require('fs').readFileSync('README.md','utf8').replace(/<!--[\s
 - 5.documentazione. Alla luce delle regole di questo file procedere con i {nomepiano}.necessarydoc.md ed eventuali percorsi extra. Se le lunghezze sono eccessive avvisare l'utente alla fine.
 - 6.pulizia. Tutti i subdocumenti di piano vengono rimossi se non più necessari
 - 7.logDiary. Aggiungi una nota [!TIP] (Verde) nel documento di pianificazione, subito dopo la nota per il revisore umano che riassuma le decisioni prese nel percorso. Sintesi estrema, elenco puntato. Se ci fossero scelte pericolose o avvertimenti usare [!IMPORTANT] (Viola) o [!CAUTION]. Massimo una decina di righe.
-

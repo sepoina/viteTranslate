@@ -50,8 +50,11 @@ The key is generated for you, the sync is a single command, and the runtime that
 
 ## Contents
 
+- [Contents](#contents)
 - [⚡ Why viteTranslate](#-why-vitetranslate)
+  - [What that buys you](#what-that-buys-you)
 - [🚀 Quick start](#-quick-start)
+  - [Running the sync automatically](#running-the-sync-automatically)
 - [📚 Guides](#-guides)
 - [🎮 Playground](#-playground)
 - [💬 Support](#-support)
@@ -93,7 +96,7 @@ Every library in this table solves the same problem. They differ in how much mac
 
 ### What that buys you
 
-- ⚖️ **Under 5 kB gzip** — That is the whole browser runtime. Payloads scale with your content, not with the library.
+- ⚖️ **Under 5 kB gzip — <code>4173 bytes actually</code>**. That is the whole browser runtime, minified, React itself excluded. Payloads scale with your content, not with the library. Checked by `npm run estimateSize`, the source of truth for this number.
 
 - 🪶 **Zero dependencies** — None declared. `@babel/core`, Vite and React are _peer_ dependencies: they run the plugin on your machine and never enter the bundle.
 
@@ -191,20 +194,15 @@ The new file arrives (see here for [showcase](https://sepoina.github.io/viteTran
 
 ### Running the sync automatically
 
-The plugin compiles markers, but it never writes to your tables. Only `vtranslate-cli` does, and only when you run it: a build should not rewrite your translations while you are not looking. You still don't have to remember it, because npm runs a `pre<script>` before `<script>`:
+Since 4.2.0, tables sync themselves — no `predev`/`prebuild` script needed: `npm run dev` runs a quick check at startup, `npm run build` runs a full scan first — both silent when nothing changed.
 
-```json
-{
-  "scripts": {
-    "dev": "vite",
-    "predev": "vtranslate-cli --fastverify",
-    "prebuild": "vtranslate-cli",
-    "build": "vite build"
-  }
-}
+Turn it off with `autoSyncDev`/`autoSyncBuild: false` in the plugin options (see [plugin options](doc/plugin-options.md)), or set `VITETRANSLATE_NO_SYNC` to skip both without touching `vite.config.*`. Run it by hand any time with:
+
+```sh
+npx vtranslate-cli
 ```
 
-`predev` resyncs at every dev server start — `--fastverify` makes it skip the scan when nothing changed — and `prebuild` runs before a production build.
+the same command behind `--add`, `--status`, `--migrate`, and a CI check.
 
 ---
 

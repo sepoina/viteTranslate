@@ -31,6 +31,7 @@ const OPZIONALI = [
   // @babel/core in piu' degli altri: il container e' JSX, e va compilato come nel bundle vero.
   { file: "translateContainer.test.mjs", richiede: ["react-dom/server", "react", "@babel/core"], come: "npm i -D react react-dom @babel/core @babel/preset-react" },
   { file: "languageList.test.mjs", richiede: ["react-dom/server", "react"], come: "npm i -D react react-dom" },
+  { file: "reactBundleSize.test.mjs", richiede: ["rolldown", "@babel/core", "@babel/preset-react"], come: "npm i -D rolldown @babel/core @babel/preset-react" },
 ];
 
 const argomenti = process.argv.slice(2);

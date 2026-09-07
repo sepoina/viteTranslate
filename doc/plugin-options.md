@@ -13,9 +13,13 @@ vitetranslate(options)
 | `preloadedLanguages` | `string[]` | `[]` | Languages bundled eagerly for an instant, non-suspending first paint (see [Preloading](api.md#preloading-suspense-and-the-initial-flash)). `sourceLanguage` is eager too in dev, and in build only when this list is empty |
 | `baseDir` | `string` | `process.cwd()` | Project root used to resolve `localeDir` / `srcDir` |
 | `srcDir` | `string` | `"src"` | Source folder scanned by the CLI |
+| `autoSyncDev` | `boolean` | `true` | Sync the tables at dev server startup, using the fast verify: nothing happens, nothing is printed, if nothing changed since the last sync. Makes `predev` unnecessary |
+| `autoSyncBuild` | `boolean` | `true` | Sync the tables before a build, with a full scan instead of the fast verify — a build gets the certainty of freshly rebuilt tables. Makes `prebuild` unnecessary |
 | `includeFallback` | `boolean` | `!isProduction` | Embed the original text as a fallback in the compiled marker (dev only by default) |
 | `errorSolve` | `object` | see below | On-screen and console diagnostics for strings that didn't arrive where they should — see [Diagnostics](diagnostics.md) |
 | `simpleLog` | `boolean` | `false` | Plain, un-boxed console output for the plugin and the CLI: no label column, no rules, same colors — useful in CI or a narrow terminal. Same as the CLI's `--simpleLog` flag, which always wins over this option |
+
+Only `false` turns `autoSyncDev` / `autoSyncBuild` off — any other value counts as on. Setting `VITETRANSLATE_NO_SYNC` (to anything non-empty) turns both off without touching `vite.config.*`, which is the only way to reach this from a read-only checkout. Neither one ever runs under Vitest or `vite preview`: a test run shouldn't rewrite your tables, and a preview has no source changes to catch up on.
 
 ## `errorSolve`
 
