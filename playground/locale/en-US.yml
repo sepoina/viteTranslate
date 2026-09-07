@@ -2,7 +2,7 @@
 #      American English
 #       |    code: en-US
 #       |    missing key: 0
-#       |    processed: 2026-09-05 23:37
+#       |    processed: 2026-09-07 17:35
 #       |    TableVersion: 260905
 #  -------------------------------------------------
 #
@@ -11,9 +11,10 @@ App_8faavq: "Vite plugin to extract strings from source code (%s marker and <Tra
 AppplaygroundStringfromjs_1vtdae9: "🗿"
 BasicExample_1ujwz35: "Welcome to viteTranslate"
 DynamicExample_kiyc37: "Hi %s, how are you?"
-InstallSection_104nql7: "Before the first startup, the default language file must already exist: TranslateContainer looks for it immediately and, if it's missing, loading fails (the localeDir folder doesn't need to exist beforehand, the plugin creates it). If you haven't generated it yet, run the command described in Language build once: at the end you'll already have the default language table, ready to be read."
-InstallSection_12ynmbk: ". It's exactly the file that localeDir must already contain at first startup, as required in Dev run."
-InstallSection_1a5vici: "Before a production build, sync the translation tables with every string found in the source by running the command as a \"prebuild\" step: this guarantees the default language is always complete."
+InstallSection_10dmb4o: ". It's the same file the plugin creates by itself on first run, described in Dev run."
+InstallSection_157cj31: "Since 4.2 there's nothing to prepare before the first run: the plugin syncs the tables by itself, inside Vite's config hook, before the server even exists. The first npm run dev creates the default language file automatically (see Language build), ready for TranslateContainer to read."
+InstallSection_19xkq7a: "Whether it runs by itself or by hand, the result is the same: even on a brand new project with no other language files, it generates the first language table, the one for the language set as default in"
+InstallSection_1agwhaj: "Since 4.2 the sync happens by itself: a quick check at every dev server start, a full scan before every production build. No script to write, no command to remember."
 InstallSection_1rl7c67: "Each language is a .yml file inside localeDir, with the same name as its tag"
 InstallSection_1w2c6tx: "The same keys appear, at the same time, in the default language file too: never as null there, but grouped below the same separator line as long as they remain untranslated in at least one other language. That's a handy opportunity: you can copy that block (real text, not null) and paste it into an LLM to have it translated, then paste the answer back in place of the nulls in the destination language file."
 InstallSection_3809a4: ". The default language file is created and kept up to date automatically by the sync command: it should not be written by hand, only translated if needed."
@@ -24,8 +25,8 @@ InstallSection_eqg418: "Register the viteTranslate plugin in vite.config.js: you
 InstallSection_fc81ky: "Install the package in your Vite + React project: React and Vite are peer dependencies, so they must already be present."
 InstallSection_fhcky6: "Right after the command, the file already contains all the keys found in the source, but untranslated (null value): below the separator line you'll find the exact list of what's missing."
 InstallSection_sn8wj: "To add a new language, use the sync command's --add flag: it creates the file for the chosen tag right away, already filled with every key found in the source (as null), and finishes with a summary of how many are left to translate. Just replace those nulls with the translated text."
-InstallSection_t4vmjs: "Simply running this command, even on a brand-new project with no other language files present, generates the first language table: the one for the language set as the default language in"
 InstallSection_t5nanj: "By replacing every null with the translated text (keeping any %s unchanged), the file is complete, ready to be used as an available language."
+InstallSection_ten73a: "The command is still there, to run by hand or from a CI pipeline:"
 InstallSection_uq5uv6: "Every .yml file found in localeDir automatically becomes available: useTranslateLanguage() lists it and TranslateContainer lazy-loads it on demand, with no need to register it anywhere else."
 installSubsections_14c8rcy: "Adding a new language"
 installSubsections_4vmyzb: "Language build"

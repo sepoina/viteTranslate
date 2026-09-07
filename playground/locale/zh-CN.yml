@@ -2,7 +2,7 @@
 #      中文（中国）
 #       |    code: zh-CN
 #       |    missing key: 0
-#       |    processed: 2026-09-05 23:37
+#       |    processed: 2026-09-07 17:35
 #       |    TableVersion: 260905
 #  -------------------------------------------------
 #
@@ -11,9 +11,10 @@ App_8faavq: "Vite 插件，用于从源码中提取字符串（%s 标记和 <Tra
 AppplaygroundStringfromjs_1vtdae9: "🐅"
 BasicExample_1ujwz35: "欢迎使用 viteTranslate"
 DynamicExample_kiyc37: "你好 %s，你好吗？"
-InstallSection_104nql7: "在首次启动之前，默认语言文件必须已经存在：TranslateContainer 会立即查找它，如果缺失，加载就会失败（localeDir 文件夹不需要提前存在，插件会自动创建它）。如果你还没有生成它，请运行\"语言构建\"中描述的命令一次：完成后你就已经有了默认语言表，可供读取。"
-InstallSection_12ynmbk: "。这正是 localeDir 在首次启动时必须已包含的文件，正如“开发运行”中所要求的那样。"
-InstallSection_1a5vici: "在生产构建之前，将命令作为 \"prebuild\" 步骤运行，把翻译表与源码中找到的所有字符串同步：以确保默认语言始终是完整的。"
+InstallSection_10dmb4o: "。这与插件首次运行时自动创建的文件完全相同，详见开发运行。"
+InstallSection_157cj31: "自 4.2 版本起，首次运行前无需任何准备：插件会在 Vite 的 config 钩子中自行同步表格，甚至在服务器存在之前就完成。第一次运行 npm run dev 时，默认语言文件会自动创建（见语言构建），随时可供 TranslateContainer 读取。"
+InstallSection_19xkq7a: "无论是自动运行还是手动运行，结果都一样：即使是全新项目、还没有其他语言文件，也会生成第一份语言表，也就是在"
+InstallSection_1agwhaj: "自 4.2 版本起，同步是自动完成的：开发服务器每次启动时做一次快速检查，每次生产构建前做一次完整扫描。不需要编写脚本，也不需要记住命令。"
 InstallSection_1rl7c67: "每种语言都是 localeDir 中的一个 .yml 文件，文件名与其语言标签相同"
 InstallSection_1w2c6tx: "同样的这些键，与此同时也会出现在默认语言文件中：在那里它们永远不会是 null，但只要在至少一种其他语言中仍未翻译，就会被归到同一条分隔线下方。这是一个方便之处：你可以复制那个区块（真实文本，不是 null）粘贴给 LLM 进行翻译，然后把结果粘贴回目标语言文件中替换掉对应的 null。"
 InstallSection_3809a4: "。默认语言文件由同步命令自动创建并保持更新：无需手动编写，只在需要时进行翻译。"
@@ -24,8 +25,8 @@ InstallSection_eqg418: "在 vite.config.js 中注册 viteTranslate 插件：需�
 InstallSection_fc81ky: "在你的 Vite + React 项目中安装该软件包：React 和 Vite 是 peer dependency，因此它们必须已经存在。"
 InstallSection_fhcky6: "命令执行后，该文件已包含源代码中找到的所有键，但尚未翻译（值为 null）：在分隔线下方，你会看到缺失内容的确切清单。"
 InstallSection_sn8wj: "要添加新语言，使用同步命令的 --add 参数：它会立即创建所选标签对应的文件，并用源码中找到的所有键预先填充（值为 null），最后显示还有多少条待翻译的汇总。只需把这些 null 替换为翻译后的文本即可。"
-InstallSection_t4vmjs: "只需运行此命令，即使在一个没有任何其他语言文件的全新项目中，也会生成第一张语言表：即在以下位置被设为默认语言的那种语言的表"
 InstallSection_t5nanj: "把每个 null 替换为翻译后的文本（保持任何 %s 不变），该文件即完整，可作为一种可用语言使用。"
+InstallSection_ten73a: "该命令依然可用，可以手动运行，也可以放进 CI 流程中："
 InstallSection_uq5uv6: "localeDir 中找到的每个 .yml 文件都会自动可用：useTranslateLanguage() 会将其列出，TranslateContainer 会在请求时懒加载它，无需在别处注册。"
 installSubsections_14c8rcy: "添加新语言"
 installSubsections_4vmyzb: "语言构建"

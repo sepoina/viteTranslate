@@ -53,7 +53,7 @@ export default defineConfig({
         <h3><Translate>{esecuzioneDev.title}</Translate></h3>
 
         <p className="doc-description">
-          <Translate>_%_Prima del primo avvio serve che il file della lingua di default esista già: TranslateContainer lo cerca subito e, se manca, il caricamento fallisce (la cartella localeDir non serve che esista in anticipo, la crea il plugin). Se non l'hai ancora generato, lancia una volta il comando descritto in Build linguistico: alla fine avrai già la tabella della lingua di default, pronta per essere letta._%_</Translate>
+          <Translate>_%_Dalla 4.2 non serve preparare nulla prima del primo avvio: il plugin sincronizza le tabelle da solo, dentro l'hook di configurazione di Vite, prima ancora che il server esista. Al primo npm run dev il file della lingua di default viene creato in automatico (vedi Build linguistico), pronto per essere letto da TranslateContainer._%_</Translate>
         </p>
         <p className="doc-description">
           <Translate>_%_Avvolgi l'app in TranslateContainer indicando la lingua iniziale da caricare: espone il contesto usato da Translate e dagli altri hook per leggere la tabella di traduzione corrente. In sviluppo il fallback resta incorporato nel codice compilato, quindi l'app mostra già il testo tradotto senza dover lanciare altri comandi._%_</Translate>
@@ -71,20 +71,19 @@ ReactDOM.createRoot(document.getElementById("root")).render(
         <h3><Translate>{buildLinguistico.title}</Translate></h3>
 
         <p className="doc-description">
-          <Translate>_%_Prima della build di produzione, sincronizza le tabelle di traduzione con tutte le stringhe trovate nel sorgente lanciando il comando come step "prebuild": garantisce che la lingua di default sia sempre completa._%_</Translate>
+          <Translate>_%_Dalla 4.2 la sincronizzazione avviene da sola: un controllo rapido a ogni avvio del dev server, una scansione completa prima di ogni build di produzione. Nessuno script da scrivere, nessun comando da ricordare._%_</Translate>
         </p>
-        <CodeBlock language="json" code={`{
-  "scripts": {
-    "prebuild": "vtranslate-cli",
-    "build": "vite build"
-  }
-}`} />
 
         <p className="doc-description">
-          <Translate>_%_Lanciando semplicemente questo comando, anche a progetto appena creato e senza altri file di lingua presenti, viene generata la prima tabella linguistica: quella della lingua indicata come lingua di default in_%_</Translate>
+          <Translate>_%_Il comando resta comunque disponibile, per lanciarlo a mano o da una pipeline di CI:_%_</Translate>
+        </p>
+        <CodeBlock language="bash" code={`npx vtranslate-cli`} />
+
+        <p className="doc-description">
+          <Translate>_%_Che parta da sola o lanciato a mano, il risultato è lo stesso: anche a progetto appena creato e senza altri file di lingua presenti, viene generata la prima tabella linguistica, quella della lingua indicata come lingua di default in_%_</Translate>
           {" "}
           <a href="#install-config-plugin">Config del plugin</a>
-          <Translate>_%_. È esattamente il file che localeDir deve già contenere al primo avvio, come richiesto in Esecuzione dev._%_</Translate>
+          <Translate>_%_. È lo stesso file che il plugin crea da solo al primo avvio, descritto in Esecuzione dev._%_</Translate>
         </p>
         <CodeBlock language="yaml" code={`#  -------------------------------------------------
 #      italiano (Italia) (sourceLanguage)
