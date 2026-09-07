@@ -18,7 +18,7 @@ function App() {
     : undefined;
 
   return (
-    <>
+    <> 
       <TableOfContents items={snippetList} installItems={installSubsections} />
       <BadgeRotateLanguage />
       <div className="markdown-body playground-container">

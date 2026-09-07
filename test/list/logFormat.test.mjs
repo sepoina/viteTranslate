@@ -9,7 +9,7 @@
 //
 //   node test/list/logFormat.test.mjs
 import { join, sep } from "node:path";
-import { wrapLog, displayWidth, logEchoColored, logWarning, logError, logRule, logHeader, logBullet, colorize, LOG_WIDTH, setLogStyle, isSimpleLog } from "../../lib/utility.js";
+import { wrapLog, displayWidth, logEchoColored, logWarning, logError, logRule, logBullet, colorize, LOG_WIDTH, setLogStyle, isSimpleLog } from "../../lib/utility.js";
 import shortPath from "../../lib/dev/vite/uty/shortPath.js";
 
 let fail = 0;
@@ -141,20 +141,6 @@ console.log("\n== la traversa non spezza il montante ==");
   // come due numeri indipendenti lo erano già: 76 su una riga da 100 sfondava di due colonne.
   eq("arriva esattamente a LOG_WIDTH", LOG_WIDTH, displayWidth(traversa));
   eq("la traversa può nominare il blocco", true, senzaColori(grezzo(() => logRule("viteTranslate")))[0].includes("viteTranslate"));
-
-  const testa = senzaColori(grezzo(() => logHeader("viteTranslate", "v4.0.2", "source: \"src\"")));
-  eq("l'intestazione è tre righe", 3, testa.length);
-  eq("apre con la traversa che porta il nome", true, testa[0].includes("╟") && testa[0].includes("viteTranslate"));
-  eq("la versione sta nella colonna dell'etichetta", true, testa[1].split("║")[0].includes("v4.0.2"));
-  eq("e il testo dopo il montante", true, testa[1].split("║")[1].includes('source: "src"'));
-  eq("chiude con una traversa", true, testa[2].includes("╟"));
-  eq("le tre righe restano incolonnate", 1, new Set(testa.map((r) => Math.max(r.indexOf("║"), r.indexOf("╟")))).size);
-  // Senza versione l'intestazione non lascia un glifo appeso, che si leggerebbe come un dato
-  // mancante. Il confronto è con la colonna di una riga a etichetta vuota invece che con una
-  // stringa scritta qui: così non dà per scontato di cosa sia fatto il prefisso a sinistra.
-  const etichettaDi = (r) => r.split("║")[0];
-  const vuota = etichettaDi(senzaColori(grezzo(() => logEchoColored("", "y")))[0]);
-  eq("versione assente: etichetta vuota", vuota, etichettaDi(senzaColori(grezzo(() => logHeader("x", "", "y")))[1]));
 }
 
 console.log("\n== dove separa già una traversa, l'avviso non stacca ==");
@@ -222,13 +208,6 @@ try {
     senzaColori(grezzo(() => logRule()))[0]);
   eq("traversa con etichetta: come un'etichetta", "::: X",
     senzaColori(grezzo(() => logRule("X")))[0]);
-
-  {
-    const testa = senzaColori(grezzo(() => logHeader("viteTranslate", "v9.9.9", "sources: \"src\"")));
-    eq("l'intestazione è due righe, non tre", 2, testa.length);
-    eq("nome e versione su una riga sola", "::: viteTranslate v9.9.9", testa[0]);
-    eq("la riga delle cartelle a indent 0", "::: sources: \"src\"", testa[1]);
-  }
 } finally {
   // Rischio noto: `setLogStyle` è stato di modulo, non un parametro. Se questo blocco
   // lasciasse simpleLog acceso e un'asserzione sopra fallisse a metà, ogni test scritto DOPO

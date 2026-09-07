@@ -1,6 +1,6 @@
 {
   "name": "@sepoina/vitetranslate",
-  "version": "4.2.1",
+  "version": "4.2.2",
   "versionDescription": "The plugin now keeps your tables in sync by itself, before Vite has a server to disturb.",
   "description": "Extract translatable strings straight from your JSX — a Vite plugin that auto-generates and syncs your translation tables, with zero runtime dependencies.",
   "author": {
