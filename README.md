@@ -22,7 +22,7 @@ No translation keys to maintain. No separate extraction workflow. No runtime dep
 <br />
 <br />
 
-<a href="https://youtu.be/GmCxrAU9CYM">
+<a href="https://youtu.be/pNM9ybG0uO4">
   <img src="doc/youplay.png" alt="Watch viteTranslate in action" width="60%" />
 </a>
 
