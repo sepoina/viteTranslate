@@ -76,8 +76,7 @@
   ],
   "workspaces": [
     "playground",
-    "playEdge",
-    "demo/Vite_8/minimal"
+    "playEdge"
   ],
   "devDependencies": {
     "@babel/core": "^7.26.10",
