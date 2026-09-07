@@ -13,7 +13,7 @@ export default defineConfig({
       // Lingue importate staticamente: nessuna sospensione al primo render. Essendocene una,
       // in build la sorgente NON viene precaricata (ogni tabella compilata è autonoma) — in
       // dev sì. La prima della lista è la lingua iniziale di default di <TranslateContainer>.
-      preloadedLanguages: ["en-US"],
+      preloadedLanguages: ["en-US","it-IT","zh-CN"],
     }),
     react(),
     mkcert(),
