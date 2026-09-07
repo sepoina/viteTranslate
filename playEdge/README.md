@@ -33,7 +33,7 @@ dietro marcatori deliberatamente malformati e un warning di sync a ogni build.
 
 In pubblicazione le due build si ricongiungono: il `dist` di questa cartella viene copiato in
 `dist/edge/` del playground (vedi
-[`.github/workflows/ci.yml`](../.github/workflows/ci.yml), job `deploy-pages`).
+[`.github/workflows/publish.yml`](../.github/workflows/publish.yml), job `deploy-pages`).
 
 ## Uso
 
