@@ -54,7 +54,7 @@ const stripRaw = () => ({
 const normalize = (code, filename) => transformSync(code, {
   filename, babelrc: false, configFile: false,
   parserOpts: parserOptionsFor(filename),
-  presets: [["@babel/preset-react", { runtime: "automatic" }]],
+  presets: [["@babel/preset-react", { runtime: "automatic", development: false }]],
   plugins: [stripRaw],
 }).code;
 

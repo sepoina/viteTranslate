@@ -66,7 +66,7 @@ const VIRTUALE = /["']virtual:vitetranslate\/languages["']/g;
 /** Il componente è JSX: stessa trasformazione che rolldown.config.js applica al bundle. */
 const compilaJsx = (code, filename) => transformSync(code, {
   filename,
-  presets: [["@babel/preset-react", { runtime: "automatic" }]],
+  presets: [["@babel/preset-react", { runtime: "automatic", development: false }]],
   babelrc: false,
   configFile: false,
 }).code;

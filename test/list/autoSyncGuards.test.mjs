@@ -8,6 +8,7 @@ import { mkdtempSync, rmSync, mkdirSync, writeFileSync, readdirSync } from "node
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import autoSync from "../../lib/dev/vite/autoSync.js";
+import { BABEL_MISSING } from "../../lib/dev/babel/babelPeer.js";
 
 let fail = 0;
 const eq = (nome, atteso, ottenuto) => {
@@ -110,9 +111,12 @@ console.log("\n== G6: le opzioni spengono solo il proprio comando ==");
 console.log("\n== G10: senza @babel/core si degrada, non si azzera ==");
 {
   const p = progetto();
+  // Nella stessa forma in cui lo lancia `ensureBabel`: `guasto` allegato, perché è da lì che
+  // l'avviso prende diagnosi, cura e comando (vedi lib/dev/babel/babelPeer.js).
   const erroreBabel = () => {
-    const e = new Error("no babel");
+    const e = new Error(BABEL_MISSING.message);
     e.code = "VT_NO_BABEL";
+    e.guasto = BABEL_MISSING;
     throw e;
   };
   const g10 = await zitto(() => autoSync({ config: p.config(), env: { command: "serve" }, probeBabel: erroreBabel }));

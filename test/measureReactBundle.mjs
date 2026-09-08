@@ -17,6 +17,7 @@ import { transformSync } from "@babel/core";
 import { gzipSync } from "node:zlib";
 import { join, resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
+import { componentExternal } from "../rolldown.config.js";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -29,7 +30,7 @@ function babelJsx() {
       if (!/\.jsx$/.test(id)) return null;
       const result = transformSync(code, {
         filename: id,
-        presets: [["@babel/preset-react", { runtime: "automatic" }]],
+        presets: [["@babel/preset-react", { runtime: "automatic", development: false }]],
         babelrc: false,
         configFile: false,
       });
@@ -38,9 +39,11 @@ function babelJsx() {
   };
 }
 
-// Le stesse dipendenze esterne di rolldown.config.js: quello che un'app vera fornisce da sé
-// (React) o risolve a build-time (il modulo virtuale), quindi non deve mai finire nel conteggio.
-export const EXTERNAL = ["react", "react/jsx-runtime", "react/jsx-dev-runtime", "virtual:vitetranslate/languages"];
+// Le dipendenze esterne del bundle vero, prese da rolldown.config.js e non ricopiate: quello
+// che un'app vera fornisce da sé (React) o risolve a build-time (il modulo virtuale), quindi
+// non deve mai finire nel conteggio. reactBundleSize.test.mjs le usa anche come lista di ciò
+// che al bundle runtime è lecito importare, e su una copia quel controllo varrebbe poco.
+export const EXTERNAL = componentExternal;
 
 /**
  * @returns {Promise<{ fileName: string, code: string, raw: number, gzip: number }>}

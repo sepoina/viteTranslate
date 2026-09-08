@@ -1,7 +1,7 @@
 {
   "name": "@sepoina/vitetranslate",
-  "version": "4.2.3",
-  "versionDescription": "The plugin now keeps your tables in sync by itself, before Vite has a server to disturb.",
+  "version": "4.2.4",
+  "versionDescription": "@babel/core is now a required dev peer dependency, and its absence stops the run instead of warning.",
   "description": "Extract translatable strings straight from your JSX — a Vite plugin that auto-generates and syncs your translation tables, with zero runtime dependencies.",
   "author": {
     "name": "Giancarlo Ghigi",
@@ -79,13 +79,13 @@
     "playEdge"
   ],
   "devDependencies": {
-    "@babel/core": "^7.26.10",
-    "@babel/preset-react": "^7.26.3",
-    "entities": "^8.0.0",
-    "js-yaml": "^4.1.0",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0",
-    "rolldown": "^1.0.0-rc.9"
+    "@babel/core": "^7.29.7",
+    "@babel/preset-react": "^7.29.7",
+    "entities": "^8.1.0",
+    "js-yaml": "^4.3.2",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
+    "rolldown": "^1.2.7"
   },
   "peerDependencies": {
     "@babel/core": "^7.0.0 || ^8.0.0",
@@ -93,9 +93,6 @@
     "vite": "^5.0.0 || ^6.0.0 || ^7.0.0 || ^8.0.0"
   },
   "peerDependenciesMeta": {
-    "@babel/core": {
-      "optional": true
-    },
     "vite": {
       "optional": true
     },
