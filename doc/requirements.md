@@ -6,6 +6,6 @@
 | --- | --- |
 | Vite | `^5 \|\| ^6 \|\| ^7 \|\| ^8` |
 | React | `^18 \|\| ^19` *(for the `/react` entry point)* |
-| `@babel/core` | `^7` |
+| `@babel/core` | `^7 \|\| ^8` |
 
 These are peer dependencies — install them if your project doesn't already have them. `.js`/`.jsx`/`.ts`/`.tsx` sources are all scanned. TypeScript declarations ship with the package.
