@@ -1,0 +1,4 @@
+{
+  // Serve a rendere leggibili i marcatori `_%_..._%_` configurati in .vscode/settings.json.
+  "recommendations": ["fabiospampinato.vscode-highlight"]
+}

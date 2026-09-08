@@ -27,7 +27,10 @@ pnpm-debug.log*
 *.tgz
 
 # Editor / OS
-.vscode/
+.vscode/*
+# ...tranne la configurazione di evidenziazione dei marcatori, condivisa col team
+!.vscode/settings.json
+!.vscode/extensions.json
 .idea/
 *.swp
 .DS_Store

@@ -1,0 +1,75 @@
+{
+  // Evidenziazione dei marcatori viteTranslate `_%_..._%_`.
+  // Richiede l'estensione fabiospampinato.vscode-highlight (vedi .vscode/extensions.json).
+  // Nota: le regex sono stringhe JSON, quindi ogni backslash va raddoppiato.
+  //
+  // `filterFileRegex` limita tutto ai sorgenti dei progetti d'esempio e dei test, ed esclude
+  // lib/ di proposito: lì `"_%_"` compare come costante letterale (lib/markerSyntax.js), e senza
+  // esclusione due costanti su righe adiacenti verrebbero appaiate come se fossero un marcatore.
+  "highlight.regexes": {
+    // 1. Il marcatore. I gruppi 1 e 3 sono i delimitatori, il gruppo 2 il testo traducibile.
+    //
+    //    Il corpo ha due alternative, e l'ordine conta. Prima si prova a chiudere sulla stessa
+    //    riga (`[^\n]*?`), che è il caso normale. Solo se lì non c'è un `_%_` si accetta un
+    //    corpo multiriga, cioè il testo JSX mandato a capo da prettier, e allora il corpo non
+    //    può contenere né un altro `_%_`, né `< > { } [ ] ;` o backslash, né una virgola o due
+    //    punti subito prima di un a-capo: sono le firme di "la stringa è finita, siamo tornati
+    //    nel codice".
+    //
+    //    Il `[\s\S]*?` che verrebbe spontaneo scrivere qui non va bene. Un marcatore volutamente
+    //    spaiato sfasa l'appaiamento, e da lì in poi la regex colora il codice al posto del testo
+    //    fino a fondo file: playEdge/src/testCases.jsx e test/list/extractMarkers.test.mjs ne
+    //    contengono, come casi limite. Con la regex qui sotto il repo dà 415 evidenziazioni,
+    //    tutte giuste, di cui 6 multiriga.
+    "(_%_)([^\\n]*?|(?:(?!_%_)(?![,:;]\\s*\\n)[^<>{}\\[\\];`\\\\])*\\n(?:(?!_%_)(?![,:;]\\s*\\n)[^<>{}\\[\\];`\\\\])*)(_%_)": {
+      "regexFlags": "g",
+      "filterFileRegex": "^(?!.*[\\\\/](?:lib|node_modules|dist|doc)[\\\\/]).*\\.(?:jsx?|tsx?|mjs|cjs)$",
+      "decorations": [
+        {
+          "opacity": "1",
+          "light": { "color": "#6b7280" },
+          "dark": {  "color":"#990","backgroundColor": "#ff333338"}
+        },
+        {
+          "borderRadius": "2px",
+          "overviewRulerColor": "rgba(100,108,255,0.65)",
+          "overviewRulerLane": 4,
+          "light": { "backgroundColor": "red" },
+          "dark": { "color":"#eeee00f0","backgroundColor": "#80000074" }
+        },
+        {
+          "opacity": "1",
+          "light": { "color": "#6b7280" },
+          "dark":  {  "color":"#990","backgroundColor": "#ff333338"}
+        }
+      ]
+    },
+
+    // 2. Il segnaposto `%s`, ma solo dentro un marcatore: i lookaround chiedono un `_%_`
+    //    prima e uno dopo, sulla stessa riga. Un `%s` in una stringa qualsiasi resta spento.
+    "(?<=_%_[^\\n]*)(%s)(?=[^\\n]*_%_)": {
+      "regexFlags": "g",
+      "filterFileRegex": "^(?!.*[\\\\/](?:lib|node_modules|dist|doc)[\\\\/]).*\\.(?:jsx?|tsx?|mjs|cjs)$",
+      "decorations": [
+        {
+          "fontWeight": "normal",
+          "light": { "color": "#b35c00" },
+          "dark": {  "backgroundColor":"#505000" }
+        }
+      ]
+    },
+
+    // 3. Il sottoinsieme HTML ammesso, sempre solo dentro un marcatore, così si legge come
+    //    markup e non come testo da tradurre. L'elenco segue lib/htmlDialect.js.
+    "(?<=_%_[^\\n]*)(</?(?:b|strong|i|em|u|small|code|br|hr|wbr)\\s*/?>)(?=[^\\n]*_%_)": {
+      "regexFlags": "gi",
+      "filterFileRegex": "^(?!.*[\\\\/](?:lib|node_modules|dist|doc)[\\\\/]).*\\.(?:jsx?|tsx?|mjs|cjs)$",
+      "decorations": [
+        {
+          "light": { "color": "#0b7285" },
+          "dark": { "color": "#56b6c2" }
+        }
+      ]
+    }
+  }
+}
