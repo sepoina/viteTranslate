@@ -40,6 +40,12 @@ export default (api, options = {}) => {
   const table = options.table ?? {};
   // Radice da cui relativizzare state.filename nel checksum (vedi registerMarker).
   const baseDir = options.baseDir;
+  // Stessa regola di extractMarkers.js: default spento, ed è il termine di paragone per il
+  // corpus auto-wrap, non una funzionalità nuova da mantenere qui.
+  const autoWrap = options.autoWrap === true;
+  // Stato condiviso dai visitor di UN file: se almeno un JSXText viene avvolto, Program.exit
+  // appende l'import con lo stesso alias usato in ogni nodo sostituito.
+  const ctx = { wrapped: false, alias: "__vtTranslate" };
 
   return {
     // Il plugin non trasforma il JSX né i tipi TypeScript: si limita a leggerli, quindi
@@ -49,6 +55,24 @@ export default (api, options = {}) => {
     name: "vitetranslate-extract",
 
     visitor: {
+      Program: {
+        enter(_path, state) {
+          if (!autoWrap) return;
+          // Stessa ricerca per sottostringa di extractMarkers.js: l'alias non deve
+          // ombreggiare un identificatore che il file usa già.
+          const code = state.file.code;
+          let n = 1;
+          while (code.includes(ctx.alias)) ctx.alias = `__vtTranslate${++n}`;
+        },
+        exit(path) {
+          // In fondo, come lo splice: pushContainer("body", ...) accoda, non antepone.
+          if (!ctx.wrapped) return;
+          path.pushContainer("body", t.importDeclaration(
+            [t.importSpecifier(t.identifier(ctx.alias), t.identifier("Translate"))],
+            t.stringLiteral("@sepoina/vitetranslate/react"),
+          ));
+        },
+      },
       // ---------------------------------------------------------------
       // GESTIONE STRINGHE STATICHE
       // Intercetta stringhe nel codice tipo: "_%_testo da tradurre_%_"
@@ -56,12 +80,26 @@ export default (api, options = {}) => {
       // Copre anche <Translate t="_%_testo_%_" /> e <Translate>_%_testo_%_</Translate>:
       // il testo va sempre marcato esplicitamente, non c'è auto-detect del testo semplice.
       // ---------------------------------------------------------------
-      StringLiteral: (p, state) => staticStringToTranslateTable(p, state, t, includeFallback, table, baseDir),
-      JSXText: (p, state) => staticStringToTranslateTable(p, state, t, includeFallback, table, baseDir),
-      TemplateElement: (p, state) => staticStringToTranslateTable(p, state, t, includeFallback, table, baseDir),
+      StringLiteral: (p, state) => staticStringToTranslateTable(p, state, t, includeFallback, table, baseDir, autoWrap, ctx),
+      JSXText: (p, state) => staticStringToTranslateTable(p, state, t, includeFallback, table, baseDir, autoWrap, ctx),
+      TemplateElement: (p, state) => staticStringToTranslateTable(p, state, t, includeFallback, table, baseDir, autoWrap, ctx),
     },
   };
 };
+
+// Stessa regola di isHostParent in extractMarkers.js (vedi doc/ImplementationPlans/4_3_0.md):
+// duplicata qui perché questo file è l'implementazione di riferimento indipendente, non un
+// consumatore che deve restare in sync a runtime — è la sua stessa esistenza a mettere alla
+// prova la regola dell'altro file.
+function isHostParent(parent) {
+  if (!parent) return false;
+  if (parent.type === "JSXFragment") return true;
+  return (
+    parent.type === "JSXElement" &&
+    parent.openingElement?.name?.type === "JSXIdentifier" &&
+    /^[a-z]/.test(parent.openingElement.name.name)
+  );
+}
 
 /**
  * ---------------------------------------------------------------------
@@ -69,7 +107,7 @@ export default (api, options = {}) => {
  * Trasforma "_%_testo_%_" in "_<_id_/_testo_>_" e lo salva nella tabella.
  * ---------------------------------------------------------------------
  */
-function staticStringToTranslateTable(p, state, t, includeFallback, table, baseDir) {
+function staticStringToTranslateTable(p, state, t, includeFallback, table, baseDir, autoWrap, ctx) {
   const marked = markedTextOf(p.node);
   if (marked === null) return;
 
@@ -104,11 +142,21 @@ function staticStringToTranslateTable(p, state, t, includeFallback, table, baseD
       p.replaceWith(t.stringLiteral(newValue));
     }
   } else if (nodeType === "JSXText") {
-    // Espressione, non JSXText: il marcatore compilato contiene un "<" letterale, che in un
-    // nodo di testo JSX non è sintassi valida. Racchiuderlo in `{"..."}` lo tiene una
-    // stringa JS a tutti gli effetti, ed è ciò che permette di lasciare il JSX intatto per
-    // il plugin React del progetto invece di compilarlo qui (vedi vitetranslate.js).
-    p.replaceWith(t.jsxExpressionContainer(t.stringLiteral(newValue)));
+    if (autoWrap && isHostParent(p.parent)) {
+      // <alias t={"..."} />, autochiuso. Gli spazi {" "} del percorso veloce non servono
+      // qui: il confronto normalizza attraverso preset-react, e un {" "} e un JSXText di un
+      // solo spazio compilano entrambi a " ".
+      const attr = t.jsxAttribute(t.jsxIdentifier("t"), t.jsxExpressionContainer(t.stringLiteral(newValue)));
+      const element = t.jsxElement(t.jsxOpeningElement(t.jsxIdentifier(ctx.alias), [attr], true), null, [], true);
+      p.replaceWithMultiple([element]);
+      ctx.wrapped = true;
+    } else {
+      // Espressione, non JSXText: il marcatore compilato contiene un "<" letterale, che in un
+      // nodo di testo JSX non è sintassi valida. Racchiuderlo in `{"..."}` lo tiene una
+      // stringa JS a tutti gli effetti, ed è ciò che permette di lasciare il JSX intatto per
+      // il plugin React del progetto invece di compilarlo qui (vedi vitetranslate.js).
+      p.replaceWith(t.jsxExpressionContainer(t.stringLiteral(newValue)));
+    }
   } else if (nodeType === "TemplateElement") {
     // `raw` è il testo come apparirà fra i backtick: va ri-escapato, altrimenti un "\" o un
     // "`" nel testo tradotto cambierebbe il significato del template. `tail` va conservato:

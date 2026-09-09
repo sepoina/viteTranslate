@@ -16,10 +16,13 @@ vitetranslate(options)
 | `autoSyncDev` | `boolean` | `true` | Sync the tables at dev server startup, using the fast verify: nothing happens, nothing is printed, if nothing changed since the last sync. Makes `predev` unnecessary |
 | `autoSyncBuild` | `boolean` | `true` | Sync the tables before a build, with a full scan instead of the fast verify — a build gets the certainty of freshly rebuilt tables. Makes `prebuild` unnecessary |
 | `includeFallback` | `boolean` | `!isProduction` | Embed the original text as a fallback in the compiled marker (dev only by default) |
+| `autoWrap` | `boolean` | `false` | Auto-wrap a fully-marked JSX text (`<p>_%_hi_%_</p>`) in `<Translate>` when its parent is a plain HTML element or a fragment — see [limitations](limitations.md) for what it doesn't cover |
 | `errorSolve` | `object` | see below | On-screen and console diagnostics for strings that didn't arrive where they should — see [Diagnostics](diagnostics.md) |
 | `simpleLog` | `boolean` | `false` | Plain, un-boxed console output for the plugin and the CLI: no label column, no rules, same colors — useful in CI or a narrow terminal. Same as the CLI's `--simpleLog` flag, which always wins over this option |
 
 Only `false` turns `autoSyncDev` / `autoSyncBuild` off — any other value counts as on. Setting `VITETRANSLATE_NO_SYNC` (to anything non-empty) turns both off without touching `vite.config.*`, which is the only way to reach this from a read-only checkout. Neither one ever runs under Vitest or `vite preview`: a test run shouldn't rewrite your tables, and a preview has no source changes to catch up on.
+
+`autoWrap` is the mirror case: only `true` turns it on, any other value (including a typo'd truthy one) leaves it off — a mistake here should fall back to today's behavior, not switch it on by accident.
 
 ## `errorSolve`
 

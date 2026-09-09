@@ -1,7 +1,7 @@
 {
   "name": "@sepoina/vitetranslate",
-  "version": "4.2.4",
-  "versionDescription": "@babel/core is now a required peer dependency, and its absence stops the run instead of warning.",
+  "version": "4.3.0",
+  "versionDescription": "New autoWrap option: auto-wraps a fully-marked JSX text in <Translate> when its parent is a plain HTML element or a fragment, so a stray marker without <Translate> around it no longer shows up unrendered. Off by default.",
   "description": "Extract translatable strings straight from your JSX — a Vite plugin that auto-generates and syncs your translation tables, with zero runtime dependencies.",
   "author": {
     "name": "Giancarlo Ghigi",

@@ -279,5 +279,195 @@ console.log("\n== una stringa che contiene _%_ senza esserne avvolta ==");
     raccolti('const a = "<code>_%_testo_%_</code>";').warnings.length);
 }
 
+// =========================================================================================
+// autoWrap (4.3.0) — doc/ImplementationPlans/4_3_0.md
+//
+// T1 (uscita identica a oggi con autoWrap assente) non ha un test a sé: lo garantisce ogni
+// caso sopra, che gira senza mai passare l'opzione, e il fatto che questo file passi
+// invariato è già la prova.
+// =========================================================================================
+
+console.log("\n== autoWrap: la regola del genitore host ==");
+{
+  const casi = [
+    ["genitore host <p>", `const x = <p>_%_a_%_</p>;`, true],
+    ["fragment", `const x = <>_%_a_%_</>;`, true],
+    ["<Translate>", `const x = <Translate>_%_a_%_</Translate>;`, false],
+    ["componente custom <MyCard>", `const x = <MyCard>_%_a_%_</MyCard>;`, false],
+    ["JSXMemberExpression <Foo.Bar>", `const x = <Foo.Bar>_%_a_%_</Foo.Bar>;`, false],
+  ];
+  for (const [nome, src, atteso] of casi) {
+    const out = extractMarkers(src, { filename: "/p/src/App.jsx", table: {}, autoWrap: true });
+    eq(`${nome}: avvolto`, atteso, out.code.includes("<__vtTranslate"));
+    eq(`${nome}: import solo se avvolto`, atteso, out.code.includes('from "@sepoina/vitetranslate/react"'));
+  }
+}
+
+console.log("\n== autoWrap: un solo import anche con più marcatori ==");
+{
+  const out = extractMarkers(`const a = <p>_%_uno_%_</p>; const b = <p>_%_due_%_</p>;`, {
+    filename: "/p/src/App.jsx", table: {}, autoWrap: true,
+  });
+  const occorrenze = out.code.split('from "@sepoina/vitetranslate/react"').length - 1;
+  eq("un solo import in fondo", 1, occorrenze);
+  eq("due elementi avvolti", 2, (out.code.match(/<__vtTranslate\b/g) ?? []).length);
+}
+
+console.log("\n== autoWrap: solo marcatori in StringLiteral, nessun import ==");
+{
+  const out = extractMarkers(`const a = "_%_solo stringa_%_";`, {
+    filename: "/p/src/App.jsx", table: {}, autoWrap: true,
+  });
+  eq("nessun import appeso", false, out.code.includes("@sepoina/vitetranslate/react"));
+}
+
+console.log("\n== autoWrap: rewrite:false non avvolge mai ==");
+{
+  const out = extractMarkers(`const a = <p>_%_a_%_</p>;`, {
+    filename: "/p/src/App.jsx", table: {}, autoWrap: true, rewrite: false,
+  });
+  eq("nessun codice prodotto", null, out);
+}
+
+console.log("\n== autoWrap: alias con contatore in caso di collisione ==");
+{
+  const out = extractMarkers(`const __vtTranslate = 1; const x = <p>_%_a_%_</p>;`, {
+    filename: "/p/src/App.jsx", table: {}, autoWrap: true,
+  });
+  eq("l'alias diventa __vtTranslate2", true,
+    out.code.includes("<__vtTranslate2 ") && out.code.includes("as __vtTranslate2"));
+}
+
+console.log("\n== autoWrap: parità con la reference (senza spazio a cavallo dello stesso nodo) ==");
+{
+  // Il corpus qui esclude apposta i casi con spazio significativo sullo stesso JSXText del
+  // marcatore (es. `<p>_%_a_%_ <b/></p>`): la reference lo perde per costruzione — non ha un
+  // JSXText a sé a cui riattaccarlo — mentre il percorso veloce lo reinserisce come `{" "}`
+  // (vedi T18/T19). Non è un fallimento del punto 1.8: è la stessa cosa già annotata in
+  // 4_3_0.necessarytest.md, ed è per questo che quei casi restano provati altrove.
+  const CASI_AUTOWRAP = [
+    ["host semplice", `const x = <p>_%_a_%_</p>;`],
+    ["fragment", `const x = <>_%_a_%_</>;`],
+    ["non host: <Translate>", `const x = <Translate>_%_a_%_</Translate>;`],
+    ["non host: componente custom", `const x = <MyCard>_%_a_%_</MyCard>;`],
+    ["non host: JSXMemberExpression", `const x = <Foo.Bar>_%_a_%_</Foo.Bar>;`],
+    ["due marcatori host", `const a = <p>_%_uno_%_</p>; const b = <div>_%_due_%_</div>;`],
+    ["accento nel fallback", `const x = <p>_%_accento è_%_</p>;`],
+  ];
+  for (const [nome, src] of CASI_AUTOWRAP) {
+    const filename = "/p/src/App.jsx";
+    const b = viaBabel(src, filename, { autoWrap: true });
+    const s = viaSplice(src, filename, { autoWrap: true });
+    eq(`${nome} · tabella`, dump(b.table), dump(s.table));
+    let same;
+    try {
+      same = normalize(b.code, filename) === normalize(s.code, filename);
+    } catch (e) {
+      same = `codice non ri-parsabile: ${e.message}`;
+    }
+    eq(`${nome} · codice equivalente`, true, same);
+  }
+}
+
+console.log("\n== autoWrap: posizioni e sourcemap ==");
+{
+  // Conta le righe "vere": lo split su un file che finisce con \n produce un elemento vuoto
+  // in coda che non è una riga, ed è proprio la trappola su cui l'invariante 4 va misurato.
+  const righeVere = (code) => (code.endsWith("\n") ? code.slice(0, -1).split("\n") : code.split("\n"));
+
+  {
+    const src = `"use client";\nexport default function P() {\n return (<p>_%_a_%_</p>);\n}\n`;
+    const out = extractMarkers(src, { filename: "/p/src/App.jsx", table: {}, autoWrap: true });
+    eq('"use client" resta il primo statement', true, out.code.startsWith('"use client";'));
+    eq("una sola riga in più (sorgente con a-capo finale)", righeVere(src).length + 1, righeVere(out.code).length);
+  }
+  {
+    const src = `const x = <p>_%_a_%_</p>;`;
+    const out = extractMarkers(src, { filename: "/p/src/App.jsx", table: {}, autoWrap: true });
+    eq("una sola riga in più (sorgente SENZA a-capo finale)", righeVere(src).length + 1, righeVere(out.code).length);
+    eq("l'import sta sulla propria riga", true, out.code.endsWith('import { Translate as __vtTranslate } from "@sepoina/vitetranslate/react";\n'));
+  }
+  {
+    const src = `const a = 1;\nconst b = <p>\n  _%_x_%_\n</p>;\nconst FINE = 3;\n`;
+    const out = extractMarkers(src, { filename: "/p/src/App.jsx", table: {}, autoWrap: true });
+    const righe = out.code.split("\n");
+    eq("la riga dopo il collasso non si sposta", 4, righe.findIndex((l) => l.includes("FINE")));
+    eq("una sola riga in più (collasso + coda)", righeVere(src).length + 1, righeVere(out.code).length);
+  }
+  {
+    // Stesso schema del test di sourcemap non-autoWrap più sopra: valore pinnato, verificato
+    // a mano che l'ultima mappatura (la riga dell'import) non avanzi la riga sorgente.
+    const src = `const a = 1;\nconst b = <p>\n  _%_x_%_\n</p>;\nconst c = 3;\n`;
+    const out = extractMarkers(src, { filename: "/p/src/App.jsx", table: {}, autoWrap: true, sourceMaps: true });
+    const righeOut = out.code.split("\n").length;
+    const segmenti = out.map.mappings.split(";").length;
+    eq("un segmento per riga prodotta", righeOut, segmenti);
+    eq("la coda mappa sull'ultima riga sorgente", "AAAA;AACA;AACA;AACA;AACA;AACA;AAAA", out.map.mappings);
+  }
+}
+
+console.log('\n== autoWrap: t={"..."} e non t="..." ==');
+{
+  // Un attributo in forma di stringa non è una stringa JS: una virgoletta nel fallback
+  // farebbe fallire il parse, un'entity verrebbe ridecodificata in silenzio. `t={...}` è
+  // immune a entrambi perché a quel punto è una stringa JS, non più sintassi JSX — e lo
+  // resta anche a un SECONDO parse (quello che farebbe il plugin React del progetto sul
+  // file che riceve da noi): è lì che la forma sbagliata si vedrebbe.
+  //
+  // Nota sull'entity: la decodifica di "&amp;" -> "&" avviene già al PRIMO parse, sul
+  // `JSXText` originale (comportamento di JSX, non introdotto da questo piano — vale anche
+  // senza autoWrap). Quello che si verifica qui è che, dopo quella singola decodifica
+  // dovuta a JSX, il valore non subisca alcuna corruzione ULTERIORE nei parse successivi.
+  const casi = [
+    ["virgoletta nel fallback", `const x = <p>_%_dice "ciao"_%_</p>;`, 'dice "ciao"'],
+    ["entity HTML nel fallback (decodificata una sola volta)", `const x = <p>_%_Tom &amp; Jerry_%_</p>;`, "Tom & Jerry"],
+    ["backslash nel fallback", `const x = <p>_%_uno \\ due_%_</p>;`, "uno \\ due"],
+  ];
+  for (const [nome, src, atteso] of casi) {
+    const table = {};
+    const out = extractMarkers(src, { filename: "/p/src/App.jsx", table, autoWrap: true });
+    eq(`${nome}: emesso come espressione, non come attributo-stringa`, true, out.code.includes(`t={"`));
+    const [id] = Object.keys(table);
+
+    let compilato;
+    try {
+      compilato = normalize(out.code, "/p/src/App.jsx");
+    } catch (e) {
+      compilato = `non ri-parsabile: ${e.message}`;
+    }
+    eq(`${nome}: il secondo parse (preset-react) riesce`, true, typeof compilato === "string");
+    const match = typeof compilato === "string" && /t:\s*("(?:\\.|[^"\\])*")/.exec(compilato);
+    eq(`${nome}: il valore torna intero dopo due parse`, `_<_${id}_/_${atteso}_>_`, match ? JSON.parse(match[1]) : compilato);
+  }
+}
+
+console.log("\n== autoWrap: spazi significativi ==");
+{
+  const out1 = extractMarkers(`const x = <p>_%_a_%_ <b>x</b></p>;`, { filename: "/p/src/App.jsx", table: {}, autoWrap: true });
+  eq('T18: spazio dopo il marcatore reso come {" "}', true, out1.code.includes('/>{" "}<b>'));
+  {
+    const src2 = `const x = <p>\n  _%_a_%_\n  <b>x</b>\n</p>;\n`;
+    const out2 = extractMarkers(src2, { filename: "/p/src/App.jsx", table: {}, autoWrap: true });
+    eq("T19: nessuno spazio {\" \"} aggiunto sugli a-capo", false, out2.code.includes('{" "}'));
+  }
+}
+
+console.log("\n== autoWrap: avviso per un %s in un testo avvolto ==");
+{
+  const catturati = [];
+  extractMarkers(`const x = <p>_%_hai %s messaggi_%_</p>;`, {
+    filename: "/p/src/App.jsx", table: {}, autoWrap: true,
+    warn: (msg, kind) => catturati.push(kind),
+  });
+  eq("T20: avviso di categoria autowrap-placeholder", true, catturati.includes("autowrap-placeholder"));
+
+  const catturatiSpento = [];
+  extractMarkers(`const x = <p>_%_hai %s messaggi_%_</p>;`, {
+    filename: "/p/src/App.jsx", table: {}, autoWrap: false,
+    warn: (msg, kind) => catturatiSpento.push(kind),
+  });
+  eq("T21: nessun avviso con autoWrap spento", false, catturatiSpento.includes("autowrap-placeholder"));
+}
+
 console.log(fail === 0 ? "\nTUTTI OK" : `\n${fail} FALLITI`);
 process.exit(fail === 0 ? 0 : 1);

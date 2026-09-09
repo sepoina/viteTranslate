@@ -96,7 +96,7 @@ Every library in this table solves the same problem. They differ in how much mac
 
 ### What that buys you
 
-- ⚖️ **Under 5 kB gzip — <code>4173 bytes actually</code>**. That is the whole browser runtime, minified, React itself excluded. Payloads scale with your content, not with the library. Checked by `npm run estimateSize`, the source of truth for this number.
+- ⚖️ **Under 5 kB gzip — <code>4169 bytes actually</code>**. That is the whole browser runtime, minified, React itself excluded. Payloads scale with your content, not with the library. Checked by `npm run estimateSize`, the source of truth for this number.
 
 - 🪶 **Zero dependencies** — None declared. `@babel/core`, Vite and React are _peer_ dependencies: they run the plugin on your machine and never enter the bundle. That last part is not a promise on trust — the test suite asserts that the browser runtime imports nothing beyond React and the virtual module.
 
