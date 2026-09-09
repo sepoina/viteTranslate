@@ -1,7 +1,7 @@
 {
   "name": "@sepoina/vitetranslate",
   "version": "4.2.4",
-  "versionDescription": "@babel/core is now a required dev peer dependency, and its absence stops the run instead of warning.",
+  "versionDescription": "@babel/core is now a required peer dependency, and its absence stops the run instead of warning.",
   "description": "Extract translatable strings straight from your JSX — a Vite plugin that auto-generates and syncs your translation tables, with zero runtime dependencies.",
   "author": {
     "name": "Giancarlo Ghigi",
@@ -99,6 +99,9 @@
     "react": {
       "optional": true
     }
+  },
+  "engines": {
+    "node": ">=18.0.0"
   },
   "license": "Apache-2.0"
 }
