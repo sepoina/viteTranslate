@@ -1,7 +1,7 @@
 {
   "name": "@sepoina/vitetranslate",
-  "version": "4.3.0",
-  "versionDescription": "New autoWrap option: auto-wraps a fully-marked JSX text in <Translate> when its parent is a plain HTML element or a fragment, so a stray marker without <Translate> around it no longer shows up unrendered. Off by default.",
+  "version": "4.4.0",
+  "versionDescription": "autoWrap now also covers attributes (title=\"_%_...\") and skips script/style/title/textarea, which it used to break; when it can recognise the enclosing component it injects a lightweight hook instead of a <Translate> element, and accepts a RegExp to narrow which tags it touches. Marker ids for JSX text or a quoted attribute containing an HTML entity, a CRLF, or a tab now match what actually renders, which can shift a handful of existing ids — no migration, they re-translate like any new string. New marker-split and marker-newline warnings point at the exact cause instead of a generic one.",
   "description": "Extract translatable strings straight from your JSX — a Vite plugin that auto-generates and syncs your translation tables, with zero runtime dependencies.",
   "author": {
     "name": "Giancarlo Ghigi",

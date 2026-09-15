@@ -590,7 +590,7 @@ const testCases = [
       ripeti ripeti ripeti ripeti ripeti ripeti ripeti ripeti ripeti ripeti
       ripeti ripeti ripeti._%_
     </Translate>,
-    'Il testo, mandato a capo dal browser. Ma la chiave nel file di lingua si porta dentro gli a-capo e i rientri del sorgente.',
+    'Il testo, mandato a capo dal browser. Dalla 4.4.0 la chiave rispecchia esattamente quel testo reso: estrazione e riformattazione (rientro compreso) non spostano più la chiave, perché gli a-capo e gli spazi del sorgente sono collassati allo stesso modo in cui React li collassa.',
     `<Translate>
 _%_Questo è un testo molto lungo che si ripete: ripeti
 ripeti ripeti ripeti ripeti ripeti ripeti ripeti ripeti

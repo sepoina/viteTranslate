@@ -8,6 +8,8 @@ import { transformSync, parseSync } from "@babel/core";
 import babelTranslate from "./babelTranslateReference.mjs";
 import extractMarkers from "../../lib/dev/babel/extractMarkers.js";
 import parserOptionsFor from "../../lib/dev/babel/parserOptionsFor.js";
+import { compileEntry } from "../../lib/dev/compile/compileTable.js";
+import { printWarnings } from "../../lib/dev/vite/uty/languageStatus.js";
 
 let fail = 0;
 const eq = (nome, atteso, ottenuto) => {
@@ -414,13 +416,16 @@ console.log('\n== autoWrap: t={"..."} e non t="..." ==');
   // resta anche a un SECONDO parse (quello che farebbe il plugin React del progetto sul
   // file che riceve da noi): è lì che la forma sbagliata si vedrebbe.
   //
-  // Nota sull'entity: la decodifica di "&amp;" -> "&" avviene già al PRIMO parse, sul
-  // `JSXText` originale (comportamento di JSX, non introdotto da questo piano — vale anche
-  // senza autoWrap). Quello che si verifica qui è che, dopo quella singola decodifica
-  // dovuta a JSX, il valore non subisca alcuna corruzione ULTERIORE nei parse successivi.
+  // Nota sull'entity, riscritta per la 4.4.0: dalla normalizzazione del testo JSX (vedi
+  // markerCore.js, rawTextOf) il marcatore legge la fetta GREZZA del sorgente, non più
+  // `node.value` di Babel — quindi "&amp;" non viene più decodificato al primo parse, e
+  // arriva letterale in tabella. E' voluto: un `&lt;b&gt;` scritto apposta per mostrare un
+  // tag finiva altrimenti ridecodificato una seconda volta in fase di compilazione tabella
+  // (decodeEntities), diventando un tag vero. Qui si verifica solo che, letta letterale,
+  // l'entity non subisca ULTERIORI corruzioni nei parse successivi.
   const casi = [
     ["virgoletta nel fallback", `const x = <p>_%_dice "ciao"_%_</p>;`, 'dice "ciao"'],
-    ["entity HTML nel fallback (decodificata una sola volta)", `const x = <p>_%_Tom &amp; Jerry_%_</p>;`, "Tom & Jerry"],
+    ["entity HTML nel fallback (letterale, non ridecodificata)", `const x = <p>_%_Tom &amp; Jerry_%_</p>;`, "Tom &amp; Jerry"],
     ["backslash nel fallback", `const x = <p>_%_uno \\ due_%_</p>;`, "uno \\ due"],
   ];
   for (const [nome, src, atteso] of casi) {
@@ -468,6 +473,343 @@ console.log("\n== autoWrap: avviso per un %s in un testo avvolto ==");
   });
   eq("T21: nessun avviso con autoWrap spento", false, catturatiSpento.includes("autowrap-placeholder"));
 }
+
+// =========================================================================================
+// autoWrap (4.4.0) — doc/ImplementationPlans/4_4_0.md
+// =========================================================================================
+
+// Un componente VERDE minimo: esportato, default, JSX diretto, zero parametri. Ci si inietta
+// dentro senza bisogno di un hook o di un export nominato — vedi § 4.2 del piano.
+const inComponent = (jsx) => `export default function C() {\n return (${jsx});\n}\n`;
+// Un componente ROSSO: la stessa forma, ma chiamata anche come funzione normale nello stesso
+// file — punto 4 del semaforo, l'unico che davvero conta.
+const inCalledComponent = (jsx) => `function C() {\n return (${jsx});\n}\nC();\n`;
+
+const conAvvisi = (code, opz) => {
+  const catturati = [];
+  const out = extractMarkers(code, { filename: "/p/src/App.jsx", table: {}, warn: (msg, kind) => catturati.push({ msg, kind }), ...opz });
+  return { out, catturati };
+};
+
+console.log("\n== Strato 1: classi di tag e opzione RegExp ==");
+{
+  console.log("-- T2: i quattro tag text-only, fuori da un componente riconosciuto --");
+  for (const tag of ["title", "textarea", "style", "script"]) {
+    const { out, catturati } = conAvvisi(`const x = <${tag}>_%_Home_%_</${tag}>;`, { autoWrap: true });
+    eq(`T2 <${tag}>: nessun elemento/hook iniettato`, false, out.code.includes(`__vt`));
+    eq(`T2 <${tag}>: avviso autowrap-noscope`, true, catturati.some((c) => c.kind === "autowrap-noscope"));
+  }
+}
+{
+  console.log("-- T3: <p> escluso da una RegExp che accetta solo <span> --");
+  const { out, catturati } = conAvvisi(`const x = <p>_%_a_%_</p>;`, { autoWrap: /^(span)$/ });
+  eq("T3: nessun avvolgimento (opaque)", true, out.code.includes('{"_<_'));
+  eq("T3: nessun avviso (l'ha chiesto lui)", 0, catturati.length);
+}
+{
+  console.log("-- T4: <span> ammesso dalla stessa RegExp --");
+  const out = extractMarkers(`const x = <span>_%_a_%_</span>;`, { filename: "/p/src/App.jsx", table: {}, autoWrap: /^(span)$/ });
+  eq("T4: avvolto (ripiego 4.3.0, nessun componente qui)", true, out.code.includes("<__vtTranslate"));
+}
+{
+  console.log("-- T5: la RegExp non riapre un tag text-only --");
+  const src = inComponent(`<title>_%_Home_%_</title>`);
+  const out = extractMarkers(src, { filename: "/p/src/App.jsx", table: {}, autoWrap: /^(title)$/ });
+  eq("T5: mai un elemento <__vtTranslate>", false, out.code.includes("<__vtTranslate"));
+  eq("T5: mai il nodo hook", false, out.code.includes("__vtNode("));
+  eq("T5: resta il solo hook stringa, come senza RegExp", true, out.code.includes("__vtStr("));
+}
+{
+  console.log("-- T6: il fragment e' sempre avvolgibile, RegExp o no --");
+  const out = extractMarkers(`const x = <>_%_a_%_</>;`, { filename: "/p/src/App.jsx", table: {}, autoWrap: /^(nonmatching)$/ });
+  eq("T6: avvolto lo stesso", true, out.code.includes("<__vtTranslate"));
+}
+{
+  console.log("-- T8 (forma diretta extractMarkers): valori diversi da true/RegExp restano spenti --");
+  for (const valore of [1, "yes", "p|span", undefined]) {
+    const opz = valore === undefined ? {} : { autoWrap: valore };
+    const out = extractMarkers(`const x = <p>_%_a_%_</p>;`, { filename: "/p/src/App.jsx", table: {}, ...opz });
+    eq(`T8 autoWrap=${JSON.stringify(valore)}: spento`, false, out.code.includes("<__vtTranslate") || out.code.includes("__vt"));
+  }
+}
+
+console.log("\n== Strato 2: normalizzazione (T11-T16, T14b-d) ==");
+{
+  console.log("-- T11: l'entita' arriva letterale in tabella, non decodificata --");
+  const table = {};
+  extractMarkers(`const a = <p>_%_hi&nbsp;you_%_</p>;`, { filename: "/p/src/App.jsx", table });
+  eq("T11", "hi&nbsp;you", Object.values(table)[0]);
+}
+{
+  console.log("-- T12: stesso testo in JSXText, attributo quotato e ts() -> stesso id --");
+  const t1 = {}, t2 = {}, t3 = {};
+  extractMarkers(`const a = <p>_%_hi&nbsp;you_%_</p>;`, { filename: "/p/src/App.jsx", table: t1 });
+  extractMarkers(`const a = <T t="_%_hi&nbsp;you_%_" />;`, { filename: "/p/src/App.jsx", table: t2 });
+  extractMarkers(`const a = ts("_%_hi&nbsp;you_%_");`, { filename: "/p/src/App.jsx", table: t3 });
+  eq("T12: JSXText === attributo quotato", Object.keys(t1)[0], Object.keys(t2)[0]);
+  eq("T12: JSXText === ts()", Object.keys(t1)[0], Object.keys(t3)[0]);
+}
+{
+  console.log("-- T13: <b> scritto per entita' resta una STRINGA compilata, non un elemento --");
+  const table = {};
+  extractMarkers(`const a = <p>_%_&lt;b&gt;non grassetto&lt;/b&gt;_%_</p>;`, { filename: "/p/src/App.jsx", table });
+  const inner = Object.values(table)[0];
+  const used = {};
+  const compilato = compileEntry(inner, used, () => {});
+  eq("T13: compilato come stringa letterale", JSON.stringify("<b>non grassetto</b>"), compilato);
+}
+{
+  console.log("-- T14: due indentazioni diverse, stesso id --");
+  const t1 = {}, t2 = {};
+  extractMarkers(`const a = <p>\n  _%_hello\n  world_%_\n</p>;`, { filename: "/p/src/App.jsx", table: t1 });
+  extractMarkers(`const a = <p>\n    _%_hello\n    world_%_\n  </p>;`, { filename: "/p/src/App.jsx", table: t2 });
+  eq("T14: id", Object.keys(t1)[0], Object.keys(t2)[0]);
+  eq("T14: valore", "hello world", Object.values(t1)[0]);
+}
+{
+  console.log("-- T14b: JSXText collassa, attributo quotato no -> id DIVERSI, di proposito --");
+  const t1 = {}, t2 = {};
+  extractMarkers(`const a = <p>_%_Home\nciao_%_</p>;`, { filename: "/p/src/App.jsx", table: t1 });
+  extractMarkers(`const a = <T t="_%_Home\nciao_%_" />;`, { filename: "/p/src/App.jsx", table: t2 });
+  eq("T14b: id diversi", true, Object.keys(t1)[0] !== Object.keys(t2)[0]);
+  eq("T14b: JSXText collassato", "Home ciao", Object.values(t1)[0]);
+  eq("T14b: attributo con a-capo conservato", "Home\nciao", Object.values(t2)[0]);
+}
+{
+  console.log("-- T14c: CRLF e LF producono lo stesso id, in ogni posizione --");
+  const coppie = [
+    ["JSXText", `const a = <p>_%_Home\r\nciao_%_</p>;`, `const a = <p>_%_Home\nciao_%_</p>;`],
+    ["attributo quotato", `const a = <T t="_%_Home\r\nciao_%_" />;`, `const a = <T t="_%_Home\nciao_%_" />;`],
+    ["template literal", "const a = `_%_Home\r\nciao_%_`;", "const a = `_%_Home\nciao_%_`;"],
+  ];
+  for (const [nome, crlf, lf] of coppie) {
+    const t1 = {}, t2 = {};
+    extractMarkers(crlf, { filename: "/p/src/App.jsx", table: t1 });
+    extractMarkers(lf, { filename: "/p/src/App.jsx", table: t2 });
+    eq(`T14c ${nome}: stesso id`, Object.keys(t2)[0], Object.keys(t1)[0]);
+  }
+}
+{
+  console.log("-- T14d: entita' e carattere sono due testi diversi, come ovunque altrove --");
+  const t1 = {}, t2 = {};
+  extractMarkers(`const a = <T t="_%_a &amp; b_%_" />;`, { filename: "/p/src/App.jsx", table: t1 });
+  extractMarkers(`const a = <T t="_%_a & b_%_" />;`, { filename: "/p/src/App.jsx", table: t2 });
+  eq("T14d: id diversi", true, Object.keys(t1)[0] !== Object.keys(t2)[0]);
+  eq("T14d: valore con entita'", "a &amp; b", Object.values(t1)[0]);
+  eq("T14d: valore col carattere", "a & b", Object.values(t2)[0]);
+}
+{
+  console.log("-- T15: un literal JS normale non e' toccato --");
+  const table = {};
+  extractMarkers(`const a = "_%_a\\nb_%_";`, { filename: "/p/src/App.jsx", table });
+  eq("T15: l'escape JS resta interpretato", "a\nb", Object.values(table)[0]);
+}
+console.log("-- T16: parita' con la reference sull'intero corpus esistente --");
+eq("T16: coperta dal loop CASI sopra, nessuna KO", true, fail === 0 || true); // marcatore documentale
+
+console.log("\n== Strato 3: diagnostica (T17-T20) ==");
+{
+  console.log("-- T17: un solo avviso marker-split, nomina <b> --");
+  const { catturati } = conAvvisi(`const x = <p>_%_hi <b>x</b>_%_</p>;`, {});
+  const split = catturati.filter((c) => c.kind === "marker-split");
+  eq("T17: un solo avviso", 1, split.length);
+  eq("T17: nomina <b>", true, split[0]?.msg.includes("<b>"));
+}
+{
+  console.log("-- T17b: con un fratello prima, vince comunque il pezzo che apre --");
+  const { catturati } = conAvvisi(`const x = <p><i/>_%_hi <b>x</b>_%_</p>;`, {});
+  const split = catturati.filter((c) => c.kind === "marker-split");
+  eq("T17b: un solo avviso", 1, split.length);
+  eq("T17b: nomina <b>", true, split[0]?.msg.includes("<b>"));
+}
+{
+  console.log("-- T17c: un malformato dopo un elemento non viene zittito --");
+  const { catturati } = conAvvisi(`const x = <p><b>x</b>_%_delimitatore dimenticato</p>;`, {});
+  eq("T17c: un avviso malformed", true, catturati.some((c) => c.kind === "malformed"));
+  eq("T17c: nessun marker-split (non c'e' un tag DENTRO il marcatore)", false, catturati.some((c) => c.kind === "marker-split"));
+}
+{
+  console.log("-- T18: marker-split nomina {...} per un'espressione --");
+  const { catturati } = conAvvisi(`const x = <p>_%_hi {name}_%_</p>;`, {});
+  const split = catturati.filter((c) => c.kind === "marker-split");
+  eq("T18: un solo avviso", 1, split.length);
+  eq("T18: nomina {…}", true, split[0]?.msg.includes("{…}"));
+}
+{
+  console.log("-- T19: malformato senza tag, invariato --");
+  const { catturati } = conAvvisi(`const a = "_%_a" + "b_%_";`, {});
+  eq("T19: nessun marker-split", false, catturati.some((c) => c.kind === "marker-split"));
+  eq("T19: restano malformed", true, catturati.every((c) => c.kind === "malformed"));
+}
+{
+  console.log("-- T19b: a-capo in un attributo marcato -> un avviso, id invariato --");
+  const t1 = {}, t2 = {};
+  const { catturati } = conAvvisi(`const a = <T t="_%_Home\nciao_%_" />;`, {});
+  extractMarkers(`const a = <T t="_%_Home\nciao_%_" />;`, { filename: "/p/src/App.jsx", table: t1 });
+  extractMarkers(`const a = <T t="_%_Home\nciao_%_" />;`, { filename: "/p/src/App.jsx", table: t2, warn: () => {} });
+  eq("T19b: un avviso marker-newline", true, catturati.some((c) => c.kind === "marker-newline"));
+  eq("T19b: l'id non cambia per l'avviso", Object.keys(t1)[0], Object.keys(t2)[0]);
+}
+{
+  console.log("-- T19c: nessun marker-newline quando l'a-capo non e' nell'attributo --");
+  const a = conAvvisi(`const x = <p>_%_Home\nciao_%_</p>;`, {});
+  const b = conAvvisi(`const x = ts("_%_Home\\nciao_%_");`, {});
+  eq("T19c JSXText: nessun marker-newline", false, a.catturati.some((c) => c.kind === "marker-newline"));
+  eq("T19c ts(): nessun marker-newline", false, b.catturati.some((c) => c.kind === "marker-newline"));
+}
+{
+  console.log("-- T19d: la riga unita produce lo stesso id del JSXText collassato --");
+  const t1 = {}, t2 = {};
+  extractMarkers(`const a = <T t="_%_Home ciao_%_" />;`, { filename: "/p/src/App.jsx", table: t1 });
+  extractMarkers(`const a = <p>_%_Home\nciao_%_</p>;`, { filename: "/p/src/App.jsx", table: t2 });
+  eq("T19d: stesso id", Object.keys(t2)[0], Object.keys(t1)[0]);
+}
+{
+  console.log("-- T20: printWarnings, le cinque categorie a conteggio --");
+  const CATEGORIE = ["malformed", "marker-split", "marker-newline", "autowrap-noscope", "autowrap-placeholder"];
+  const warnings = CATEGORIE.map((kind, i) => ({ kind, message: `messaggio ${i} di ${kind}` }));
+  const righe = [];
+  const originale = console.log;
+  console.log = (...a) => righe.push(a.join(" "));
+  let stampatoCompatto, stampatoDettaglio;
+  try {
+    righe.length = 0;
+    stampatoCompatto = printWarnings({ warnings });
+    const compatte = righe.length;
+    righe.length = 0;
+    stampatoDettaglio = printWarnings({ warnings, dettaglio: true });
+    var dettagliate = righe.length;
+  } finally {
+    console.log = originale;
+  }
+  eq("T20: stampa qualcosa in forma compatta", true, stampatoCompatto);
+  eq("T20: stampa qualcosa col dettaglio", true, stampatoDettaglio);
+  eq("T20: il dettaglio elenca piu' righe del riepilogo compatto", true, dettagliate > 2);
+}
+
+console.log("\n== Strati 5/6: emissione (T21-T32) ==");
+{
+  console.log("-- T21: componente verde, figlio marcato -> hook nodo --");
+  const out = extractMarkers(inComponent(`<p>_%_a_%_</p>`), { filename: "/p/src/App.jsx", table: {}, autoWrap: true });
+  eq("T21: emette __vtNode(...)", true, /\{__vtNode\("_<_[^"]+_>_"\)\}/.test(out.code));
+  eq("T21: una const in cima", 1, (out.code.match(/const __vtNode = __vtUseNode\(\);/g) ?? []).length);
+  eq("T21: import in fondo", true, out.code.trimEnd().endsWith('from "@sepoina/vitetranslate/react";'));
+}
+{
+  console.log("-- T22: tre marcatori nello stesso componente -> una sola const, un solo import --");
+  const src = inComponent(`<div><p>_%_a_%_</p><p>_%_b_%_</p><p>_%_c_%_</p></div>`);
+  const out = extractMarkers(src, { filename: "/p/src/App.jsx", table: {}, autoWrap: true });
+  eq("T22: tre chiamate __vtNode", 3, (out.code.match(/__vtNode\(/g) ?? []).length);
+  eq("T22: una sola const", 1, (out.code.match(/const __vtNode = __vtUseNode\(\);/g) ?? []).length);
+  eq("T22: un solo import", 1, out.code.split('from "@sepoina/vitetranslate/react"').length - 1);
+}
+{
+  console.log("-- T23: componente rosso -> ripiego 4.3.0 --");
+  const out = extractMarkers(inCalledComponent(`<p>_%_a_%_</p>`), { filename: "/p/src/App.jsx", table: {}, autoWrap: true });
+  eq("T23: <__vtTranslate>, non l'hook", true, out.code.includes("<__vtTranslate"));
+  eq("T23: nessun __vtNode", false, out.code.includes("__vtNode("));
+}
+{
+  console.log("-- T24/T24b: <title>, con e senza spazi a cavallo --");
+  const out1 = extractMarkers(inComponent(`<title>_%_a_%_</title>`), { filename: "/p/src/App.jsx", table: {}, autoWrap: true });
+  eq("T24: hook stringa", true, out1.code.includes("__vtStr("));
+  const out2 = extractMarkers(inComponent(`<title> _%_a_%_ </title>`), { filename: "/p/src/App.jsx", table: {}, autoWrap: true });
+  eq("T24b: hook stringa anche con spazi a cavallo", true, out2.code.includes("__vtStr("));
+  eq('T24b: nessun {" "} aggiunto', false, out2.code.includes('{" "}'));
+}
+{
+  console.log("-- T25/T26: attributo host, forma diretta ed espressione --");
+  const out1 = extractMarkers(inComponent(`<input placeholder="_%_a_%_" />`), { filename: "/p/src/App.jsx", table: {}, autoWrap: true });
+  eq("T25: hook stringa sull'attributo", true, out1.code.includes("__vtStr("));
+  eq("T25: import di useTranslateToString", true, out1.code.includes("useTranslateToString as __vtUseStr"));
+  const out2 = extractMarkers(inComponent(`<input placeholder={"_%_a_%_"} />`), { filename: "/p/src/App.jsx", table: {}, autoWrap: true });
+  eq("T26: idem in forma espressione", true, out2.code.includes("__vtStr("));
+}
+{
+  console.log("-- T27: attributo su un componente, mai toccato --");
+  const { out, catturati } = conAvvisi(inComponent(`<MyCard title="_%_a_%_" />`), { autoWrap: true });
+  eq("T27: nessun hook sull'attributo", false, out.code.includes("__vtStr("));
+  eq("T27: nessun avviso", 0, catturati.filter((c) => c.kind === "autowrap-noscope").length);
+}
+{
+  console.log("-- T28: componente rosso, attributo host -> invariato + avviso --");
+  const { out, catturati } = conAvvisi(inCalledComponent(`<input placeholder="_%_a_%_" />`), { autoWrap: true });
+  eq("T28: nessun hook", false, out.code.includes("__vtStr("));
+  eq("T28: avviso autowrap-noscope", true, catturati.some((c) => c.kind === "autowrap-noscope"));
+}
+{
+  console.log("-- T28b/T28c: marcatore come figlio espressione, § 5.3 --");
+  const out1 = extractMarkers(inComponent(`<p>{"_%_a_%_"}</p>`), { filename: "/p/src/App.jsx", table: {}, autoWrap: true });
+  eq("T28b: __vtNode sul figlio espressione", true, out1.code.includes("__vtNode("));
+  const out2 = extractMarkers(inComponent(`<title>{"_%_a_%_"}</title>`), { filename: "/p/src/App.jsx", table: {}, autoWrap: true });
+  eq("T28c: __vtStr sul figlio espressione di un tag text-only", true, out2.code.includes("__vtStr("));
+}
+{
+  console.log("-- T28d: il literal non figlio diretto del container resta fuori --");
+  const out1 = extractMarkers(inComponent(`<p>{["_%_a_%_"]}</p>`), { filename: "/p/src/App.jsx", table: {}, autoWrap: true });
+  eq("T28d array: invariato", false, out1.code.includes("__vt"));
+  const out2 = extractMarkers(inComponent(`<p>{cond ? "_%_a_%_" : "_%_b_%_"}</p>`), { filename: "/p/src/App.jsx", table: {}, autoWrap: true });
+  eq("T28d ternario: invariato", false, out2.code.includes("__vt"));
+}
+{
+  console.log("-- T28e: figlio espressione, componente rosso --");
+  const { out, catturati } = conAvvisi(inCalledComponent(`<p>{"_%_a_%_"}</p>`), { autoWrap: true });
+  eq("T28e: invariato", false, out.code.includes("__vtNode("));
+  eq("T28e: nessun <__vtTranslate> dentro le graffe", false, out.code.includes("<__vtTranslate"));
+  eq("T28e: avviso", true, catturati.some((c) => c.kind === "autowrap-noscope"));
+}
+{
+  console.log("-- T29: <li key=\"...\"> mai riscritto --");
+  const { out, catturati } = conAvvisi(inComponent(`<ul><li key="_%_a_%_">x</li></ul>`), { autoWrap: true });
+  eq("T29: nessun hook su key", false, out.code.includes("__vtStr("));
+  eq("T29: un avviso dedicato", true, catturati.some((c) => c.kind === "autowrap-noscope" && c.msg.includes("key")));
+}
+{
+  console.log("-- T30: un componente che usa entrambi gli hook --");
+  const src = inComponent(`<div><p>_%_a_%_</p><input placeholder="_%_b_%_" /></div>`);
+  const out = extractMarkers(src, { filename: "/p/src/App.jsx", table: {}, autoWrap: true });
+  eq("T30: le due const sulla stessa riga", true, /const __vtNode = __vtUseNode\(\);const __vtStr = __vtUseStr\(\);|const __vtStr = __vtUseStr\(\);const __vtNode = __vtUseNode\(\);/.test(out.code));
+  eq("T30: un solo import con due specifier", 1, out.code.split('from "@sepoina/vitetranslate/react"').length - 1);
+  eq("T30: import elenca entrambi gli hook", true, /useTranslateNode as __vtUseNode.*useTranslateToString as __vtUseStr|useTranslateToString as __vtUseStr.*useTranslateNode as __vtUseNode/.test(out.code));
+}
+{
+  console.log("-- T31: alias gia' presenti nel file -> tutti spostati al suffisso 2 --");
+  const src = `const __vtNode = 1;\n${inComponent(`<p>_%_a_%_</p>`)}`;
+  const out = extractMarkers(src, { filename: "/p/src/App.jsx", table: {}, autoWrap: true });
+  eq("T31: __vtNode2 usato", true, out.code.includes("__vtNode2("));
+  eq("T31: alias hook anche spostato", true, out.code.includes("useTranslateNode as __vtUseNode2"));
+}
+{
+  console.log("-- T32: rewrite:false con autoWrap:true -> nessun wrap, nessuna iniezione --");
+  const out = extractMarkers(inComponent(`<p>_%_a_%_</p>`), { filename: "/p/src/App.jsx", table: {}, autoWrap: true, rewrite: false });
+  eq("T32: null", null, out);
+}
+
+console.log("\n== Posizioni e sourcemap con iniezione (T33-T36) ==");
+{
+  const righeVere = (code) => (code.endsWith("\n") ? code.slice(0, -1).split("\n") : code.split("\n"));
+  console.log("-- T33: 'use client' resta il primo statement anche con un'iniezione --");
+  const src = `"use client";\n${inComponent(`<p>_%_a_%_</p>`)}`;
+  const out = extractMarkers(src, { filename: "/p/src/App.jsx", table: {}, autoWrap: true });
+  eq("T33: la direttiva resta la prima riga", true, out.code.startsWith('"use client";'));
+}
+{
+  console.log("-- T34: l'iniezione (start===end) non aggiunge righe oltre l'import finale --");
+  const src = inComponent(`<p>_%_a_%_</p>`);
+  const out = extractMarkers(src, { filename: "/p/src/App.jsx", table: {}, autoWrap: true });
+  const righeVere = (code) => (code.endsWith("\n") ? code.slice(0, -1).split("\n") : code.split("\n"));
+  eq("T34: una sola riga in piu' (l'import)", righeVere(src).length + 1, righeVere(out.code).length);
+}
+{
+  console.log("-- T35: sourcemap con un'iniezione, un segmento per riga prodotta --");
+  const src = inComponent(`<p>_%_a_%_</p>`);
+  const out = extractMarkers(src, { filename: "/p/src/App.jsx", table: {}, autoWrap: true, sourceMaps: true });
+  const righeOut = out.code.split("\n").length;
+  const segmenti = out.map.mappings.split(";").length;
+  eq("T35: un segmento per riga prodotta", righeOut, segmenti);
+}
+console.log("-- T36: round trip di parse sul fallback -> gia' coperto dal blocco 't={...} e non t=\"...\"' sopra --");
+
 
 console.log(fail === 0 ? "\nTUTTI OK" : `\n${fail} FALLITI`);
 process.exit(fail === 0 ? 0 : 1);

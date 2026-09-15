@@ -11,6 +11,7 @@
   - [What can sit in the text position](#what-can-sit-in-the-text-position)
   - [`skipMark`: when unmarked is the normal case](#skipmark-when-unmarked-is-the-normal-case)
 - [`useTranslateToString()`](#usetranslatetostring)
+- [`useTranslateNode()`](#usetranslatenode)
 - [`useTranslateLanguage()`](#usetranslatelanguage)
 - [`TranslateContainer` props](#translatecontainer-props)
 - [`proposeNewLanguage()`](#proposenewlanguage)
@@ -112,6 +113,21 @@ An optional third argument carries what are props on `<Translate>`:
 `{ skipMark: true }` says the same thing as the prop: an unmarked string is legitimate here, so no `‼️` and no console warning. A React element is the one form `ts()` does **not** take — it has to return a primitive string, so a mounted node is a real error and gets a message of its own.
 
 Anything else that isn't text either — a function, a symbol, an element inside the tuple form — renders `""`, same as `<Translate>` does for the same values, with a console warning during development.
+
+## `useTranslateNode()`
+
+The hook form of `<Translate>`: same resolution chain, no element or component call for it. It's what the `autoWrap` plugin option injects for you — see [plugin options](plugin-options.md) — so most projects never write this by hand. When you do, it takes a **compiled** marker, not a `_%_..._%_` source one — the string a `<Translate t={...}>` already receives, never something you type yourself:
+
+```jsx
+import { useTranslateNode } from "@sepoina/vitetranslate/react";
+
+function Card({ compiled }) {
+  const t = useTranslateNode();
+  return <p>{t(compiled)}</p>;
+}
+```
+
+Pass it a second argument for a `%s`, same as `<Translate a={...}>`. Outside a compiled marker there's no key to look up, so it falls back to the text itself, delimiters stripped if it still has them — the same degrade `<Translate>` and `ts()` use for anything the compiler never saw.
 
 ## `useTranslateLanguage()`
 

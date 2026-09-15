@@ -108,7 +108,10 @@ function isHostParent(parent) {
  * ---------------------------------------------------------------------
  */
 function staticStringToTranslateTable(p, state, t, includeFallback, table, baseDir, autoWrap, ctx) {
-  const marked = markedTextOf(p.node);
+  // La stessa lettura del sorgente e dello stesso genitore di extractMarkers.js: se le due
+  // implementazioni leggono testi diversi, producono id diversi, ed è esattamente ciò che il
+  // confronto di parità esiste per impedire.
+  const marked = markedTextOf(p.node, state.file.code, p.parent);
   if (marked === null) return;
 
   const strToAdd = innerTextOf(marked);

@@ -184,6 +184,13 @@ export declare function useTranslateToString(): (
 ) => string;
 
 /**
+ * La forma a hook di `<Translate>`: risolve un marcatore compilato in un nodo React. Pensato
+ * per essere iniettato dal transform (`autoWrap`); usato a mano, accetta solo un marcatore
+ * **già compilato** (`t={...}` di `<Translate>`, non un `_%_...._%_` sorgente).
+ */
+export declare function useTranslateNode(): (t: string, a?: TranslateArgs) => ReactNode;
+
+/**
  * Converte una stringa con HTML elementare in nodi React, senza `dangerouslySetInnerHTML`.
  * Riconosce solo `<b> <strong> <i> <em> <u> <small> <code> <br> <hr> <wbr>` e le entità;
  * ogni altro tag viene sciolto conservandone il contenuto e nessun attributo sopravvive.

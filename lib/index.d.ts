@@ -114,12 +114,20 @@ export interface VitetranslateOptions {
    */
   includeFallback?: boolean;
   /**
-   * Avvolge automaticamente in `<Translate>` il testo JSX interamente marcato che si trova
-   * dentro un elemento HTML. Senza, un `<p>_%_ciao_%_</p>` a cui manca il `<Translate>`
-   * stampa a schermo il marcatore compilato. Non tocca gli attributi, che restano a `ts()`,
-   * né il testo dentro un componente. Default: `false`.
+   * Fa rendere davvero il testo JSX e gli attributi marcati che nessun componente avvolge.
+   * Senza, un `<p>_%_ciao_%_</p>` o un `title="_%_ciao_%_"` stampano il marcatore compilato.
+   *
+   * - `false` (default): nessuna riscrittura.
+   * - `true`: acceso, su tutti i tag host tranne `script`, `style`, `title` e `textarea`, che
+   *   accettano solo testo e ricevono comunque la forma a stringa.
+   * - `RegExp`: acceso, e il testo figlio si riscrive solo sotto i tag che la soddisfano
+   *   (`/^(p|span|li|h[1-6])$/`). I quattro tag di sopra restano esclusi comunque.
+   *
+   * Non tocca il testo dentro un componente, né gli attributi di un componente: lì il
+   * marcatore compilato va inoltrato a `<Translate>` o a `ts()`, che è ciò che fa già.
+   * Default: `false`.
    */
-  autoWrap?: boolean;
+  autoWrap?: boolean | RegExp;
   /**
    * Diagnostica a schermo e in console per le stringhe che non arrivano dove dovevano.
    * Ogni campo è facoltativo; omettere l'opzione lascia tutti i default.
