@@ -11,6 +11,12 @@ export default defineConfig({
       // Una sola lingua precaricata: il pulsante in cima commuta fra sorgente e
       // traduzione senza sospensione al primo render.
       preloadedLanguages: ['en-US'],
+      // Una RegExp e non `true`: e' anche la dimostrazione del caso 10 di
+      // autoWrapCases.jsx — <blockquote> non e' nell'elenco, quindi resta "opaque" e
+      // autoWrap non lo tocca, di proposito. Verificato (extractMarkers + re-parse) che
+      // accenderla non cambia una riga di output per nessun sorgente preesistente di questa
+      // cartella: i soli marcatori nudi sotto un elemento host sono quelli nuovi qui sotto.
+      autoWrap: /^(p|div|span|li|ul|ol|h[1-6]|b|strong|em|code|a|button|label)$/,
       errorSolve: {
         mark: {
           badData: '🚫', // a value that is not text and never will be

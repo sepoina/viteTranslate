@@ -5,6 +5,7 @@ import {
   version,
 } from '@sepoina/vitetranslate/react';
 import testCases from './testCases.jsx';
+import autoWrapCases from './autoWrapCases.jsx';
 import CodeIcon from './CodeIcon.jsx';
 import ShowAllTests from './ShowAllRowTests.jsx';
 
@@ -77,6 +78,15 @@ export default function App() {
               onShow={(t) => setSrc(t)}
               onHide={() => setSrc(null)}
               data={testCases}
+            />
+          </tbody>
+        </table>
+        <table>
+          <tbody>
+            <ShowAllTests
+              onShow={(t) => setSrc(t)}
+              onHide={() => setSrc(null)}
+              data={autoWrapCases}
             />
           </tbody>
         </table>
