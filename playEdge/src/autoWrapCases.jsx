@@ -105,7 +105,7 @@ export function AutoWrapOpaqueTag() {
 
 // Titoli marcati come il resto, nella stessa lingua sorgente del file che estendono.
 const autoWrapCases = [
-  '_%_autoWrap: marcatori senza <Translate>_%_',
+  '_%_autoWrap: marcatori senza &lt;Translate&gt;_%_',
   [
     '_%_1. Figlio nudo, componente riconosciuto_%_',
     <AutoWrapHost />,
