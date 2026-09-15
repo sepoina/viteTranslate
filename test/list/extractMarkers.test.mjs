@@ -719,11 +719,34 @@ console.log("\n== Strati 5/6: emissione (T21-T32) ==");
 }
 {
   console.log("-- T25/T26: attributo host, forma diretta ed espressione --");
+  const riparsabile = (code) => {
+    try { normalize(code, "/p/src/App.jsx"); return true; }
+    catch { return false; }
+  };
   const out1 = extractMarkers(inComponent(`<input placeholder="_%_a_%_" />`), { filename: "/p/src/App.jsx", table: {}, autoWrap: true });
   eq("T25: hook stringa sull'attributo", true, out1.code.includes("__vtStr("));
   eq("T25: import di useTranslateToString", true, out1.code.includes("useTranslateToString as __vtUseStr"));
+  eq("T25: il codice prodotto si ri-parsa", true, riparsabile(out1.code));
   const out2 = extractMarkers(inComponent(`<input placeholder={"_%_a_%_"} />`), { filename: "/p/src/App.jsx", table: {}, autoWrap: true });
   eq("T26: idem in forma espressione", true, out2.code.includes("__vtStr("));
+  // Bug reale, trovato da una build vera (playground, autoWrap: false — il DEFAULT): la
+  // riscrittura aggiungeva SEMPRE le graffe, ma su t={"..."} le graffe sono gia' nel
+  // sorgente (il nodo sostituito e' solo il literal fra virgolette) -> "{{...}}", doppie e
+  // non valide. `out2.code.includes('{{')` da solo basterebbe, ma il ri-parse e' la prova
+  // che conta davvero: una sottostringa non l'avrebbe presa, ed e' cosi' che e' passata la
+  // prima volta.
+  eq("T26: nessuna graffa doppia", false, out2.code.includes("{{"));
+  eq("T26: il codice prodotto si ri-parsa", true, riparsabile(out2.code));
+}
+{
+  console.log("-- T26b: stessa forma espressione, autoWrap SPENTO (il caso della build reale) --");
+  const out = extractMarkers(inComponent(`<input placeholder={"_%_a_%_"} />`), { filename: "/p/src/App.jsx", table: {}, autoWrap: false });
+  eq("T26b: nessuna graffa doppia col default", false, out.code.includes("{{"));
+  eq("T26b: il codice prodotto si ri-parsa", true, (() => { try { normalize(out.code, "/p/src/App.jsx"); return true; } catch { return false; } })());
+  // E lo stesso, fuori da qualunque componente: e' la forma esatta di App.jsx nel playground.
+  const outModulo = extractMarkers(`const a = <T t={"_%_a_%_"} />;`, { filename: "/p/src/App.jsx", table: {}, autoWrap: false });
+  eq("T26b: idem a livello di modulo", false, outModulo.code.includes("{{"));
+  eq("T26b modulo: valore atteso", true, /t=\{"_<_[^"]+_>_"\}/.test(outModulo.code));
 }
 {
   console.log("-- T27: attributo su un componente, mai toccato --");
@@ -739,10 +762,15 @@ console.log("\n== Strati 5/6: emissione (T21-T32) ==");
 }
 {
   console.log("-- T28b/T28c: marcatore come figlio espressione, § 5.3 --");
+  const riparsa = (code) => { try { normalize(code, "/p/src/App.jsx"); return true; } catch { return false; } };
   const out1 = extractMarkers(inComponent(`<p>{"_%_a_%_"}</p>`), { filename: "/p/src/App.jsx", table: {}, autoWrap: true });
   eq("T28b: __vtNode sul figlio espressione", true, out1.code.includes("__vtNode("));
+  eq("T28b: nessuna graffa doppia", false, out1.code.includes("{{"));
+  eq("T28b: il codice prodotto si ri-parsa", true, riparsa(out1.code));
   const out2 = extractMarkers(inComponent(`<title>{"_%_a_%_"}</title>`), { filename: "/p/src/App.jsx", table: {}, autoWrap: true });
   eq("T28c: __vtStr sul figlio espressione di un tag text-only", true, out2.code.includes("__vtStr("));
+  eq("T28c: nessuna graffa doppia", false, out2.code.includes("{{"));
+  eq("T28c: il codice prodotto si ri-parsa", true, riparsa(out2.code));
 }
 {
   console.log("-- T28d: il literal non figlio diretto del container resta fuori --");
