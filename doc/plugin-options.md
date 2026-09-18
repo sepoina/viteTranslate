@@ -10,7 +10,7 @@ vitetranslate(options)
 | --- | --- | --- | --- |
 | `localeDir` | `string` | **required** | Folder with the language files (`.yml`), relative to `baseDir` |
 | `sourceLanguage` | `string` | **required** | [BCP 47](bcp47.md) tag of the source language |
-| `preloadedLanguages` | `string[]` | `[]` | Languages bundled eagerly for an instant, non-suspending first paint (see [Preloading](api.md#preloading-suspense-and-the-initial-flash)). `sourceLanguage` is eager too in dev, and in build only when this list is empty |
+| `preloadedLanguages` | `string[]` | `[]` | Languages bundled eagerly for an instant, non-suspending first paint (see [Preloading](react-api.md#preloading-suspense-and-the-initial-flash)). `sourceLanguage` is eager too in dev, and in build only when this list is empty |
 | `baseDir` | `string` | `process.cwd()` | Project root used to resolve `localeDir` / `srcDir` |
 | `srcDir` | `string` | `"src"` | Source folder scanned by the CLI |
 | `autoSyncDev` | `boolean` | `true` | Sync the tables at dev server startup, using the fast verify: nothing happens, nothing is printed, if nothing changed since the last sync. Makes `predev` unnecessary |

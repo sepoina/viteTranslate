@@ -85,7 +85,7 @@ Now the marker is the discriminator and the component applies it: marked text is
 
 The `o` prop — and the same `{ t, a }` object passed to `t`, or to `ts()` — is for text that already travels packaged with its arguments, which is how several application cores carry it. It is exactly equivalent to passing them separately.
 
-In development that phone number shows a `‼️`, and that is the point: the prop is receiving something nobody will translate, and you get to decide whether that is right. When the answer is "yes, and it always will be", say so with [`skipMark`](api.md#skipmark-when-unmarked-is-the-normal-case) and the `‼️` goes away for that call site only — unlike `mark: { malformed: false }`, which would turn it off everywhere.
+In development that phone number shows a `‼️`, and that is the point: the prop is receiving something nobody will translate, and you get to decide whether that is right. When the answer is "yes, and it always will be", say so with [`skipMark`](react-api.md#skipmark-when-unmarked-is-the-normal-case) and the `‼️` goes away for that call site only — unlike `mark: { malformed: false }`, which would turn it off everywhere.
 
 A number and a React element don't need the declaration: neither can ever come from the source marked, so both are rendered directly, with no prefix and no warning.
 
