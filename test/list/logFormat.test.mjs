@@ -9,7 +9,10 @@
 //
 //   node test/list/logFormat.test.mjs
 import { join, sep } from "node:path";
-import { wrapLog, displayWidth, logEchoColored, logWarning, logError, logRule, logBullet, colorize, LOG_WIDTH, setLogStyle, isSimpleLog } from "../../lib/utility.js";
+import {
+  wrapLog, displayWidth, logEchoColored, logWarning, logError, logRule, logBullet, colorize, LOG_WIDTH, TEXT_WIDTH,
+  setLogStyle, isSimpleLog, clipToWidth, logLineRows, logTextWidth,
+} from "../../lib/utility.js";
 import shortPath from "../../lib/dev/vite/uty/shortPath.js";
 
 let fail = 0;
@@ -250,6 +253,49 @@ console.log("\n== llmReport.js passa sempre da logEchoColored: stessa colonna, s
     })));
     eq("--simpleLog: niente montante ║", 0, righeSimple.filter((r) => r.includes("║")).length);
     eq("--simpleLog: ogni riga comincia con :::", true, righeSimple.every((r) => r.startsWith(":::")));
+  } finally {
+    setLogStyle({ simple: false });
+  }
+}
+
+// ------------------------------------------------------- 4.6.0: righe che non vanno a capo
+console.log("\n== clipToWidth: tronca a colonne di terminale, non a caratteri ==");
+{
+  eq("ci sta: resta com'è", "abc", clipToWidth("abc", 5));
+  eq("non ci sta: tronca con …", "abc…", senzaColori([clipToWidth("abcdef", 4)])[0]);
+  eq("e chiude con un reset", true, clipToWidth("abcdef", 4).endsWith("\x1b[0m"));
+  // Il caso per cui il conto va fatto a colonne: un carattere CJK ne occupa due.
+  const cjk = clipToWidth("日本語のテキスト", 7);
+  eq("il CJK conta doppio anche qui", true, displayWidth(cjk) <= 7 && senzaColori([cjk])[0].endsWith("…"));
+  // I colori restano dove sono e non contano: tagliare una riga colorata non deve né
+  // perderli né contarli come testo.
+  const colorata = clipToWidth(colorize("nome", "hello world"), 6);
+  eq("il colore resta, e non conta", "hello…", senzaColori([colorata])[0]);
+  eq("apre ancora col suo colore", true, colorata.startsWith("\x1b[33m"));
+  eq("zero colonne: niente", "", clipToWidth("abc", 0));
+}
+
+console.log("\n== logLineRows: la riga di logEchoColored, restituita e senza a capo ==");
+{
+  // Lo stesso byte per byte: è la garanzia che la regione dal vivo e il log che la sostituisce
+  // cadano nelle stesse colonne.
+  eq("rich: identica alla riga stampata", grezzo(() => logEchoColored("llm", "ciao mondo")).join("\n"),
+    logLineRows("llm", "ciao mondo").join("\n"));
+  const lunga = logLineRows("llm", "parola ".repeat(60));
+  eq("un testo lungo resta una riga", 1, lunga.length);
+  eq("entro LOG_WIDTH", true, displayWidth(lunga[0]) <= LOG_WIDTH);
+  eq("entro un terminale più stretto", true, displayWidth(logLineRows("llm", "parola ".repeat(60), "normale", 50)[0]) <= 50);
+  eq("logTextWidth: la colonna del log", TEXT_WIDTH, logTextWidth());
+  eq("logTextWidth: meno, in un terminale stretto", 60 - (LOG_WIDTH - TEXT_WIDTH), logTextWidth(60));
+  try {
+    setLogStyle({ simple: true });
+    eq("simple: identiche alle righe stampate", grezzo(() => logEchoColored("llm", "ciao mondo")).join("\n"),
+      logLineRows("llm", "ciao mondo").join("\n"));
+    eq("simple: l'etichetta ha la sua riga", 2, logLineRows("llm", "x").length);
+    eq("simple: senza etichetta, una", 1, logLineRows("", "x").length);
+    eq("simple: stessa colonna di testo", TEXT_WIDTH, logTextWidth());
+    // Senza la colonna dell'etichetta, in un terminale stretto al testo resta più spazio.
+    eq("simple: in un terminale stretto, più spazio che in rich", 60 - 6, logTextWidth(60));
   } finally {
     setLogStyle({ simple: false });
   }

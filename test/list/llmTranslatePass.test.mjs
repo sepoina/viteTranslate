@@ -287,6 +287,94 @@ console.log("\n== P2 costGuard: senza TTY, soddisfa la conferma da solo ==");
   eq("costGuard 0 -> refused", "refused", result2.mode);
 }
 
+// --------------------------------------------------------------- P3–P6: il pannello delle richieste
+/** Quello che `fn` stampa con console.log mentre gira, senza colori. Qui stdout non è un
+ *  terminale: del pannello si vede solo il log finale, che è quello che conta. */
+async function catturaAsync(fn) {
+  const righe = [];
+  const vero = console.log;
+  console.log = (...args) => righe.push(args.join(" ").replace(/\x1b\[[0-9;]*m/g, ""));
+  try {
+    return { valore: await fn(), righe };
+  } finally {
+    console.log = vero;
+  }
+}
+
+const riempie = (usage) => async ({ userPayload }) => {
+  const { items } = JSON.parse(userPayload);
+  const translations = {};
+  for (const item of items) translations[item.k] = `TR:${item.t}`;
+  return { translations, usage };
+};
+
+console.log("\n== P3 il pannello: una riga per connessione, coi costi ==");
+{
+  const baseDir = progetto(`export default function App() {
+  return <div>{"_%_Good morning_%_"}</div>;
+}
+`);
+  const config = baseConfig(baseDir, riempie({ tokensIn: 1000, tokensOut: 2000 }));
+  config.llm.connection = { ...config.llm.connection, costMillionInput: 0.6, costMillionOutput: 1.2 };
+  const { righe } = await catturaAsync(() => translatePass({ config, noAsk: true }));
+  const pannello = righe.filter((r) => r.includes("✔ < ") || r.includes("✖ - "));
+  eq("una riga per lingua (un lotto ciascuna)", 2, pannello.length);
+  eq("de-DE", true, pannello.some((r) => r.includes("✔ < 1 new key Deutsch. Full translate!")));
+  eq("fr-FR", true, pannello.some((r) => r.includes("✔ < 1 new key français. Full translate!")));
+  eq("ognuna col suo costo", true, pannello.every((r) => r.includes("$0.0030")));
+}
+
+console.log("\n== P4 una richiesta fallita: la sua riga lo dice, il run prosegue ==");
+{
+  const baseDir = progetto(`export default function App() {
+  return <div>{"_%_Good evening_%_"}</div>;
+}
+`);
+  const driver = async (args) => {
+    if (args.systemPrompt.includes("Target language: de-DE")) {
+      throw Object.assign(new Error("unauthorized"), { status: 401 });
+    }
+    return riempie(null)(args);
+  };
+  const { valore: result, righe } = await catturaAsync(() => translatePass({ config: baseConfig(baseDir, driver), noAsk: true }));
+  eq("mode done", "done", result.mode);
+  eq("la riga d'errore", true, righe.some((r) => r.includes("✖ - error Deutsch (HTTP 401). see trace in debug mode!")));
+  eq("l'altra lingua tradotta", 1, result.perLanguage.find((l) => l.tag === "fr-FR").filled);
+}
+
+console.log("\n== P5 la riparazione ha le sue righe ==");
+{
+  const baseDir = progetto(`export default function App() {
+  return <div>{"_%_Pay %s now_%_"}</div>;
+}
+`);
+  // Perde sempre il segnaposto: rifiutata al primo giro, e di nuovo alla riparazione.
+  const driver = async ({ userPayload }) => {
+    const { items } = JSON.parse(userPayload);
+    return { translations: Object.fromEntries(items.map((item) => [item.k, "senza segnaposto"])) };
+  };
+  const { righe } = await catturaAsync(() => translatePass({ config: baseConfig(baseDir, driver), noAsk: true }));
+  eq("primo giro: rifiutata", true, righe.some((r) => r.includes("✔ < 0 new keys Deutsch. 1 rejected")));
+  eq("riparazione: ancora rifiutata", true, righe.some((r) => r.includes("✔ < 0 keys repaired Deutsch. 1 still rejected")));
+}
+
+console.log("\n== P6 maxCostPerRun superato a metà: una nota dice cosa non è partito ==");
+{
+  const baseDir = progetto(`export default function App() {
+  return <div>{"_%_Expensive_%_"}</div>;
+}
+`);
+  const config = baseConfig(baseDir, riempie({ tokensIn: 1000, tokensOut: 1000 }));
+  // Una connessione alla volta: la prima risposta (≈ $0.002) supera il tetto, la seconda non parte.
+  config.llm.connection = { ...config.llm.connection, costMillionInput: 1, costMillionOutput: 1, maxConcurrency: 1 };
+  config.llm.budget = { maxCostPerRun: 0.0001 };
+  // --llm-auto: la stima non deve rifiutare prima di partire, è lo stop a metà run che si prova.
+  const { valore: result, righe } = await catturaAsync(() => translatePass({ config, noAsk: true, auto: true }));
+  eq("stoppedOnBudget", true, result.stoppedOnBudget);
+  eq("una sola richiesta partita", 1, righe.filter((r) => r.includes("✔ < ")).length);
+  eq("la nota", true, righe.some((r) => r.includes("maxCostPerRun ($0.0001) reached: 1 request(s) not sent")));
+}
+
 for (const dir of temporanee) rmSync(dir, { recursive: true, force: true });
 
 console.log(fail ? `\n${fail} asserzioni fallite` : "\ntutto ok");

@@ -167,6 +167,52 @@ console.log("\n== D-trace callModel ==");
   eq("nessuna -response per il tentativo fallito (il driver ha lanciato)", undefined, written.find((w) => w.label === "x-response"));
 }
 
+// R-retry — callModel: `onRetry` dice quando si riprova e perché (la riga del pannello lo mostra)
+console.log("\n== R-retry onRetry ==");
+{
+  const visti = [];
+  let calls = 0;
+  const driver = async () => {
+    calls++;
+    if (calls === 1) { const e = new Error("rate"); e.status = 429; throw e; }
+    return { A_1: "ok" };
+  };
+  await callModel({
+    connection: conn, driver, apiKey: "k", systemPrompt: "s", userPayload: "u",
+    sleepImpl: async () => {}, onRetry: (info) => visti.push(info),
+  });
+  eq("chiamato una volta, prima del secondo tentativo", 1, visti.length);
+  eq("con numero, massimo e l'errore", { retry: 1, maxRetries: 3, status: 429 },
+    { retry: visti[0].retry, maxRetries: visti[0].maxRetries, status: visti[0].error.status });
+}
+{
+  const visti = [];
+  const driver = async () => { const e = new Error("bad key"); e.status = 401; throw e; };
+  try {
+    await callModel({
+      connection: conn, driver, apiKey: "k", systemPrompt: "s", userPayload: "u",
+      sleepImpl: async () => {}, onRetry: (info) => visti.push(info),
+    });
+  } catch { /* atteso */ }
+  eq("un errore che non si riprova non lo chiama", 0, visti.length);
+}
+{
+  // Anche con --llm-debug acceso: la trace e il pannello ricevono lo stesso tentativo fallito.
+  const visti = [];
+  const written = [];
+  let calls = 0;
+  const driver = async () => {
+    calls++;
+    if (calls === 1) { const e = new Error("boom"); e.status = 503; throw e; }
+    return { A_1: "ok" };
+  };
+  await callModel({
+    connection: conn, driver, apiKey: "k", systemPrompt: "s", userPayload: "u", label: "x",
+    debug: { write: (label) => written.push(label) }, sleepImpl: async () => {}, onRetry: (info) => visti.push(info),
+  });
+  eq("insieme a debug: trace e onRetry", true, written.includes("x-error") && visti.length === 1);
+}
+
 // T62 — maxConcurrency: mai più di N chiamate contemporanee
 console.log("\n== T62 concorrenza limitata ==");
 {

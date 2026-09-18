@@ -24,7 +24,7 @@ export default defineConfig({
         },
         budget: 'safe', // 50 chiavi e 20 richieste per run
         context: { mode: 'auto' }, // l'abstract di contesto nasce (e si aggiorna) da solo
-        costGuard: 0.01, // sotto questa stima non chiede conferma
+        costGuard: 0.2, // sotto questa stima non chiede conferma
       },
     }),
   ],

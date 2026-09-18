@@ -214,7 +214,9 @@ npx vitetranslate --llm-translate
 ```text
 ::: llm       ║  fr-FR, de-DE: 128 key(s), 6 request(s)
 :::           ║  ~62.1k in + ~9.3k out tokens  ≈  $0.0191
-:::           ║  Proceed? [y/N]
+:::           ║  Proceed? [y/N] y
+::: llm       ║  ✔ < 50 new keys français. Full translate!        3s
+:::           ║  ⠹ > ask 50 keys italiano - Deutsch               4s
 ```
 
 No dependency added — any OpenAI-compatible API key is enough (Gemini, OpenAI, OpenRouter, Groq, Ollama, …), or bring your own driver. Nothing gets written without passing a validator that refuses a lost `%s` or a mangled tag, and it runs only from the CLI, never from `vite dev`. Costs, budget guards, the context abstract, and the full flag reference: **[doc/llm.md](doc/llm.md)**.

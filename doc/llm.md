@@ -109,6 +109,28 @@ llm: {
 
 `cost < costGuard` (strictly below) runs without a prompt; at or above it, the normal TTY/`--llm-noask` rule applies. It requires both `costMillionInput` and `costMillionOutput` — without prices there's no estimate to compare it with. `--llm-dry-run` reports which side of the guard the run would have landed on.
 
+## While it runs
+
+On a terminal, every request to the model gets a line of its own, redrawn in place once a second — no staring at a frozen prompt while a reasoning model thinks:
+
+```text
+::: llm                  ║  ⠹ > ask 7 keys italiano - Deutsch                                     3s
+:::                      ║  ✔ < 7 new keys American English. Full translate!                      2s
+:::                      ║  ⠹ > ask 7 keys italiano - 日本語            retry 1/3 after HTTP 429  3s
+:::                      ║  ✖ - error français (HTTP 401). see trace in debug mode!               1s
+```
+
+`>` asked and waiting, `<` answered — green when every key came back valid, orange when some didn't, and the line says how many and why — `-` failed for good. The repair round and the [context abstract](#the-context-abstract) get their lines too. When the last one closes, the block is replaced by the same list as a plain log, each line with what it cost:
+
+```text
+::: llm                  ║  ✔ < 7 new keys Deutsch. Full translate!                      $0.0027  3s
+:::                      ║  ✔ < 7 new keys American English. Full translate!             $0.0027  2s
+:::                      ║  ✔ < 6 new keys 日本語. 1 rejected                            $0.0028  4s
+:::                      ║  ✖ - error français (HTTP 401). see trace in debug mode!               1s
+```
+
+Piped, redirected or in CI there's no live block, only that final log. A failed request doesn't stop the others: its keys stay `null`, and [`--llm-debug`](#debugging-a-run) has the full reply.
+
 ## The context abstract
 
 `<localeDir>/.llm/context.md` — a short brief the model reads before every translation, and the corpus it's abstracted from. Two regions in the file: everything between the `<!-- vitetranslate:generated -->` markers is machine-written and gets replaced on refresh; everything below stays yours forever, notes included, and is read back into every future generation too — a correction you write there ("we call it 'Ordine', not 'Ordinazione'") sticks.
