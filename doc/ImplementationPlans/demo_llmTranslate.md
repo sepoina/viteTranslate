@@ -39,6 +39,12 @@
 > - **Resta all'utente**: `npm install` nella demo, la chiave in `.env.local`, `npm run translate`:
 >   è l'unico passo che nessun test può fare al posto suo.
 
+> ⚠️ **Aggiornato (18/09/2026).** Gli script `translate`, `translate:dry`, `translate:yes` e
+> `llm:status` **non esistono più** nel `package.json` della demo: la demo è passata al launcher
+> globale `vitetranslate` (vedi [`demo_launcher_first.md`](demo_launcher_first.md)). Dove in questo
+> piano si legge `npm run translate` o `vtranslate-cli`, oggi si legge `vitetranslate --translate`.
+> Il piano resta com'era: è il registro di quel giro di lavoro.
+
 ---
 
 ## 1. Contesto

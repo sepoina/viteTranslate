@@ -31,9 +31,11 @@ npm run lint     # ESLint
 
 Both `npm run dev` and `npm run build` keep `locale/` in sync by themselves — no `predev` or
 `prebuild` script to run — so adding or changing a marked string in the source just needs a
-restart of the dev server (or a build) to show up in the tables. The `vtranslate-cli` command
-is still there for `--add`, `--status` and `--migrate`. In dev, saving a language file reloads
-the page, so a translation you just wrote shows up right away.
+restart of the dev server (or a build) to show up in the tables. For the commands that are *not* a
+sync — `--add`, `--status`, `--migrate` — the
+[`vitetranslate`](https://www.npmjs.com/package/vitetranslate) launcher runs the copy of the CLI
+this project has installed: `npm i -g vitetranslate`, then `vitetranslate --status`. In dev, saving
+a language file reloads the page, so a translation you just wrote shows up right away.
 
 This folder is a member of the repo's npm workspaces: `npm install` from here installs the whole
 tree, and from the repo root it's `npm run dev -w demo/Vite_8/minimal`. Copied out on its own, it

@@ -8,37 +8,46 @@ you say so.
 ```bash
 npm install
 cp .env.example .env.local     # paste your key after the `=`
-npm run translate              # estimate first, then it asks before spending anything
+npm i -g vitetranslate         # the command, installed once, for every project
+vitetranslate --translate      # estimate first, then it asks before spending anything
 npm run dev                    # the 🔸 in front of every sentence is gone
 ```
+
+`vitetranslate` is a launcher and nothing more: it finds the library installed **in this project**
+(`./node_modules`, then every folder above) and runs that copy's command, so the version that runs
+is always the project's own. `npx vitetranslate` works too, with nothing installed globally.
 
 This folder is a member of the repo's npm workspaces: `npm install` from here installs the whole
 tree, and from the repo root it's `npm run dev -w demo/Vite_8/llmTranslate`. Copied out on its own,
 it installs exactly what it declares.
 
-## What the flow looks like
-
-1. You write text where it belongs, between `_%_..._%_`, and the library invents the key.
-2. `vite dev` / `vite build` / `vtranslate-cli` keep `locale/` in sync, new strings landing as `null`.
-3. `npm run translate` prints the estimate, asks `Proceed? [y/N]`, then fills the empties — for every
-   language in one run, not one language at a time.
-4. Every answer goes through a validator before it touches a file. Anything that would break at
-   runtime stays `null` and is listed in the report.
-
-The LLM never runs inside the plugin: no network call, no bill, on `vite dev` or in CI. Wiring it
-into the dev server would mean paying per server start — the command is the only door.
-
 ## Commands
+
+Everything here runs from this folder.
 
 | Command | Does |
 | :- | :- |
-| `npm run translate` | Sync, estimate, ask, fill the `null`s |
-| `npm run translate:dry` | Print the estimate and stop — nothing sent, nothing written |
-| `npm run translate:yes` | Same as `translate`, no prompt (CI, scripts) |
-| `npm run llm:status` | Connection, where the key was found, abstract age, today's spend — no network |
+| `vitetranslate --translate` | Sync, estimate, ask, fill the `null`s |
+| `vitetranslate --translate --dry-run` | Print the estimate and stop — nothing sent, nothing written |
+| `vitetranslate --translate --yes` | Same as `--translate`, no prompt (CI, scripts) |
+| `vitetranslate --llm-status` | Connection, where the key was found, abstract age, today's spend — no network |
+| `npm run dev` · `build` · `lint` · `preview` | The Vite side of the demo, untouched |
 
-`translate:dry` still needs a key to be *findable*: it reads it before deciding it has nothing to
-send. `llm:status` does not, and will happily tell you `API key: not found`.
+`--dry-run` still needs a key to be *findable*: it reads it before deciding it has nothing to send.
+`--llm-status` does not, and will happily tell you `API key: not found`. `vitetranslate --version`
+says which copy of the library it would run and where it lives; `vitetranslate --help` is the
+project's own help. Adding a language is `vitetranslate --add fr-FR`: the file arrives with every
+key listed and `null` where the translation goes.
+
+## What the flow looks like
+
+You write text between `_%_..._%_` and the library invents the key; `vite dev`, `vite build` and the
+command keep `locale/` in sync, new strings landing as `null`. `vitetranslate --translate` then
+prints the estimate, asks `Proceed? [y/N]`, and fills every language in one run — each answer
+checked before it touches a file, and whatever would break at runtime stays `null`.
+
+The LLM never runs inside the plugin: no network call, no bill, on `vite dev` or in CI. Wiring it
+into the dev server would mean paying per server start — the command is the only door.
 
 ## What the model is not allowed to write
 
@@ -64,7 +73,7 @@ and is skipped on later runs.
 
 The `connection` block in [`vite.config.js`](vite.config.js) points at Gemini's OpenAI-compatible
 endpoint. OpenAI, OpenRouter, Groq, LM Studio and Ollama speak the same shape, so it's a `baseURL`,
-a `model` and a `apiKeyEnv` away. Ollama ignores the key, but the CLI still wants one to be
+a `model` and a `apiKeyEnv` away. Ollama ignores the key, but the command still wants one to be
 findable — `VITETRANSLATE_API_KEY=ollama` in `.env.local` is enough.
 
 Costs, budget caps, the keyring and every flag: **[doc/llm.md](../../../doc/llm.md)**.
@@ -74,10 +83,8 @@ Costs, budget caps, the keyring and every flag: **[doc/llm.md](../../../doc/llm.
 - **Project page** — [github.com/sepoina/viteTranslate](https://github.com/sepoina/viteTranslate): README, API and [architecture](https://github.com/sepoina/viteTranslate/blob/main/doc/structure.md)
 - **Live playground** — [sepoina.github.io/viteTranslate](https://sepoina.github.io/viteTranslate/), source in [`playground/`](https://github.com/sepoina/viteTranslate/tree/main/playground)
 - **npm package** — [@sepoina/vitetranslate](https://www.npmjs.com/package/@sepoina/vitetranslate)
+- **The launcher** — [vitetranslate](https://www.npmjs.com/package/vitetranslate): installed once, runs the copy your project has
 - **Buy me a coffee** ☕ — [buymeacoffee.com/giancarlogy](https://buymeacoffee.com/giancarlogy)
-
-Adding a language is `npx vtranslate-cli --add fr-FR`: the file arrives with every key listed and
-`null` where the translation goes, ready for the next `npm run translate`.
 
 ## StackBlitz
 

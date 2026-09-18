@@ -7,21 +7,16 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview",
-    "translate": "vtranslate-cli --translate",
-    "translate:dry": "vtranslate-cli --translate --dry-run",
-    "translate:yes": "vtranslate-cli --translate --yes",
-    "llm:status": "vtranslate-cli --llm-status"
+    "preview": "vite preview"
   },
   "dependencies": {
+    "@sepoina/vitetranslate": "^4.5.0",
     "react": "^19.2.8",
-    "react-dom": "^19.2.8",
-    "@sepoina/vitetranslate": "^4.5.0"
+    "react-dom": "^19.2.8"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@rolldown/binding-wasm32-wasi": "^1.2.1",
-
     "@vitejs/plugin-react": "^6.0.4",
     "eslint": "^10.8.0",
     "eslint-plugin-react-hooks": "^7.1.1",

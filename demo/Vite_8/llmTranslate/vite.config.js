@@ -9,7 +9,7 @@ export default defineConfig({
       localeDir: 'locale', // lang dir
       sourceLanguage: 'it-IT', // source Language
       // Come parlare col modello. Da qui non parte nessuna chiamata: questo blocco lo
-      // legge solo la CLI (`vtranslate-cli --translate`), mai `vite dev` e mai la build.
+      // legge solo il comando (`vitetranslate --translate`, da terminale), mai `vite dev` e mai la build.
       llm: {
         connection: {
           baseURL: 'https://generativelanguage.googleapis.com/v1beta/openai', // endpoint OpenAI-compatibile
