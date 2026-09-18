@@ -1,0 +1,18 @@
+#  -------------------------------------------------
+#      italiano (Italia) (sourceLanguage)
+#       |    code: it-IT
+#       |    missing key: 8
+#       |    processed: 2026-09-18 14:54
+#       |    TableVersion: 260905
+#  -------------------------------------------------
+#
+
+#  ----to be translated------------------------------------------
+App_19xh4q: "- doc/llm.md, la pagina che spiega tutto il resto"
+App_1ff9ley: "La chiave API non entra mai in <b>vite.config.js</b>: lì vive solo il nome della variabile d'ambiente."
+App_1h2ew8b: "La sincronizzazione crea le tabelle e mette le stringhe nuove a null."
+App_1qeyda3: "Questa pagina parla più lingue, ma solo una l'ha scritta una persona: le altre sono tabelle con tutte le caselle vuote. Non restano così — le riempie il modello in un colpo solo quando lanci npx vtranslate-cli --translate, e prima di spendere qualsiasi cosa ti mostra la stima e ti chiede se procedere."
+App_1tmvrrb: "Il validatore confronta segnaposto e tag con il sorgente: quello che non passa resta vuoto."
+App_kbgmge: "Il testo si scrive dove serve, fra due marcatori: nessuna chiave da inventare."
+App_prwil0: "La CLI stima il costo, chiede conferma, e riempie le caselle vuote."
+App_snjsof: "%s lingue · versione&nbsp;<b>%s</b>"

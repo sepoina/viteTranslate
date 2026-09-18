@@ -2,6 +2,8 @@
 
 > The [README](../README.md) covers the quick start. This is the full reference for `npx vtranslate-cli --translate` and the `llm` plugin option.
 
+Runnable example: [`demo/Vite_8/llmTranslate`](../demo/Vite_8/llmTranslate) — three target languages sitting at `null`, the `llm` block already wired, and one command to fill them.
+
 Today's manual workflow — copy the `----to be translated----` block into an LLM by hand, paste the answer back over the `null`s (see [translation file format](translations.md)) — still works and always will. This page covers doing that automatically.
 
 ```bash
