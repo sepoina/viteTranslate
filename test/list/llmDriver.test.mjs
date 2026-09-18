@@ -14,6 +14,8 @@ const eq = (nome, atteso, ottenuto) => {
 const conn = { baseURL: "http://x", model: "m", temperature: 0.2, timeoutMs: 1000, providerOptions: {}, maxRetries: 3 };
 const okResponse = (content, usage) => ({
   ok: true,
+  status: 200,
+  statusText: "OK",
   text: async () => JSON.stringify({ choices: [{ message: { content } }], ...(usage ? { usage } : {}) }),
   headers: { get: () => null },
 });
@@ -120,6 +122,49 @@ console.log("\n== T61 i due rami del contratto driver ==");
 
   const r2 = await callModel({ connection: conn, driver: async () => ({ translations: { A_1: "y" }, usage: { tokensIn: 1, tokensOut: 1 } }), apiKey: "k", systemPrompt: "s", userPayload: "u" });
   eq("{translations, usage}", { translations: { A_1: "y" }, usage: { tokensIn: 1, tokensOut: 1 } }, r2);
+}
+
+// D-trace — fetchDriver: `trace` vede request (senza Authorization) e response (status + body)
+console.log("\n== D-trace fetchDriver ==");
+{
+  const events = [];
+  const trace = (kind, data) => events.push({ kind, data });
+  await fetchDriver({
+    connection: conn, apiKey: "k", systemPrompt: "s", userPayload: "u", trace,
+    fetchImpl: async () => okResponse('{"A_1":"Ciao"}'),
+  });
+  const request = events.find((e) => e.kind === "request");
+  const response = events.find((e) => e.kind === "response");
+  eq("request ha url", true, typeof request.data.url === "string");
+  eq("request ha body.messages", true, Array.isArray(request.data.body.messages));
+  eq("request non ha Authorization", true, request.data.headers === undefined && !("Authorization" in request.data));
+  eq("response ha status", 200, response.data.status);
+  eq("response ha body parsato", { A_1: "Ciao" }, response.data.body.choices[0].message.content ? JSON.parse(response.data.body.choices[0].message.content) : null);
+}
+
+// D-trace — callModel: driver custom, un errore poi un successo, etichette nell'ordine giusto
+console.log("\n== D-trace callModel ==");
+{
+  const written = [];
+  const debug = { write: (label, data) => written.push({ label, data }) };
+  let calls = 0;
+  const driver = async () => {
+    calls++;
+    if (calls === 1) { const e = new Error("boom"); e.status = 500; throw e; }
+    return { A_1: "ok" };
+  };
+  await callModel({
+    connection: conn, driver, apiKey: "k", systemPrompt: "s", userPayload: "u",
+    debug, label: "x", sleepImpl: async () => {},
+  });
+  eq(
+    "etichette nell'ordine: x-request, x-error, x-a2-request, x-a2-response",
+    ["x-request", "x-error", "x-a2-request", "x-a2-response"],
+    written.map((w) => w.label)
+  );
+  const errorEntry = written.find((w) => w.label === "x-error");
+  eq("errore: attempt 1, willRetry true", true, errorEntry.data.attempt === 1 && errorEntry.data.willRetry === true);
+  eq("nessuna -response per il tentativo fallito (il driver ha lanciato)", undefined, written.find((w) => w.label === "x-response"));
 }
 
 // T62 — maxConcurrency: mai più di N chiamate contemporanee

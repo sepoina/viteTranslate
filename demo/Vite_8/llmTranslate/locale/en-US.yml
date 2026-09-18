@@ -1,18 +1,18 @@
 #  -------------------------------------------------
 #      American English
 #       |    code: en-US
-#       |    missing key: 8
-#       |    processed: 2026-09-18 15:16
+#       |    missing key: 1
+#       |    processed: 2026-09-18 18:43
 #       |    TableVersion: 260905
 #  -------------------------------------------------
 #
+App_19xh4q: "- doc/llm.md, the page that explains everything else"
+App_1ff9ley: "The API key never goes into <b>vite.config.js</b>: only the name of the environment variable lives there."
+App_1h2ew8b: "Sync creates the tables and sets the new strings to null."
+App_1tmvrrb: "The validator compares placeholders and tags against the source: whatever doesn't pass stays empty."
+App_kbgmge: "The text is written where it's needed, between two markers: no keys to invent."
+App_prwil0: "The CLI estimates the cost, asks for confirmation, and fills the empty cells."
+App_snjsof: "%s languages · version&nbsp;<b>%s</b>"
 
 #  ----to be translated------------------------------------------
-App_14ifuwo: null
-App_19xh4q: null
-App_1ff9ley: null
-App_1h2ew8b: null
-App_1tmvrrb: null
-App_kbgmge: null
-App_prwil0: null
-App_snjsof: null
+App_7dfaq2: null

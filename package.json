@@ -1,7 +1,7 @@
 {
   "name": "@sepoina/vitetranslate",
-  "version": "4.5.0",
-  "versionDescription": "npx vtranslate-cli --translate fills the null keys through an LLM you configure, with a validator that refuses anything that would break at runtime (lost %s, mangled tags, an echoed key) instead of writing it — what fails stays null, same as before this existed. Runs only from the CLI, never from the Vite plugin. Zero new required dependencies: a built-in fetch driver covers Gemini, OpenAI, OpenRouter, Groq, Ollama and friends, or bring your own driver (the Vercel AI SDK works). Cost estimate before every run, five budget caps plus a CI guard that --force can't bypass, and a self-tuning context abstract that primes the model on your project. @napi-rs/keyring is an optional peer for storing the API key in the system keyring.",
+  "version": "4.6.0-rc.1",
+  "versionDescription": "Every LLM flag now lives under one --llm-* namespace (--llm-translate, --llm-retranslate, --llm-context, --llm-status, --llm-ping, --llm-key-set/status/clear, --llm-dry-run, --llm-auto, --llm-noask); the 4.5 names are gone, no alias, an unrecognised --llm-* is an error naming the valid flags. New: llm.costGuard skips the confirmation question below an estimated cost (never the numeric caps, never the CI guard), and --llm-debug logs every request, reply and error — redacted, git-ignored — to <localeDir>/.llm/<timestamp>/ for a run you need to inspect. Also fixed: a refused run (budget, CI, declined) now prints why and exits 1, instead of the 4.5.0 silence and exit 0.",
   "description": "Extract translatable strings straight from your JSX — a Vite plugin that auto-generates and syncs your translation tables, with zero runtime dependencies.",
   "author": {
     "name": "Giancarlo Ghigi",
@@ -64,6 +64,8 @@
     "test": "node test/run.mjs",
     "estimateSize": "node test/estimateSize.mjs",
     "release": "npm version patch && git push --follow-tags",
+    "version": "node test/syncDemoDeps.mjs",
+    "sync:demos": "node test/syncDemoDeps.mjs",
     "prepare": "npm run build",
     "playground": "npm --prefix playground run dev",
     "playground:build": "npm --prefix playground run build",

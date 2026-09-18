@@ -77,7 +77,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
         <p className="doc-description">
           <Translate>_%_Il comando resta comunque disponibile, per lanciarlo a mano o da una pipeline di CI:_%_</Translate>
         </p>
-        <CodeBlock language="bash" code={`npx vtranslate-cli`} />
+        <CodeBlock language="bash" code={`npx vitetranslate`} />
 
         <p className="doc-description">
           <Translate>_%_Che parta da sola o lanciato a mano, il risultato è lo stesso: anche a progetto appena creato e senza altri file di lingua presenti, viene generata la prima tabella linguistica, quella della lingua indicata come lingua di default in_%_</Translate>
@@ -111,7 +111,7 @@ PlaceholderExample_1ebkbf3: "Il nome verrà usato nel saluto"`} />
         <p className="doc-description">
           <Translate>_%_Per aggiungere una nuova lingua usa il flag --add del comando di sincronizzazione: crea subito il file con il tag scelto, già popolato con tutte le chiavi trovate nel sorgente (valore null), e chiude con il riepilogo di quante restano da tradurre. Basta sostituire quei null con il testo tradotto._%_</Translate>
         </p>
-        <CodeBlock language="bash" code={`npx vtranslate-cli --add fr-FR`} />
+        <CodeBlock language="bash" code={`npx vitetranslate --add fr-FR`} />
 
         <p className="doc-description">
           <Translate>_%_Subito dopo il comando il file contiene già tutte le chiavi trovate nel sorgente, ma non tradotte (valore null): sotto la riga separatrice trovi l'elenco esatto di ciò che manca._%_</Translate>

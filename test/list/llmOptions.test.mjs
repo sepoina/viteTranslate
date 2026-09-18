@@ -136,5 +136,36 @@ throws("T14 fr-FF non valido", () => normalizeLlmOptions({ llm: { connection: ba
   eq("T14 fr-FR valido", ["fr-FR"], llm.languages);
 }
 
+// T15 costGuard
+console.log("\n== T15 costGuard ==");
+eq("T15 assente -> undefined", undefined, normalizeLlmOptions({ llm: { connection: baseConn } }).costGuard);
+eq(
+  "T15 con i due prezzi -> ok",
+  0.05,
+  normalizeLlmOptions({
+    llm: { connection: { ...baseConn, costMillionInput: 1, costMillionOutput: 2 }, costGuard: 0.05 },
+  }).costGuard
+);
+throws(
+  "T15 senza prezzi",
+  () => normalizeLlmOptions({ llm: { connection: baseConn, costGuard: 0.05 } }),
+  "without prices"
+);
+throws(
+  "T15 negativo",
+  () => normalizeLlmOptions({ llm: { connection: { ...baseConn, costMillionInput: 1, costMillionOutput: 2 }, costGuard: -1 } }),
+  "finite number"
+);
+throws(
+  "T15 stringa",
+  () => normalizeLlmOptions({ llm: { connection: { ...baseConn, costMillionInput: 1, costMillionOutput: 2 }, costGuard: "0.05" } }),
+  "finite number"
+);
+throws(
+  "T15 Infinity",
+  () => normalizeLlmOptions({ llm: { connection: { ...baseConn, costMillionInput: 1, costMillionOutput: 2 }, costGuard: Infinity } }),
+  "finite number"
+);
+
 console.log(fail ? `\n${fail} asserzioni fallite` : "\ntutto ok");
 process.exit(fail ? 1 : 0);

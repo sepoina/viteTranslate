@@ -89,7 +89,7 @@ Every library in this table solves the same problem. They differ in how much mac
 - **² Integrated extraction workflow:** viteTranslate performs extraction and table synchronization as part of the Vite development and build lifecycle. Other solutions generally rely on separate extraction and compilation commands or watcher processes.
 - **³ Runtime size:** viteTranslate adds less than 5 kB gzip for its browser runtime — `4254 bytes` actually, checked by `npm run estimateSize`, the source of truth for this number. Other solutions vary depending on imported packages, tree-shaking, plugins and optional polyfills, so exact bundle sizes are not directly comparable.
 - **⁴ Compilation & parsing:** Lingui and FormatJS can move message parsing and compilation to build time when their compilation tooling is enabled. viteTranslate's tables are compiled at build time into ready-made values, no HTML parser at runtime, so `<Translate>` renders server-side too.
-- **⁵ LLM auto-translation:** `npx vtranslate-cli --translate` fills the untranslated keys through an LLM you configure, with a validator that refuses anything that would break at runtime (lost `%s`, mangled tags) — see [the LLM guide](doc/llm.md).
+- **⁵ LLM auto-translation:** `npx vitetranslate --llm-translate` fills the untranslated keys through an LLM you configure, with a validator that refuses anything that would break at runtime (lost `%s`, mangled tags) — see [the LLM guide](doc/llm.md).
 - **Zero runtime dependencies:** none declared. `@babel/core`, Vite and React are _peer_ dependencies — they run the plugin on your machine and never enter the bundle. Not a promise on trust: the test suite asserts that the browser runtime imports nothing beyond React and the virtual module.
 - **Keyless syntax, in practice:** the marker is extracted at build time and resolved against the current table at runtime — no key to invent, nothing to keep in sync by hand.
 - **Lazy-loaded locales:** each language is its own chunk, `import()`-ed only when selected.
@@ -165,15 +165,15 @@ function App({ name }) {
 That is the whole authoring workflow. Now build the tables from what you just wrote:
 
 ```sh
-npx vtranslate-cli
+npx vitetranslate
 ```
 
-It scans your sources, creates `locale/it-IT.yml`, and fills it with every marked string. Run it again whenever the text changes: new keys in, deleted ones out, the untranslated ones reported.
+It scans your sources, creates `locale/it-IT.yml`, and fills it with every marked string. Run it again whenever the text changes: new keys in, deleted ones out, the untranslated ones reported. (`npm i -g vitetranslate` once, and it's just `vitetranslate` — no `npx` — in every project from then on; see [the CLI guide](doc/cli.md).)
 
 Adding a language is the same command with a flag:
 
 ```sh
-npx vtranslate-cli --add fr-FR
+npx vitetranslate --add fr-FR
 ```
 
 The new file arrives (see here for [showcase](https://sepoina.github.io/viteTranslate/#install-nuova-lingua)) with every key listed and `null` where each translation goes. See [the file format](doc/translations.md) for how to fill it in, and [the CLI guide](doc/cli.md) for the other flags.
@@ -190,7 +190,7 @@ Everything past "hello world" lives in `doc/`, one topic per page:
 
 | Guide | Covers |
 | :- | :- |
-| [**CLI**](doc/cli.md) | `vtranslate-cli` flags, `--status`, migrating from 3.x |
+| [**CLI**](doc/cli.md) | `vitetranslate` flags, `--status`, migrating from 3.x |
 | [**API reference**](doc/api.md) | `<Translate>`, `useTranslateToString`, `useTranslateLanguage`, `TranslateContainer`, preloading & Suspense |
 | [**Plugin options**](doc/plugin-options.md) | Full `vitetranslate(options)` reference |
 | [**Translation file format**](doc/translations.md) | The `.yml` layout, adding a new language |
@@ -205,10 +205,10 @@ Everything past "hello world" lives in `doc/`, one topic per page:
 
 ## 🤖 LLM auto-translation
 
-Same workflow as above, minus the copy-pasting: point `llm` at a model and `vtranslate-cli` fills the `null` keys for you, printing a cost estimate first and asking before it spends anything.
+Same workflow as above, minus the copy-pasting: point `llm` at a model and `vitetranslate` fills the `null` keys for you, printing a cost estimate first and asking before it spends anything.
 
 ```sh
-npx vtranslate-cli --translate
+npx vitetranslate --llm-translate
 ```
 
 ```text

@@ -9,7 +9,7 @@ you say so.
 npm install
 cp .env.example .env.local     # paste your key after the `=`
 npm i -g vitetranslate         # the command, installed once, for every project
-vitetranslate --translate      # estimate first, then it asks before spending anything
+vitetranslate --llm-translate  # estimate first, then it asks before spending anything
 npm run dev                    # the 🔸 in front of every sentence is gone
 ```
 
@@ -27,13 +27,13 @@ Everything here runs from this folder.
 
 | Command | Does |
 | :- | :- |
-| `vitetranslate --translate` | Sync, estimate, ask, fill the `null`s |
-| `vitetranslate --translate --dry-run` | Print the estimate and stop — nothing sent, nothing written |
-| `vitetranslate --translate --yes` | Same as `--translate`, no prompt (CI, scripts) |
-| `vitetranslate --llm-status` | Connection, where the key was found, abstract age, today's spend — no network |
+| `vitetranslate --llm-translate` | Sync, estimate, ask, fill the `null`s |
+| `vitetranslate --llm-translate --llm-dry-run` | Print the estimate and stop — nothing sent, nothing written |
+| `vitetranslate --llm-translate --llm-noask` | Same as `--llm-translate`, no prompt (CI, scripts) |
+| `vitetranslate --llm-status` | Connection, key source, today's spend, and the context abstract — no network |
 | `npm run dev` · `build` · `lint` · `preview` | The Vite side of the demo, untouched |
 
-`--dry-run` still needs a key to be *findable*: it reads it before deciding it has nothing to send.
+`--llm-dry-run` still needs a key to be *findable*: it reads it before deciding it has nothing to send.
 `--llm-status` does not, and will happily tell you `API key: not found`. `vitetranslate --version`
 says which copy of the library it would run and where it lives; `vitetranslate --help` is the
 project's own help. Adding a language is `vitetranslate --add fr-FR`: the file arrives with every
@@ -42,7 +42,7 @@ key listed and `null` where the translation goes.
 ## What the flow looks like
 
 You write text between `_%_..._%_` and the library invents the key; `vite dev`, `vite build` and the
-command keep `locale/` in sync, new strings landing as `null`. `vitetranslate --translate` then
+command keep `locale/` in sync, new strings landing as `null`. `vitetranslate --llm-translate` then
 prints the estimate, asks `Proceed? [y/N]`, and fills every language in one run — each answer
 checked before it touches a file, and whatever would break at runtime stays `null`.
 

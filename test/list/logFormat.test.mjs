@@ -220,7 +220,7 @@ eq("torna in rich mode dopo il finally", false, isSimpleLog());
 // ------------------------------------------------------- 4.5.0: le righe di llmReport.js
 console.log("\n== llmReport.js passa sempre da logEchoColored: stessa colonna, stesso --simpleLog ==");
 {
-  const { printEstimate, printRunResult } = await import("../../lib/dev/llm/llmReport.js");
+  const { printEstimate, printRunResult, printCostGuard } = await import("../../lib/dev/llm/llmReport.js");
 
   const righe = senzaColori(grezzo(() => printEstimate({
     tags: ["fr-FR", "de-DE"], keys: 128, requests: 6, tokensIn: 62100, tokensOut: 9300,
@@ -238,6 +238,10 @@ console.log("\n== llmReport.js passa sempre da logEchoColored: stessa colonna, s
   })));
   eq("i rifiuti si raggruppano per reason, non uno per uno", true, righeRun.some((r) => r.includes("2 rejected (placeholder-count)")));
   eq("nessuna riga oltre LOG_WIDTH", 0, righeRun.filter((r) => displayWidth(r) > LOG_WIDTH).length);
+
+  const righeCostGuard = senzaColori(grezzo(() => printCostGuard({ cost: 0.001, costGuard: 0.01, costUnity: "$" })));
+  eq("printCostGuard passa da logEchoColored (montante presente)", true, righeCostGuard.every((r) => colonna(r) > 0));
+  eq("printCostGuard: sotto il tetto", true, righeCostGuard.some((r) => r.includes("would run without asking")));
 
   try {
     setLogStyle({ simple: true });

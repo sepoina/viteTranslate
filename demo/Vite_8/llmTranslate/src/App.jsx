@@ -33,7 +33,7 @@ export default function App() {
             _%_Questa pagina parla più lingue, ma solo una l'ha scritta una persona:
             le altre sono tabelle con tutte le caselle vuote. Non restano così — le
             riempie il modello in un colpo solo quando lanci
-            vitetranslate --translate, e prima di spendere qualsiasi cosa ti
+            vitetranslate --llm-translate, e prima di spendere qualsiasi cosa ti
             mostra la stima e ti chiede se procedere._%_
           </Translate>
         </p>

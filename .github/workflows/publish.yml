@@ -50,9 +50,11 @@ jobs:
           path: lib/dist
           retention-days: 1
 
-  # Ogni commit/push su main che supera "build" prova a pubblicare, un tag e una release
-  # GitHub compresi. La versione pubblicata trasporta il campo versionDescription, scritto a
-  # mano in package.json, che diventa anche il titolo/le note della release.
+  # Ogni commit/push su main che supera "build" prova a pubblicare. Una versione stabile
+  # (4.6.0) va su "latest", diventa una release GitHub e porta "next" con sé; una pre-release
+  # (4.6.0-rc.1, 4.6.0-beta.2: c'è un "-") va su "next" e riceve solo il tag git, niente release.
+  # La versione pubblicata trasporta il campo versionDescription, scritto a mano in
+  # package.json, che diventa anche il titolo/le note della release.
   publish:
     needs: build
     runs-on: ubuntu-latest
@@ -86,6 +88,13 @@ jobs:
           DESC=$(node -p "require('./package.json').versionDescription || 'nessuna nota'")
           echo "Pubblicazione v$VERSION - $DESC"
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          # Una pre-release (4.6.0-rc.1, 4.6.0-beta.2: tutto ciò che ha un "-") va sul dist-tag
+          # "next", non su "latest": chi fa npm install senza chiedere la rc non se la ritrova.
+          # npm 11 del resto rifiuta di pubblicare una pre-release senza un --tag esplicito.
+          case "$VERSION" in
+            *-*) echo "disttag=next" >> "$GITHUB_OUTPUT"; echo "prerelease=true" >> "$GITHUB_OUTPUT" ;;
+            *)   echo "disttag=latest" >> "$GITHUB_OUTPUT"; echo "prerelease=false" >> "$GITHUB_OUTPUT" ;;
+          esac
           {
             echo "desc<<__EOF__"
             echo "$DESC"
@@ -106,19 +115,32 @@ jobs:
       # comunque a vuoto, fallendo su "rolldown: command not found".
       - name: Publish (trusted publishing OIDC, nessun token)
         if: steps.check.outputs.published == 'false'
-        run: npm publish --access public --ignore-scripts
+        run: npm publish --access public --ignore-scripts --tag ${{ steps.meta.outputs.disttag }}
 
-      - name: Tag già esistente?
-        id: tag
+      # Tag e release si controllano separatamente: "npm run release" (npm version + push
+      # --follow-tags) il tag lo pusha da sé, prima che questo job parta. Guardando solo il tag,
+      # una versione stabile rilasciata così resterebbe senza release GitHub.
+      - name: Tag o release già presenti?
+        id: gh
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.meta.outputs.version }}
         run: |
-          if git ls-remote --exit-code --tags origin "refs/tags/v${{ steps.meta.outputs.version }}" >/dev/null 2>&1; then
-            echo "exists=true" >> "$GITHUB_OUTPUT"
+          if git ls-remote --exit-code --tags origin "refs/tags/v$VERSION" >/dev/null 2>&1; then
+            echo "tag=true" >> "$GITHUB_OUTPUT"
           else
-            echo "exists=false" >> "$GITHUB_OUTPUT"
+            echo "tag=false" >> "$GITHUB_OUTPUT"
+          fi
+          if gh release view "v$VERSION" >/dev/null 2>&1; then
+            echo "release=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "release=false" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Tag + release GitHub
-        if: steps.tag.outputs.exists == 'false'
+      # Solo le versioni stabili finiscono nella lista delle release. Se il tag c'è già (pushato
+      # da "npm run release") gh lo riusa e --target non conta; se non c'è, lo crea su questo commit.
+      - name: Release GitHub (versione stabile)
+        if: steps.meta.outputs.prerelease == 'false' && steps.gh.outputs.release == 'false'
         env:
           GH_TOKEN: ${{ github.token }}
           VERSION: ${{ steps.meta.outputs.version }}
@@ -130,6 +152,51 @@ jobs:
             --target "$GITHUB_SHA" \
             --title "v$VERSION — $DESC" \
             --notes-file release-notes.md
+
+      # Una rc o una beta resta un tag e basta: segna il commit, ma nella lista delle release
+      # non compare. Tag leggero: basta a ritrovare il commit, e non chiede un'identità git.
+      - name: Tag git (pre-release)
+        if: steps.meta.outputs.prerelease == 'true' && steps.gh.outputs.tag == 'false'
+        env:
+          VERSION: ${{ steps.meta.outputs.version }}
+        run: |
+          git tag "v$VERSION" "$GITHUB_SHA"
+          git push origin "refs/tags/v$VERSION"
+
+      # Chi dipende da "next" deve ricevere la stabile appena esce: dopo la 4.6.0, "next" non
+      # può restare fermo su 4.6.0-rc.1. Lo si sposta solo in avanti, però: se "next" punta già
+      # a una pre-release più nuova (4.7.0-beta.1 mentre esce la correzione 4.6.1), resta lì.
+      #
+      # Ultimo step apposta: il trusted publishing OIDC vale solo per npm publish, non per
+      # npm dist-tag, quindi qui serve un token classico — il secret NPM_DISTTAG_TOKEN (granular
+      # access token, Read and write sul solo @sepoina/vitetranslate). Senza, lo step non fallisce:
+      # lascia un avviso con il comando da lanciare a mano.
+      - name: Sposta "next" sulla stabile
+        if: steps.meta.outputs.prerelease == 'false'
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_DISTTAG_TOKEN }}
+          VERSION: ${{ steps.meta.outputs.version }}
+        run: |
+          PKG="@sepoina/vitetranslate"
+          NEXT=$(npm view "$PKG" dist-tags.next 2>/dev/null || true)
+          # exit 0 = "next" manca o è più vecchio di VERSION; a parità di X.Y.Z una pre-release
+          # è più vecchia della stabile, come vuole semver.
+          if ! node -e '
+            const [next, stable] = process.argv.slice(1);
+            if (!next) process.exit(0);
+            const parse = (v) => { const [core, ...pre] = v.split("-"); return [core.split(".").map(Number), pre.length > 0]; };
+            const [a, aPre] = parse(next), [b] = parse(stable);
+            for (let i = 0; i < 3; i++) if (a[i] !== b[i]) process.exit(a[i] < b[i] ? 0 : 1);
+            process.exit(aPre ? 0 : 1);
+          ' "$NEXT" "$VERSION"; then
+            echo "next=${NEXT} non è più vecchio di ${VERSION}: resta dov'è."
+            exit 0
+          fi
+          if [ -z "$NODE_AUTH_TOKEN" ]; then
+            echo "::warning::Manca il secret NPM_DISTTAG_TOKEN: next resta su ${NEXT:-(nessuno)}. A mano: npm dist-tag add $PKG@$VERSION next"
+            exit 0
+          fi
+          npm dist-tag add "$PKG@$VERSION" next
 
   # Il secondo pacchetto del repo: launcher/, su npm come "vitetranslate", il comando globale
   # (vedi doc/structure.md § "The global command: launcher/"). Job a sé invece di altri step in

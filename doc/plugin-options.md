@@ -19,7 +19,7 @@ vitetranslate(options)
 | `autoWrap` | `boolean \| RegExp` | `false` | Makes marked JSX text and attributes render for real instead of showing the compiled marker, by rewriting them into a `<Translate>`/hook call. `true` covers every host tag except `script`, `style`, `title` and `textarea` (text-only, handled differently); a `RegExp` narrows further to the tags it matches. See [limitations](limitations.md) for what it doesn't cover |
 | `errorSolve` | `object` | see below | On-screen and console diagnostics for strings that didn't arrive where they should — see [Diagnostics](diagnostics.md) |
 | `simpleLog` | `boolean` | `false` | Plain, un-boxed console output for the plugin and the CLI: no label column, no rules, same colors — useful in CI or a narrow terminal. Same as the CLI's `--simpleLog` flag, which always wins over this option |
-| `llm` | `object` | off | Configuration for `npx vtranslate-cli --translate` — see below. Validated at plugin construction, like `localeDir`; absent means the feature stays off, byte for byte like before this option existed |
+| `llm` | `object` | off | Configuration for `npx vitetranslate --llm-translate` — see below. Validated at plugin construction, like `localeDir`; absent means the feature stays off, byte for byte like before this option existed |
 
 Only `false` turns `autoSyncDev` / `autoSyncBuild` off — any other value counts as on. Setting `VITETRANSLATE_NO_SYNC` (to anything non-empty) turns both off without touching `vite.config.*`, which is the only way to reach this from a read-only checkout. Neither one ever runs under Vitest or `vite preview`: a test run shouldn't rewrite your tables, and a preview has no source changes to catch up on.
 
@@ -44,7 +44,7 @@ See [Diagnostics](diagnostics.md) for what each character means on screen and wh
 
 ## `llm`
 
-Never used by the plugin itself — the LLM only ever runs from `vtranslate-cli`, never inside a Vite hook. The plugin only validates the block at construction time, so a mistake here shows up when the dev server starts, not on the first paid call, and passes the normalized result to the CLI through `vitetranslateConfig` (the same mechanism `localeDir`/`sourceLanguage` use, see [structure.md](structure.md#no-separate-config-file)).
+Never used by the plugin itself — the LLM only ever runs from `vitetranslate`, never inside a Vite hook. The plugin only validates the block at construction time, so a mistake here shows up when the dev server starts, not on the first paid call, and passes the normalized result to the CLI through `vitetranslateConfig` (the same mechanism `localeDir`/`sourceLanguage` use, see [structure.md](structure.md#no-separate-config-file)).
 
 ```js
 vitetranslate({
@@ -54,6 +54,7 @@ vitetranslate({
     connection: { baseURL: "...", model: "...", apiKeyEnv: "VITETRANSLATE_API_KEY" },
     budget: "safe",
     context: { mode: "auto" },
+    costGuard: 0.01, // below this estimated cost, run without asking
   },
 });
 ```

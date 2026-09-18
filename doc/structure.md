@@ -208,10 +208,10 @@ Two edge cases trigger a `console.warn` instead of failing silently, as both wou
 ## Phase 1 — Precompilation: the sync command
 
 ```bash
-npx vtranslate-cli   # --add, --status, --migrate — the flags you reach for on purpose
+npx vitetranslate   # --add, --status, --migrate — the flags you reach for on purpose
 ```
 
-The bin is `vtranslate-cli` from 4.1; the previous name, `vitetranslate-prepare-translation-table`, stays registered in `"bin"` as an alias so existing `prebuild` scripts keep working. Only the new one appears in the messages: `CLI_NAME` in [`cli.js`](../lib/dev/vite/cli.js) is the single place it is written, because a command that names itself two different ways is worse than one that picks.
+The bin is `vtranslate-cli` from 4.1; the previous name, `vitetranslate-prepare-translation-table`, stays registered in `"bin"` as an alias so existing `prebuild` scripts keep working. The messages show neither: `CLI_NAME` in [`cli.js`](../lib/dev/vite/cli.js) is the single place the displayed name is written, and it reads `vitetranslate` — the separate [launcher](#the-global-command-launcher)'s name, since `npx vitetranslate` works whether or not this package is a project dependency yet, unlike `npx vtranslate-cli`. A command that names itself two different ways is worse than one that picks.
 
 This is the only phase that **writes** into the localization directory.
 
@@ -622,7 +622,7 @@ In a build, the same check runs in `buildStart` and **throws** — there, a thro
 
 Before 4.0.5, seven `console.warn`/`console.error` calls sat inside `vitetranslate.js`, most of them inside a loop over files or languages: one typo in a language file produced one line per manifest regeneration, i.e. per save, and ten broken files produced ten lines at once, out of column, with `[vitetranslate]` in the middle of Vite's own output.
 
-[`devReporter.js`](../lib/dev/vite/uty/devReporter.js) collects them by category instead (`invalid-language-file`, `empty-language-file`, `source-unreadable`, `preload-invalid`, `preload-missing`, `bootstrapped`, `parse-failed`, `mis-nested-markup`, plus the `nested`/`collision`/`malformed` kinds `extractMarkers` already produces): the first message in a category prints in full, the rest are counted and folded into one closing line, `+N more: run "npx vtranslate-cli --status" for the full list`.
+[`devReporter.js`](../lib/dev/vite/uty/devReporter.js) collects them by category instead (`invalid-language-file`, `empty-language-file`, `source-unreadable`, `preload-invalid`, `preload-missing`, `bootstrapped`, `parse-failed`, `mis-nested-markup`, plus the `nested`/`collision`/`malformed` kinds `extractMarkers` already produces): the first message in a category prints in full, the rest are counted and folded into one closing line, `+N more: run "npx vitetranslate --status" for the full list`.
 
 **A round closes by itself, 250 ms after the last `report`** — a debounce, re-armed by each new warning, on a timer that is `unref`ed so the collector is never a reason to keep the process alive. That timer is the only thing that makes the warnings appear at all in `vite dev`, and it is worth being explicit about why: in dev there is no "we are done". `buildEnd` never fires, and `generateLanguagesModule()` runs only when the *set* of languages changes, which on a normal day is never — so anything the two `transform` hooks collect after the virtual module has loaded would sit in the collector until the server is killed. It also gets the counts right: transforms during one page load arrive milliseconds apart, so the whole load lands in a single block with a single `+N more`, instead of being cut into pieces at whatever moment an unrelated hook happened to call `flush()`. In a build the round does have a declared end, and `buildEnd` calls `flush()` explicitly — synchronous with the rest of Vite's output rather than arriving late, on a timer. A round's warnings are hashed into a signature; an unchanged signature between two rounds **in the same process** prints nothing at all — reloading a page with the same problems as before should not repeat them — but a signature is never compared across a restart: whoever just started `vite dev` sees the full picture once, and the persisted signature (in the session cache, see [above](#the-cross-session-cache)) only qualifies the closing line with "(same as the previous session)".
 
@@ -804,7 +804,9 @@ Object freezing remains active in production builds. The performance cost is lim
 
 ## Phase 5 — LLM auto-translation
 
-`npx vtranslate-cli --translate` fills the `null` keys a sync leaves behind, through an LLM, without turning the manual "copy the block into a chatbot" workflow into a requirement. Thirteen layers, all under [`lib/dev/llm/`](../lib/dev/llm/), each buildable and testable before the next depends on it — the first eight never open a socket, and stay verifiable with a fake driver alone.
+`npx vitetranslate --llm-translate` fills the `null` keys a sync leaves behind, through an LLM, without turning the manual "copy the block into a chatbot" workflow into a requirement. Fourteen layers, all under [`lib/dev/llm/`](../lib/dev/llm/), each buildable and testable before the next depends on it — the first eight never open a socket, and stay verifiable with a fake driver alone.
+
+Every flag the CLI recognises for this feature lives under one namespace, `--llm-*`, parsed by the pure function `parseLlmArgs` in [`llmCommands.js`](../lib/dev/llm/llmCommands.js): the prefix **is** the namespace, so a typo inside it (`--llm-tranlate`) is a hard error naming the valid flags, never a silent fall-through to a plain sync — unlike an unrecognised flag anywhere else, which the CLI just ignores. `hasAnyLlmFlag` (also exported from there) is the looser check `cli.js` uses to reject `--fastverify` combined with any LLM flag at all, before `parseLlmArgs` would even run.
 
 ```mermaid
 flowchart LR
@@ -819,6 +821,7 @@ flowchart LR
     B --> J[llmLedger.js]
     B --> K[contextFile.js\ncontextSample.js]
     B --> L[llmReport.js\nrunsLog.js]
+    B --> M[debugTrace.js\n--llm-debug]
 ```
 
 **The LLM never runs inside the plugin.** Configuration lives in `vite.config` because `loadConfig()`/`vitetranslateConfig` is already the one place the CLI reads its config from (see "No separate config file" above), but the only thing that opens a socket is `vtranslate-cli`. `vitetranslate.js` calls [`normalizeLlmOptions`](../lib/dev/llm/llmOptions.js) at plugin construction — same moment as the `localeDir`/`sourceLanguage` checks — and lets it throw, so a malformed `llm` block shows up when the dev server starts, not on the first paid call. That is the whole of the plugin's involvement: it validates, and it stores the normalized result on `vitetranslateConfig.llm` for the CLI to read back.
@@ -829,13 +832,17 @@ flowchart LR
 
 **The cost estimate self-tunes.** `costModel.js` starts from a fixed chars-per-token constant, then from the second run on reads the real ratio measured from the provider's own `usage` field, stored per model in [`llmLedger.js`](../lib/dev/llm/llmLedger.js) (`node_modules/.viteTranslate/llm.json`, next to `session.json` and `scan.json`, sharing `leggiJson`/`scriviJson` from [`sessionStore.js`](../lib/dev/vite/uty/sessionStore.js) — never rewritten, only built on top of).
 
-**`budgetGuard.js` separates a refusal from a stop.** Before sending, five numeric caps and the CI/TTY guards can refuse the whole run; `--force` bypasses the five numeric ones, never the CI guard, which does not even accept `force` as a parameter — that is deliberate, not an `if` someone could later add by mistake. During the run, if `maxCostPerRun` is crossed mid-flight, the run stops sending new batches but keeps everything already validated: discarding it would mean paying for nothing.
+**`budgetGuard.js` separates a refusal from a stop.** Before sending, five numeric caps and the CI/TTY guards can refuse the whole run; `--llm-auto` bypasses the five numeric ones, never the CI guard, which does not even accept `auto` as a parameter — that is deliberate, not an `if` someone could later add by mistake. `llm.costGuard` sits next to the caps but is not one of them: it only ever skips the confirmation question (`cost < costGuard`, strictly), never a numeric cap and never the CI guard — same non-negotiable exclusion, enforced the same way, by `checkCI` simply not taking it as a parameter. During the run, if `maxCostPerRun` is crossed mid-flight, the run stops sending new batches but keeps everything already validated: discarding it would mean paying for nothing.
 
 **The context abstract lives inside `localeDir`, in a subfolder that stays invisible to everything else.** [`contextFile.js`](../lib/dev/llm/contextFile.js) writes `<localeDir>/.llm/context.md` — `.llm/` is a subfolder specifically because [`listLanguageFiles.js`](../lib/dev/vite/uty/listLanguageFiles.js) filters on `.yml`, `localeSignature()` in [`fastVerify.js`](../lib/dev/vite/uty/fastVerify.js) filters on `isFile()` on `localeDir` itself (so writing here never invalidates the fast path), and the dev server's watcher filters on `.yml` too (so writing here never triggers a reload). Two regions in the file: the generated block between `<!-- vitetranslate:generated -->` markers, replaced wholesale on refresh, and everything else, read back into every future prompt and never overwritten — a hand-written correction sticks.
 
-**One repair round, never two.** A rejected translation gets exactly one second attempt, with the validator's rejection reason fed back inside the same JSON payload shape `prompts.js` always sends (never as trailing prose after the JSON — a driver that does a strict `JSON.parse` on the user message would throw on anything else, and `callModel.js`'s own retry logic would then multiply that failure across `maxRetries` attempts for no reason). A model that is wrong twice about the same key is not converging; `translatePass.js` moves on and lets the ledger's per-language failure count skip it on future runs, `--force` aside.
+**One repair round, never two.** A rejected translation gets exactly one second attempt, with the validator's rejection reason fed back inside the same JSON payload shape `prompts.js` always sends (never as trailing prose after the JSON — a driver that does a strict `JSON.parse` on the user message would throw on anything else, and `callModel.js`'s own retry logic would then multiply that failure across `maxRetries` attempts for no reason). A model that is wrong twice about the same key is not converging; `translatePass.js` moves on and lets the ledger's per-language failure count skip it on future runs, `--llm-auto` aside.
 
 **Nothing here writes the source language file.** `translatePass.js` reads it once, after a fresh `runSync`, to get real text for every key; `sourceLanguage` only ever appears there to _exclude_ it from the set of languages to translate, never as a write target.
+
+**`--llm-debug` traces a run without touching what it traces.** [`debugTrace.js`](../lib/dev/llm/debugTrace.js) is a lazy, append-only writer — one numbered file per event, `<localeDir>/.llm/<YYMMDDHHmmss>/`, self-excluded from git the moment it's born — passed down as `debug` (or `null`) through every layer that talks to the model: `translatePass.js`, `callModel.js`, `fetchDriver.js`. Every write passes through `redact()` first, so the API key can never land on disk this way either; a write that fails turns the trace off for the rest of the run instead of stopping it — tracing a run is never a reason to fail one. It imports only `fs`, `path`, `contextFile.js`, `apiKey.js` and `utility.js`, for the same reason `llmOptions.js` imports nothing beyond `validateLanguageTag.js`: neither is meant to be reachable from the plugin bundle.
+
+**A refusal is never silent.** Every one of `translatePass.js`'s three `{ mode: "refused" }` returns — the CI guard, the numeric caps, the confirmation — used to be discarded by `maybeRunLlmCommand` in 4.5.0: nothing printed, exit code `0`. `reportOutcome()` in `llmCommands.js` now prints the refusal and sets `process.exitCode = 1`, except when the user simply answered "n" at the prompt (`declined` — exit `0`, that's not a failure, that's the feature working).
 
 ---
 
@@ -1009,6 +1016,7 @@ Architectural constraints that must be preserved to prevent subtle or silent fai
 | The two plugins and the virtual module | [`vitetranslate.js`](../lib/dev/vite/vitetranslate.js) |
 | The sync command | [`cli.js`](../lib/dev/vite/cli.js) · [`syncCore.js`](../lib/dev/vite/syncCore.js) · [`updateLanguage.js`](../lib/dev/vite/updateLanguage.js) |
 | LLM auto-translation: options, validator, orchestrator | [`llmOptions.js`](../lib/dev/llm/llmOptions.js) · [`validateTranslation.js`](../lib/dev/llm/validateTranslation.js) · [`translatePass.js`](../lib/dev/llm/translatePass.js) |
+| LLM flags: the `--llm-*` parser, `--llm-debug`'s trace writer | [`llmCommands.js`](../lib/dev/llm/llmCommands.js) · [`debugTrace.js`](../lib/dev/llm/debugTrace.js) |
 | Auto-sync from the plugin's `config` hook, and its guards | [`autoSync.js`](../lib/dev/vite/autoSync.js) |
 | The safety nets on data | [`guardMassErase.js`](../lib/dev/vite/uty/guardMassErase.js) · [`backupLanguageFile.js`](../lib/dev/vite/uty/backupLanguageFile.js) · [`listLanguageFiles.js`](../lib/dev/vite/uty/listLanguageFiles.js) |
 | The dev server startup check, the cross-session cache, deduped console warnings | [`checkSetup.js`](../lib/dev/vite/uty/checkSetup.js) · [`sessionStore.js`](../lib/dev/vite/uty/sessionStore.js) · [`devReporter.js`](../lib/dev/vite/uty/devReporter.js) |

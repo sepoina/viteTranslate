@@ -208,7 +208,7 @@ function spiegaAssenza(qui) {
 /**
  * Il comando della copia, in un processo suo: è così che lo lancia npx, quindi ogni versione
  * pubblicata si comporta come si è sempre comportata. Il terminale resta condiviso (stdio
- * "inherit"): colori, domande di conferma e input nascosto di `--key set` funzionano come se il
+ * "inherit"): colori, domande di conferma e input nascosto di `--llm-key-set` funzionano come se il
  * launcher non ci fosse.
  */
 function lancia(file, argv) {

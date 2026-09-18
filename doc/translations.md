@@ -7,8 +7,8 @@
 ## Adding a language
 
 ```bash
-npx vtranslate-cli --add fr-FR
-npx vtranslate-cli --add fr-FR de-DE pt-BR
+npx vitetranslate --add fr-FR
+npx vitetranslate --add fr-FR de-DE pt-BR
 ```
 
 The tag must be in `<language>-<REGION>` form and name a real language and region ([supported list](bcp47.md)) — `fr-FF` is refused before anything is written to disk. A language already present is left untouched.
@@ -33,7 +33,7 @@ DynamicExample_1wltsn1: null
 The same keys show up in the source language file too, grouped under that same separator — never as `null` there, but as real text, for as long as they're missing in at least one other language.
 
 > [!TIP]
-> `npx vtranslate-cli --translate` does the next step for you — fills the `null`s through an LLM you configure, with a validator that refuses anything that would break at runtime. See [the LLM guide](llm.md). The manual way still works exactly as before, and always will: copy that block into an LLM by hand, then paste the answer over the `null`s:
+> `npx vitetranslate --llm-translate` does the next step for you — fills the `null`s through an LLM you configure, with a validator that refuses anything that would break at runtime. See [the LLM guide](llm.md). The manual way still works exactly as before, and always will: copy that block into an LLM by hand, then paste the answer over the `null`s:
 
 ```yaml
 #  -------------------------------------------------
@@ -53,7 +53,7 @@ DynamicExample_1wltsn1: "Hello %s, how are you?"
 Replace each `null` with the translated text, keeping `%s` placeholders intact, then sync once more so the file settles into its final shape:
 
 ```bash
-npx vtranslate-cli
+npx vitetranslate
 ```
 
 ```yaml

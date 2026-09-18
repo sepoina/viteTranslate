@@ -7,7 +7,7 @@
 | Vite | `^5 \|\| ^6 \|\| ^7 \|\| ^8` | yes |
 | React | `^18 \|\| ^19` *(for the `/react` entry point)* | yes |
 | `@babel/core` | `^7 \|\| ^8` | **no** |
-| `@napi-rs/keyring` | `^1` *(only for `vtranslate-cli --key`, see [LLM guide](llm.md))* | yes |
+| `@napi-rs/keyring` | `^1` *(only for `vitetranslate --llm-key-*`, see [LLM guide](llm.md))* | yes |
 
 Install them if your project doesn't already have them. `.js`/`.jsx`/`.ts`/`.tsx` sources are all scanned. TypeScript declarations ship with the package.
 
@@ -35,4 +35,4 @@ That asymmetry has a price, and it is the price of making the peer required: in 
 
 ## `@napi-rs/keyring` is optional, and stays that way
 
-Only `vtranslate-cli --key set|clear|status` — and the API-key resolution chain for `--translate`, as its last resort — ever touch it. Without it installed, or without a Secret Service to talk to (Docker, WSL, a remote SSH session), that step of the chain is skipped in silence and the rest of the plugin works exactly the same: an env var or a `.env.local` entry covers the same need without it. Install it only if you want the key to live in the OS keychain instead.
+Only `vitetranslate --llm-key-set|status|clear` — and the API-key resolution chain for `--llm-translate`, as its last resort — ever touch it. Without it installed, or without a Secret Service to talk to (Docker, WSL, a remote SSH session), that step of the chain is skipped in silence and the rest of the plugin works exactly the same: an env var or a `.env.local` entry covers the same need without it. Install it only if you want the key to live in the OS keychain instead.

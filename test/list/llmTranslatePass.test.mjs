@@ -2,7 +2,7 @@
 // con due lingue e un driver finto, mai la rete vera.
 //
 //   node test/list/llmTranslatePass.test.mjs
-import { mkdtempSync, rmSync, mkdirSync, writeFileSync, readFileSync } from "node:fs";
+import { mkdtempSync, rmSync, mkdirSync, writeFileSync, readFileSync, readdirSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import translatePass from "../../lib/dev/llm/translatePass.js";
@@ -59,7 +59,7 @@ console.log("\n== T63/T64 giro felice ==");
     for (const item of items) translations[item.k] = `TR:${item.t}`;
     return { translations };
   };
-  const result = await translatePass({ config: baseConfig(baseDir, driver), yes: true });
+  const result = await translatePass({ config: baseConfig(baseDir, driver), noAsk: true });
   eq("T63 mode done", "done", result.mode);
 
   const key = keyOf(baseDir);
@@ -82,7 +82,7 @@ console.log("\n== T65 chiave assente dalla risposta resta null ==");
 }
 `);
   const driver = async () => ({ translations: {} }); // non risponde a nessuna chiave
-  const result = await translatePass({ config: baseConfig(baseDir, driver), yes: true });
+  const result = await translatePass({ config: baseConfig(baseDir, driver), noAsk: true });
   eq("nessuna scrittura (niente da fondere)", 0, result.filesWritten.filter((f) => f.written).length);
   const frText = readFileSync(join(baseDir, "locale", "fr-FR.yml"), "utf8");
   eq("la chiave resta null", true, /:\s*null\s*$/m.test(frText));
@@ -102,7 +102,7 @@ console.log("\n== T66 chiave sconosciuta nella risposta ==");
     for (const item of items) translations[item.k] = `TR:${item.t}`;
     return { translations };
   };
-  const result = await translatePass({ config: baseConfig(baseDir, driver), yes: true });
+  const result = await translatePass({ config: baseConfig(baseDir, driver), noAsk: true });
   eq("chiave nota comunque riempita", true, result.perLanguage.every((l) => l.filled === 1));
   eq("chiave sconosciuta contata", true, result.perLanguage.every((l) => l.unknownKeys === 1));
 }
@@ -121,13 +121,13 @@ console.log("\n== T67 validatore rifiuta -> resta null e finisce nel ledger ==")
     for (const item of items) translations[item.k] = "senza segnaposto";
     return { translations };
   };
-  const result = await translatePass({ config: baseConfig(baseDir, driver), yes: true });
+  const result = await translatePass({ config: baseConfig(baseDir, driver), noAsk: true });
   eq("rejected per placeholder-count", true, result.perLanguage.every((l) => l.rejectedByReason["placeholder-count"] === 1));
   const frText = readFileSync(join(baseDir, "locale", "fr-FR.yml"), "utf8");
   eq("la chiave resta null nel file", true, /:\s*null\s*$/m.test(frText));
 }
 
-// --------------------------------------------------------------- T68: failures.count >= 2 -> saltata; --force -> ritentata
+// --------------------------------------------------------------- T68: failures.count >= 2 -> saltata; --llm-auto -> ritentata
 console.log("\n== T68 chiave già fallita due volte ==");
 {
   const baseDir = progetto(`export default function App() {
@@ -145,21 +145,21 @@ console.log("\n== T68 chiave già fallita due volte ==");
   const config = baseConfig(baseDir, driver);
 
   // Prima una sync "a vuoto" per conoscere la chiave vera e pre-sporcare il ledger.
-  await translatePass({ config: baseConfig(baseDir, async () => ({ translations: {} })), yes: true });
+  await translatePass({ config: baseConfig(baseDir, async () => ({ translations: {} })), noAsk: true });
   const realKey = keyOf(baseDir);
   updateLedger(baseDir, (l) => {
     recordFailure(l, "fr-FR", realKey, "placeholder-count");
     recordFailure(l, "fr-FR", realKey, "placeholder-count");
   });
 
-  const result1 = await translatePass({ config, yes: true });
+  const result1 = await translatePass({ config, noAsk: true });
   const frReport = result1.perLanguage.find((l) => l.tag === "fr-FR");
-  eq("saltata senza --force", 1, frReport?.skipped ?? 0);
+  eq("saltata senza --llm-auto", 1, frReport?.skipped ?? 0);
   eq("nessuna chiamata al driver per fr-FR (nulla da tradurre lì)", true, frReport.filled === 0);
 
-  const result2 = await translatePass({ config, force: true, yes: true });
+  const result2 = await translatePass({ config, auto: true, noAsk: true });
   const frReport2 = result2.perLanguage.find((l) => l.tag === "fr-FR");
-  eq("con --force ritentata e riempita", 1, frReport2.filled);
+  eq("con --llm-auto ritentata e riempita", 1, frReport2.filled);
   void calls;
 }
 
@@ -179,7 +179,7 @@ console.log("\n== T69 un solo giro di riparazione ==");
     for (const item of items) translations[item.k] = item.k;
     return { translations };
   };
-  await translatePass({ config: baseConfig(baseDir, driver), yes: true });
+  await translatePass({ config: baseConfig(baseDir, driver), noAsk: true });
   // Due lingue (fr-FR, de-DE), un lotto ciascuna: primo giro 2 chiamate, riparazione altre 2 = 4.
   eq("driver chiamato esattamente due volte per lingua (primo giro + un solo giro di riparazione)", 4, calls);
 }
@@ -203,7 +203,7 @@ console.log("\n== T70 le chiavi già tradotte non cambiano ==");
     for (const item of items) translations[item.k] = `TR:${item.t}`;
     return { translations };
   };
-  await translatePass({ config: baseConfig(baseDir, fillAll), yes: true });
+  await translatePass({ config: baseConfig(baseDir, fillAll), noAsk: true });
   const frAfterFirst = readFileSync(join(baseDir, "locale", "fr-FR.yml"), "utf8");
 
   // Aggiunge una terza stringa nuova, e ritraduce: solo la nuova deve cambiare.
@@ -217,12 +217,74 @@ console.log("\n== T70 le chiavi già tradotte non cambiano ==");
   );
 }
 `);
-  await translatePass({ config: baseConfig(baseDir, fillAll), yes: true });
+  await translatePass({ config: baseConfig(baseDir, fillAll), noAsk: true });
   const frAfterSecond = readFileSync(join(baseDir, "locale", "fr-FR.yml"), "utf8");
 
   eq("le due chiavi già tradotte compaiono identiche", true, frAfterSecond.includes('"TR:Already done"') && frAfterSecond.includes('"TR:New one"'));
   eq("la terza chiave nuova è stata aggiunta e tradotta", true, frAfterSecond.includes('"TR:Third one"'));
   void frAfterFirst;
+}
+
+// --------------------------------------------------------------- P1: --llm-debug traccia il giro
+console.log("\n== P1 --llm-debug traccia richieste, risposte, rifiuti, riparazione ==");
+{
+  const { default: createDebugTrace } = await import("../../lib/dev/llm/debugTrace.js");
+  const baseDir = progetto(`export default function App() {
+  return <div>{"_%_Say %s now_%_"}</div>;
+}
+`);
+  // Perde sempre il segnaposto: primo giro rifiutato, riparazione rifiutata di nuovo.
+  const driver = async ({ userPayload }) => {
+    const { items } = JSON.parse(userPayload);
+    const translations = {};
+    for (const item of items) translations[item.k] = "senza segnaposto";
+    return { translations };
+  };
+  const debug = createDebugTrace({ localeDir: join(baseDir, "locale") });
+  await translatePass({ config: baseConfig(baseDir, driver), noAsk: true, debug });
+
+  const names = readdirSync(debug.dir);
+  const hasSuffix = (suffix) => names.some((n) => n.endsWith(suffix));
+  eq("translate-fr-FR-b01-request.json esiste", true, hasSuffix("-translate-fr-FR-b01-request.json"));
+  eq("translate-fr-FR-b01-response.json esiste", true, hasSuffix("-translate-fr-FR-b01-response.json"));
+  eq("validate-fr-FR-rejected.json esiste", true, hasSuffix("-validate-fr-FR-rejected.json"));
+  eq("repair-fr-FR-b01-request.json esiste", true, hasSuffix("-repair-fr-FR-b01-request.json"));
+  eq("summary.json esiste", true, hasSuffix("-summary.json"));
+}
+
+// --------------------------------------------------------------- P2: costGuard
+console.log("\n== P2 costGuard: senza TTY, soddisfa la conferma da solo ==");
+{
+  const driver = async ({ userPayload }) => {
+    const { items } = JSON.parse(userPayload);
+    const translations = {};
+    for (const item of items) translations[item.k] = `TR:${item.t}`;
+    return { translations };
+  };
+  const configWithGuard = (baseDir, costGuard) => ({
+    ...baseConfig(baseDir, driver),
+    llm: {
+      ...baseConfig(baseDir, driver).llm,
+      connection: { baseURL: "http://fake", model: "fake-model", costMillionInput: 0.1, costMillionOutput: 0.1 },
+      costGuard,
+    },
+  });
+
+  // Nessun --llm-noask: il test runner lancia i figli con stdin "ignore", isTTY è falso —
+  // senza costGuard sarebbe "refused", con costGuard abbastanza alto dev'essere "done".
+  const baseDir1 = progetto(`export default function App() {
+  return <div>{"_%_Cheap one_%_"}</div>;
+}
+`);
+  const result1 = await translatePass({ config: configWithGuard(baseDir1, 100) });
+  eq("costGuard alto -> done anche senza noAsk", "done", result1.mode);
+
+  const baseDir2 = progetto(`export default function App() {
+  return <div>{"_%_Cheap two_%_"}</div>;
+}
+`);
+  const result2 = await translatePass({ config: configWithGuard(baseDir2, 0) });
+  eq("costGuard 0 -> refused", "refused", result2.mode);
 }
 
 for (const dir of temporanee) rmSync(dir, { recursive: true, force: true });
