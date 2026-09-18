@@ -71,12 +71,14 @@ With a `driver`, `connection.baseURL` and `connection.model` are no longer requi
 Every run prints an estimate before it spends anything:
 
 ```text
-::: llm                  ║  fr-FR, de-DE: 128 key(s), 6 request(s)
-:::                      ║  ~62.1k in + ~9.3k out tokens  ≈  $0.0191  (in $0.0047, out $0.0144)
-:::                      ║  estimated from characters · no prompt-caching discount
+::: LLM                  ║  "deepseek-flash"
+::: ⌘ deepseek.com       ║  - (2/2) incomplete tables - 128 missing keys - 6 api requests
+:::                      ║  - token (in ~62.1k - out ~9.3k) ≈ $0.0191 < costGuard ($0.2000)
 ```
 
-The cost line only appears once `connection.costMillionInput` and `connection.costMillionOutput` are both set (dollars per million tokens) — give both or neither, a half price is a wrong estimate. `connection.costUnity` (default `"$"`) prefixes every cost shown, on screen and in `runs.log`. Without prices, only the token counts print.
+The first line names the model, the second the provider — rebuilt from `connection.baseURL` (host without a leading `api.` or a port; absent with your own `driver`) — and how many target languages have work. The token line carries the guard comparison when `llm.costGuard` is set: `<` runs without asking, `≥` asks as usual.
+
+The cost only appears once `connection.costMillionInput` and `connection.costMillionOutput` are both set (dollars per million tokens) — give both or neither, a half price is a wrong estimate. `connection.costUnity` (default `"$"`) prefixes every cost shown, on screen and in `runs.log`. Without prices, only the token counts print.
 
 The character→token ratio starts from a fixed constant and self-tunes per model from the second run on, using what the provider's own `usage` reported on the first one.
 
@@ -114,20 +116,24 @@ llm: {
 On a terminal, every request to the model gets a line of its own, redrawn in place once a second — no staring at a frozen prompt while a reasoning model thinks:
 
 ```text
-::: llm                  ║  ⠹ > ask 7 keys italiano - Deutsch                                     3s
+::: LLM                  ║  ⠹ > ask 7 keys italiano - Deutsch                                     3s
 :::                      ║  ✔ < 7 new keys American English. Full translate!                      2s
 :::                      ║  ⠹ > ask 7 keys italiano - 日本語            retry 1/3 after HTTP 429  3s
 :::                      ║  ✖ - error français (HTTP 401). see trace in debug mode!               1s
 ```
 
-`>` asked and waiting, `<` answered — green when every key came back valid, orange when some didn't, and the line says how many and why — `-` failed for good. The repair round and the [context abstract](#the-context-abstract) get their lines too. When the last one closes, the block is replaced by the same list as a plain log, each line with what it cost:
+`>` asked and waiting, `<` answered — green when every key came back valid, orange when some didn't, and the live line says how many and why — `-` failed for good. The repair round and the [context abstract](#the-context-abstract) get their lines too. When the last one closes, the block is replaced by the same list as a plain log, each line closed by what became of it and how long it took:
 
 ```text
-::: llm                  ║  ✔ < 7 new keys Deutsch. Full translate!                      $0.0027  3s
-:::                      ║  ✔ < 7 new keys American English. Full translate!             $0.0027  2s
-:::                      ║  ✔ < 6 new keys 日本語. 1 rejected                            $0.0028  4s
-:::                      ║  ✖ - error français (HTTP 401). see trace in debug mode!               1s
+::: LLM                  ║  ✔ < 7 new keys Deutsch. completed / 3s.
+:::                      ║  ✔ < 7 new keys American English. completed / 2s.
+:::                      ║  ✔ < 6 new keys 日本語. 1 rejected / 4s.
+:::                      ║  ✖ - error français (HTTP 401) / see trace in debug mode / 1s.
+:::                      ║
+:::                      ║  real token: 3100 (≈ $0.0106)
 ```
+
+The coda is `<what happened> / <seconds>.` — `completed` when nothing is missing, otherwise the counts, or for an error the reason and where to look. There is no cost per request: the run's cost is the one measured line after the list, the provider's `usage` summed. The `--llm-debug` trace path closes the block under the label `--llm-debug`. The per-language breakdown and the old "estimated from characters" / "measured from provider usage" notes are no longer on screen — they live in the trace (`summary.json`).
 
 Piped, redirected or in CI there's no live block, only that final log. A failed request doesn't stop the others: its keys stay `null`, and [`--llm-debug`](#debugging-a-run) has the full reply.
 

@@ -225,6 +225,53 @@ console.log("\n== T70 le chiavi già tradotte non cambiano ==");
   void frAfterFirst;
 }
 
+// --------------------------------------------------------------- T84: risposta nella forma del payload
+console.log("\n== T84 la forma `{ items: [{ k, t, where }] }` viene letta, non buttata ==");
+{
+  const baseDir = progetto(`export default function App() {
+  return <div>{"_%_Welcome_%_"}</div>;
+}
+`);
+  // Come la trace 260918204954: il modello ricopia il payload invece di appiattirlo. Prima della
+  // correzione questo rispondeva 0 filled e 1 unknown key ("items"), e la traduzione si perdeva.
+  const driver = async ({ userPayload }) => {
+    const { items } = JSON.parse(userPayload);
+    return { translations: { items: items.map((i) => ({ k: i.k, t: `TR:${i.t}`, where: i.where })) } };
+  };
+  const result = await translatePass({ config: baseConfig(baseDir, driver), noAsk: true });
+
+  eq("mode done", "done", result.mode);
+  eq("entrambe le lingue riempite", true, result.perLanguage.every((l) => l.filled === 1));
+  eq("nessuna sconosciuta: l'involucro è riconosciuto", true, result.perLanguage.every((l) => l.unknownKeys === 0));
+  const frText = readFileSync(join(baseDir, "locale", "fr-FR.yml"), "utf8");
+  eq("la traduzione è finita nel file", true, frText.includes('"TR:Welcome"'));
+}
+
+// --------------------------------------------------------------- T85: il formato del blocco LLM
+console.log("\n== T85 il blocco LLM: modello, fornitore, token reali, niente helper ==");
+{
+  const baseDir = progetto(`export default function App() {
+  return <div>{"_%_Good night_%_"}</div>;
+}
+`);
+  const driver = async ({ userPayload }) => {
+    const { items } = JSON.parse(userPayload);
+    return { translations: Object.fromEntries(items.map((i) => [i.k, `TR:${i.t}`])), usage: { tokensIn: 1200, tokensOut: 300 } };
+  };
+  const { righe } = await catturaAsync(() => translatePass({ config: baseConfig(baseDir, driver), noAsk: true }));
+
+  eq("il modello fra virgolette", true, righe.some((r) => r.includes('"fake-model"')));
+  eq("il fornitore ricostruito da baseURL (http://fake -> fake)", true, righe.some((r) => r.includes("⌘ fake")));
+  eq("la sintesi del lavoro", true, righe.some((r) => r.includes("- (2/2) incomplete tables - 2 missing keys - 2 api requests")));
+  eq("la stima dei token", true, righe.some((r) => r.includes("- token (in ~") && r.includes("out ~")));
+  eq("i token reali misurati (2 lotti x (1200 + 300))", true, righe.some((r) => r.includes("real token: 3000")));
+  eq("niente report per-lingua", false, righe.some((r) => /: \d+ filled/.test(r)));
+  eq("niente 'estimated from characters'", false, righe.some((r) => r.includes("estimated from characters")));
+  eq("niente 'measured from provider usage'", false, righe.some((r) => r.includes("measured from provider usage")));
+  eq("la riga 'still untranslated' resta", true, righe.some((r) => r.includes("2 string(s) still untranslated")));
+  eq("l'helper npx non compare nel run LLM", false, righe.some((r) => /\$ .*--llm-translate/.test(r)));
+}
+
 // --------------------------------------------------------------- P1: --llm-debug traccia il giro
 console.log("\n== P1 --llm-debug traccia richieste, risposte, rifiuti, riparazione ==");
 {
@@ -308,7 +355,7 @@ const riempie = (usage) => async ({ userPayload }) => {
   return { translations, usage };
 };
 
-console.log("\n== P3 il pannello: una riga per connessione, coi costi ==");
+console.log("\n== P3 il pannello: una riga per connessione, con la coda ==");
 {
   const baseDir = progetto(`export default function App() {
   return <div>{"_%_Good morning_%_"}</div>;
@@ -319,9 +366,9 @@ console.log("\n== P3 il pannello: una riga per connessione, coi costi ==");
   const { righe } = await catturaAsync(() => translatePass({ config, noAsk: true }));
   const pannello = righe.filter((r) => r.includes("✔ < ") || r.includes("✖ - "));
   eq("una riga per lingua (un lotto ciascuna)", 2, pannello.length);
-  eq("de-DE", true, pannello.some((r) => r.includes("✔ < 1 new key Deutsch. Full translate!")));
-  eq("fr-FR", true, pannello.some((r) => r.includes("✔ < 1 new key français. Full translate!")));
-  eq("ognuna col suo costo", true, pannello.every((r) => r.includes("$0.0030")));
+  eq("de-DE", true, pannello.some((r) => /✔ < 1 new key Deutsch\. completed \/ \d+s\./.test(r)));
+  eq("fr-FR", true, pannello.some((r) => /✔ < 1 new key français\. completed \/ \d+s\./.test(r)));
+  eq("ogni riga chiude con la coda, nessun costo", true, pannello.every((r) => /completed \/ \d+s\.$/.test(r) && !r.includes("$")));
 }
 
 console.log("\n== P4 una richiesta fallita: la sua riga lo dice, il run prosegue ==");
@@ -338,7 +385,7 @@ console.log("\n== P4 una richiesta fallita: la sua riga lo dice, il run prosegue
   };
   const { valore: result, righe } = await catturaAsync(() => translatePass({ config: baseConfig(baseDir, driver), noAsk: true }));
   eq("mode done", "done", result.mode);
-  eq("la riga d'errore", true, righe.some((r) => r.includes("✖ - error Deutsch (HTTP 401). see trace in debug mode!")));
+  eq("la riga d'errore", true, righe.some((r) => r.includes("✖ - error Deutsch (HTTP 401) / see trace in debug mode /")));
   eq("l'altra lingua tradotta", 1, result.perLanguage.find((l) => l.tag === "fr-FR").filled);
 }
 

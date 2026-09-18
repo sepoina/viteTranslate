@@ -184,7 +184,7 @@ function pannello(opzioni = {}) {
   return { p, orologio };
 }
 
-console.log("\n== requestPanel: il log finale, una riga per connessione, coi costi ==");
+console.log("\n== requestPanel: il log finale, una riga per connessione, con la coda ==");
 {
   const { p, orologio } = pannello();
   const de = p.open({ tag: "de-DE", count: 6 });
@@ -198,18 +198,15 @@ console.log("\n== requestPanel: il log finale, una riga per connessione, coi cos
   const righe = stampato(() => p.finish());
 
   eq("una riga per connessione", 3, righe.length);
-  eq("etichetta llm sulla prima", true, righe[0].includes(" llm ") && !righe[1].includes(" llm "));
-  eq("completa: il testo dell'esempio", true, righe[0].includes("✔ < 6 new keys Deutsch. Full translate!"));
-  eq("completa: il costo", true, righe[0].includes("$0.0030"));
-  eq("completa: i secondi", true, righe[0].trimEnd().endsWith(" 3s"));
-  eq("parziale: cosa manca", true, righe[1].includes("✔ < 4 new keys français. 1 rejected, 1 not returned"));
-  eq("errore: il testo dell'esempio", true, righe[2].includes("✖ - error 日本語 (HTTP 401). see trace in debug mode!"));
-  eq("errore: niente costo", false, righe[2].includes("$"));
-  eq("errore: i secondi", true, righe[2].trimEnd().endsWith("12s"));
-  // Le parti destre contro lo stesso bordo: i costi cominciano tutti nella stessa colonna.
-  const colonnaCosto = (r) => displayWidth(r.slice(0, r.indexOf("$")));
-  eq("i costi incolonnati", colonnaCosto(righe[0]), colonnaCosto(righe[1]));
-  eq("e i secondi finiscono insieme", displayWidth(righe[0].trimEnd()), displayWidth(righe[2].trimEnd()));
+  eq("etichetta LLM sulla prima", true, righe[0].includes(" LLM ") && !righe[1].includes(" LLM "));
+  eq("completa: la coda", true, righe[0].includes("✔ < 6 new keys Deutsch. completed / 3s."));
+  eq("parziale: cosa manca, e la coda", true, righe[1].includes("✔ < 4 new keys français. 1 rejected / 1 not returned / 3s."));
+  eq("errore: il testo e la coda", true, righe[2].includes("✖ - error 日本語 (HTTP 401) / see trace in debug mode / 12s."));
+  // Niente più colonna a destra: né costo per richiesta, né secondi incolonnati, né
+  // "Full translate!" (lo dice la coda).
+  eq("nessun costo per riga", false, righe.some((r) => r.includes("$")));
+  eq("niente 'Full translate!' nel log finale", false, righe.some((r) => r.includes("Full translate!")));
+  eq("ogni riga chiude con un punto", true, righe.every((r) => r.trimEnd().endsWith(".")));
 
   eq("finish una volta sola", [], stampato(() => p.finish()));
 }
@@ -232,25 +229,23 @@ console.log("\n== requestPanel: le altre forme di riga ==");
   };
 
   eq("contesto", true, riga((p) => p.open({ kind: "context", count: 8 }).done({ lines: 24 }, USAGE))[0]
-    .includes("✔ < context abstract, 24 lines"));
+    .includes("✔ < context abstract, 24 lines. completed / 0s."));
   eq("riparazione completa", true, riga((p) => p.open({ kind: "repair", tag: "de-DE", count: 2 })
-    .done({ filled: 2, rejected: 0, missing: 0, unknown: 0 }, USAGE))[0].includes("✔ < 2 keys repaired Deutsch. Full translate!"));
+    .done({ filled: 2, rejected: 0, missing: 0, unknown: 0 }, USAGE))[0].includes("✔ < 2 keys repaired Deutsch. completed / 0s."));
   eq("riparazione fallita", true, riga((p) => p.open({ kind: "repair", tag: "de-DE", count: 1 })
-    .done({ filled: 0, rejected: 1, missing: 0, unknown: 0 }, USAGE))[0].includes("✔ < 0 keys repaired Deutsch. 1 still rejected"));
+    .done({ filled: 0, rejected: 1, missing: 0, unknown: 0 }, USAGE))[0].includes("✔ < 0 keys repaired Deutsch. 1 still rejected / 0s."));
   eq("singolare", true, riga((p) => p.open({ tag: "de-DE", count: 1 })
-    .done({ filled: 1, rejected: 0, missing: 0, unknown: 0 }, USAGE))[0].includes("< 1 new key Deutsch. Full translate!"));
+    .done({ filled: 1, rejected: 0, missing: 0, unknown: 0 }, USAGE))[0].includes("< 1 new key Deutsch. completed / 0s."));
   eq("chiavi sconosciute", true, riga((p) => p.open({ tag: "de-DE", count: 2 })
-    .done({ filled: 2, rejected: 0, missing: 0, unknown: 1 }, USAGE))[0].includes("Full translate! 1 unknown key ignored"));
+    .done({ filled: 2, rejected: 0, missing: 0, unknown: 1 }, USAGE))[0].includes("1 unknown key ignored / 0s."));
   eq("completa: segno verde", true, colore((p) => p.open({ tag: "de-DE", count: 1 })
     .done({ filled: 1, rejected: 0, missing: 0, unknown: 0 }, USAGE)).includes("\x1b[32m✔"));
   eq("incompleta: segno arancione", true, colore((p) => p.open({ tag: "de-DE", count: 2 })
     .done({ filled: 1, rejected: 1, missing: 0, unknown: 0 }, USAGE)).includes("\x1b[1;38;5;208m✔"));
   eq("con --llm-debug: rimanda alla trace che c'è", true, riga((p) => p.open({ tag: "de-DE", count: 1 })
-    .fail(new Error("boom")), { traced: true })[0].includes("✖ - error Deutsch. see the debug trace!"));
-  eq("senza prezzi: i token", true, riga((p) => p.open({ tag: "de-DE", count: 1 })
-    .done({ filled: 1, rejected: 0, missing: 0, unknown: 0 }, USAGE), { connection: {} })[0].includes("1.0k in + 2.0k out"));
-  eq("senza usage: solo i secondi", false, riga((p) => p.open({ tag: "de-DE", count: 1 })
-    .done({ filled: 1, rejected: 0, missing: 0, unknown: 0 }, null))[0].includes("$"));
+    .fail(new Error("boom")), { traced: true })[0].includes("✖ - error Deutsch / see the debug trace / 0s."));
+  eq("senza usage: la riga chiude comunque", true, riga((p) => p.open({ tag: "de-DE", count: 1 })
+    .done({ filled: 1, rejected: 0, missing: 0, unknown: 0 }, null))[0].includes("completed / 0s."));
   eq("mai risposta: niente spinner fermo", true, riga((p) => p.open({ tag: "de-DE", count: 3 }))[0]
     .includes("· > ask 3 keys italiano - Deutsch"));
   const conNota = riga((p) => { p.open({ tag: "de-DE", count: 1 }).fail(new Error("x")); p.note("stopped sending"); });
@@ -284,7 +279,7 @@ console.log("\n== requestPanel dal vivo: spinner, secondi, retry, esito, poi il 
 
   const log = stampato(() => p.finish());
   eq("finish: la regione sparisce", [], schermo(t.scritti));
-  eq("e al suo posto il log, coi costi", true, log.length === 2 && log.every((r) => r.includes("$0.0030")));
+  eq("e al suo posto il log, con la coda", true, log.length === 2 && log.every((r) => /completed \/ \d+s\.$/.test(r)));
 }
 
 console.log("\n== requestPanel dal vivo: più connessioni che righe ==");

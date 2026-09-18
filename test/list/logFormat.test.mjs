@@ -223,33 +223,38 @@ eq("torna in rich mode dopo il finally", false, isSimpleLog());
 // ------------------------------------------------------- 4.5.0: le righe di llmReport.js
 console.log("\n== llmReport.js passa sempre da logEchoColored: stessa colonna, stesso --simpleLog ==");
 {
-  const { printEstimate, printRunResult, printCostGuard } = await import("../../lib/dev/llm/llmReport.js");
+  const { printEstimate, printRunResult, providerFrom } = await import("../../lib/dev/llm/llmReport.js");
 
   const righe = senzaColori(grezzo(() => printEstimate({
-    tags: ["fr-FR", "de-DE"], keys: 128, requests: 6, tokensIn: 62100, tokensOut: 9300,
-    cost: { cost: 0.0191, costIn: 0.0047, costOut: 0.0144 }, costUnity: "$",
+    connection: { model: "deepseek-flash", baseURL: "https://api.deepseek.com" },
+    incomplete: 1, total: 2, keys: 128, requests: 6, tokensIn: 62100, tokensOut: 9300,
+    cost: { cost: 0.0191, costIn: 0.0047, costOut: 0.0144 }, costGuard: 0.2, costUnity: "$",
   })));
-  eq("almeno tre righe (lingue, token, avviso stima)", true, righe.length >= 3);
+  eq("il modello fra virgolette", true, righe.some((r) => r.includes('"deepseek-flash"')));
+  eq("il fornitore ricostruito da baseURL", true, righe.some((r) => r.includes("⌘ deepseek.com")));
+  eq("la sintesi del lavoro", true, righe.some((r) => r.includes("- (1/2) incomplete table - 128 missing keys - 6 api requests")));
+  eq("i token stimati col tetto di costGuard", true, righe.some((r) => r.includes("- token (in ~62.1k - out ~9.3k) ≈ $0.0191 < costGuard ($0.2000)")));
+  eq("providerFrom: host senza api. e senza porta", "deepseek.com", providerFrom("https://api.deepseek.com"));
+  eq("providerFrom: senza schema, col percorso", "openrouter.ai", providerFrom("openrouter.ai/api/v1"));
+  eq("providerFrom: porta tolta", "localhost", providerFrom("http://localhost:11434"));
+  eq("providerFrom: nessun baseURL", null, providerFrom(undefined));
   eq("nessuna riga oltre LOG_WIDTH", 0, righe.filter((r) => displayWidth(r) > LOG_WIDTH).length);
   const colonna = (r) => r.indexOf("║");
   eq("tutte le righe hanno il montante", true, righe.every((r) => colonna(r) > 0));
   eq("stessa colonna", 1, new Set(righe.map(colonna)).size);
 
   const righeRun = senzaColori(grezzo(() => printRunResult({
-    perLanguage: [{ tag: "fr-FR", filled: 64, rejectedByReason: { "placeholder-count": 2 }, unknownKeys: 0, skipped: 0 }],
     tokensIn: 61400, tokensOut: 9100, cost: { cost: 0.0188, costIn: 0.0047, costOut: 0.0141 }, costUnity: "$",
+    unknownKeys: 2,
   })));
-  eq("i rifiuti si raggruppano per reason, non uno per uno", true, righeRun.some((r) => r.includes("2 rejected (placeholder-count)")));
+  eq("i token reali, interi e sommati", true, righeRun.some((r) => r.includes("real token: 70500 (≈ $0.0188)")));
+  eq("le sconosciute restano un avviso", true, righeRun.some((r) => r.includes("2 unknown key(s) in the reply, ignored")));
   eq("nessuna riga oltre LOG_WIDTH", 0, righeRun.filter((r) => displayWidth(r) > LOG_WIDTH).length);
-
-  const righeCostGuard = senzaColori(grezzo(() => printCostGuard({ cost: 0.001, costGuard: 0.01, costUnity: "$" })));
-  eq("printCostGuard passa da logEchoColored (montante presente)", true, righeCostGuard.every((r) => colonna(r) > 0));
-  eq("printCostGuard: sotto il tetto", true, righeCostGuard.some((r) => r.includes("would run without asking")));
 
   try {
     setLogStyle({ simple: true });
     const righeSimple = senzaColori(grezzo(() => printEstimate({
-      tags: ["fr-FR"], keys: 1, requests: 1, tokensIn: 100, tokensOut: 20,
+      connection: {}, incomplete: 1, total: 1, keys: 1, requests: 1, tokensIn: 100, tokensOut: 20,
     })));
     eq("--simpleLog: niente montante ║", 0, righeSimple.filter((r) => r.includes("║")).length);
     eq("--simpleLog: ogni riga comincia con :::", true, righeSimple.every((r) => r.startsWith(":::")));

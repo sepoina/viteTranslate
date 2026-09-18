@@ -1,8 +1,8 @@
 #  -------------------------------------------------
 #      American English
 #       |    code: en-US
-#       |    missing key: 1
-#       |    processed: 2026-09-18 18:43
+#       |    missing key: 0
+#       |    processed: 2026-09-18 21:29
 #       |    TableVersion: 260905
 #  -------------------------------------------------
 #
@@ -10,9 +10,7 @@ App_19xh4q: "- doc/llm.md, the page that explains everything else"
 App_1ff9ley: "The API key never goes into <b>vite.config.js</b>: only the name of the environment variable lives there."
 App_1h2ew8b: "Sync creates the tables and sets the new strings to null."
 App_1tmvrrb: "The validator compares placeholders and tags against the source: whatever doesn't pass stays empty."
+App_7dfaq2: "This page speaks several languages, but only one was written by a person: the others are tables with every cell empty. They don't stay that way — the model fills them all in one go when you run vitetranslate --llm-translate, and before spending anything it shows you the estimate and asks if you want to proceed."
 App_kbgmge: "The text is written where it's needed, between two markers: no keys to invent."
 App_prwil0: "The CLI estimates the cost, asks for confirmation, and fills the empty cells."
 App_snjsof: "%s languages · version&nbsp;<b>%s</b>"
-
-#  ----to be translated------------------------------------------
-App_7dfaq2: null

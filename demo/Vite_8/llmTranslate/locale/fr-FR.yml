@@ -1,0 +1,16 @@
+#  -------------------------------------------------
+#      français (France)
+#       |    code: fr-FR
+#       |    missing key: 0
+#       |    processed: 2026-09-18 22:52
+#       |    TableVersion: 260905
+#  -------------------------------------------------
+#
+App_19xh4q: "- doc/llm.md, la page qui explique tout le reste"
+App_1ff9ley: "La clé API n'entre jamais dans <b>vite.config.js</b> : seul le nom de la variable d'environnement y vit."
+App_1h2ew8b: "La synchronisation crée les tables et met les nouvelles chaînes à null."
+App_1tmvrrb: "Le validateur compare les placeholders et les balises avec la source : ce qui ne passe pas reste vide."
+App_7dfaq2: "Cette page parle plusieurs langues, mais une seule a été écrite par une personne : les autres sont des tables avec toutes les cases vides. Elles ne restent pas comme ça — le modèle les remplit d'un seul coup quand tu lances vitetranslate --llm-translate, et avant de dépenser quoi que ce soit il t'affiche l'estimation et te demande si tu veux continuer."
+App_kbgmge: "Le texte s'écrit là où il faut, entre deux marqueurs : aucune clé à inventer."
+App_prwil0: "La CLI estime le coût, demande confirmation, et remplit les cases vides."
+App_snjsof: "%s langues · version&nbsp;<b>%s</b>"
