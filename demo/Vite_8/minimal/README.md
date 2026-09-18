@@ -35,6 +35,10 @@ restart of the dev server (or a build) to show up in the tables. The `vtranslate
 is still there for `--add`, `--status` and `--migrate`. In dev, saving a language file reloads
 the page, so a translation you just wrote shows up right away.
 
+This folder is a member of the repo's npm workspaces: `npm install` from here installs the whole
+tree, and from the repo root it's `npm run dev -w demo/Vite_8/minimal`. Copied out on its own, it
+installs exactly what it declares.
+
 ## StackBlitz
 
 Import the zip from [stackblitz.com](https://stackblitz.com) (New project > Import).

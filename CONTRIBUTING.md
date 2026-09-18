@@ -15,6 +15,11 @@ npm run playground   # runnable example in playground/, with a dev server
 npm run edge         # edge-case table in playEdge/, port 3001 (see playEdge/README.md)
 ```
 
+`npm install` from the root covers **every** workspace — `playground`, `playEdge` and the two demos
+under `demo/Vite_8/` — so one install is enough for all of them. A single one runs with
+`npm run dev -w demo/Vite_8/llmTranslate`. Like the playground, the demos resolve the library from
+this checkout, not from npm.
+
 ## Tests
 
 Tests live in `test/list/`, one file per concern, and run without any test framework:
