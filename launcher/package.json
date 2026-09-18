@@ -1,0 +1,36 @@
+{
+  "name": "vitetranslate",
+  "version": "2.0.0",
+  "description": "The vitetranslate command, installed once: runs the @sepoina/vitetranslate CLI of whatever project you are in, at that project's own version.",
+  "author": {
+    "name": "Giancarlo Ghigi",
+    "email": "giancarlo.ghigi@gmail.com"
+  },
+  "keywords": [
+    "vitetranslate",
+    "vite",
+    "i18n",
+    "translation",
+    "cli"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sepoina/viteTranslate.git",
+    "directory": "launcher"
+  },
+  "bugs": {
+    "url": "https://github.com/sepoina/viteTranslate/issues"
+  },
+  "homepage": "https://github.com/sepoina/viteTranslate#readme",
+  "type": "module",
+  "bin": {
+    "vitetranslate": "vitetranslate.js"
+  },
+  "files": [
+    "vitetranslate.js"
+  ],
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "license": "Apache-2.0"
+}

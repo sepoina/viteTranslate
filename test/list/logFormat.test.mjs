@@ -217,5 +217,39 @@ try {
 }
 eq("torna in rich mode dopo il finally", false, isSimpleLog());
 
+// ------------------------------------------------------- 4.5.0: le righe di llmReport.js
+console.log("\n== llmReport.js passa sempre da logEchoColored: stessa colonna, stesso --simpleLog ==");
+{
+  const { printEstimate, printRunResult } = await import("../../lib/dev/llm/llmReport.js");
+
+  const righe = senzaColori(grezzo(() => printEstimate({
+    tags: ["fr-FR", "de-DE"], keys: 128, requests: 6, tokensIn: 62100, tokensOut: 9300,
+    cost: { cost: 0.0191, costIn: 0.0047, costOut: 0.0144 }, costUnity: "$",
+  })));
+  eq("almeno tre righe (lingue, token, avviso stima)", true, righe.length >= 3);
+  eq("nessuna riga oltre LOG_WIDTH", 0, righe.filter((r) => displayWidth(r) > LOG_WIDTH).length);
+  const colonna = (r) => r.indexOf("║");
+  eq("tutte le righe hanno il montante", true, righe.every((r) => colonna(r) > 0));
+  eq("stessa colonna", 1, new Set(righe.map(colonna)).size);
+
+  const righeRun = senzaColori(grezzo(() => printRunResult({
+    perLanguage: [{ tag: "fr-FR", filled: 64, rejectedByReason: { "placeholder-count": 2 }, unknownKeys: 0, skipped: 0 }],
+    tokensIn: 61400, tokensOut: 9100, cost: { cost: 0.0188, costIn: 0.0047, costOut: 0.0141 }, costUnity: "$",
+  })));
+  eq("i rifiuti si raggruppano per reason, non uno per uno", true, righeRun.some((r) => r.includes("2 rejected (placeholder-count)")));
+  eq("nessuna riga oltre LOG_WIDTH", 0, righeRun.filter((r) => displayWidth(r) > LOG_WIDTH).length);
+
+  try {
+    setLogStyle({ simple: true });
+    const righeSimple = senzaColori(grezzo(() => printEstimate({
+      tags: ["fr-FR"], keys: 1, requests: 1, tokensIn: 100, tokensOut: 20,
+    })));
+    eq("--simpleLog: niente montante ║", 0, righeSimple.filter((r) => r.includes("║")).length);
+    eq("--simpleLog: ogni riga comincia con :::", true, righeSimple.every((r) => r.startsWith(":::")));
+  } finally {
+    setLogStyle({ simple: false });
+  }
+}
+
 console.log(fail ? `\n${fail} asserzioni fallite` : "\ntutto ok");
 process.exit(fail ? 1 : 0);

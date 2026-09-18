@@ -30,7 +30,10 @@ BasicExample_1nke42v: null
 DynamicExample_1wltsn1: null
 ```
 
-The same keys show up in the source language file too, grouped under that same separator — never as `null` there, but as real text, for as long as they're missing in at least one other language. Copy that block into an LLM to get it translated, then paste the answer over the `null`s:
+The same keys show up in the source language file too, grouped under that same separator — never as `null` there, but as real text, for as long as they're missing in at least one other language.
+
+> [!TIP]
+> `npx vtranslate-cli --translate` does the next step for you — fills the `null`s through an LLM you configure, with a validator that refuses anything that would break at runtime. See [the LLM guide](llm.md). The manual way still works exactly as before, and always will: copy that block into an LLM by hand, then paste the answer over the `null`s:
 
 ```yaml
 #  -------------------------------------------------

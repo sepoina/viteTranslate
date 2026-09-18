@@ -86,6 +86,25 @@ vtranslate-cli --simpleLog
 
 Plain, un-boxed output: no label column, no rules — same colors, just shorter lines. Useful in a CI log or a narrow terminal. Same as the plugin's `simpleLog` option ([plugin options](plugin-options.md)); when both are set, this flag wins.
 
+## LLM auto-translation
+
+Ten flags, kept in a section of their own because mixing them with the sync flags above would make both hard to read. Full reference, including the `llm` plugin option they depend on: **[doc/llm.md](llm.md)**.
+
+| Flag | Does |
+| :- | :- |
+| `--translate [tag...]` | Sync, then fill the `null` keys with an LLM. No tags: every language with missing keys |
+| `--dry-run` | Only with `--translate`/`--context`: print the cost estimate and exit. Sends nothing |
+| `--context` | Regenerate the context abstract now |
+| `--context --show` | Print the abstract and exit |
+| `--llm-status` | Connection, where the key was found, abstract age, today's counters. No network call |
+| `--llm-status --ping` | Same, plus one minimal call to check the model answers |
+| `--force` | Bypass the five numeric budget caps and the failed-keys record. **Not** the CI guard |
+| `--yes` | Non-interactive confirmation |
+| `--key set\|clear\|status` | Manage the API key in the system keyring, if installed. `set` reads from stdin, input hidden |
+| `--retranslate <tag>...` | Redo already-translated keys too. Tags required, backs up first |
+
+Rejected combinations, same style as `--fastverify` + `--add` above: `--fastverify` with any of these; `--translate` with `--status` or `--migrate`; `--retranslate` with no tags; `--dry-run` alone; `--ping` without `--llm-status`. All ten flags are read case-insensitive, like `--simpleLog` and `--fastverify`.
+
 ```bash
 vtranslate-cli --help
 ```

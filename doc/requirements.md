@@ -7,6 +7,7 @@
 | Vite | `^5 \|\| ^6 \|\| ^7 \|\| ^8` | yes |
 | React | `^18 \|\| ^19` *(for the `/react` entry point)* | yes |
 | `@babel/core` | `^7 \|\| ^8` | **no** |
+| `@napi-rs/keyring` | `^1` *(only for `vtranslate-cli --key`, see [LLM guide](llm.md))* | yes |
 
 Install them if your project doesn't already have them. `.js`/`.jsx`/`.ts`/`.tsx` sources are all scanned. TypeScript declarations ship with the package.
 
@@ -31,3 +32,7 @@ Babel runs on your machine during `serve` and `build`, and nothing of it enters 
 One asymmetry worth knowing. With server side rendering the runtime is executed by Node in production, so there the package belongs in `dependencies`, and Babel is classified as a production dependency along with it. The same applies if you republish a library that re-exports these components.
 
 That asymmetry has a price, and it is the price of making the peer required: in those two cases your production install pulls Babel and its tree, for something that never runs there. `npm install --omit=dev` will not drop it, because it is not a dev dependency in that arrangement. If the weight matters more to you than the automatic install, declare `@babel/core` optional in your own `peerDependenciesMeta`: the checks above are about *using* the plugin, not about how it got installed, and they keep working either way.
+
+## `@napi-rs/keyring` is optional, and stays that way
+
+Only `vtranslate-cli --key set|clear|status` — and the API-key resolution chain for `--translate`, as its last resort — ever touch it. Without it installed, or without a Secret Service to talk to (Docker, WSL, a remote SSH session), that step of the chain is skipped in silence and the rest of the plugin works exactly the same: an env var or a `.env.local` entry covers the same need without it. Install it only if you want the key to live in the OS keychain instead.

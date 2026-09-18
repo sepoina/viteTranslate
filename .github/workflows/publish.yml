@@ -7,7 +7,8 @@ name: Build, publish & deploy
 # doppia spesa, per una ragione precisa, non per distrazione.
 #
 # Nessun filtro sui path in ingresso: gira a ogni push su main, e la pubblicazione decide da
-# sola se c'è qualcosa da fare (vedi "Versione già pubblicata?" nel job "publish"). Se non hai
+# sola se c'è qualcosa da fare (vedi "Versione già pubblicata?" nel job "publish", e lo stesso
+# step in "publish-launcher" per il secondo pacchetto, launcher/). Se non hai
 # cambiato la versione, npm non fa niente — è la stessa garanzia di prima, non più legata al
 # fatto che il push tocchi package.json.
 on:
@@ -129,6 +130,70 @@ jobs:
             --target "$GITHUB_SHA" \
             --title "v$VERSION — $DESC" \
             --notes-file release-notes.md
+
+  # Il secondo pacchetto del repo: launcher/, su npm come "vitetranslate", il comando globale
+  # (vedi doc/structure.md § "The global command: launcher/"). Job a sé invece di altri step in
+  # "publish": le due pubblicazioni non dipendono l'una dall'altra, e un guasto nella prima, o
+  # nel suo tag, non deve fermare la seconda. Gli basta il checkout: il launcher è un file solo,
+  # senza dipendenze né build, e i suoi test sono già passati in "build" (npm test gira anche
+  # test/list/launcher.test.mjs).
+  #
+  # Stessa regola della libreria: si pubblica solo se la versione di launcher/package.json non
+  # è ancora su npm, quindi un push che non la cambia qui non fa niente.
+  #
+  # Niente tag né release GitHub: i "vX.Y.Z" sono della libreria (un v2.0.0 c'è già), e una
+  # release del launcher diventerebbe la "Latest" del repo al posto di quella della libreria.
+  #
+  # Il trusted publishing è per pacchetto: va configurato anche per questo su npmjs.com
+  # (vitetranslate → Settings → Trusted publishing: sepoina / viteTranslate / publish.yml),
+  # altrimenti il primo cambio di versione fallisce qui con un errore di autenticazione.
+  publish-launcher:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    concurrency:
+      group: npm-publish-launcher
+      cancel-in-progress: false
+    defaults:
+      run:
+        working-directory: launcher
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+
+      - name: Aggiorna npm (richiesto per trusted publishing OIDC)
+        run: npm install -g npm@latest
+
+      # Nome letto dal file e non scritto qui: launcher/package.json è l'unico posto in cui vive.
+      - name: Nome e versione del launcher
+        id: meta
+        run: |
+          NAME=$(node -p "require('./package.json').name")
+          VERSION=$(node -p "require('./package.json').version")
+          echo "Launcher: $NAME@$VERSION"
+          echo "name=$NAME" >> "$GITHUB_OUTPUT"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Versione già pubblicata?
+        id: check
+        run: |
+          if npm view "${{ steps.meta.outputs.name }}@${{ steps.meta.outputs.version }}" version >/dev/null 2>&1; then
+            echo "published=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "published=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      # --access public non serve a un nome senza scope, ma diventa obbligatorio il giorno in
+      # cui il pacchetto passasse sotto @sepoina: così quel giorno non c'è niente da ricordare.
+      - name: Publish (trusted publishing OIDC, nessun token)
+        if: steps.check.outputs.published == 'false'
+        run: npm publish --access public
 
   deploy-pages:
     needs: build

@@ -476,6 +476,16 @@ export default { plugins: [vitetranslate({ localeDir, sourceLanguage: "it-IT" })
     eq("senza config: elenca i nomi cercati", true, uscita.includes("vite.config.ts") && uscita.includes("no Vite config found"));
   }
 
+  // 4.5.0 — `llm` assente: l'output deve restare esattamente quello di prima. Nessuna delle
+  // righe nuove (il suggerimento di syncReport.js, l'etichetta "llm") deve comparire per chi
+  // aggiorna dalla 4.4 senza toccare vite.config.
+  {
+    const radice = progettoCompleto("vite.config.js", CONFIG_JS);
+    const { status, uscita } = lancia(radice);
+    eq("llm assente: il comando gira comunque", 0, status);
+    eq("llm assente: nessuna menzione di \"llm\" nell'output", false, /\bllm\b/i.test(uscita));
+  }
+
   // Config valida ma senza il plugin: l'errore deve nominare il file che ha effettivamente letto.
   {
     const radice = progettoCompleto("vite.config.mjs", "export default { plugins: [] };\n");

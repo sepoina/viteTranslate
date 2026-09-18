@@ -52,14 +52,11 @@ The key is generated for you, the sync is a single command, and the runtime that
 
 - [Contents](#contents)
 - [⚡ Why viteTranslate](#-why-vitetranslate)
-  - [What that buys you](#what-that-buys-you)
 - [🚀 Quick start](#-quick-start)
   - [Running the sync automatically](#running-the-sync-automatically)
 - [📚 Guides](#-guides)
-- [🎮 Playground](#-playground)
-- [💬 Support](#-support)
-- [🔐 Provenance](#-provenance)
-- [📄 License](#-license)
+- [🤖 LLM auto-translation](#-llm-auto-translation)
+- [📝 Notes](#-notes)
 
 ---
 
@@ -67,52 +64,41 @@ The key is generated for you, the sync is a single command, and the runtime that
 
 Every library in this table solves the same problem. They differ in how much machinery you have to run, and how much of it ships to your users.
 
-| Feature                              | viteTranslate | i18next | Lingui |  FormatJS  |
-| :----------------------------------- | :-----------: | :-----: | :----: | :--------: |
-| **Keyless / Natural text syntax** ¹  |      ✅       |   ❌    |   ✅   |     🟡     |
-| **Auto-synced YAML tables**          |      ✅       |   ❌    |   ❌   |     ❌     |
-| **Integrated extraction workflow** ² |      ✅       |   ❌    |   ❌   |     ❌     |
-| **Zero runtime dependencies**        |      ✅       |   ❌    |   ❌   |     ❌     |
-| **Tiny runtime (≤ 5 kB gzip)** ³     |      ✅       |   ❌    |   🟡   |     ❌     |
-| **Build-time message compilation** ⁴ |      ✅       |   ❌    |   ✅   |     ✅     |
-| **No runtime message parsing** ⁴     |      ✅       |   ❌    |   🟡   |     🟡     |
-| **Lazy-loaded locales**              |      ✅       |   ✅    |   ✅   |     ✅     |
-| **Native Vite integration**          |      ✅       |   ❌    |   🟡   |     ❌     |
-| **License**                          |  Apache-2.0   |   MIT   |  MIT   | Apache-2.0 |
+| Feature | viteTranslate | i18next | Lingui | FormatJS |
+| :- | :-: | :-: | :-: | :-: |
+| **Keyless / Natural text syntax** ¹ | ✅ | ❌ | ✅ | 🟡 |
+| **Auto-synced YAML tables** | ✅ | ❌ | ❌ | ❌ |
+| **Integrated extraction workflow** ² | ✅ | ❌ | ❌ | ❌ |
+| **Zero runtime dependencies** | ✅ | ❌ | ❌ | ❌ |
+| **Tiny runtime (≤ 5 kB gzip)** ³ | ✅ | ❌ | 🟡 | ❌ |
+| **Build-time message compilation** ⁴ | ✅ | ❌ | ✅ | ✅ |
+| **No runtime message parsing** ⁴ | ✅ | ❌ | 🟡 | 🟡 |
+| **Lazy-loaded locales** | ✅ | ✅ | ✅ | ✅ |
+| **Native Vite integration** | ✅ | ❌ | 🟡 | ❌ |
+| **LLM auto-translation** ⁵ | ✅ | ❌ | ❌ | ❌ |
+| **License** | Apache-2.0 | MIT | MIT | Apache-2.0 |
 
-> 🟡 Available with additional tooling or configuration, but not part of the core default workflow.
+ <small> 🟡 - Available with additional tooling or configuration.</small>
 
 <details>
-<summary><b>🔍 Notes on the comparison</b></summary>
+<summary><b>🔍 Notes on the comparison, and what each feature buys you</b></summary>
 
 <br />
 
 - **¹ Keyless syntax:** Lingui and viteTranslate can use source strings directly instead of manually maintained translation keys. FormatJS can also omit manual IDs by generating message identifiers through Babel or SWC tooling.
 - **² Integrated extraction workflow:** viteTranslate performs extraction and table synchronization as part of the Vite development and build lifecycle. Other solutions generally rely on separate extraction and compilation commands or watcher processes.
-- **³ Runtime size:** viteTranslate adds less than 5 kB gzip for its browser runtime. Other solutions vary depending on imported packages, tree-shaking, plugins and optional polyfills, so exact bundle sizes are not directly comparable.
-- **⁴ Compilation & parsing:** Lingui and FormatJS can move message parsing and compilation to build time when their compilation tooling is enabled.
+- **³ Runtime size:** viteTranslate adds less than 5 kB gzip for its browser runtime — `4254 bytes` actually, checked by `npm run estimateSize`, the source of truth for this number. Other solutions vary depending on imported packages, tree-shaking, plugins and optional polyfills, so exact bundle sizes are not directly comparable.
+- **⁴ Compilation & parsing:** Lingui and FormatJS can move message parsing and compilation to build time when their compilation tooling is enabled. viteTranslate's tables are compiled at build time into ready-made values, no HTML parser at runtime, so `<Translate>` renders server-side too.
+- **⁵ LLM auto-translation:** `npx vtranslate-cli --translate` fills the untranslated keys through an LLM you configure, with a validator that refuses anything that would break at runtime (lost `%s`, mangled tags) — see [the LLM guide](doc/llm.md).
+- **Zero runtime dependencies:** none declared. `@babel/core`, Vite and React are _peer_ dependencies — they run the plugin on your machine and never enter the bundle. Not a promise on trust: the test suite asserts that the browser runtime imports nothing beyond React and the virtual module.
+- **Keyless syntax, in practice:** the marker is extracted at build time and resolved against the current table at runtime — no key to invent, nothing to keep in sync by hand.
+- **Lazy-loaded locales:** each language is its own chunk, `import()`-ed only when selected.
+- **Auto-synced tables:** one command syncs every language — missing keys added, stale ones removed, the rest reported. A string that moved keeps the translation it already had.
+- **Dev fallback, always visible:** until a translation exists you get the original text. Never a blank, never a crash.
+- **Small, safe HTML subset:** `<b> <strong> <i> <em> <u> <small> <code> <br> <hr> <wbr>` and nothing else. Everything outside it is unwrapped to plain text, and no attribute is ever forwarded.
+- **Native Vite integration:** one codebase for Vite 5 through 8, no config switch.
 
 </details>
-
-### What that buys you
-
-- ⚖️ **Under 5 kB gzip — <code>4253 bytes actually</code>**. That is the whole browser runtime, minified, React itself excluded. Payloads scale with your content, not with the library. Checked by `npm run estimateSize`, the source of truth for this number.
-
-- 🪶 **Zero dependencies** — None declared. `@babel/core`, Vite and React are _peer_ dependencies: they run the plugin on your machine and never enter the bundle. That last part is not a promise on trust — the test suite asserts that the browser runtime imports nothing beyond React and the virtual module.
-
-- 📍 **Mark text in place** — No keys to invent. The marker is extracted at build time and resolved against the current table at runtime.
-
-- ⚙️ **Tables compiled at build time** — Ready-made values, no HTML parser at runtime, so `<Translate>` renders server-side too.
-
-- 📦 **Lazy-loaded locales** — Each one is its own chunk, `import()`-ed only when selected.
-
-- 🔄 **One command syncs every language** — Missing keys added, stale ones removed, the rest reported. A string that moved keeps the translation it already had.
-
-- 👁️ **Dev fallback, always visible** — Until a translation exists you get the original text. Never a blank, never a crash.
-
-- 🔒 **Small, safe HTML subset** — `<b> <strong> <i> <em> <u> <small> <code> <br> <hr> <wbr>` and nothing else. Everything outside it is unwrapped to plain text, and no attribute is ever forwarded.
-
-- 🔀 **Vite 5 through 8** — One codebase for all of them, no config switch.
 
 ---
 
@@ -192,17 +178,9 @@ npx vtranslate-cli --add fr-FR
 
 The new file arrives (see here for [showcase](https://sepoina.github.io/viteTranslate/#install-nuova-lingua)) with every key listed and `null` where each translation goes. See [the file format](doc/translations.md) for how to fill it in, and [the CLI guide](doc/cli.md) for the other flags.
 
-### Running the sync automatically
+#####  Running the sync automatically
 
-Since 4.2.0, tables sync themselves — no `predev`/`prebuild` script needed: `npm run dev` runs a quick check at startup, `npm run build` runs a full scan first — both silent when nothing changed.
-
-Turn it off with `autoSyncDev`/`autoSyncBuild: false` in the plugin options (see [plugin options](doc/plugin-options.md)), or set `VITETRANSLATE_NO_SYNC` to skip both without touching `vite.config.*`. Run it by hand any time with:
-
-```sh
-npx vtranslate-cli
-```
-
-the same command behind `--add`, `--status`, `--migrate`, and a CI check.
+Tables sync themselves — no `predev`/`prebuild` script needed, silent when nothing changed. Configure or turn it off via `autoSyncDev`/`autoSyncBuild` — see [plugin options](doc/plugin-options.md).
 
 ---
 
@@ -210,44 +188,44 @@ the same command behind `--add`, `--status`, `--migrate`, and a CI check.
 
 Everything past "hello world" lives in `doc/`, one topic per page:
 
-| Guide                                              | Covers                                                                                                     |
-| :------------------------------------------------- | :--------------------------------------------------------------------------------------------------------- |
-| [**CLI**](doc/cli.md)                              | `vtranslate-cli` flags, `--status`, migrating from 3.x                                                     |
-| [**API reference**](doc/api.md)                    | `<Translate>`, `useTranslateToString`, `useTranslateLanguage`, `TranslateContainer`, preloading & Suspense |
-| [**Plugin options**](doc/plugin-options.md)        | Full `vitetranslate(options)` reference                                                                    |
-| [**Translation file format**](doc/translations.md) | The `.yml` layout, adding a new language                                                                   |
-| [**Diagnostics**](doc/diagnostics.md)              | `errorSolve` — what each on-screen mark means and when it fires                                            |
-| [**BCP 47 codes**](doc/bcp47.md)                   | Supported language/region tags                                                                             |
-| [**Architecture**](doc/structure.md)               | How a marked string travels from source to browser, with diagrams                                          |
-| [**Known limitations**](doc/limitations.md)        | Edge cases and constraints to be aware of                                                                  |
-| [**Requirements**](doc/requirements.md)            | Supported peer dependency versions                                                                         |
-
-🧪 **[Edge cases, live](https://sepoina.github.io/viteTranslate/edge/)** — every call form and diagnostic, side by side with what it renders.
-
----
-
-## 🎮 Playground
-
-A runnable example lives in [`playground/`](playground), deployed at **[sepoina.github.io/viteTranslate](https://sepoina.github.io/viteTranslate/)**.
-
-Alongside it, **[/edge/](https://sepoina.github.io/viteTranslate/edge/)** tables the edge cases — malformed markers, `%s` without an argument, mis-nested markup, values that aren't text — from its own app, [`playEdge/`](playEdge), which keeps every diagnostic mark on even in production.
+| Guide | Covers |
+| :- | :- |
+| [**CLI**](doc/cli.md) | `vtranslate-cli` flags, `--status`, migrating from 3.x |
+| [**API reference**](doc/api.md) | `<Translate>`, `useTranslateToString`, `useTranslateLanguage`, `TranslateContainer`, preloading & Suspense |
+| [**Plugin options**](doc/plugin-options.md) | Full `vitetranslate(options)` reference |
+| [**Translation file format**](doc/translations.md) | The `.yml` layout, adding a new language |
+| [**LLM auto-translation**](doc/llm.md) | Filling `null` keys through an LLM, costs, guardrails |
+| [**Diagnostics**](doc/diagnostics.md) | `errorSolve` — what each on-screen mark means and when it fires |
+| [**BCP 47 codes**](doc/bcp47.md) | Supported language/region tags |
+| [**Architecture**](doc/structure.md) | How a marked string travels from source to browser, with diagrams |
+| [**Known limitations**](doc/limitations.md) | Edge cases and constraints to be aware of |
+| [**Requirements**](doc/requirements.md) | Supported peer dependency versions |
 
 ---
 
-## 💬 Support
+## 🤖 LLM auto-translation
 
-Questions, ideas, or feedback? [GitHub Discussions](https://github.com/sepoina/viteTranslate/discussions). An actual bug? Open an [Issue](https://github.com/sepoina/viteTranslate/issues) instead, so it stays tracked on its own.
+Same workflow as above, minus the copy-pasting: point `llm` at a model and `vtranslate-cli` fills the `null` keys for you, printing a cost estimate first and asking before it spends anything.
 
-If viteTranslate saved you some time, you can [buy me a coffee](https://www.paypal.com/paypalme/giancarloghigi). Entirely optional, never expected.
+```sh
+npx vtranslate-cli --translate
+```
+
+```text
+::: llm       ║  fr-FR, de-DE: 128 key(s), 6 request(s)
+:::           ║  ~62.1k in + ~9.3k out tokens  ≈  $0.0191
+:::           ║  Proceed? [y/N]
+```
+
+No dependency added — any OpenAI-compatible API key is enough (Gemini, OpenAI, OpenRouter, Groq, Ollama, …), or bring your own driver. Nothing gets written without passing a validator that refuses a lost `%s` or a mangled tag, and it runs only from the CLI, never from `vite dev`. Costs, budget guards, the context abstract, and the full flag reference: **[doc/llm.md](doc/llm.md)**.
 
 ---
 
-## 🔐 Provenance
+## 📝 Notes
 
-Every release is published from GitHub Actions through [npm trusted publishing](https://docs.npmjs.com/trusted-publishers/) with OIDC. Each version carries a provenance attestation linking the tarball to the exact commit and workflow run that produced it. No long-lived tokens involved.
-
----
-
-## 📄 License
-
-Apache License 2.0 — see [`LICENSE`](LICENSE).
+- 🎮 **[Playground](https://sepoina.github.io/viteTranslate/)** — a runnable example, deployed live; source in [`playground/`](playground).
+- 🧪 **[Edge cases, live](https://sepoina.github.io/viteTranslate/edge/)** — every call form and diagnostic; source in [`playEdge/`](playEdge).
+- 💬 **[Discussions](https://github.com/sepoina/viteTranslate/discussions)** — questions, ideas, feedback. An actual bug goes to [Issues](https://github.com/sepoina/viteTranslate/issues) instead.
+- ☕ **[Buy me a coffee](https://www.paypal.com/paypalme/giancarloghigi)** — if viteTranslate saved you some time. Optional, never expected.
+- 🔐 **[Provenance](https://docs.npmjs.com/trusted-publishers/)** — every release ships via npm trusted publishing (OIDC).
+- 📄 **[License](LICENSE)** — Apache License 2.0.

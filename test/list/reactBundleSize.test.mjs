@@ -7,7 +7,12 @@
 // solo (vedi test/run.mjs, tabella OPZIONALI) invece di far fallire l'intera suite.
 //
 //   node test/list/reactBundleSize.test.mjs
+import { readFileSync, existsSync } from "node:fs";
+import { dirname, resolve, join } from "node:path";
+import { fileURLToPath } from "node:url";
 import measureReactBundle, { EXTERNAL } from "../measureReactBundle.mjs";
+
+const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 
 let fail = 0;
 const eq = (nome, atteso, ottenuto) => {
@@ -63,6 +68,52 @@ eq("il bundle runtime importa solo gli external dichiarati", "", estranei.join("
 for (const proibito of ["@babel", "createRequire", "node:module"]) {
   eq(`nessuna traccia di "${proibito}" nel bundle runtime`, true, !code.includes(proibito));
 }
+
+// --- 4.5.0: lib/dev/llm/ non deve essere raggiungibile da lib/react/index.js ---
+//
+// Verificato sul grafo degli import del SORGENTE, come già si fa per Babel, invece che sul
+// testo del bundle: i file di lib/dev/llm/ non hanno una stringa distintiva grep-abile come
+// "@babel", quindi il controllo che conta è "nessun import relativo, seguito ricorsivamente da
+// lib/react/index.js, risolve dentro lib/dev/llm/" — non "il bundle non contiene una parola".
+function resolveImport(fromFile, spec) {
+  let resolved = resolve(dirname(fromFile), spec);
+  if (existsSync(resolved) && !resolved.match(/\.[jt]sx?$/)) {
+    if (existsSync(join(resolved, "index.js"))) return join(resolved, "index.js");
+  }
+  if (existsSync(resolved)) return resolved;
+  for (const ext of [".js", ".jsx"]) {
+    if (existsSync(resolved + ext)) return resolved + ext;
+  }
+  return resolved; // non trovato: resta com'è, il chiamante lo salterà silenziosamente
+}
+
+function collectSourceImports(entryFile) {
+  const visited = new Set();
+  const stack = [resolve(entryFile)];
+  const IMPORT_RE = /(?:import|export)(?:[^'"();]*?from)?\s*["']([^"']+)["']|import\s*\(\s*["']([^"']+)["']\s*\)/g;
+
+  while (stack.length > 0) {
+    const file = stack.pop();
+    if (visited.has(file)) continue;
+    visited.add(file);
+
+    let text;
+    try { text = readFileSync(file, "utf8"); } catch { continue; }
+
+    for (const m of text.matchAll(IMPORT_RE)) {
+      const spec = m[1] ?? m[2];
+      if (!spec.startsWith(".")) continue; // bare specifier: pacchetto esterno, non sorgente nostro
+      stack.push(resolveImport(file, spec));
+    }
+  }
+  return visited;
+}
+
+console.log(`\n== lib/dev/llm/ irraggiungibile da lib/react/index.js (grafo import sorgente) ==`);
+const reactGraph = collectSourceImports(join(ROOT, "lib/react/index.js"));
+const llmFilesReached = [...reactGraph].filter((f) => f.includes(`${join("lib", "dev", "llm")}${"/"}`) || f.includes(`${join("lib", "dev", "llm")}\\`));
+eq("nessun file di lib/dev/llm/ raggiunto", "", llmFilesReached.join(", "));
+eq(`grafo esplorato per intero (${reactGraph.size} file)`, true, reactGraph.size > 1);
 
 console.log(fail === 0 ? "\nTUTTI OK" : `\n${fail} FALLITI`);
 process.exit(fail === 0 ? 0 : 1);

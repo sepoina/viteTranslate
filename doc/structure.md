@@ -30,6 +30,7 @@ To find all pointers in the codebase: `grep -rn "doc/structure.md" lib/`.
 - [Phase 2 — Compilation: the two Vite transforms](#phase-2--compilation-the-two-vite-transforms)
 - [Phase 3 — The virtual module and code splitting](#phase-3--the-virtual-module-and-code-splitting)
 - [Phase 4 — Runtime: the resolution chain](#phase-4--runtime-the-resolution-chain)
+- [Phase 5 — LLM auto-translation](#phase-5--llm-auto-translation)
 - [Intermediate files, in order](#intermediate-files-in-order)
 - [Package distribution](#package-distribution)
 - [Testing](#testing)
@@ -108,6 +109,9 @@ mindmap
         syncCore.js
         autoSync.js
         uty
+      llm
+        llmOptions.js
+        translatePass.js
     shared
       htmlDialect.js
       errorSolve.js
@@ -137,18 +141,25 @@ lib/
 │   │   ├── compileTable.js ..... string table -> JS module of pre-built values
 │   │   ├── parseMarkup.js ...... HTML dialect parser without DOM (build time)
 │   │   └── decodeEntities.js ... HTML entities -> characters
-│   └── vite/
-│       ├── vitetranslate.js .... the "vitetranslate" plugin: options, transform, virtual module hooks
-│       ├── buildManifest.js .... the virtual module content (languages, preloads, fallback table)
-│       ├── compileLocale.js .... the "vitetranslate:compile-locale" transform
-│       ├── cli.js .............. "vtranslate-cli" CLI entry: argument parsing, calls syncCore.js
-│       ├── syncCore.js ......... the sync itself, extracted from cli.js — two callers: cli.js and autoSync.js
-│       ├── autoSync.js ......... the fourteen guards deciding WHETHER to sync from the plugin's `config` hook
-│       ├── updateLanguage.js ... source language synchronization
-│       ├── updateAllSubLanguages.js  sync for all target languages
-│       └── uty/ ................ sync utilities (listing, reading, writing, backup, sorting) —
-│           incl. cliName.js, loadConfig.js, posix.js, readLanguageForSync.js, scanSource.js,
-│           setupFailure.js, syncReport.js, writeLanguageFile.js
+│   ├── vite/
+│   │   ├── vitetranslate.js .... the "vitetranslate" plugin: options, transform, virtual module hooks
+│   │   ├── buildManifest.js .... the virtual module content (languages, preloads, fallback table)
+│   │   ├── compileLocale.js .... the "vitetranslate:compile-locale" transform
+│   │   ├── cli.js .............. "vtranslate-cli" CLI entry: argument parsing, calls syncCore.js / llmCommands.js
+│   │   ├── syncCore.js ......... the sync itself, extracted from cli.js — two callers: cli.js and autoSync.js
+│   │   ├── autoSync.js ......... the fourteen guards deciding WHETHER to sync from the plugin's `config` hook
+│   │   ├── updateLanguage.js ... source language synchronization
+│   │   ├── updateAllSubLanguages.js  sync for all target languages
+│   │   └── uty/ ................ sync utilities (listing, reading, writing, backup, sorting) —
+│   │       incl. cliName.js, loadConfig.js, posix.js, readLanguageForSync.js, scanSource.js,
+│   │       setupFailure.js, syncReport.js, writeLanguageFile.js
+│   └── llm/ ..................... LLM auto-translation — CLI-only, see § Phase 5 below.
+│       Never imported from lib/react/ or lib/index.js, except llmOptions.js (validated by
+│       the plugin, byte-cheap — see the invariant on this below).
+│       llmOptions.js, validateTranslation.js, costModel.js, buildBatches.js, prompts.js,
+│       llmLedger.js, budgetGuard.js, contextFile.js, contextSample.js, apiKey.js,
+│       keyringPeer.js, fetchDriver.js, callModel.js, translatePass.js, llmReport.js,
+│       runsLog.js, llmCommands.js
 │
 ├── react/ ...................... runtime included in user's bundle
 │   ├── index.js ................ public surface of "@sepoina/vitetranslate/react"
@@ -791,6 +802,43 @@ Object freezing remains active in production builds. The performance cost is lim
 
 ---
 
+## Phase 5 — LLM auto-translation
+
+`npx vtranslate-cli --translate` fills the `null` keys a sync leaves behind, through an LLM, without turning the manual "copy the block into a chatbot" workflow into a requirement. Thirteen layers, all under [`lib/dev/llm/`](../lib/dev/llm/), each buildable and testable before the next depends on it — the first eight never open a socket, and stay verifiable with a fake driver alone.
+
+```mermaid
+flowchart LR
+    A[llmOptions.js\nnormalize + validate] --> B[translatePass.js\norchestrator]
+    B --> C[syncCore.js\nfresh sync]
+    B --> D[buildBatches.js\nprompts.js]
+    D --> E[costModel.js\nestimate]
+    E --> F[budgetGuard.js\nguards + confirm]
+    F --> G[callModel.js\nfetchDriver.js / llm.driver]
+    G --> H[validateTranslation.js]
+    H --> I[writeLanguageFileIfChanged]
+    B --> J[llmLedger.js]
+    B --> K[contextFile.js\ncontextSample.js]
+    B --> L[llmReport.js\nrunsLog.js]
+```
+
+**The LLM never runs inside the plugin.** Configuration lives in `vite.config` because `loadConfig()`/`vitetranslateConfig` is already the one place the CLI reads its config from (see "No separate config file" above), but the only thing that opens a socket is `vtranslate-cli`. `vitetranslate.js` calls [`normalizeLlmOptions`](../lib/dev/llm/llmOptions.js) at plugin construction — same moment as the `localeDir`/`sourceLanguage` checks — and lets it throw, so a malformed `llm` block shows up when the dev server starts, not on the first paid call. That is the whole of the plugin's involvement: it validates, and it stores the normalized result on `vitetranslateConfig.llm` for the CLI to read back.
+
+**`llmOptions.js` imports nothing else from its own tree.** It is pulled into the plugin's bundle (`lib/dist/vitetranslate.es.js`) for that validation step, so importing `fetchDriver.js` or `keyringPeer.js` from it would drag the network driver and the keyring peer text into every consumer's `vite.config` resolution — paid in bytes for a check that never calls either. Guarded by [`reactBundleSize.test.mjs`](../test/list/reactBundleSize.test.mjs), which also asserts that no file under `lib/dev/llm/` is reachable from `lib/react/index.js` at all: this feature has zero presence in the browser runtime.
+
+**`validateTranslation.js` is the piece that matters most.** Every candidate translation — first pass or repair round — passes through it before it can reach `writeLanguageFileIfChanged`; what fails stays `null`, exactly the state every other reader in the codebase already expects. It checks, in order: is-a-string, not-an-echo-of-the-key, the `%s` count (imported from [`markerSyntax.js`](../lib/markerSyntax.js), never re-implemented), the tag multiset (via `TAG_RE`, exported from [`parseMarkup.js`](../lib/dev/compile/parseMarkup.js) for this purpose), crossed tags, and a length cap. It has no imports beyond those two files and does no I/O — a candidate and a source string are all it ever needs.
+
+**The cost estimate self-tunes.** `costModel.js` starts from a fixed chars-per-token constant, then from the second run on reads the real ratio measured from the provider's own `usage` field, stored per model in [`llmLedger.js`](../lib/dev/llm/llmLedger.js) (`node_modules/.viteTranslate/llm.json`, next to `session.json` and `scan.json`, sharing `leggiJson`/`scriviJson` from [`sessionStore.js`](../lib/dev/vite/uty/sessionStore.js) — never rewritten, only built on top of).
+
+**`budgetGuard.js` separates a refusal from a stop.** Before sending, five numeric caps and the CI/TTY guards can refuse the whole run; `--force` bypasses the five numeric ones, never the CI guard, which does not even accept `force` as a parameter — that is deliberate, not an `if` someone could later add by mistake. During the run, if `maxCostPerRun` is crossed mid-flight, the run stops sending new batches but keeps everything already validated: discarding it would mean paying for nothing.
+
+**The context abstract lives inside `localeDir`, in a subfolder that stays invisible to everything else.** [`contextFile.js`](../lib/dev/llm/contextFile.js) writes `<localeDir>/.llm/context.md` — `.llm/` is a subfolder specifically because [`listLanguageFiles.js`](../lib/dev/vite/uty/listLanguageFiles.js) filters on `.yml`, `localeSignature()` in [`fastVerify.js`](../lib/dev/vite/uty/fastVerify.js) filters on `isFile()` on `localeDir` itself (so writing here never invalidates the fast path), and the dev server's watcher filters on `.yml` too (so writing here never triggers a reload). Two regions in the file: the generated block between `<!-- vitetranslate:generated -->` markers, replaced wholesale on refresh, and everything else, read back into every future prompt and never overwritten — a hand-written correction sticks.
+
+**One repair round, never two.** A rejected translation gets exactly one second attempt, with the validator's rejection reason fed back inside the same JSON payload shape `prompts.js` always sends (never as trailing prose after the JSON — a driver that does a strict `JSON.parse` on the user message would throw on anything else, and `callModel.js`'s own retry logic would then multiply that failure across `maxRetries` attempts for no reason). A model that is wrong twice about the same key is not converging; `translatePass.js` moves on and lets the ledger's per-language failure count skip it on future runs, `--force` aside.
+
+**Nothing here writes the source language file.** `translatePass.js` reads it once, after a fresh `runSync`, to get real text for every key; `sourceLanguage` only ever appears there to _exclude_ it from the set of languages to translate, never as a write target.
+
+---
+
 ## Intermediate files, in order
 
 Understanding **which artifacts exist physically on disk versus those residing purely in memory**:
@@ -868,6 +916,23 @@ The `files: ["lib"]` manifest rule includes `lib/` in published npm packages, co
 
 Releases publish via GitHub Actions using npm OIDC trusted publishing, linking published package tarballs directly to source commit SHAs.
 
+### The global command: `launcher/`
+
+`launcher/` is a second package, published on its own as `vitetranslate` (unscoped): the command you install once with `npm i -g vitetranslate` and then type in any project. One file, [`launcher/vitetranslate.js`](../launcher/vitetranslate.js), no dependencies, no library code.
+
+It never runs anything of its own. It looks for `node_modules/@sepoina/vitetranslate` starting from the current directory and climbing, the way Node does, runs **that copy's** `bin` in a child process with the same arguments, and ends the way the child ended (same exit code, same signal). Climbing like Node is the whole point: it lands on the copy the `import` inside `vite.config.*` will load, so the command and the plugin are always one version, the project's, newer or older than the launcher. They write the same files, and a global CLI running its own version would be a second writer with different rules.
+
+Decisions that are not accidents:
+
+- **A separate package.** A global install of the library works, but drags in `@babel/core`, a required peer that npm installs even globally (measured: 39 packages, 19 MB), for a command that never uses it, and puts all three `bin` aliases on `PATH`. The launcher is 4 files, 36 kB.
+- **Which command.** The copy's `package.json` is read directly, not through `require.resolve("…/package.json")`, which fails on the early 2.x releases that do not export it. The first of `vitetranslate`, `vtranslate-cli`, `vitetranslate-prepare-translation-table` it declares is launched: every release from 2.0 up has one. A folder holding a package with another `name` (a relative symlink written at the wrong depth) is reported as broken instead.
+- **A child process, not an `import()`.** That is how `npx` runs a bin, so every past release behaves as it always did. Signals sent to the launcher alone are forwarded; a Ctrl+C from the terminal may reach the child twice, harmless while the CLI keeps Node's default `SIGINT` handler.
+- **Only `--version` is its own**, plus `--help` when there is no copy to ask. The library CLI takes an unknown flag for a plain sync, so without the interception `vitetranslate --version` would run one. `--version` also prints the copy's path: a copy left in some `node_modules` higher up is exactly the surprise it is there to show.
+- **The library's `bin` entries must point at `cli.js`, never at a launcher**, or the launcher would launch itself forever. The `VITETRANSLATE_LAUNCHER` environment variable, set on the child, turns that loop into an error.
+- **Nothing to launch is answered with the command to type.** The lockfile picks the package manager (`pnpm-lock.yaml`, `yarn.lock`, `bun.lock[b]`, otherwise npm), looked up to the monorepo root; a dependency declared but not installed gets `install`, a missing one gets `add -D`; Yarn Plug'n'Play gets `yarn vtranslate-cli`, since there is no `node_modules` to look into.
+
+Its version follows its own changes, not the library's: a new library release never needs a new launcher. The first release went out by hand; since then the `publish-launcher` job in [`publish.yml`](../.github/workflows/publish.yml) publishes it, with the same rule as the library (only when the version in `launcher/package.json` is not on npm yet), through the same trusted publishing, which npm configures per package. No git tag or GitHub release: `vX.Y.Z` belongs to the library. Guarded by [`launcher.test.mjs`](../test/list/launcher.test.mjs).
+
 ---
 
 ## Testing
@@ -927,6 +992,8 @@ Architectural constraints that must be preserved to prevent subtle or silent fai
 15. **With `autoWrap` off, `extractMarkers`'s output is byte-identical to 4.2.4's for any input, except the id — and the table value — of a `JSXText` or quoted-attribute marker that contains an HTML entity, a CRLF, or a tab.** Those come from the text normalization in [point 2 above](#autowrap-rewriting-a-marked-jsx-text-or-attribute-430-extended-440), which runs regardless of `autoWrap`; every other divergence, with or without the option, is a regression.
 16. **`autoWrap` never wraps a `JSXText`, nor rewrites an attribute, whose element is classified `"none"` or `"opaque"`** by `tagClassOf()` — see [`autoWrap`: rewriting a marked JSX text or attribute](#autowrap-rewriting-a-marked-jsx-text-or-attribute-430-extended-440) above. Loosening the host check changes the type of `props.children` a third-party component receives; tightening it is always the safe direction to err in. The component classifier carries the same asymmetry one level further: a red verdict never breaks working code (it degrades to the 4.3.0 wrap, or to the untouched attribute), but a false green would inject a hook where one doesn't belong — every signal `componentScan.js` checks exists to narrow that one failure mode, never to widen what counts as green.
 17. **No pre-existing line of a transformed file ever moves.** The output has at most one line more than the input, always the appended `import`. This is why the import goes at the end and never at the top.
+18. **The LLM never runs inside the plugin.** Not in `config`, not anywhere else. Configuration lives in `vite.config` because `loadConfig()` reads it back from there, but the only thing that opens a socket is `vtranslate-cli`. A network call inside `config` would block the dev server, make a build non-reproducible, and bill every CI run — this is point 4 seen from another angle, and carries the same weight.
+19. **No translated value is ever written without passing through `validateTranslation`.** A lost `%s` is a `⁇` on screen, an invented tag is markup the runtime dissolves, a chatty reply is a paragraph inside a button. What fails stays `null` — a state every reader in the codebase already handles. This is invariant 10 ("never write over what could not be read") applied to what a machine writes.
 
 ---
 
@@ -941,6 +1008,7 @@ Architectural constraints that must be preserved to prevent subtle or silent fai
 | The allowed HTML dialect | [`htmlDialect.js`](../lib/htmlDialect.js) · [`parseMarkup.js`](../lib/dev/compile/parseMarkup.js) |
 | The two plugins and the virtual module | [`vitetranslate.js`](../lib/dev/vite/vitetranslate.js) |
 | The sync command | [`cli.js`](../lib/dev/vite/cli.js) · [`syncCore.js`](../lib/dev/vite/syncCore.js) · [`updateLanguage.js`](../lib/dev/vite/updateLanguage.js) |
+| LLM auto-translation: options, validator, orchestrator | [`llmOptions.js`](../lib/dev/llm/llmOptions.js) · [`validateTranslation.js`](../lib/dev/llm/validateTranslation.js) · [`translatePass.js`](../lib/dev/llm/translatePass.js) |
 | Auto-sync from the plugin's `config` hook, and its guards | [`autoSync.js`](../lib/dev/vite/autoSync.js) |
 | The safety nets on data | [`guardMassErase.js`](../lib/dev/vite/uty/guardMassErase.js) · [`backupLanguageFile.js`](../lib/dev/vite/uty/backupLanguageFile.js) · [`listLanguageFiles.js`](../lib/dev/vite/uty/listLanguageFiles.js) |
 | The dev server startup check, the cross-session cache, deduped console warnings | [`checkSetup.js`](../lib/dev/vite/uty/checkSetup.js) · [`sessionStore.js`](../lib/dev/vite/uty/sessionStore.js) · [`devReporter.js`](../lib/dev/vite/uty/devReporter.js) |
