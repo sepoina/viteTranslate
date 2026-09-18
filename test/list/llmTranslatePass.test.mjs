@@ -319,19 +319,27 @@ console.log("\n== P2 costGuard: senza TTY, soddisfa la conferma da solo ==");
 
   // Nessun --llm-noask: il test runner lancia i figli con stdin "ignore", isTTY è falso —
   // senza costGuard sarebbe "refused", con costGuard abbastanza alto dev'essere "done".
-  const baseDir1 = progetto(`export default function App() {
+  // Qui si prova confirmProceed, non la guardia CI: su GitHub Actions CI=true e checkCI
+  // rifiuterebbe prima (costGuard non la scavalca, apposta — vedi llmBudget). Quindi si toglie.
+  const ciPrima = process.env.CI;
+  delete process.env.CI;
+  try {
+    const baseDir1 = progetto(`export default function App() {
   return <div>{"_%_Cheap one_%_"}</div>;
 }
 `);
-  const result1 = await translatePass({ config: configWithGuard(baseDir1, 100) });
-  eq("costGuard alto -> done anche senza noAsk", "done", result1.mode);
+    const result1 = await translatePass({ config: configWithGuard(baseDir1, 100) });
+    eq("costGuard alto -> done anche senza noAsk", "done", result1.mode);
 
-  const baseDir2 = progetto(`export default function App() {
+    const baseDir2 = progetto(`export default function App() {
   return <div>{"_%_Cheap two_%_"}</div>;
 }
 `);
-  const result2 = await translatePass({ config: configWithGuard(baseDir2, 0) });
-  eq("costGuard 0 -> refused", "refused", result2.mode);
+    const result2 = await translatePass({ config: configWithGuard(baseDir2, 0) });
+    eq("costGuard 0 -> refused", "refused", result2.mode);
+  } finally {
+    if (ciPrima !== undefined) process.env.CI = ciPrima;
+  }
 }
 
 // --------------------------------------------------------------- P3–P6: il pannello delle richieste
