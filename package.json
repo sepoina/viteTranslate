@@ -43,8 +43,8 @@
   "module": "./lib/dist/vitetranslate.es.js",
   "types": "./lib/index.d.ts",
   "bin": {
-    "vtranslate-cli": "./lib/dev/vite/cli.js",
-    "vitetranslate-prepare-translation-table": "./lib/dev/vite/cli.js"
+    "vtranslate-cli": "lib/dev/vite/cli.js",
+    "vitetranslate-prepare-translation-table": "lib/dev/vite/cli.js"
   },
   "exports": {
     ".": {
