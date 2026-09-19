@@ -1,13 +1,20 @@
 // Strato 1: llmOptions.js normalizza `defs.llm`, o restituisce `null` se il blocco non c'è.
 //
 //   node test/list/llmOptions.test.mjs
-import normalizeLlmOptions, { BUDGET_PRESETS } from "../../lib/dev/llm/llmOptions.js";
+import normalizeLlmOptions, { BUDGET_PRESETS, MODEL_CLASSES } from "../../lib/dev/llm/llmOptions.js";
 
 let fail = 0;
 const eq = (nome, atteso, ottenuto) => {
   const ok = JSON.stringify(atteso) === JSON.stringify(ottenuto);
   if (!ok) fail++;
   console.log(ok ? "  ok  " : "  KO  ", nome.padEnd(52), "->", JSON.stringify(ottenuto), ok ? "" : `(atteso ${JSON.stringify(atteso)})`);
+};
+
+// Uguaglianza profonda che distingue Infinity e undefined (JSON.stringify li appiattisce); le funzioni per riferimento.
+const deepEqual = (a, b) => {
+  if (typeof a !== "object" || a === null || typeof b !== "object" || b === null) return Object.is(a, b);
+  const keys = new Set([...Object.keys(a), ...Object.keys(b)]);
+  return [...keys].every((key) => deepEqual(a[key], b[key]));
 };
 
 const throws = (nome, fn, contains) => {
@@ -23,6 +30,9 @@ const throws = (nome, fn, contains) => {
 };
 
 const baseConn = { baseURL: "http://x", model: "m" };
+const priced = { ...baseConn, costMillionInput: 1, costMillionOutput: 2 };
+// Le chiavi non attive valgono `undefined`: JSON.stringify le salta, così il confronto è fra i soli tetti attivi.
+const defined = (budget) => Object.fromEntries(Object.entries(budget).filter(([, v]) => v !== undefined));
 
 // T1
 console.log("\n== llm assente ==");
@@ -47,7 +57,9 @@ console.log("\n== T3 tutti i default ==");
   eq("costUnity", "$", llm.connection.costUnity);
   eq("providerOptions", {}, llm.connection.providerOptions);
   eq("driver undefined", undefined, llm.driver);
-  eq("budget safe", BUDGET_PRESETS.safe, { ...llm.budget, maxCostPerRun: undefined });
+  eq("budget safe (senza prezzi: token)", { ...BUDGET_PRESETS.safe.tokens, preset: "safe" }, defined(llm.budget));
+  eq("modelClass standard", { name: "standard", ...MODEL_CLASSES.standard }, llm.connection.modelClass);
+  eq("maxTokensField", "max_tokens", llm.connection.maxTokensField);
   eq("context.mode", "auto", llm.context.mode);
   eq("context.refreshEvery", 40, llm.context.refreshEvery);
   eq("context.sample", 300, llm.context.sample);
@@ -57,22 +69,27 @@ console.log("\n== T3 tutti i default ==");
 
 // T4 preset budgets
 console.log("\n== T4 preset di budget ==");
-eq("safe", BUDGET_PRESETS.safe, (() => { const b = normalizeLlmOptions({ llm: { connection: baseConn, budget: "safe" } }).budget; delete b.maxCostPerRun; return b; })());
-eq("normal", BUDGET_PRESETS.normal, (() => { const b = normalizeLlmOptions({ llm: { connection: baseConn, budget: "normal" } }).budget; delete b.maxCostPerRun; return b; })());
-{
-  const unlimited = normalizeLlmOptions({ llm: { connection: baseConn, budget: "unlimited" } }).budget;
-  eq("unlimited maxKeysPerRun", Infinity, unlimited.maxKeysPerRun);
+const budgetOf = (budget, connection = baseConn) => normalizeLlmOptions({ llm: { connection, budget } }).budget;
+for (const name of ["safe", "normal"]) {
+  eq(`${name} con prezzi: solo costo`, { ...BUDGET_PRESETS[name].cost, preset: name }, defined(budgetOf(name, priced)));
+  eq(`${name} senza prezzi: solo token`, { ...BUDGET_PRESETS[name].tokens, preset: name }, defined(budgetOf(name)));
 }
-eq(
-  "oggetto si fonde sopra safe",
-  50 + 0,
-  (() => 50)()
-);
+eq("unlimited con prezzi", Infinity, budgetOf("unlimited", priced).maxCostPerRun);
+eq("unlimited senza prezzi", Infinity, budgetOf("unlimited").maxTokensPerDay);
+eq("preset dichiarato", "unlimited", budgetOf("unlimited").preset);
+eq("undefined vale safe", "safe", budgetOf(undefined).preset);
 {
-  const merged = normalizeLlmOptions({ llm: { connection: baseConn, budget: { maxKeysPerRun: 5 } } }).budget;
-  eq("merge: campo cambiato", 5, merged.maxKeysPerRun);
-  eq("merge: resto di safe", 20, merged.maxRequestsPerRun);
+  const merged = budgetOf({ maxCostPerRun: 5 }, priced);
+  eq("merge: campo cambiato", 5, merged.maxCostPerRun);
+  eq("merge: resto di safe", BUDGET_PRESETS.safe.cost.maxCostPerDay, merged.maxCostPerDay);
+  eq("merge: preset custom", "custom", merged.preset);
+  eq("merge: token non attivi", undefined, merged.maxTokensPerRun);
 }
+eq("un campo esplicito vale anche nell'altra unità", 1000, budgetOf({ maxTokensPerRun: 1000 }, priced).maxTokensPerRun);
+throws("campo della 4.6.1 -> errore col rimando", () => budgetOf({ maxKeysPerRun: 5 }), "doc/llm.md");
+throws("campo della 4.6.1 -> nomina il campo", () => budgetOf({ maxKeysPerRun: 5 }), "llm.budget.maxKeysPerRun is not a recognised option");
+throws("valore negativo", () => budgetOf({ maxTokensPerRun: -1 }), "must be a number >= 0");
+throws("preset sconosciuto", () => budgetOf("huge"), '"huge"');
 
 // T5/T6/T7
 console.log("\n== T5/T6/T7 chiavi sconosciute ==");
@@ -114,8 +131,9 @@ throws("T10 solo output", () => normalizeLlmOptions({ llm: { connection: { ...ba
 }
 
 // T11
-console.log("\n== T11 maxCostPerRun senza prezzi ==");
-throws("T11", () => normalizeLlmOptions({ llm: { connection: baseConn, budget: { maxCostPerRun: 5 } } }), "maxCostPerRun");
+console.log("\n== T11 maxCost* senza prezzi ==");
+throws("T11 maxCostPerRun", () => normalizeLlmOptions({ llm: { connection: baseConn, budget: { maxCostPerRun: 5 } } }), "maxCostPerRun");
+throws("T11 maxCostPerDay", () => normalizeLlmOptions({ llm: { connection: baseConn, budget: { maxCostPerDay: 5 } } }), "maxCostPerDay");
 
 // T12
 console.log("\n== T12 costUnity ==");
@@ -166,6 +184,60 @@ throws(
   () => normalizeLlmOptions({ llm: { connection: { ...baseConn, costMillionInput: 1, costMillionOutput: 2 }, costGuard: Infinity } }),
   "finite number"
 );
+
+// T16 classi di modello e maxTokensField
+console.log("\n== T16 modelClass e maxTokensField ==");
+const classOf = (modelClass) => normalizeLlmOptions({ llm: { connection: { ...baseConn, modelClass } } }).connection.modelClass;
+eq("frontier per nome", { name: "frontier", ...MODEL_CLASSES.frontier }, classOf("frontier"));
+throws("nome sconosciuto", () => classOf("huge"), 'modelClass "huge" is not one of "basic", "standard", "advanced", "expert", "frontier"');
+eq("oggetto: si fonde sopra standard, name custom", { name: "custom", ...MODEL_CLASSES.standard, k: 2 }, classOf({ k: 2 }));
+throws("oggetto: chiave sconosciuta", () => classOf({ foo: 1 }), "modelClass.foo");
+throws("maxTokens < maxOutputTokens", () => classOf({ maxOutputTokens: 5000, maxTokens: 4096 }), "truncated by construction");
+throws("k fuori range", () => classOf({ k: 0 }), "modelClass.k");
+throws("k fuori range (alto)", () => classOf({ k: 21 }), "modelClass.k");
+throws("maxOutputTokens < 200", () => classOf({ maxOutputTokens: 100, maxTokens: 4096 }), "maxOutputTokens");
+throws("maxKeys fuori range", () => classOf({ maxKeys: 0 }), "maxKeys");
+throws("modelClass non oggetto né stringa", () => classOf(3), "modelClass must be");
+const fieldOf = (maxTokensField) => normalizeLlmOptions({ llm: { connection: { ...baseConn, maxTokensField } } }).connection.maxTokensField;
+eq("max_completion_tokens", "max_completion_tokens", fieldOf("max_completion_tokens"));
+eq("false", false, fieldOf(false));
+throws("maxTokensField non valido", () => fieldOf("max_new_tokens"), "maxTokensField");
+
+// T17 idempotenza: il plugin normalizza il blocco e lo passa alla CLI, che lo normalizza di nuovo
+// (translatePass.js). Il risultato del primo giro deve essere un input valido, e lo stesso, del secondo.
+console.log("\n== T17 normalizzare due volte dà lo stesso risultato ==");
+{
+  const variants = {
+    "default, senza prezzi": { connection: baseConn },
+    "preset con prezzi": { connection: priced, budget: "normal" },
+    "preset senza prezzi": { connection: baseConn, budget: "normal" },
+    "unlimited": { connection: priced, budget: "unlimited" },
+    "budget a oggetto": { connection: priced, budget: { maxCostPerRun: 2, maxTokensPerDay: 1000 } },
+    "budget a oggetto, solo token": { connection: baseConn, budget: { maxTokensPerRun: 1000 } },
+    "classe per nome": { connection: { ...baseConn, modelClass: "frontier" } },
+    "classe a oggetto": { connection: { ...baseConn, modelClass: { k: 2, maxKeys: 10 } } },
+    "maxTokensField false": { connection: { ...baseConn, maxTokensField: false } },
+    "tutto insieme": {
+      connection: { ...priced, modelClass: "basic", maxTokensField: "max_completion_tokens" },
+      budget: "safe", context: { mode: "off" }, languages: ["fr-FR"], tone: "informal", costGuard: 0.1,
+    },
+  };
+  for (const [nome, llm] of Object.entries(variants)) {
+    const once = normalizeLlmOptions({ llm });
+    let twice;
+    try { twice = normalizeLlmOptions({ llm: once }); } catch (e) { twice = e.message; }
+    // Infinity e undefined non passano da JSON: si confronta il risultato con l'oggetto stesso.
+    eq(nome, true, typeof twice === "object" && deepEqual(once, twice));
+  }
+  const once = normalizeLlmOptions({ llm: { connection: priced, budget: "normal" } });
+  eq("l'etichetta del preset sopravvive", "normal", normalizeLlmOptions({ llm: once }).budget.preset);
+  eq("l'etichetta della classe sopravvive", "standard", normalizeLlmOptions({ llm: once }).connection.modelClass.name);
+  eq("una classe con valori ritoccati non tiene il nome", "custom",
+    normalizeLlmOptions({ llm: { connection: { ...baseConn, modelClass: { name: "expert", k: 2 } } } }).connection.modelClass.name);
+  throws("name della classe sconosciuto", () => normalizeLlmOptions({ llm: { connection: { ...baseConn, modelClass: { name: "huge" } } } }), "modelClass.name");
+  eq("un preset ritoccato non tiene il nome", "custom", budgetOf({ preset: "normal", maxCostPerRun: 9 }, priced).preset);
+  throws("preset del budget sconosciuto", () => budgetOf({ preset: "huge" }), "llm.budget.preset");
+}
 
 console.log(fail ? `\n${fail} asserzioni fallite` : "\ntutto ok");
 process.exit(fail ? 1 : 0);

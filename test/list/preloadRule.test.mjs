@@ -26,7 +26,7 @@ const VIRTUAL = "\0virtual:vitetranslate/languages";
 /** Genera il modulo virtuale come lo vedrebbe il bundler nell'ambiente richiesto. */
 async function generate({ preloadedLanguages, isProduction }) {
   const [, plugin] = vitetranslate({
-    baseDir: join(ROOT, "playground"),
+    baseDir: join(ROOT, "site/pages/playground"),
     localeDir: "locale",
     sourceLanguage: "it-IT",
     ...(preloadedLanguages ? { preloadedLanguages } : {}),

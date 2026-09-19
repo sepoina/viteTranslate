@@ -2,7 +2,7 @@
 // Puro: nessun I/O, si prova con una risposta e le chiavi del lotto.
 //
 //   node test/list/llmReadReply.test.mjs
-import readReply from "../../lib/dev/llm/readReply.js";
+import readReply, { salvageTruncated } from "../../lib/dev/llm/readReply.js";
 
 let fail = 0;
 const eq = (nome, atteso, ottenuto) => {
@@ -96,6 +96,32 @@ console.log("\n== T83 più voci ==");
 eq("due lette, una sconosciuta",
   { shape: "items", translations: { A_1: "one", B_2: "two" }, unknownKeys: ["C_3"], conflicts: [] },
   fmt(readReply({ items: [{ k: "A_1", t: "one" }, { k: "C_3", t: "three" }, { k: "B_2", t: "two" }] }, ["A_1", "B_2"])));
+
+// T86 — risposta troncata da max_tokens: si tengono le coppie chiuse, mai quella a metà
+console.log("\n== T86 salvageTruncated ==");
+eq("taglio dentro un valore",
+  { A_1: "Ciao", B_2: "Mondo" },
+  salvageTruncated('{"A_1":"Ciao","B_2":"Mondo","C_3":"Arriv'));
+eq("taglio dentro una chiave", { A_1: "Ciao" }, salvageTruncated('{"A_1":"Ciao","B_'));
+eq("taglio dopo i due punti", { A_1: "Ciao" }, salvageTruncated('{"A_1":"Ciao","B_2":'));
+eq("l'ultima coppia chiusa è finita, anche senza virgola dopo", { A_1: "Ciao", B_2: "Mondo" }, salvageTruncated('{"A_1":"Ciao","B_2":"Mondo"'));
+eq("virgolette e barre escapate dentro i valori",
+  { A_1: 'Il "vero" <b>%s</b>', B_2: "a\\b" },
+  salvageTruncated('{"A_1":"Il \\"vero\\" <b>%s</b>", "B_2" : "a\\\\b", "C_3":"x\\'));
+eq("unicode escapato decodificato", { A_1: "città" }, salvageTruncated('{"A_1":"citt\\u00e0","B'));
+eq("dentro un blocco di codice aperto", { A_1: "Ciao" }, salvageTruncated('```json\n{\n  "A_1": "Ciao",\n  "B_2": "Mo'));
+eq("un valore che non è una stringa ferma la lettura", { A_1: "Ciao" }, salvageTruncated('{"A_1":"Ciao","items":[{"k":"B_2"'));
+eq("tutto ragionamento, niente contenuto", {}, salvageTruncated(""));
+eq("una chiave con due valori non si sceglie", { B_2: "y" }, salvageTruncated('{"A_1":"x","B_2":"y","A_1":"z","C_'));
+eq("__proto__ resta una chiave come le altre", ["__proto__"], Object.keys(salvageTruncated('{"__proto__":"x","A')));
+{
+  // La trace della demo del 2026-09-19 (fr-FR, secondo run): 38 chiavi, troncata a 2.319 caratteri.
+  const keys = Array.from({ length: 38 }, (_, i) => `Reviews_${i}`);
+  const partial = `{${keys.slice(0, 33).map((k) => `"${k}":"Une phrase complète, avec virgule."`).join(",")},"${keys[33]}":"Nous reviendrons pour essayer le comptoir du chef.","Reviews_1q`;
+  const salvaged = salvageTruncated(partial);
+  eq("33 + 1 complete su 38, la 35esima a metà", 34, Object.keys(salvaged).length);
+  eq("e readReply le legge come una risposta piatta del lotto", "flat", readReply(salvaged, keys).shape);
+}
 
 console.log(fail ? `\n${fail} asserzioni fallite` : "\ntutto ok");
 process.exit(fail ? 1 : 0);

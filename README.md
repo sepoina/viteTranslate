@@ -16,7 +16,7 @@ No translation keys to maintain. No separate extraction workflow. No runtime dep
 [![Donate](https://img.shields.io/badge/support-PayPal-00457C?logo=paypal&logoColor=white)](https://www.paypal.com/paypalme/giancarloghigi)
 [![Buy Me a Coffee](https://img.shields.io/badge/buy%20me%20a-coffee-FFDD00?logo=buymeacoffee&logoColor=black)](https://www.buymeacoffee.com/giancarlogy)
 
-[**Live playground**](https://sepoina.github.io/viteTranslate/) · [**Edge cases**](https://sepoina.github.io/viteTranslate/edge/) · [**StackBlitz**](https://stackblitz.com/edit/vitejs-vite-aa9rcqtt?file=locale%2Fit-IT.yml) <br/>
+[**Live playground**](https://sepoina.github.io/viteTranslate/playground/) · [**Edge cases**](https://sepoina.github.io/viteTranslate/edge/) · [**StackBlitz**](https://stackblitz.com/edit/vitejs-vite-aa9rcqtt?file=locale%2Fit-IT.yml) <br/>
 [Quick start](#-quick-start) · [CLI](#-cli) · [LLM](#-llm-auto-translation) · [Guides](#-guides) · [React](doc/react-api.md) · [Notes](#-notes)
 
 <br />
@@ -85,7 +85,7 @@ Every library in this table solves the same problem. They differ in how much mac
 - **Native Vite integration:** one codebase for Vite 5 through 8, no config switch.
 - **³ Keyless syntax:** Lingui and viteTranslate can use source strings directly instead of manually maintained translation keys. FormatJS can also omit manual IDs by generating message identifiers through Babel or SWC tooling.
 - **Keyless syntax, in practice:** the marker is extracted at build time and resolved against the current table at runtime — no key to invent, nothing to keep in sync by hand.
-- **⁴ Runtime size:** viteTranslate adds less than 5 kB gzip for its browser runtime — `4254 bytes` actually, checked by `npm run estimateSize`, the source of truth for this number. Other solutions vary depending on imported packages, tree-shaking, plugins and optional polyfills, so exact bundle sizes are not directly comparable.
+- **⁴ Runtime size:** viteTranslate adds less than 5 kB gzip for its browser runtime — `4258 bytes` actually, checked by `npm run estimateSize`, the source of truth for this number. Other solutions vary depending on imported packages, tree-shaking, plugins and optional polyfills, so exact bundle sizes are not directly comparable.
 - **⁵ Compilation & parsing:** Lingui and FormatJS can move message parsing and compilation to build time when their compilation tooling is enabled. viteTranslate's tables are compiled at build time into ready-made values, no HTML parser at runtime, so `<Translate>` renders server-side too.
 - **Lazy-loaded locales:** each language is its own chunk, `import()`-ed only when selected.
 - **Dev fallback, always visible:** until a translation exists you get the original text. Never a blank, never a crash.
@@ -139,7 +139,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
 );
 ```
 
-Then mark your strings, one at a time, with `_%_..._%_`, and render them through `<Translate>` (follow these links for more complex examples of [language switching](https://sepoina.github.io/viteTranslate/#cambio-lingua), [dynamic variables](https://sepoina.github.io/viteTranslate/#traduzione-dinamica), and [placeholders & attributes](https://sepoina.github.io/viteTranslate/#placeholder-e-attributi)):
+Then mark your strings, one at a time, with `_%_..._%_`, and render them through `<Translate>` (follow these links for more complex examples of [language switching](https://sepoina.github.io/viteTranslate/playground/#cambio-lingua), [dynamic variables](https://sepoina.github.io/viteTranslate/playground/#traduzione-dinamica), and [placeholders & attributes](https://sepoina.github.io/viteTranslate/playground/#placeholder-e-attributi)):
 
 ```jsx
 // App.jsx
@@ -203,11 +203,11 @@ npx vitetranslate --llm-translate
 ```
 
 ```text
-::: LLM            ║  "deepseek-flash"
-::: ⌘ deepseek.com ║  - (2/2) incomplete tables - 128 missing keys - 6 api requests
-:::                ║  - token (in ~62.1k - out ~9.3k) ≈ $0.0191 < costGuard ($0.2000)
-:::                ║  ✔ < 50 new keys français. Full translate!    3s
-:::                ║  ⠹ > ask 50 keys italiano - Deutsch           4s
+::: LLM            ║  "deepseek-flash" · standard
+::: ⌘ deepseek.com ║  - (2/2) incomplete tables - 128 missing keys - 2 api requests
+:::                ║  - token (in ~13.1k - out ~9.3k) ≈ $0.0190 < costGuard ($0.2000)
+:::                ║  ✔ < 64 new keys français. Full translate!    3s
+:::                ║  ⠹ > ask 64 keys Deutsch                      4s
 ```
 
 No dependency added — any OpenAI-compatible API key is enough (Gemini, OpenAI, OpenRouter, Groq, Ollama, …), or bring your own driver. Nothing gets written without passing a validator that refuses a lost `%s` or a mangled tag, and it runs only from the CLI, never from `vite dev`. Costs, budget guards, the context abstract, and the full flag reference: **[doc/llm.md](doc/llm.md)**.
@@ -235,8 +235,7 @@ Everything past "hello world" lives in `doc/`, one topic per page:
 
 ## 📝 Notes
 
-- 🎮 **[Playground](https://sepoina.github.io/viteTranslate/)** — a runnable example, deployed live; source in [`playground/`](playground).
-- 🧪 **[Edge cases, live](https://sepoina.github.io/viteTranslate/edge/)** — every call form and diagnostic; source in [`playEdge/`](playEdge).
+- 🎮 **[Live site](https://sepoina.github.io/viteTranslate/)** — playground, edge cases and an LLM-translated restaurant; source in [`site/`](site).
 - 💬 **[Discussions](https://github.com/sepoina/viteTranslate/discussions)** — questions, ideas, feedback. An actual bug goes to [Issues](https://github.com/sepoina/viteTranslate/issues) instead.
 - ☕ **[Buy me a coffee](https://www.paypal.com/paypalme/giancarloghigi)** — if viteTranslate saved you some time. Optional, never expected.
 - 🔐 **[Provenance](https://docs.npmjs.com/trusted-publishers/)** — every release ships via npm trusted publishing (OIDC).

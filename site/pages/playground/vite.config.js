@@ -18,7 +18,7 @@ export default defineConfig({
     react(),
     mkcert(),
   ],
-  // La libreria è linkata (`"@sepoina/vitetranslate": "file:.."`), quindi in build Vite
+  // La libreria è linkata (workspace di npm: `"@sepoina/vitetranslate": "^<versione>"` diventa un link alla radice), quindi in build Vite
   // risolve il path reale del suo dist e da lì cerca "react" risalendo le cartelle: se ne
   // trova una copia sopra alla root del repo, il bundle finisce con due React e gli hook
   // della libreria girano su quello che react-dom non sta usando ("Cannot read properties

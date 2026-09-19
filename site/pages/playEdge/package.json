@@ -1,17 +1,17 @@
 {
-  "name": "vitetranslate-demo-vite8",
+  "name": "vitetranslate-site-edge",
   "private": true,
   "version": "0.0.0",
+  "vitetranslateSite": { "slug": "edge" },
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "link:lib": "npm install .. --install-links --no-save",
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview"
   },
   "dependencies": {
-    "@sepoina/vitetranslate": "file:..",
+    "@sepoina/vitetranslate": "^4.6.2-rc.2",
     "react": "^19.2.8",
     "react-dom": "^19.2.8"
   },

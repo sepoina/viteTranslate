@@ -203,7 +203,7 @@ console.log("\n== copie rovinate: lo dice, e non lancia niente ==");
   eq("...e lo dice", true, illeggibile.uscita.includes("cannot be read"));
 
   // Un link che porta al pacchetto sbagliato: il caso vero era node_modules/@sepoina/vitetranslate
-  // -> ../.. dentro playEdge, cioè playEdge stesso.
+  // -> ../.. dentro site/pages/playEdge, cioè playEdge stesso.
   const altrui = cartella();
   writeFileSync(join(copiaFinta(altrui), "package.json"), JSON.stringify({ name: "un-altro-pacchetto", version: "0.0.0" }));
   const sbagliata = lancia(altrui);

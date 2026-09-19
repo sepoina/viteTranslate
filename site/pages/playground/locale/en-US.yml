@@ -2,7 +2,7 @@
 #      American English
 #       |    code: en-US
 #       |    missing key: 0
-#       |    processed: 2026-09-07 17:35
+#       |    processed: 2026-09-19 16:16
 #       |    TableVersion: 260905
 #  -------------------------------------------------
 #
@@ -49,6 +49,7 @@ StrengthsSection_wv4ype: "<strong>Automatic table sync.</strong> A single comman
 TableOfContents_1bvsbql: "Section index"
 TableOfContents_1epa0dl: "Strengths"
 TableOfContents_1go0hgj: "Edge cases"
+TableOfContents_55ku40: "All demos"
 TableOfContents_gcxopo: "Contents"
 TableOfContents_t5pn9: "Installation"
 TableOfContents_zmqhrh: "Playground"

@@ -12,11 +12,14 @@ const eq = (nome, atteso, ottenuto) => {
 };
 
 const conn = { baseURL: "http://x", model: "m", temperature: 0.2, timeoutMs: 1000, providerOptions: {}, maxRetries: 3 };
-const okResponse = (content, usage) => ({
+const okResponse = (content, usage, finishReason) => ({
   ok: true,
   status: 200,
   statusText: "OK",
-  text: async () => JSON.stringify({ choices: [{ message: { content } }], ...(usage ? { usage } : {}) }),
+  text: async () => JSON.stringify({
+    choices: [{ message: { content }, ...(finishReason ? { finish_reason: finishReason } : {}) }],
+    ...(usage ? { usage } : {}),
+  }),
   headers: { get: () => null },
 });
 
@@ -44,7 +47,8 @@ console.log("\n== T57 usage ==");
 {
   const r1 = await fetchDriver({ connection: conn, apiKey: "k", systemPrompt: "s", userPayload: "u",
     fetchImpl: async () => okResponse('{"A":"b"}', { prompt_tokens: 10, completion_tokens: 5 }) });
-  eq("usage estratto", { tokensIn: 10, tokensOut: 5 }, r1.usage);
+  eq("usage estratto", { tokensIn: 10, tokensOut: 5, cachedIn: 0, reasoningOut: 0 }, r1.usage);
+  eq("charsOut = lunghezza della risposta", '{"A":"b"}'.length, r1.charsOut);
 
   const r2 = await fetchDriver({ connection: conn, apiKey: "k", systemPrompt: "s", userPayload: "u",
     fetchImpl: async () => okResponse('{"A":"b"}') });
@@ -118,10 +122,13 @@ console.log("\n== T60 timeout senza chiave nel messaggio ==");
 console.log("\n== T61 i due rami del contratto driver ==");
 {
   const r1 = await callModel({ connection: conn, driver: async () => ({ A_1: "x" }), apiKey: "k", systemPrompt: "s", userPayload: "u" });
-  eq("Record<key,string>", { translations: { A_1: "x" }, usage: null }, r1);
+  eq("Record<key,string>", { translations: { A_1: "x" }, usage: null, charsOut: JSON.stringify({ A_1: "x" }).length }, r1);
 
   const r2 = await callModel({ connection: conn, driver: async () => ({ translations: { A_1: "y" }, usage: { tokensIn: 1, tokensOut: 1 } }), apiKey: "k", systemPrompt: "s", userPayload: "u" });
-  eq("{translations, usage}", { translations: { A_1: "y" }, usage: { tokensIn: 1, tokensOut: 1 } }, r2);
+  eq("{translations, usage}", { translations: { A_1: "y" }, usage: { tokensIn: 1, tokensOut: 1 }, charsOut: JSON.stringify({ A_1: "y" }).length }, r2);
+
+  const r3 = await callModel({ connection: conn, driver: async () => ({ translations: { A_1: "y" }, usage: { tokensIn: 1, tokensOut: 1 }, charsOut: 77 }), apiKey: "k", systemPrompt: "s", userPayload: "u" });
+  eq("charsOut dal driver, se lo dà", 77, r3.charsOut);
 }
 
 // D-trace — fetchDriver: `trace` vede request (senza Authorization) e response (status + body)
@@ -226,6 +233,171 @@ console.log("\n== T62 concorrenza limitata ==");
   const results = await runWithConcurrency(tasks, 2);
   eq("mai più di 2 alla volta", true, maxActive <= 2);
   eq("risultati nell'ordine originale", [0, 1, 2, 3, 4, 5, 6, 7, 8, 9], results);
+}
+
+// M1 — max_tokens nel body, col nome scelto da `maxTokensField`
+console.log("\n== M1 max_tokens ==");
+{
+  const bodyOf = async (connection, ...rest) => {
+    const maxTokens = rest.length ? rest[0] : 4096;
+    let body;
+    await fetchDriver({
+      connection, apiKey: "k", systemPrompt: "s", userPayload: "u", maxTokens,
+      fetchImpl: async (url, init) => { body = JSON.parse(init.body); return okResponse('{"A":"b"}'); },
+    });
+    return body;
+  };
+  eq("max_tokens", 4096, (await bodyOf({ ...conn, maxTokensField: "max_tokens" })).max_tokens);
+  const completion = await bodyOf({ ...conn, maxTokensField: "max_completion_tokens" });
+  eq("max_completion_tokens", 4096, completion.max_completion_tokens);
+  eq("...e niente max_tokens", undefined, completion.max_tokens);
+  const off = await bodyOf({ ...conn, maxTokensField: false });
+  eq("false: niente di niente", [undefined, undefined], [off.max_tokens, off.max_completion_tokens]);
+  eq("senza maxTokens: niente", undefined, (await bodyOf({ ...conn, maxTokensField: "max_tokens" }, undefined)).max_tokens);
+  eq("providerOptions vince", 99, (await bodyOf({ ...conn, maxTokensField: "max_tokens", providerOptions: { max_tokens: 99 } })).max_tokens);
+}
+
+// M2 — troncamento: finish_reason "length" -> errore `truncated`, con usage, MAI ritentato
+console.log("\n== M2 troncamento ==");
+{
+  const truncated = () => okResponse('{"A_1":"Ci', { prompt_tokens: 10, completion_tokens: 4096 }, "length");
+  let error;
+  try {
+    await fetchDriver({ connection: conn, apiKey: "k", systemPrompt: "s", userPayload: "u", fetchImpl: async () => truncated() });
+  } catch (e) { error = e; }
+  eq("errore truncated", true, error?.truncated === true);
+  eq("messaggio", "openai-chat reply truncated: max_tokens reached", error?.message);
+  eq("porta l'usage (si è pagato)", { tokensIn: 10, tokensOut: 4096, cachedIn: 0, reasoningOut: 0 }, error?.usage);
+  eq("porta quello che è arrivato, per salvarne le coppie complete", '{"A_1":"Ci', error?.partialContent);
+
+  // Anche in modalità contesto: il markdown troncato non si tiene.
+  let contextError;
+  try {
+    await fetchDriver({ connection: conn, apiKey: "k", systemPrompt: "s", userPayload: "u", mode: "context", fetchImpl: async () => truncated() });
+  } catch (e) { contextError = e; }
+  eq("vale anche per il contesto", true, contextError?.truncated === true);
+  eq("...ma lì non c'è niente da salvare", undefined, contextError?.partialContent);
+
+  let fetches = 0;
+  const usages = [];
+  let threw;
+  try {
+    await callModel({
+      connection: { ...conn, maxRetries: 3 }, apiKey: "k", systemPrompt: "s", userPayload: "u", sleepImpl: async () => {},
+      onUsage: (usage, info) => usages.push({ usage, ok: info.ok }),
+      // `callModel` col driver built-in: si intercetta `fetch` globale.
+      driver: async () => { fetches++; return fetchDriver({ connection: conn, apiKey: "k", systemPrompt: "s", userPayload: "u", fetchImpl: async () => truncated() }); },
+    });
+  } catch (e) { threw = e; }
+  eq("una sola chiamata, nessun retry", 1, fetches);
+  eq("lancia il troncamento", true, threw?.truncated === true);
+  eq("l'usage del tentativo è comunque contato", [{ usage: { tokensIn: 10, tokensOut: 4096, cachedIn: 0, reasoningOut: 0 }, ok: false }], usages);
+}
+
+// M3 — error.usage sugli errori dopo una 2xx; cachedIn nei due formati
+console.log("\n== M3 usage sugli errori e cachedIn ==");
+{
+  let error;
+  try {
+    await fetchDriver({
+      connection: conn, apiKey: "k", systemPrompt: "s", userPayload: "u",
+      fetchImpl: async () => okResponse("non è JSON", { prompt_tokens: 7, completion_tokens: 3 }),
+    });
+  } catch (e) { error = e; }
+  eq("risposta non JSON: porta l'usage", { tokensIn: 7, tokensOut: 3, cachedIn: 0, reasoningOut: 0 }, error?.usage);
+
+  const deepseek = await fetchDriver({
+    connection: conn, apiKey: "k", systemPrompt: "s", userPayload: "u",
+    fetchImpl: async () => okResponse('{"A":"b"}', { prompt_tokens: 100, completion_tokens: 5, prompt_cache_hit_tokens: 80 }),
+  });
+  eq("cachedIn: formato DeepSeek", 80, deepseek.usage.cachedIn);
+  const openai = await fetchDriver({
+    connection: conn, apiKey: "k", systemPrompt: "s", userPayload: "u",
+    fetchImpl: async () => okResponse('{"A":"b"}', { prompt_tokens: 100, completion_tokens: 5, prompt_tokens_details: { cached_tokens: 60 } }),
+  });
+  eq("cachedIn: formato OpenAI", 60, openai.usage.cachedIn);
+}
+
+// M4 — onUsage: una volta per tentativo con usage; maxTokens arriva al driver utente
+console.log("\n== M4 onUsage e maxTokens ==");
+{
+  let calls = 0;
+  const seen = [];
+  const usages = [];
+  const driver = async (args) => {
+    seen.push(args.maxTokens);
+    calls++;
+    if (calls === 1) { const e = new Error("x"); e.status = 503; e.usage = { tokensIn: 5, tokensOut: 1 }; throw e; }
+    if (calls === 2) { const e = new Error("y"); e.status = 503; throw e; } // senza usage: non si conta
+    return { translations: { A_1: "z" }, usage: { tokensIn: 9, tokensOut: 2 }, charsOut: 12 };
+  };
+  await callModel({
+    connection: conn, driver, apiKey: "k", systemPrompt: "s", userPayload: "u", maxTokens: 2048,
+    sleepImpl: async () => {}, onUsage: (usage, info) => usages.push({ usage, ...info }),
+  });
+  eq("maxTokens passato al driver, a ogni tentativo", [2048, 2048, 2048], seen);
+  eq("onUsage: solo i tentativi con usage", [
+    { usage: { tokensIn: 5, tokensOut: 1 }, ok: false },
+    { usage: { tokensIn: 9, tokensOut: 2 }, ok: true, charsOut: 12 },
+  ], usages);
+}
+
+// M5 — il lettore tollerante di readReply.js anche qui: la trace del 2026-09-19 aveva un JSON
+// completo seguito da `</root>`, rifiutato da un JSON.parse secco, pagato e richiesto di nuovo.
+console.log("\n== M5 JSON completo con coda estranea ==");
+{
+  const r = await fetchDriver({ connection: conn, apiKey: "k", systemPrompt: "s", userPayload: "u",
+    fetchImpl: async () => okResponse('{"A_1":"Ciao","B_2":"Mondo"}</root>') });
+  eq("letto, non rifiutato", { A_1: "Ciao", B_2: "Mondo" }, r.translations);
+
+  const prosa = await fetchDriver({ connection: conn, apiKey: "k", systemPrompt: "s", userPayload: "u",
+    fetchImpl: async () => okResponse('Here you go:\n{"A_1":"Ciao"}') });
+  eq("anche con una frase prima", { A_1: "Ciao" }, prosa.translations);
+
+  let error;
+  try {
+    await fetchDriver({ connection: conn, apiKey: "k", systemPrompt: "s", userPayload: "u",
+      fetchImpl: async () => okResponse("nessun oggetto qui") });
+  } catch (e) { error = e; }
+  eq("senza nessun JSON resta un errore (e si ritenta)", true, /not a JSON object/.test(error?.message ?? ""));
+}
+
+// M6 — il ragionamento: la parte di `completion_tokens` che il modello ha speso a pensare
+console.log("\n== M6 reasoningOut dal campo standard ==");
+{
+  const r = await fetchDriver({ connection: conn, apiKey: "k", systemPrompt: "s", userPayload: "u",
+    fetchImpl: async () => okResponse('{"A":"b"}', {
+      prompt_tokens: 100, completion_tokens: 900, completion_tokens_details: { reasoning_tokens: 700 },
+    }) });
+  eq("reasoningOut letto", 700, r.usage.reasoningOut);
+  eq("tokensOut resta il totale fatturato", 900, r.usage.tokensOut);
+
+  let error;
+  try {
+    await fetchDriver({ connection: conn, apiKey: "k", systemPrompt: "s", userPayload: "u",
+      fetchImpl: async () => okResponse("", {
+        prompt_tokens: 100, completion_tokens: 4096, completion_tokens_details: { reasoning_tokens: 4096 },
+      }, "length") });
+  } catch (e) { error = e; }
+  eq("troncata tutta in ragionamento: niente da salvare, ma si sa perché", { reasoningOut: 4096, partialContent: "" },
+    { reasoningOut: error?.usage?.reasoningOut, partialContent: error?.partialContent });
+}
+
+// M7 — `elapsedMs` a corpo letto: c'è chi manda gli header subito e il corpo quando è pronto
+console.log("\n== M7 elapsedMs misura la risposta intera ==");
+{
+  const events = [];
+  await fetchDriver({
+    connection: conn, apiKey: "k", systemPrompt: "s", userPayload: "u",
+    trace: (kind, data) => events.push({ kind, data }),
+    fetchImpl: async () => {
+      const response = okResponse('{"A":"b"}');
+      const text = response.text;
+      return { ...response, text: async () => { await new Promise((r) => setTimeout(r, 60)); return text(); } };
+    },
+  });
+  const response = events.find((e) => e.kind === "response");
+  eq("il tempo del corpo è dentro", true, response.data.elapsedMs >= 50);
 }
 
 console.log(fail ? `\n${fail} asserzioni fallite` : "\ntutto ok");

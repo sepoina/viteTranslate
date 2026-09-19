@@ -8,6 +8,7 @@ import testCases from './testCases.jsx';
 import autoWrapCases from './autoWrapCases.jsx';
 import CodeIcon from './CodeIcon.jsx';
 import ShowAllTests from './ShowAllRowTests.jsx';
+import { siteUrl } from './siteLinks.js';
 
 export default function App() {
   //
@@ -61,6 +62,11 @@ export default function App() {
       <br />
       <article data-theme="light">
         <header>
+          <p>
+            <a href={siteUrl()}>
+              <Translate>_%_← viteTranslate: tutte le demo_%_</Translate>
+            </a>
+          </p>
           <h3>
             <Translate t={'_%_ viteTranslate &nbsp;<b>%s</b>_%_'} a={version} />
           </h3>

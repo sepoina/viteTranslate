@@ -18,7 +18,7 @@
     //
     //    Il `[\s\S]*?` che verrebbe spontaneo scrivere qui non va bene. Un marcatore volutamente
     //    spaiato sfasa l'appaiamento, e da lì in poi la regex colora il codice al posto del testo
-    //    fino a fondo file: playEdge/src/testCases.jsx e test/list/extractMarkers.test.mjs ne
+    //    fino a fondo file: site/pages/playEdge/src/testCases.jsx e test/list/extractMarkers.test.mjs ne
     //    contengono, come casi limite. Con la regex qui sotto il repo dà 415 evidenziazioni,
     //    tutte giuste, di cui 6 multiriga.
     "(_%_)([^\\n]*?|(?:(?!_%_)(?![,:;]\\s*\\n)[^<>{}\\[\\];`\\\\])*\\n(?:(?!_%_)(?![,:;]\\s*\\n)[^<>{}\\[\\];`\\\\])*)(_%_)": {

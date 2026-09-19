@@ -1,6 +1,6 @@
 // Verifica end-to-end: tabella compilata -> resolveEntry -> renderToString, in Node puro.
 // Se il markup arriva a HTML senza che esista un `document`, la limitazione "No SSR support"
-// del README non c'è più. Girato da playground/ per risolvere react e react-dom.
+// del README non c'è più. Girato dalla radice, dove stanno react e react-dom.
 import { renderToString } from "react-dom/server";
 import { writeFileSync, unlinkSync } from "node:fs";
 

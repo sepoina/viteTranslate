@@ -278,61 +278,25 @@ jobs:
           node-version: 24
           cache: npm
 
-      - name: Install root deps
+      # Un solo npm install copre libreria, landing e pagine: sono tutti workspace, e il loro
+      # "^<versione>" si risolve col link al working tree (vedi test/syncDemoDeps.mjs). Lo
+      # "prepare" della radice builda già la libreria; lo step esplicito resta per fallire con
+      # un nome leggibile.
+      - name: Install deps
         run: npm install
 
-      # Non basta scaricare l'artefatto di "build": npm install --install-links qui sotto,
-      # sulla dipendenza "file:.." di playground, fa ripartire da sé lo script "prepare" della
-      # radice (npm run build) — verificato: succede comunque, con o senza questo passaggio.
-      # Lo si tiene esplicito per due ragioni: fallisce qui, con un nome di step leggibile,
-      # invece che in mezzo al log dell'installazione di playground; e resta vero anche se un
-      # domani "prepare" sparisse da package.json.
       - name: Build library
         run: npm run build
 
-      - name: Install playground deps
-        run: npm install --install-links
-        working-directory: playground
-
-      - name: Check lib resolution
-        run: npm ls @sepoina/vitetranslate || true
-        working-directory: playground
-
-      - name: Build playground
-        run: npm run build -- --base=/${{ github.event.repository.name }}/
-        working-directory: playground
-
-      # La pagina degli edge case è un progetto Vite a sé: ha la sua localeDir e un
-      # errorSolve tutto acceso, e due configurazioni del plugin nella stessa build non
-      # convivono (il modulo virtuale delle lingue ha un id unico). Quindi si builda a
-      # parte e il suo dist finisce in una sottocartella di quello del playground.
-      - name: Install edge deps
-        run: npm install
-        working-directory: playEdge
-
-      # package.json dichiara la versione npm, così la cartella resta importabile su
-      # StackBlitz così com'è. Qui sopra ci mettiamo il working tree, senza toccare il
-      # file (--no-save): la pagina pubblicata mostra la libreria di questo commit,
-      # come già fa il playground.
-      - name: Use local library for edge
-        run: npm run link:lib
-        working-directory: playEdge
-
-      - name: Build edge
-        run: npm run build -- --base=/${{ github.event.repository.name }}/edge/
-        working-directory: playEdge
-
-      - name: Collect edge into playground dist
-        run: cp -r playEdge/dist playground/dist/edge
-
-      - name: SPA fallback
-        run: cp playground/dist/index.html playground/dist/404.html
+      # Landing alla radice, ogni pagina di site/pages/* nel suo slug (vedi site/build.mjs).
+      - name: Build site
+        run: npm run site:build -- --root=/${{ github.event.repository.name }}/
 
       - uses: actions/configure-pages@v5
 
       - uses: actions/upload-pages-artifact@v5
         with:
-          path: playground/dist
+          path: site/dist
 
   pages:
     needs: deploy-pages

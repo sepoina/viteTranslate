@@ -98,7 +98,7 @@ Twelve flags, every one of them starting with `--llm-`, kept in a section of the
 | `--llm-retranslate <tag>...` | Redo already-translated keys too. Tags required, backs up first |
 | `--llm-context` | Regenerate the context abstract now (alone, or with the two above) |
 | `--llm-dry-run` | With the three above: print the cost estimate and exit. Sends nothing |
-| `--llm-auto` | Bypass the five numeric budget caps and the failed-keys record. **Not** the CI guard |
+| `--llm-auto` | Bypass the budget caps and the failed-keys record. **Not** the CI guard |
 | `--llm-noask` | Non-interactive confirmation (see also `llm.costGuard`) |
 | `--llm-debug` | Log every request, reply and error to `<localeDir>/.llm/<YYMMDDHHmmss>/` |
 | `--llm-status` | Connection, where the key was found, today's counters, and the abstract. No network call |

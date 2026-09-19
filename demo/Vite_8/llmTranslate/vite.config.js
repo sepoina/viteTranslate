@@ -21,8 +21,9 @@ export default defineConfig({
           // $ per milione di token
           costMillionInput: 0.6,
           costMillionOutput: 1.2,
+          modelClass: 'standard', // lotti fino a ~3k token di output / 100 chiavi
         },
-        budget: 'safe', // 50 chiavi e 20 richieste per run
+        budget: 'safe', // $0.10 per run, $0.50 al giorno (con i prezzi qui sopra)
         context: { mode: 'auto' }, // l'abstract di contesto nasce (e si aggiorna) da solo
         costGuard: 0.2, // sotto questa stima non chiede conferma
       },

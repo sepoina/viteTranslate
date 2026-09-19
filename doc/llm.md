@@ -74,11 +74,13 @@ All optional except where noted. Each is explained in its section below.
 | `connection.timeoutMs` | `60000` | Per request |
 | `connection.maxRetries` | `3` | Retries on HTTP 429, 5xx and network errors — never on 400/401/403 |
 | `connection.maxConcurrency` | `4` | Requests in flight at the same time |
-| `connection.providerOptions` | `{}` | Extra fields merged into the request body, for provider-specific settings |
+| `connection.modelClass` | `"standard"` | How much the model can take: sizes the batches and `max_tokens` ([model class](#model-class)) |
+| `connection.maxTokensField` | `"max_tokens"` | Name of the output-limit field in the request: `"max_tokens"`, `"max_completion_tokens"`, or `false` to send none |
+| `connection.providerOptions` | `{}` | Extra fields merged into the request body, for provider-specific settings. Wins over everything else, `max_tokens` included |
 | `connection.costMillionInput` / `costMillionOutput` | — | Price per million tokens. Both or neither ([estimate](#the-estimate)) |
 | `connection.costUnity` | `"$"` | Currency symbol printed in front of costs |
 | `driver` | — | Your own function instead of the built-in client ([Vercel example](#optional-vercel-provider)) |
-| `budget` | `"safe"` | Per-run and per-day caps ([budget](#budget-caps)) |
+| `budget` | `"safe"` | Your spending caps, per run and per day, in cost ([budget](#budget-caps)) |
 | `costGuard` | — | Below this estimated cost, no confirmation ([confirmation](#confirmation)) |
 | `context` | `{ mode: "auto", refreshEvery: 40, sample: 300 }` | The project brief ([context abstract](#the-context-abstract)) |
 | `languages` | every table in `localeDir` | Which languages `--llm-translate` fills; tags on the command line narrow it further. The source language is always excluded |
@@ -103,7 +105,7 @@ vitetranslate --llm-key-clear
 
 Without the package, or without a Secret Service (Docker, WSL, a remote SSH session), that step is skipped silently.
 
-`vitetranslate --llm-status` tells you where the key was found, along with the connection, today's counters, `llm.costGuard` and the [context abstract](#the-context-abstract). It makes no network call; `--llm-ping` adds one minimal request to confirm the model answers.
+`vitetranslate --llm-status` tells you where the key was found, along with the connection, today's spend, the budget and model class in force, `llm.costGuard` and the [context abstract](#the-context-abstract). It makes no network call; `--llm-ping` adds one minimal request to confirm the model answers.
 
 ## Costs, budget and confirmation
 
@@ -112,20 +114,22 @@ Without the package, or without a Secret Service (Docker, WSL, a remote SSH sess
 Every run prints an estimate before it spends anything:
 
 ```text
-::: LLM                  ║  "deepseek-flash"
-::: ⌘ deepseek.com       ║  - (2/2) incomplete tables - 128 missing keys - 6 api requests
-:::                      ║  - token (in ~62.1k - out ~9.3k) ≈ $0.0191 < costGuard ($0.2000)
+::: LLM                  ║  "deepseek-flash" · standard
+::: ⌘ deepseek.com       ║  - (2/2) incomplete tables - 128 missing keys - 2 api requests
+:::                      ║  - token (in ~13.1k - out ~9.3k) ≈ $0.0190 < costGuard ($0.2000)
 ```
 
-- **Line 1** — the model.
+- **Line 1** — the model, and its [class](#model-class).
 - **Line 2** — the provider (the `baseURL` host, without `api.` or a port; absent with your own driver), how many tables have work, how many keys, how many requests.
 - **Line 3** — estimated tokens, the cost when prices are set, and the comparison with [`costGuard`](#confirmation) when it is set.
 
 The cost shows only when both `connection.costMillionInput` and `connection.costMillionOutput` are set — both or neither, half a price is a wrong estimate. `connection.costUnity` (default `"$"`) is the symbol printed in front of every cost, on screen and in `runs.log`.
 
-The estimate converts characters to tokens with a fixed ratio on the first run; from the second run on, the ratio is tuned per model on what the provider's `usage` actually reported.
+The estimate converts characters to tokens with a fixed ratio on the first run: 4 characters per token, 1.5 when the **source** language is Chinese, Japanese or Korean. From then on it trusts what the provider's `usage` reported — per model, and for the output per target language, split in two: the reply itself, and the thinking of a [reasoning model](#reasoning-models), per key. Only the last ~300 keys of each language count, so a model that changes its ways shows up within a run.
 
 ### Budget caps
+
+Two separate ideas, two units. `budget` is **your** spending, in **cost**. [`connection.modelClass`](#model-class) says how much **the model** can take, in **tokens**, and sizes the batches. Keys, requests and characters are no longer caps.
 
 ```js
 llm: {
@@ -133,15 +137,63 @@ llm: {
 }
 ```
 
-| Preset | `maxKeysPerRun` | `maxRequestsPerRun` | `maxKeysPerDay` | `maxCharsPerRun` |
+| Preset | `maxCostPerRun` | `maxCostPerDay` | Without prices: `maxTokensPerRun` | `maxTokensPerDay` |
 | :- | -: | -: | -: | -: |
-| `"safe"` | 50 | 20 | 200 | 200,000 |
-| `"normal"` | 500 | 200 | 2,000 | 2,000,000 |
+| `"safe"` | 0.10 | 0.50 | 50,000 | 200,000 |
+| `"normal"` | 1 | 5 | 500,000 | 2,000,000 |
 | `"unlimited"` | ∞ | ∞ | ∞ | ∞ |
 
-An object overrides single fields on top of `"safe"`, and can add a fifth cap, `maxCostPerRun` (active only once both prices are set).
+Cost needs both prices. Without them the same presets fall back to caps in tokens (input + output) — one unit at a time. An object overrides single fields on top of `"safe"`: `maxCostPerRun`, `maxCostPerDay` (these two need prices), `maxTokensPerRun`, `maxTokensPerDay`. An explicit field always counts, in either unit. Anything else, `maxKeysPerRun` from 4.6.1 included, is a configuration error.
 
-A run that would exceed a cap is refused, and the message names the cap. `--llm-auto` bypasses all five. If `maxCostPerRun` is reached mid-run, the run stops but keeps everything already validated — nothing already paid for is thrown away.
+The preset numbers assume a dollar- or euro-sized currency. With `costUnity: "¥"` write your own caps.
+
+A run that would exceed a cap is refused, and the message names the cap. `--llm-auto` bypasses all four. If one is reached mid-run, the run stops but keeps everything already validated — nothing already paid for is thrown away. The day's totals are written after **every** request, so Ctrl+C doesn't reset today's spend.
+
+### Model class
+
+```js
+llm: {
+  connection: { modelClass: "standard" }, // or { k, maxOutputTokens, maxKeys, maxTokens }
+}
+```
+
+| Class | Typical models | Batch up to | `max_tokens` sent |
+| :- | :- | :- | -: |
+| `"basic"` | small local models | 1.5k output tokens / 40 keys | 2,048 |
+| `"standard"` (default) | flash and mini models | 3k / 100 | 4,096 |
+| `"advanced"` | mid-range models | 4.5k / 150 | 6,144 |
+| `"expert"` | high-end models | 6k / 200 | 8,192 |
+| `"frontier"` | flagship models | 8k / 250 | 12,288 |
+
+These are starting estimates, not measurements. An object is merged over `"standard"`; `maxTokens` must be at least `maxOutputTokens`, or every full batch would be truncated by construction.
+
+How a batch is cut, in three lines:
+
+- Every request repeats the system prompt and the context: the overhead **O**. A class has a factor **k** (1, 3, 4, 5, 6): a batch closes as soon as its payload reaches `k · O`, so the overhead is at most `1/(1+k)` of the input.
+- Two hard ceilings close it sooner: the expected output tokens and the number of keys. Smaller batches mean fewer hallucinations, hence the smallest one that keeps the overhead low.
+- A string is never split: a single huge one travels alone.
+
+`max_tokens` is always sent, under the name in `connection.maxTokensField`. OpenAI's reasoning models want `"max_completion_tokens"`.
+
+A reply that comes back **truncated** is never sent again as it was: the same question under the same limit would truncate again, and every attempt is billed. What came back complete is kept; the other keys go back to the model **in the same run**, in batches of at most half the size, for up to three rounds (100 → 50 → 25 → 12). Keys still cut off after that stay `null`, and a note under the panel says so.
+
+### Reasoning models
+
+Some models think before they answer, and bill the thinking as output tokens under the same `max_tokens` as the reply. On the restaurant demo, `deepseek-flash` spent 78% of its output thinking, and every truncation came from there. The run measures it apart — from `usage.completion_tokens_details.reasoning_tokens`, where the provider reports it — per key and per language, sizes the batches for it, and shows its share on the last line:
+
+```text
+real token: 41200 (≈ $0.0512) · reasoning 78% of output
+```
+
+Translating interface strings rarely needs it. Switching it off is provider-specific, so it goes in `providerOptions`:
+
+```js
+connection: {
+  providerOptions: { thinking: { type: "disabled" } }, // DeepSeek — other providers have their own field
+}
+```
+
+Keep it on, and give it room instead: a bigger [`modelClass`](#model-class), or a custom one with a higher `maxTokens`.
 
 ### Confirmation
 
@@ -171,6 +223,7 @@ On a terminal, every request gets a line of its own, redrawn in place once a sec
 
 ```text
 ::: LLM                  ║  ⠹ > ask 7 keys italiano - Deutsch                                     3s
+:::                      ║  ✔ < 50 new keys Deutsch. 178 to do                                    3s
 :::                      ║  ✔ < 7 new keys American English. Full translate!                      2s
 :::                      ║  ⠹ > ask 7 keys italiano - 日本語            retry 1/3 after HTTP 429  3s
 :::                      ║  ✖ - error français (HTTP 401). see trace in debug mode!               1s
@@ -179,23 +232,26 @@ On a terminal, every request gets a line of its own, redrawn in place once a sec
 | Mark | Meaning |
 | :- | :- |
 | `>` | asked, waiting for the reply |
-| `<` | answered — green if every key came back valid, orange if some didn't (the line says how many and why) |
-| `-` | failed for good |
+| `<` | answered — green if every key came back valid, orange if some didn't (the line says how many and why). Then how many keys that language still has at `null`, or `Full translate!` once it has none |
+| `-` | failed for good — the reason follows: `HTTP 429`, `timeout`, `reply not JSON`, `network error`, or `truncated` (the reply hit `max_tokens`, see [model class](#model-class)) |
 
-The repair round and the [context abstract](#the-context-abstract) get their own lines too. When the last request closes, the block becomes a plain log, each line ending with `<what happened> / <seconds>.`:
+A truncated reply that still brought some keys home is a `<` line ending in `truncated`; its missing keys come back as `> split 19 keys …` lines. The repair round and the [context abstract](#the-context-abstract) get their own lines too. When the last request closes, the block becomes a plain log, each line ending with `<what happened> / <seconds>.`:
 
 ```text
-::: LLM                  ║  ✔ < 7 new keys Deutsch. completed / 3s.
-:::                      ║  ✔ < 7 new keys American English. completed / 2s.
-:::                      ║  ✔ < 6 new keys 日本語. 1 rejected / 4s.
+::: LLM                  ║  ✔ < 50 new keys Deutsch. 7 to do / 3s.
+:::                      ║  ✔ < 7 new keys Deutsch. Full translate! / 3s.
+:::                      ║  ✔ < 7 new keys American English. Full translate! / 2s.
+:::                      ║  ✔ < 6 new keys 日本語. 1 to do / 1 rejected / 4s.
 :::                      ║  ✖ - error français (HTTP 401) / see trace in debug mode / 1s.
 :::                      ║
 :::                      ║  real token: 3100 (≈ $0.0106)
 ```
 
-`completed` means nothing is missing; otherwise the line gives the counts, or for an error the reason. The last line is the real cost of the run, summed from the provider's `usage`. With `--llm-debug`, the trace folder is printed at the end; the per-language breakdown lives there, in `summary.json`.
+`N to do` counts the keys still `null` in that language after this reply, `Full translate!` means none are left; then any rejected or missing keys, or for an error the reason. The last line is the real cost of the run, summed from the provider's `usage` — plus the share of [reasoning](#reasoning-models), when there was any. With `--llm-debug`, the trace folder is printed at the end; the per-language breakdown lives there, in `summary.json`.
 
-Piped, redirected or in CI there is no live block, only the final log. A failed request doesn't stop the others: its keys stay `null`, and [`--llm-debug`](#debugging-a-run) has the full reply.
+Piped, redirected or in CI there is no live block, only the final log. A failed request doesn't stop the others: its keys stay `null` — a truncated one excepted, see above — and [`--llm-debug`](#debugging-a-run) has the full reply.
+
+Every reply lands in its `.yml` **as soon as it is validated**, not at the end: stop a run with Ctrl+C and you lose only the requests still in flight. The file is re-read before each write, so a key you fill by hand meanwhile, or one a sync removes, is left alone. A `vite dev` running next to it just reloads the page on each write — watching the translations appear is part of the show.
 
 ## The context abstract
 
@@ -203,6 +259,8 @@ Piped, redirected or in CI there is no live block, only the final log. A failed 
 
 - **between the `<!-- vitetranslate:generated -->` markers** — written by the model from a sample of your strings, replaced on every refresh;
 - **below them** — yours, never touched, and fed back into every future refresh. A correction written there ("we call it 'Ordine', not 'Ordinazione'") sticks.
+
+A name the brief says to _keep_ stays exactly as written, in its own script, even inside a Japanese or Russian sentence: no transliteration. Want katakana? Say so below the markers.
 
 ```js
 llm: {
@@ -257,6 +315,8 @@ locale/.llm/260918154107/
   007-summary.json
 ```
 
+A batch sent again after a truncation is traced as `split-<tag>-bNN`, a repair as `repair-<tag>-bNN`. The `elapsedMs` of a response covers the whole reply, body included: some providers send the headers at once and the answer when it's ready.
+
 It works with `--llm-translate`, `--llm-retranslate`, `--llm-context` and `--llm-ping`. The folder (`<localeDir>/.llm/<YYMMDDHHmmss>/`) is git-ignored automatically; `--llm-status` tells you how many exist and which is the latest.
 
 ## Flags
@@ -272,7 +332,7 @@ Every LLM flag starts with `--llm-`, and an unrecognised one in that namespace i
 | `--llm-auto` | Bypass the budget caps and the failed-keys record — not the CI guard |
 | `--llm-noask` | Don't ask for confirmation (see also [`costGuard`](#confirmation)) |
 | `--llm-debug` | Log every request, reply and error to `<localeDir>/.llm/<YYMMDDHHmmss>/` |
-| `--llm-status` | Connection, key source, today's counters, the context abstract — no network |
+| `--llm-status` | Connection, key source, today's spend, budget, model class, the context abstract — no network |
 | `--llm-ping` | `--llm-status` plus one minimal call to the model |
 | `--llm-key-set` / `--llm-key-status` / `--llm-key-clear` | Manage the keyring entry, if installed |
 
@@ -280,7 +340,7 @@ Examples use the global command; without it, put `npx` in front ([CLI](cli.md)).
 
 ## Optional Vercel Provider
 
-For an API that doesn't speak Chat Completions, or to go through a client library, pass your own `llm.driver`: a function, sync or async, receiving `{ connection, apiKey, systemPrompt, userPayload, mode }` and returning either `Record<key, string>` or `{ translations, usage }`. With a driver, `baseURL` and `model` are no longer required. For example, with the [Vercel AI SDK](https://sdk.vercel.ai):
+For an API that doesn't speak Chat Completions, or to go through a client library, pass your own `llm.driver`: a function, sync or async, receiving `{ connection, apiKey, systemPrompt, userPayload, mode, maxTokens }` (ignore `maxTokens` if you like) and returning either `Record<key, string>` or `{ translations, usage }`. With a driver, `baseURL` and `model` are no longer required. For example, with the [Vercel AI SDK](https://sdk.vercel.ai):
 
 ```js
 llm: {

@@ -6,7 +6,7 @@ malformati, `%s` senza argomento, markup incrociato, valori che testo non sono �
 documentazione a prosa diventa vaga e i test unitari non si guardano.
 
 **Live:** [sepoina.github.io/viteTranslate/edge/](https://sepoina.github.io/viteTranslate/edge/)
-(dal playground: voce «Edge case» nell'indice, oppure `?edge=true` sull'indirizzo del playground)
+(dalla landing [sepoina.github.io/viteTranslate](https://sepoina.github.io/viteTranslate/): la card «Edge case», oppure `?edge=true` sull'indirizzo della landing, e dal playground la voce «Edge case» nell'indice)
 
 I casi stanno tutti in [`src/testCases.jsx`](src/testCases.jsx), come quaterne
 `[titolo, elemento, atteso, sorgente]`. Il quarto elemento — il sorgente mostrato passando
@@ -16,7 +16,7 @@ raccontare il primo meccanismo fidandosi del secondo.
 
 ## Perché non è una pagina del playground
 
-Il playground e questa pagina sono due app Vite distinte, e devono restarlo: il modulo
+È una pagina del sito (`site/pages/`, vedi [`site/README.md`](../../README.md)) a sé. Il playground e questa pagina sono due app Vite distinte, e devono restarlo: il modulo
 virtuale delle lingue ha un id unico, quindi **due configurazioni di `vitetranslate()` nella
 stessa build non convivono**. Qui servono impostazioni che al playground non servono e
 viceversa:
@@ -31,29 +31,24 @@ viceversa:
 Se i casi limite finissero nella `localeDir` del playground, le sue tabelle si porterebbero
 dietro marcatori deliberatamente malformati e un warning di sync a ogni build.
 
-In pubblicazione le due build si ricongiungono: il `dist` di questa cartella viene copiato in
-`dist/edge/` del playground (vedi
-[`.github/workflows/publish.yml`](../.github/workflows/publish.yml), job `deploy-pages`).
+In pubblicazione le build si ricongiungono: [`site/build.mjs`](../../build.mjs) builda la landing e ogni
+pagina con la sua `base` e copia il `dist` di questa cartella in `site/dist/edge/` (vedi
+[`.github/workflows/publish.yml`](../../../.github/workflows/publish.yml), job `deploy-pages`).
 
 ## Uso
 
 Dalla radice del repo:
 
 ```bash
+npm install            # una volta sola: la cartella è un workspace, la libreria è il working tree
 npm run build          # la libreria
-npm run edge:install   # dipendenze + working tree della libreria al posto di quella npm
-npm run edge           # dev server sulla 3001
-npm run edge:build     # build di produzione
+npm run dev -w site/pages/playEdge   # dev server sulla 3001
 ```
 
-`npm run edge:install` fa due cose: `npm install` normale, poi
-`npm install .. --install-links --no-save`, che mette il working tree della libreria in
-`node_modules` **senza toccare `package.json`**. Il file continua a dichiarare la versione
-npm, così la cartella resta importabile su StackBlitz così com'è, ed è la stessa coppia di
-comandi che gira in CI.
-
-Con entrambi i dev server accesi (`npm run playground` sulla 3000, `npm run edge` sulla 3001)
-i link fra le due pagine funzionano.
+`package.json` dichiara la versione npm (`"^<versione>"`, la riallinea `npm run sync:demos`),
+così la cartella resta importabile su StackBlitz così com'è; nel repo il workspace la collega
+al working tree. Il link «tutte le demo» in cima porta al sito pubblicato; con `npm run site:preview`
+si vede il sito completo in locale.
 
 ## Warning attesi
 
@@ -67,5 +62,5 @@ Due, e non vanno «sistemati»: sono i casi che la tabella descrive.
 ## Il resto
 
 - **Libreria** — [github.com/sepoina/viteTranslate](https://github.com/sepoina/viteTranslate), con l'[architettura](../doc/structure.md)
-- **Playground** — [sepoina.github.io/viteTranslate](https://sepoina.github.io/viteTranslate/)
+- **Tutte le demo** — [sepoina.github.io/viteTranslate](https://sepoina.github.io/viteTranslate/)
 - **npm** — [@sepoina/vitetranslate](https://www.npmjs.com/package/@sepoina/vitetranslate)

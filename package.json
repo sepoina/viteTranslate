@@ -1,7 +1,7 @@
 {
   "name": "@sepoina/vitetranslate",
-  "version": "4.6.1",
-  "versionDescription": "LLM translation support, with cost estimation and confirmation, plus a new demo for it.",
+  "version": "4.6.2-rc.2",
+  "versionDescription": "LLM translation: budget in cost, batches sized in tokens by model class, per-request ledger, reasoning measured apart, truncated replies salvaged and re-sent in smaller batches.",
   "description": "Extract translatable strings straight from your JSX — a Vite plugin that auto-generates and syncs your translation tables, with zero runtime dependencies.",
   "author": {
     "name": "Giancarlo Ghigi",
@@ -67,20 +67,16 @@
     "version": "node test/syncDemoDeps.mjs",
     "sync:demos": "node test/syncDemoDeps.mjs",
     "prepare": "npm run build",
-    "playground": "npm --prefix playground run dev",
-    "playground:build": "npm --prefix playground run build",
-    "playground:dump": "node test/exampleLangCompile.mjs",
-    "playground:previewpages": "npm run build && npm --prefix playground run preview -- --base=/viteTranslate/",
-    "edge": "npm --prefix playEdge run dev",
-    "edge:build": "npm --prefix playEdge run build",
-    "edge:install": "npm --prefix playEdge install --no-workspaces && npm --prefix playEdge run link:lib"
+    "site": "npm --prefix site/landing run dev",
+    "site:build": "node site/build.mjs",
+    "site:preview": "node site/build.mjs --preview"
   },
   "files": [
     "lib"
   ],
   "workspaces": [
-    "playground",
-    "playEdge",
+    "site/landing",
+    "site/pages/*",
     "demo/Vite_8/*"
   ],
   "devDependencies": {

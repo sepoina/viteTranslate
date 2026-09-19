@@ -117,7 +117,7 @@ console.log("\n== D8 rifiuto stampato ed exit code ==");
     llm: {
       connection: { baseURL: "http://fake", model: "fake-model" },
       driver: async () => ({ translations: {} }),
-      budget: { maxKeysPerRun: 0, maxRequestsPerRun: 0, maxKeysPerDay: 0, maxCharsPerRun: 0 },
+      budget: { maxTokensPerRun: 0 },
       context: { mode: "off" },
     },
   };
@@ -126,6 +126,52 @@ console.log("\n== D8 rifiuto stampato ed exit code ==");
   eq("comando gestito", true, handled);
   eq("exit code messo a 1 dal rifiuto", 1, process.exitCode);
   process.exitCode = 0;
+
+  rmSync(baseDir, { recursive: true, force: true });
+}
+
+console.log("\n== D9 --llm-status: righe budget e model class ==");
+{
+  const baseDir = mkdtempSync(join(tmpdir(), "vt-llmcli-"));
+  mkdirSync(join(baseDir, "node_modules"));
+  mkdirSync(join(baseDir, "locale"));
+
+  const statusOf = async (llm) => {
+    const lines = [];
+    const realLog = console.log;
+    const realWrite = process.stdout.write.bind(process.stdout);
+    console.log = (...args) => lines.push(args.join(" "));
+    process.stdout.write = (chunk) => { lines.push(String(chunk)); return true; };
+    try {
+      await maybeRunLlmCommand(["--llm-status"], {
+        baseDir, srcDir: "src", localeDir: "locale", sourceLanguage: "it-IT", simpleLog: true, llm,
+      });
+    } finally {
+      console.log = realLog;
+      process.stdout.write = realWrite;
+    }
+    // Senza colori, e con le righe a capo della colonna riunite: si cerca il testo, non l'impaginazione.
+    return lines.join("\n").replace(/\x1b\[[0-9;]*m/g, "").replace(/\n[^║\n]*║\s*/g, " ");
+  };
+  const driver = async () => ({ translations: {} });
+  const conn = { baseURL: "http://fake", model: "fake-model" };
+  const priced = { ...conn, costMillionInput: 1, costMillionOutput: 2 };
+
+  const withPrices = await statusOf({ connection: priced, driver, budget: "normal" });
+  eq("budget con prezzi", true, withPrices.includes("budget: normal — $1.00/run, $5.00/day"));
+  eq("today con costo, token e chiavi", true, withPrices.includes("today: $0 · 0 tokens · 0 key(s)"));
+  eq("model class con nome del campo", true, withPrices.includes("model class: standard — batches up to 3.0k output tokens / 100 keys, max_tokens 4096 (max_tokens)"));
+
+  const noPrices = await statusOf({ connection: conn, driver, budget: "normal" });
+  eq("budget senza prezzi, in token", true, noPrices.includes("budget: normal (no prices) — 500.0k tokens/run, 2.0M/day"));
+  eq("today senza costo", true, noPrices.includes("today: 0 tokens · 0 key(s)"));
+
+  eq("unlimited", true, (await statusOf({ connection: conn, driver, budget: "unlimited" })).includes("budget: unlimited"));
+  eq(
+    "max_tokens not sent",
+    true,
+    (await statusOf({ connection: { ...conn, maxTokensField: false }, driver })).includes("max_tokens not sent")
+  );
 
   rmSync(baseDir, { recursive: true, force: true });
 }

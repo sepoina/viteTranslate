@@ -34,18 +34,18 @@ export default defineConfig({
       },
     }),
   ],
-  // Quando la pagina viene buildata contro il working tree della libreria (vedi README),
-  // il dist della lib vive fuori da questa cartella e Vite risale le cartelle a cercare
-  // "react": se ne trova una copia sopra alla root del repo, nel bundle finiscono due
-  // React e gli hook della libreria girano su quello che react-dom non sta usando
-  // (#root vuoto). È lo stesso inciampo documentato in playground/vite.config.js.
+  // La libreria è un link al working tree (workspace di npm): il suo dist vive fuori da
+  // questa cartella e Vite risale le cartelle a cercare "react". Se ne trova una copia
+  // sopra alla root del repo, nel bundle finiscono due React e gli hook della libreria
+  // girano su quello che react-dom non sta usando (#root vuoto). È lo stesso inciampo
+  // documentato in site/pages/playground/vite.config.js.
   resolve: {
     dedupe: ['react', 'react-dom'],
   },
   server: {
     host: true,
-    // Porta fissa: con i due dev server accesi i link fra playground (3000) e
-    // questa pagina (3001) sanno dove puntare.
+    // Porta fissa, una per progetto del sito: playground 3000, questa pagina 3001,
+    // landing 3002, llmRestaurant 3003.
     port: 3001,
   },
 });

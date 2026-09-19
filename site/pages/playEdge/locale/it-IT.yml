@@ -1,13 +1,14 @@
 #  -------------------------------------------------
 #      italiano (Italia) (sourceLanguage)
 #       |    code: it-IT
-#       |    missing key: 1
-#       |    processed: 2026-09-16 00:40
+#       |    missing key: 0
+#       |    processed: 2026-09-19 16:16
 #       |    TableVersion: 260905
 #  -------------------------------------------------
 #
 App_1dtvcsy: "\n          <small>\n              La colonna <b>Atteso</b> vale in <b>sviluppo</b>, con la lingua sorgente attiva e i file di lingua già sincronizzati. I mark <code>🔸</code> (non tradotto qui) e <code>🔹</code> (non tradotto altrove) non sono riportati: dipendono dallo stato dei file di              lingua, non dalla riga. <code>‼️</code>, <code>🚫</code> <code>⁇</code> invece fanno parte del risultato atteso. In build i mark diagnostici spariscono — dove qui si legge <code>🚫[tipo]</code> non si rende più niente — mentre <code>⁇</code> resta: quello non è una diagnostica ma una resa normale.<br /> Passando sopra <code>&lt;/&gt;</code> accanto al nome della riga si vede il codice che l'ha prodotta.            \n          </small>            \n          "
 App_hk4mqd: " viteTranslate &nbsp;<b>%s</b>"
+App_xheo4s: "← viteTranslate: tutte le demo"
 autoWrapCases_1088ozj: "4. Attributo, forma diretta"
 autoWrapCases_11rvr1h: "Hai %s messaggi"
 autoWrapCases_184p845: "Questo testo non ha nessun &lt;Translate&gt; intorno: lo ha aggiunto il plugin da solo."
@@ -25,6 +26,7 @@ autoWrapCases_gop0zb: "1. Figlio nudo, componente riconosciuto"
 autoWrapCases_k4wcg8: "9. Un tag DENTRO il marcatore lo spezza"
 autoWrapCases_ropk2u: "Salva"
 autoWrapCases_twlewm: "6. Attributo su un componente"
+autoWrapCases_ukn802: "autoWrap: marcatori senza &lt;Translate&gt;"
 autoWrapCases_xfi6mi: "7. La key non si traduce mai"
 autoWrapCases_y19l6w: "3. Figlio nudo, componente NON riconosciuto"
 ShowAllRowTests_1gizqwy: "atteso in origine (IT)"
@@ -183,6 +185,3 @@ testCases_yp610a: "%s dentro <b>"
 testCases_yv0w7z: "%s + %s"
 testCases_zmrpz5: "a array vuoto"
 testCases_zzrrzd: "%s stringa vuota"
-
-#  ----to be translated------------------------------------------
-autoWrapCases_ukn802: "autoWrap: marcatori senza &lt;Translate&gt;"

@@ -12,7 +12,7 @@ markers from the code.
 ## Where to find the rest
 
 - **Project page** — [github.com/sepoina/viteTranslate](https://github.com/sepoina/viteTranslate): README, API and [architecture](https://github.com/sepoina/viteTranslate/blob/main/doc/structure.md)
-- **Live playground** — [sepoina.github.io/viteTranslate](https://sepoina.github.io/viteTranslate/), source in [`playground/`](https://github.com/sepoina/viteTranslate/tree/main/playground)
+- **Live playground** — [sepoina.github.io/viteTranslate/playground](https://sepoina.github.io/viteTranslate/playground/), source in [`site/pages/playground/`](https://github.com/sepoina/viteTranslate/tree/main/site/pages/playground)
 - **npm package** — [@sepoina/vitetranslate](https://www.npmjs.com/package/@sepoina/vitetranslate)
 - **Buy me a coffee** ☕ — [buymeacoffee.com/giancarlogy](https://buymeacoffee.com/giancarlogy)
 

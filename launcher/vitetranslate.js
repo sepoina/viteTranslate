@@ -279,7 +279,7 @@ function main() {
   }
   // Un link simbolico che porta nel posto sbagliato arriva a una cartella che esiste e ha un
   // package.json, ma di un altro pacchetto: il caso visto davvero è
-  // `playEdge/node_modules/@sepoina/vitetranslate -> ../..`, cioè playEdge stesso. Node lo
+  // `site/pages/playEdge/node_modules/@sepoina/vitetranslate -> ../..`, cioè playEdge stesso. Node lo
   // importerebbe lo stesso, e senza questo controllo il messaggio sarebbe "versione senza
   // comando: aggiorna", che manda a cercare il guasto nel posto sbagliato.
   if (pkg.name !== PACCHETTO) {

@@ -11,14 +11,15 @@ Found an actual bug? Open an [Issue](https://github.com/sepoina/viteTranslate/is
 ```bash
 npm install
 npm test             # the whole suite
-npm run playground   # runnable example in playground/, with a dev server
-npm run edge         # edge-case table in playEdge/, port 3001 (see playEdge/README.md)
+npm run site:preview # build the whole site (landing + pages) and serve it at http://localhost:4173/viteTranslate/
+npm run site:build   # the same build, without serving: output in site/dist
+npm run site         # dev server of the landing only, port 3002
 ```
 
-`npm install` from the root covers **every** workspace — `playground`, `playEdge` and the two demos
-under `demo/Vite_8/` — so one install is enough for all of them. A single one runs with
-`npm run dev -w demo/Vite_8/llmTranslate`. Like the playground, the demos resolve the library from
-this checkout, not from npm.
+`npm install` from the root covers **every** workspace — the landing and the pages under `site/`
+plus the demos under `demo/Vite_8/` — so one install is enough for all of them. A single one runs with
+`npm run dev -w site/pages/playground` (or any other workspace path). Like the playground, they all resolve the library from
+this checkout, not from npm. How the site is put together is in [site/README.md](site/README.md).
 
 ## Tests
 

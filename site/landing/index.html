@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="dark light" />
+    <meta name="theme-color" content="#06060b" />
+    <meta
+      name="description"
+      content="Extract translatable strings straight from your JSX — a Vite plugin that auto-generates and syncs your translation tables, with zero runtime dependencies."
+    />
+    <meta property="og:title" content="viteTranslate" />
+    <meta
+      property="og:description"
+      content="Extract translatable strings straight from your JSX. No keys to maintain, no runtime dependencies."
+    />
+    <link rel="icon" href="/logo.svg" type="image/svg+xml" />
+
+    <!-- Font: Geist per il testo, Geist Mono per il codice, Instrument Serif per gli accenti -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Geist:wght@300..800&family=Geist+Mono:wght@400..600&family=Instrument+Serif:ital@0;1&display=swap"
+    />
+
+    <!-- Movimento: GSAP + ScrollTrigger per le entrate e i contatori, Lenis per lo scroll morbido.
+         Sono `defer`, quindi partono prima del modulo dell'app; se una CDN non risponde la pagina
+         resta perfettamente leggibile, solo senza animazioni (src/motion.js controlla window.gsap). -->
+    <script defer src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/ScrollTrigger.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/lenis@1.3.11/dist/lenis.min.js"></script>
+
+    <title>viteTranslate</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>

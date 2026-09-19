@@ -1,5 +1,5 @@
 import { Translate, useTranslateToString } from "@sepoina/vitetranslate/react";
-import { EDGE_URL } from "../edgeUrl.js";
+import { siteUrl } from "../siteLinks.js";
 
 export default function TableOfContents({ items, installItems }) {
   const ts = useTranslateToString();
@@ -31,9 +31,14 @@ export default function TableOfContents({ items, installItems }) {
             ))}
           </ul>
         </li>
-        {/* Pagina a sé, non un'ancora: niente "#" e nessuna sottolista. */}
+        {/* Pagine a sé, non ancore: niente "#" e nessuna sottolista. */}
         <li>
-          <a href={EDGE_URL} className="toc-group-label">
+          <a href={siteUrl()} className="toc-group-label">
+            <Translate>_%_Tutte le demo_%_</Translate> ↗
+          </a>
+        </li>
+        <li>
+          <a href={siteUrl("edge")} className="toc-group-label">
             <Translate>_%_Edge case_%_</Translate> ↗
           </a>
         </li>

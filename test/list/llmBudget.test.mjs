@@ -1,7 +1,7 @@
 // Strato 6: budgetGuard.js — l'unico strato dove un errore si misura in soldi di qualcun altro.
 //
 //   node test/list/llmBudget.test.mjs
-import { checkNumericCaps, checkCI, confirmProceed, shouldStopMidRun } from "../../lib/dev/llm/budgetGuard.js";
+import { checkCaps, checkCI, confirmProceed, shouldStopMidRun } from "../../lib/dev/llm/budgetGuard.js";
 
 let fail = 0;
 const eq = (nome, atteso, ottenuto) => {
@@ -10,39 +10,57 @@ const eq = (nome, atteso, ottenuto) => {
   console.log(ok ? "  ok  " : "  KO  ", nome.padEnd(52), "->", JSON.stringify(ottenuto), ok ? "" : `(atteso ${JSON.stringify(atteso)})`);
 };
 
-const budget = { maxKeysPerRun: 50, maxRequestsPerRun: 20, maxKeysPerDay: 200, maxCharsPerRun: 200000, maxCostPerRun: 1 };
+const budget = { maxCostPerRun: 1, maxCostPerDay: 5, maxTokensPerRun: 100000, maxTokensPerDay: 400000 };
+const today0 = { cost: 0, tokens: 0 };
 
-// T38 — ognuno dei cinque tetti rifiuta, nominando quale e con quale numero
-console.log("\n== T38 i cinque tetti ==");
+// T38 — ognuno dei quattro tetti rifiuta, nominando quale e con quale numero
+console.log("\n== T38 i quattro tetti ==");
 {
-  const r = checkNumericCaps({ keys: 128, requests: 1, chars: 1, keysToday: 0, budget });
-  eq("maxKeysPerRun rifiuta", false, r.ok);
-  eq("nomina il tetto e il numero", true, r.message.includes("maxKeysPerRun") && r.message.includes("50"));
-}
-{
-  const r = checkNumericCaps({ keys: 1, requests: 99, chars: 1, keysToday: 0, budget });
-  eq("maxRequestsPerRun rifiuta", false, r.ok);
-}
-{
-  const r = checkNumericCaps({ keys: 1, requests: 1, chars: 999999, keysToday: 0, budget });
-  eq("maxCharsPerRun rifiuta", false, r.ok);
-}
-{
-  const r = checkNumericCaps({ keys: 10, requests: 1, chars: 1, keysToday: 195, budget });
-  eq("maxKeysPerDay rifiuta", false, r.ok);
-}
-{
-  const r = checkNumericCaps({ keys: 1, requests: 1, chars: 1, cost: 5, keysToday: 0, budget });
+  const r = checkCaps({ estimate: { cost: 1.5, tokens: 1 }, today: today0, budget });
   eq("maxCostPerRun rifiuta", false, r.ok);
+  eq("nomina il tetto e i numeri", true, r.message.includes("maxCostPerRun") && r.message.includes("$1.50") && r.message.includes("$1.00"));
 }
-eq("dentro i tetti -> ok", true, checkNumericCaps({ keys: 1, requests: 1, chars: 1, cost: 0.1, keysToday: 0, budget }).ok);
+{
+  const r = checkCaps({ estimate: { cost: 0.5, tokens: 1 }, today: { cost: 4.75, tokens: 0 }, budget });
+  eq("maxCostPerDay rifiuta (today + stima)", false, r.ok);
+  eq("nomina maxCostPerDay", true, r.message.includes("maxCostPerDay"));
+}
+{
+  const r = checkCaps({ estimate: { cost: 0.1, tokens: 150000 }, today: today0, budget });
+  eq("maxTokensPerRun rifiuta", false, r.ok);
+  eq("nomina il tetto, in token formattati", true, r.message.includes("maxTokensPerRun") && r.message.includes("150.0k"));
+}
+{
+  const r = checkCaps({ estimate: { cost: 0.1, tokens: 60000 }, today: { cost: 0, tokens: 350000 }, budget });
+  eq("maxTokensPerDay rifiuta (today + stima)", false, r.ok);
+  eq("nomina maxTokensPerDay", true, r.message.includes("maxTokensPerDay"));
+}
+eq("dentro i tetti -> ok", true, checkCaps({ estimate: { cost: 0.1, tokens: 1000 }, today: today0, budget }).ok);
+eq(
+  "ordine: costo per run prima di tutto",
+  true,
+  checkCaps({ estimate: { cost: 9, tokens: 9e9 }, today: { cost: 99, tokens: 9e9 }, budget }).message.includes("maxCostPerRun")
+);
+eq(
+  "ordine: maxCostPerDay prima dei token",
+  true,
+  checkCaps({ estimate: { cost: 0.9, tokens: 9e9 }, today: { cost: 4.5, tokens: 0 }, budget }).message.includes("maxCostPerDay")
+);
+{
+  // Il ripiego in token: senza prezzi il costo è `undefined` e i tetti di costo (già `undefined`) si saltano.
+  const tokensOnly = { maxCostPerRun: undefined, maxCostPerDay: undefined, maxTokensPerRun: 1000, maxTokensPerDay: undefined };
+  eq("costo undefined salta i tetti di costo", true, checkCaps({ estimate: { cost: undefined, tokens: 10 }, today: today0, budget }).ok);
+  eq("tetti undefined saltati", true, checkCaps({ estimate: { cost: 999, tokens: 999 }, today: today0, budget: tokensOnly }).ok);
+  eq("il tetto di token attivo rifiuta", false, checkCaps({ estimate: { tokens: 2000 }, today: today0, budget: tokensOnly }).ok);
+}
+eq("valuta nel messaggio", true, checkCaps({ estimate: { cost: 2, tokens: 1 }, today: today0, budget, costUnity: "€" }).message.includes("€2.00"));
 
-// T39 — --llm-auto scavalca tutti e cinque
+// T39 — --llm-auto scavalca tutti e quattro
 console.log("\n== T39 --llm-auto e costGuard: passarli a checkCI non scavalca ==");
 eq(
-  "auto bypassa keys/requests/chars/day/cost",
+  "auto bypassa costo/giorno/token",
   true,
-  checkNumericCaps({ keys: 99999, requests: 99999, chars: 99999999, cost: 999, keysToday: 999, budget, auto: true }).ok
+  checkCaps({ estimate: { cost: 999, tokens: 9e9 }, today: { cost: 999, tokens: 9e9 }, budget, auto: true }).ok
 );
 // checkCI non accetta `auto` né `costGuard` come parametri: passarli comunque non deve
 // scavalcare nulla, perché la funzione li ignora per costruzione — è così che né --llm-auto né
@@ -67,11 +85,21 @@ eq("con --llm-noask passa anche senza TTY", true, (await confirmProceed({ isTTY:
 eq("con TTY e risposta y passa", true, (await confirmProceed({ isTTY: true, ask: async () => "y" })).ok);
 eq("con TTY e risposta n rifiuta", false, (await confirmProceed({ isTTY: true, ask: async () => "n" })).ok);
 
-// T42 — maxCostPerRun superato a metà run: ci si ferma
+// T42 — un tetto superato a metà run: ci si ferma, e si dice quale
 console.log("\n== T42 guardia \"durante\" ==");
-eq("sotto il tetto -> non si ferma", false, shouldStopMidRun({ costSoFar: 0.5, maxCostPerRun: 1 }));
-eq("sopra il tetto -> si ferma", true, shouldStopMidRun({ costSoFar: 1.5, maxCostPerRun: 1 }));
-eq("nessun tetto -> non si ferma mai", false, shouldStopMidRun({ costSoFar: 999, maxCostPerRun: undefined }));
+const spent = (cost, tokens = 0) => ({ cost, tokens });
+eq("sotto i tetti -> non si ferma", false, shouldStopMidRun({ spent: spent(0.5, 10), today: today0, budget }));
+eq("maxCostPerRun -> nome del tetto", "maxCostPerRun", shouldStopMidRun({ spent: spent(1.5), today: today0, budget }));
+eq("maxCostPerDay usa today + spent", "maxCostPerDay", shouldStopMidRun({ spent: spent(0.9), today: { cost: 4.5, tokens: 0 }, budget }));
+eq("...e da solo non basta", false, shouldStopMidRun({ spent: spent(0.9), today: today0, budget }));
+eq("maxTokensPerRun", "maxTokensPerRun", shouldStopMidRun({ spent: spent(0, 100001), today: today0, budget }));
+eq("maxTokensPerDay usa today + spent", "maxTokensPerDay", shouldStopMidRun({ spent: spent(0, 60000), today: { cost: 0, tokens: 350000 }, budget }));
+eq(
+  "nessun tetto -> non si ferma mai",
+  false,
+  shouldStopMidRun({ spent: spent(999, 9e9), today: today0, budget: { maxCostPerRun: undefined, maxCostPerDay: undefined, maxTokensPerRun: undefined, maxTokensPerDay: undefined } })
+);
+eq("Infinity non scatta mai", false, shouldStopMidRun({ spent: spent(999, 9e9), today: today0, budget: { maxCostPerRun: Infinity, maxTokensPerRun: Infinity } }));
 
 // G1-G5 — costGuard in confirmProceed
 console.log("\n== G1-G5 costGuard ==");

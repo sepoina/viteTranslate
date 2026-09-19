@@ -30,7 +30,7 @@ Everything here runs from this folder.
 | `vitetranslate --llm-translate` | Sync, estimate, ask, fill the `null`s |
 | `vitetranslate --llm-translate --llm-dry-run` | Print the estimate and stop — nothing sent, nothing written |
 | `vitetranslate --llm-translate --llm-noask` | Same as `--llm-translate`, no prompt (CI, scripts) |
-| `vitetranslate --llm-status` | Connection, key source, today's spend, and the context abstract — no network |
+| `vitetranslate --llm-status` | Connection, key source, today's spend, budget, model class, and the context abstract — no network |
 | `npm run dev` · `build` · `lint` · `preview` | The Vite side of the demo, untouched |
 
 `--llm-dry-run` still needs a key to be *findable*: it reads it before deciding it has nothing to send.
@@ -71,17 +71,22 @@ and is skipped on later runs.
 
 ## Another model, or none at all
 
-The `connection` block in [`vite.config.js`](vite.config.js) points at Gemini's OpenAI-compatible
-endpoint. OpenAI, OpenRouter, Groq, LM Studio and Ollama speak the same shape, so it's a `baseURL`,
+The `connection` block in [`vite.config.js`](vite.config.js) points at DeepSeek's OpenAI-compatible
+endpoint. Gemini, OpenAI, OpenRouter, Groq, LM Studio and Ollama speak the same shape, so it's a `baseURL`,
 a `model` and a `apiKeyEnv` away. Ollama ignores the key, but the command still wants one to be
 findable — `VITETRANSLATE_API_KEY=ollama` in `.env.local` is enough.
+
+Two more knobs travel with the model: `modelClass` (`basic` … `frontier`) says how much it can take
+per request, so a small local model gets small batches and a flagship gets big ones; `budget` is
+*your* spending cap, in cost — `'safe'` here is $0.10 per run, $0.50 per day. OpenAI's reasoning
+models also want `maxTokensField: 'max_completion_tokens'`.
 
 Costs, budget caps, the keyring and every flag: **[doc/llm.md](../../../doc/llm.md)**.
 
 ## Where to find the rest
 
 - **Project page** — [github.com/sepoina/viteTranslate](https://github.com/sepoina/viteTranslate): README, API and [architecture](https://github.com/sepoina/viteTranslate/blob/main/doc/structure.md)
-- **Live playground** — [sepoina.github.io/viteTranslate](https://sepoina.github.io/viteTranslate/), source in [`playground/`](https://github.com/sepoina/viteTranslate/tree/main/playground)
+- **Live playground** — [sepoina.github.io/viteTranslate/playground](https://sepoina.github.io/viteTranslate/playground/), source in [`site/pages/playground/`](https://github.com/sepoina/viteTranslate/tree/main/site/pages/playground)
 - **npm package** — [@sepoina/vitetranslate](https://www.npmjs.com/package/@sepoina/vitetranslate)
 - **The launcher** — [vitetranslate](https://www.npmjs.com/package/vitetranslate): installed once, runs the copy your project has
 - **Buy me a coffee** ☕ — [buymeacoffee.com/giancarlogy](https://buymeacoffee.com/giancarlogy)

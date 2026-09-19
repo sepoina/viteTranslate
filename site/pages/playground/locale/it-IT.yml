@@ -2,7 +2,7 @@
 #      italiano (Italia) (sourceLanguage)
 #       |    code: it-IT
 #       |    missing key: 0
-#       |    processed: 2026-09-07 18:23
+#       |    processed: 2026-09-19 16:16
 #       |    TableVersion: 260905
 #  -------------------------------------------------
 #
@@ -49,6 +49,7 @@ StrengthsSection_wv4ype: "<strong>Sincronizzazione automatica delle tabelle.</st
 TableOfContents_1bvsbql: "Indice delle sezioni"
 TableOfContents_1epa0dl: "Punti di forza"
 TableOfContents_1go0hgj: "Edge case"
+TableOfContents_55ku40: "Tutte le demo"
 TableOfContents_gcxopo: "Indice"
 TableOfContents_t5pn9: "Installazione"
 TableOfContents_zmqhrh: "Playground"

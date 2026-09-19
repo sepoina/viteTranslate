@@ -163,6 +163,7 @@ console.log("\n== isLiveTerminal ==");
 // ------------------------------------------------------- requestPanel: i testi
 console.log("\n== shortReason: perché, in due parole ==");
 {
+  eq("un troncamento, prima di tutto il resto", "truncated", shortReason(Object.assign(new Error("openai-chat reply truncated: max_tokens reached"), { truncated: true, status: 200 })));
   eq("uno status HTTP", "HTTP 429", shortReason({ status: 429, message: "x" }));
   eq("un timeout", "timeout", shortReason(new Error("openai-chat request to http://x failed: The operation was aborted due to timeout")));
   eq("una risposta non JSON", "reply not JSON", shortReason(new Error("openai-chat reply was not a JSON object: ...")));
@@ -246,8 +247,21 @@ console.log("\n== requestPanel: le altre forme di riga ==");
     .fail(new Error("boom")), { traced: true })[0].includes("✖ - error Deutsch / see the debug trace / 0s."));
   eq("senza usage: la riga chiude comunque", true, riga((p) => p.open({ tag: "de-DE", count: 1 })
     .done({ filled: 1, rejected: 0, missing: 0, unknown: 0 }, null))[0].includes("completed / 0s."));
+  eq("lingua ancora da finire: quante ne mancano", true, riga((p) => p.open({ tag: "de-DE", count: 50 })
+    .done({ filled: 50, rejected: 0, missing: 0, unknown: 0, remaining: 178 }, USAGE))[0].includes("✔ < 50 new keys Deutsch. 178 to do / 0s."));
+  eq("lingua completa: Full translate!", true, riga((p) => p.open({ tag: "de-DE", count: 28 })
+    .done({ filled: 28, rejected: 0, missing: 0, unknown: 0, remaining: 0 }, USAGE))[0].includes("✔ < 28 new keys Deutsch. Full translate! / 0s."));
+  eq("da finire e con rifiuti", true, riga((p) => p.open({ tag: "de-DE", count: 3 })
+    .done({ filled: 2, rejected: 1, missing: 0, unknown: 0, remaining: 5 }, USAGE))[0].includes("✔ < 2 new keys Deutsch. 5 to do / 1 rejected / 0s."));
   eq("mai risposta: niente spinner fermo", true, riga((p) => p.open({ tag: "de-DE", count: 3 }))[0]
     .includes("· > ask 3 keys italiano - Deutsch"));
+  eq("lotto rimandato dopo una troncatura: il suo verbo", true, riga((p) => p.open({ kind: "split", tag: "fr-FR", count: 19 }))[0]
+    .includes("· > split 19 keys italiano - français"));
+  eq("lotto rimandato riuscito: chiavi nuove come un lotto qualunque", true, riga((p) => p.open({ kind: "split", tag: "fr-FR", count: 5 })
+    .done({ filled: 5, rejected: 0, missing: 0, unknown: 0, remaining: 0 }, USAGE))[0].includes("✔ < 5 new keys français. Full translate! / 0s."));
+  eq("troncata con coppie salvate: lo dice, e dice cosa manca", true, riga((p) => p.open({ tag: "fr-FR", count: 38 })
+    .done({ filled: 33, rejected: 0, missing: 5, unknown: 0, remaining: 5, truncated: true }, USAGE))[0]
+    .includes("✔ < 33 new keys français. 5 to do / truncated / 5 not returned / 0s."));
   const conNota = riga((p) => { p.open({ tag: "de-DE", count: 1 }).fail(new Error("x")); p.note("stopped sending"); });
   eq("una nota va in fondo", true, conNota.length === 2 && conNota[1].includes("stopped sending"));
   eq("nessuna connessione, niente log", [], riga(() => {}));
@@ -275,11 +289,18 @@ console.log("\n== requestPanel dal vivo: spinner, secondi, retry, esito, poi il 
   de.done({ filled: 6, rejected: 0, missing: 0, unknown: 0 }, USAGE);
   eq("l'esito al posto della domanda", true, vivo()[0].startsWith("✔ < 6 new keys Deutsch. Full translate!"));
   eq("dal vivo niente costi", false, vivo()[0].includes("$"));
+  const it = p.open({ tag: "fr-FR", count: 50 });
+  it.done({ filled: 50, rejected: 0, missing: 0, unknown: 0, remaining: 400 }, USAGE);
+  eq("lotto pieno, lingua no: niente Full translate!", true, vivo().some((r) => r.startsWith("✔ < 50 new keys français. 400 to do")));
+  eq("…e nessun Full translate! su quella riga", false, vivo().some((r) => r.startsWith("✔ < 50 new keys français.") && r.includes("Full translate!")));
+  const rj = p.open({ tag: "fr-FR", count: 3 });
+  rj.done({ filled: 2, rejected: 1, missing: 0, unknown: 0, remaining: 7 }, USAGE);
+  eq("da finire e con rifiuti, dal vivo", true, vivo().some((r) => r.startsWith("✔ < 2 new keys français. 7 to do. 1 rejected")));
   fr.done({ filled: 2, rejected: 0, missing: 0, unknown: 0 }, USAGE);
 
   const log = stampato(() => p.finish());
   eq("finish: la regione sparisce", [], schermo(t.scritti));
-  eq("e al suo posto il log, con la coda", true, log.length === 2 && log.every((r) => /completed \/ \d+s\.$/.test(r)));
+  eq("e al suo posto il log, con la coda", true, log.length === 4 && log.every((r) => /\/ \d+s\.$/.test(r)));
 }
 
 console.log("\n== requestPanel dal vivo: più connessioni che righe ==");
