@@ -149,12 +149,12 @@ else {
   writeFileSync(join(senza, "package.json"), "{}");
   const assente = lancia(senza);
   eq("non dichiarato: esce 1", 1, assente.status);
-  eq("...e suggerisce npm i -D", true, assente.uscita.includes("$ npm i -D @sepoina/vitetranslate"));
+  eq("...e suggerisce npm i", true, assente.uscita.includes("$ npm i @sepoina/vitetranslate"));
 
   const conPnpm = cartella();
   writeFileSync(join(conPnpm, "package.json"), "{}");
   writeFileSync(join(conPnpm, "pnpm-lock.yaml"), "");
-  eq("con pnpm-lock.yaml: pnpm add -D", true, lancia(conPnpm).uscita.includes("$ pnpm add -D @sepoina/vitetranslate"));
+  eq("con pnpm-lock.yaml: pnpm add", true, lancia(conPnpm).uscita.includes("$ pnpm add @sepoina/vitetranslate"));
 
   // Monorepo: il lockfile sta alla radice, il comando parte dal pacchetto.
   const monorepo = cartella();
@@ -163,7 +163,7 @@ else {
   const app = join(monorepo, "packages", "app");
   mkdirSync(app, { recursive: true });
   writeFileSync(join(app, "package.json"), "{}");
-  eq("lockfile alla radice del monorepo: yarn add -D", true, lancia(app).uscita.includes("$ yarn add -D @sepoina/vitetranslate"));
+  eq("lockfile alla radice del monorepo: yarn add", true, lancia(app).uscita.includes("$ yarn add @sepoina/vitetranslate"));
 
   const pnp = cartella();
   writeFileSync(join(pnp, "package.json"), JSON.stringify({ devDependencies: { "@sepoina/vitetranslate": "^4.5.0" } }));

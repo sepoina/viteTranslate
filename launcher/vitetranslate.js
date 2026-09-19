@@ -45,10 +45,10 @@ const GUARDIA = "VITETRANSLATE_LAUNCHER";
  * anche la risposta quando non si trova nessun lockfile.
  */
 const GESTORI = [
-  { lockfile: ["pnpm-lock.yaml"], aggiungi: "pnpm add -D", installa: "pnpm install" },
-  { lockfile: ["yarn.lock"], aggiungi: "yarn add -D", installa: "yarn install" },
-  { lockfile: ["bun.lock", "bun.lockb"], aggiungi: "bun add -d", installa: "bun install" },
-  { lockfile: ["package-lock.json"], aggiungi: "npm i -D", installa: "npm install" },
+  { lockfile: ["pnpm-lock.yaml"], aggiungi: "pnpm add", installa: "pnpm install" },
+  { lockfile: ["yarn.lock"], aggiungi: "yarn add", installa: "yarn install" },
+  { lockfile: ["bun.lock", "bun.lockb"], aggiungi: "bun add", installa: "bun install" },
+  { lockfile: ["package-lock.json"], aggiungi: "npm i", installa: "npm install" },
 ];
 
 const AIUTO = `
@@ -172,7 +172,7 @@ function spiegaAssenza(qui) {
       `no project here: there is no package.json in "${qui}" or in any folder above it.\n` +
       "  Run this from the root of your project. Starting a new one? Create a Vite app, then add\n" +
       "  the package from inside it:",
-      ["npm create vite@latest", `npm i -D ${PACCHETTO}`]
+      ["npm create vite@latest", `npm i ${PACCHETTO}`]
     );
     return;
   }

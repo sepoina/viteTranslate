@@ -20,7 +20,7 @@ It tells you what to type:
 | :- | :- |
 | No `package.json` here or above | run it from your project's root, or create a Vite app |
 | In `package.json`, not installed | `npm install` |
-| Not a dependency at all | `npm i -D @sepoina/vitetranslate` |
+| Not a dependency at all | `npm i @sepoina/vitetranslate` |
 | Yarn Plug'n'Play | `yarn vtranslate-cli`: there is no `node_modules` for a global command to look into |
 
 The package manager comes from your lockfile: pnpm, Yarn and Bun get their own commands.
