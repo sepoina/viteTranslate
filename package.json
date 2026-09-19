@@ -1,6 +1,6 @@
 {
   "name": "@sepoina/vitetranslate",
-  "version": "4.6.2-rc.3",
+  "version": "4.6.2",
   "versionDescription": "LLM translation: budget in cost, batches sized in tokens by model class, per-request ledger, reasoning measured apart, truncated replies salvaged and re-sent in smaller batches.",
   "description": "Extract translatable strings straight from your JSX — a Vite plugin that auto-generates and syncs your translation tables, with zero runtime dependencies.",
   "author": {
