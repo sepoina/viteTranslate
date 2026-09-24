@@ -58,7 +58,7 @@ export default function Tasting() {
               </p>
               <p><Translate t={m.text} /></p>
               <p className="tasting__pairing">
-                <i className="ph ph-wine" aria-hidden="true" /> <Translate t="_%_Abbinamento vini: + %s_%_" a={[money(m.pairing)]} />
+                <i className="ph ph-wine" aria-hidden="true" /> <Translate t="_%_Abbinamento vini: + {0, number, ::currency/EUR precision-integer}_%_" a={[m.pairing]} />
               </p>
               <a href="#prenota" role="button" className={m.featured ? '' : 'outline'}>
                 <Translate>_%_Prenota questo percorso_%_</Translate>

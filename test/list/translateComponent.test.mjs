@@ -86,6 +86,11 @@ const tabellaPath = join(ROOT, "lib/react", `__tabella-${stamp}.mjs`);
 writeFileSync(tabellaPath, compileLanguageModule(sorgenti, "test"), "utf8");
 temporanei.push(tabellaPath);
 const tabella = (await import(`${pathToFileURL(tabellaPath).href}?t=${stamp}`)).default;
+// Voce finta per gli argomenti con nome (piano 4.6.3): legge {nome} come farebbe _key nel
+// chunk vero (vedi KEY_HELPER in compileTable.js — l'argomento stesso, o il primo della
+// tupla). Aggiunta a mano invece che compilata: le tre forme dell'ICU passano già da
+// icuCompile.test.mjs, qui interessa solo che l'oggetto arrivi alla voce così com'è.
+tabella.App_nome = (a) => (Array.isArray(a) ? a[0] : a).name;
 
 // Nel manifest, `fallbackTable` è la tabella eager: è la sola che <Translate> vede quando non
 // c'è un container sopra, ed è il fallback universale quando c'è.
@@ -505,6 +510,11 @@ export const partiallyTranslated = { "App_markup": 1 };
 }
 
 console.error = originale;
+
+console.log("\n== argomenti per nome (piano 4.6.3) ==");
+eq('<Translate a={{ name: "Aldo" }} />', "Aldo", rendi({ t: marcatore("App_nome"), a: { name: "Aldo" } }, linguaAttiva));
+eq('ts(marcatore, { name: "Aldo" })', "Aldo", ts(marcatore("App_nome"), { name: "Aldo" }, linguaAttiva));
+eq("tupla [marcatore, { name }]: arriva [{ name }]", "Aldo", rendi({ t: [marcatore("App_nome"), { name: "Aldo" }] }, linguaAttiva));
 
 console.log(fail === 0 ? "\nTUTTI OK" : `\n${fail} FALLITI`);
 process.exit(fail === 0 ? 0 : 1);

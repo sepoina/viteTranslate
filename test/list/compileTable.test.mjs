@@ -122,7 +122,10 @@ eq("< letterale resta stringa", "string", typeof L.minoreLetterale);
 
 // ------------------------------------------------------ argomento come elemento React
 console.log("\n== argomento non-stringa ==");
-const linkFinto = { type: "a", children: "profilo" };
+// $$typeof: un vero elemento React ce l'ha sempre. Senza, dalla 4.6.3 questo oggetto sarebbe
+// indistinguibile da un oggetto semplice — il contenitore degli argomenti con nome — e _arg lo
+// renderebbe assente (⁇) invece di lasciarlo passare come valore (vedi lib/namedArgs.js).
+const linkFinto = { $$typeof: Symbol.for("react.transitional.element"), type: "a", children: "profilo" };
 eq("elemento React nel markup", "Ciao <b><a>profilo</a></b> come stai?", show(T.markupArgs([linkFinto])));
 // Regressione: in una voce SENZA markup i pezzi venivano concatenati con `+`, quindi un
 // nodo React diventava "[object Object]" — e in silenzio, e solo in alcune lingue.

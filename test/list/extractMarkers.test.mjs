@@ -474,6 +474,33 @@ console.log("\n== autoWrap: avviso per un %s in un testo avvolto ==");
   eq("T21: nessun avviso con autoWrap spento", false, catturatiSpento.includes("autowrap-placeholder"));
 }
 
+console.log("\n== autoWrap: avviso anche per un argomento ICU in un testo avvolto (piano 4.6.3) ==");
+{
+  // Non testo JSX nudo (`<p>_%_..{0}.._%_</p>`): lì la "{0}" sarebbe un'espressione JSX vera,
+  // e la marcatura la vedrebbe "marker split by {...}" — un problema diverso, non ICU. Un
+  // literal stringa dentro un container (`{"_%_..._%_"}`, § 5.3) porta "{0}" come caratteri
+  // letterali — ma quel ramo serve solo dentro un componente riconosciuto, quindi il JSX va
+  // avvolto in un componente esportato (come farà "inComponent" più sotto nel file).
+  const inFunzione = (jsx) => `export default function C() {\n return (${jsx});\n}\n`;
+
+  const messaggi = [];
+  extractMarkers(inFunzione(`<p>{"_%_Hai {0} messaggi_%_"}</p>`), {
+    filename: "/p/src/App.jsx", table: {}, autoWrap: true,
+    warn: (msg, kind) => messaggi.push({ msg, kind }),
+  });
+  eq("T20b: stessa categoria autowrap-placeholder", true, messaggi.some((m) => m.kind === "autowrap-placeholder"));
+  eq("T20b: il messaggio parla di un argomento ICU", true, messaggi.some((m) => m.kind === "autowrap-placeholder" && m.msg.includes("ICU argument")));
+
+  // Il messaggio del caso "%s" resta quello di prima, invariato, nello stesso ramo.
+  const messaggiPct = [];
+  extractMarkers(inFunzione(`<p>{"_%_hai %s messaggi_%_"}</p>`), {
+    filename: "/p/src/App.jsx", table: {}, autoWrap: true,
+    warn: (msg, kind) => messaggiPct.push({ msg, kind }),
+  });
+  eq('T20c: il messaggio del caso "%s" nomina il placeholder, non "ICU"', true,
+    messaggiPct.some((m) => m.kind === "autowrap-placeholder" && m.msg.includes('"%s" placeholder') && !m.msg.includes("ICU argument")));
+}
+
 // =========================================================================================
 // autoWrap (4.4.0) — doc/ImplementationPlans/4_4_0.md
 // =========================================================================================

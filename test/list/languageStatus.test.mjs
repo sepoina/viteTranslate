@@ -188,6 +188,38 @@ console.log("\n== non scrive niente: è una fotografia ==");
   eq("nessun backup", "", dopo.filter((f) => f.includes(".bak-")).join());
 }
 
+// ------------------------------------------------------- ICU (piano 4.6.3)
+console.log("\n== ICU: argomenti diversi dal sorgente -> warning, mai error ==");
+{
+  const p = progetto();
+  p.scrivi("it-IT.yml", p.tabella("it-IT", ['App_a: "Hai {0} file"']));
+  p.scrivi("fr-FR.yml", p.tabella("fr-FR", ['App_a: "Vous avez {1} fichiers"']));
+  const s = p.stato({ App_a: "Hai {0} file" });
+
+  eq("nota di livello warning con la chiave", "warning", riga(s, "fr-FR").level);
+  eq("la nota nomina la chiave", true, riga(s, "fr-FR").notes.join().includes("App_a"));
+  eq("il livello complessivo resta warning, non error", "warning", s.level);
+}
+console.log("\n== ICU: sintassi rotta nel sorgente -> warning sulla riga sorgente ==");
+{
+  const p = progetto();
+  p.scrivi("it-IT.yml", p.tabella("it-IT", ['App_a: "{0, plural, one {x}}"'])); // manca "other"
+  const s = p.stato({ App_a: "{0, plural, one {x}}" });
+
+  eq("riga sorgente: warning", "warning", riga(s, "it-IT").level);
+  eq("la nota parla di ICU non valido", true, riga(s, "it-IT").notes.join().includes("invalid ICU"));
+}
+console.log("\n== ICU: categorie plurali incomplete -> warning ==");
+{
+  const p = progetto();
+  p.scrivi("it-IT.yml", p.tabella("it-IT", ['App_a: "{0, plural, one {x} other {y}}"']));
+  p.scrivi("pl-PL.yml", p.tabella("pl-PL", ['App_a: "{0, plural, one {a} other {b}}"'])); // manca few/many
+  const s = p.stato({ App_a: "{0, plural, one {x} other {y}}" });
+
+  eq("nota su rami incompleti", true, riga(s, "pl-PL").notes.join().includes("incomplete plural"));
+  eq("resta warning", "warning", riga(s, "pl-PL").level);
+}
+
 for (const dir of temporanee) rmSync(dir, { recursive: true, force: true });
 
 console.log(fail ? `\n${fail} asserzioni fallite` : "\ntutto ok");

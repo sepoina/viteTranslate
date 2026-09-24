@@ -1,7 +1,7 @@
 {
   "name": "@sepoina/vitetranslate",
-  "version": "4.6.2",
-  "versionDescription": "LLM translation: budget in cost, batches sized in tokens by model class, per-request ledger, reasoning measured apart, truncated replies salvaged and re-sent in smaller batches.",
+  "version": "4.6.3-rc.1",
+  "versionDescription": "ICU MessageFormat: plurals, select, numbers and dates compiled at build time, with configurable time zones.",
   "description": "Extract translatable strings straight from your JSX — a Vite plugin that auto-generates and syncs your translation tables, with zero runtime dependencies.",
   "author": {
     "name": "Giancarlo Ghigi",
@@ -60,7 +60,7 @@
     "./package.json": "./package.json"
   },
   "scripts": {
-    "build": "rolldown -c",
+    "build": "node test/vendorIcu.mjs && rolldown -c",
     "test": "node test/run.mjs",
     "estimateSize": "node test/estimateSize.mjs",
     "release": "npm version patch && git push --follow-tags",
@@ -82,6 +82,7 @@
   "devDependencies": {
     "@babel/core": "^7.29.7",
     "@babel/preset-react": "^7.29.7",
+    "@formatjs/icu-messageformat-parser": "^3.5.20",
     "entities": "^8.1.0",
     "js-yaml": "^4.3.2",
     "react": "^19.2.8",

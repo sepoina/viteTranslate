@@ -94,6 +94,8 @@ mindmap
       vitePlugin
         vitetranslate.js
         cli.js
+      icu runtime
+        runtime.js
     dev
       babel
         markerCore.js
@@ -101,8 +103,12 @@ mindmap
         parserOptionsFor.js
       compile
         compileTable.js
+        emitTree.js
         parseMarkup.js
         decodeEntities.js
+        icu
+          icuSignature.js
+          compileIcu.js
       vite
         updateLanguage.js
         updateAllSubLanguages.js
@@ -116,7 +122,11 @@ mindmap
       htmlDialect.js
       errorSolve.js
       markerSyntax.js
+      namedArgs.js
       utility.js
+      icu
+        parse.js
+        devInterpret.js
 ```
 
 Now the literal map. Each file carries a header reference to its relevant section:
@@ -126,10 +136,16 @@ lib/
 ├── index.js .................... plugin entry (exports vitetranslate)
 ├── htmlDialect.js .............. allowed HTML tags — single source of truth for both parsers
 ├── errorSolve.js ............... errorSolve option: default, checks, resolution, console gates
-├── markerSyntax.js ............. marker delimiters, %s and __untranslated__ — one source for both sides
+├── markerSyntax.js ............. marker delimiters, %s, ICU_TRIGGER_RE and __untranslated__ — one source for all sides
+├── namedArgs.js ................ isNamedArgs/argAt/argNamed — argument reading outside a compiled chunk (4.6.3)
 ├── utility.js .................. color logging for the sync command
 ├── index.d.ts · react.d.ts ..... public types for the two entry points
 ├── virtual.d.ts ................ type declaration for "virtual:vitetranslate/languages"
+│
+├── icu/ ......................... ICU MessageFormat, shared by Node and browser (4.6.3, § 2c)
+│   ├── parse.js ................. trigger, %s normalization, parse + validation (imports lib/dist/icuParser.js)
+│   ├── runtime.js ............... the four formatting helpers + Intl cache — ships to the browser, no imports
+│   └── devInterpret.js .......... dev-only interpreter for an unsynced ICU key (never in production)
 │
 ├── dev/ ........................ everything running in Node, never sent to browser
 │   ├── babel/
@@ -139,11 +155,15 @@ lib/
 │   │   └── parserOptionsFor.js . parser plugins required for .js/.jsx/.ts/.tsx
 │   ├── compile/
 │   │   ├── compileTable.js ..... string table -> JS module of pre-built values
+│   │   ├── emitTree.js ......... ARG/pushTextParts/nodesExpr/… shared by the %s and ICU compilers (4.6.3)
+│   │   ├── icu/
+│   │   │   ├── icuSignature.js .. a text's argument "signature" + compareIcu (4.6.3)
+│   │   │   └── compileIcu.js .... ICU AST -> JS expression (4.6.3)
 │   │   ├── parseMarkup.js ...... HTML dialect parser without DOM (build time)
 │   │   └── decodeEntities.js ... HTML entities -> characters
 │   ├── vite/
 │   │   ├── vitetranslate.js .... the "vitetranslate" plugin: options, transform, virtual module hooks
-│   │   ├── buildManifest.js .... the virtual module content (languages, preloads, fallback table)
+│   │   ├── buildManifest.js .... the virtual module content (languages, preloads, fallback table, icu/icuDev)
 │   │   ├── compileLocale.js .... the "vitetranslate:compile-locale" transform
 │   │   ├── cli.js .............. "vtranslate-cli" CLI entry: argument parsing, calls syncCore.js / llmCommands.js
 │   │   ├── syncCore.js ......... the sync itself, extracted from cli.js — two callers: cli.js and autoSync.js
@@ -151,8 +171,8 @@ lib/
 │   │   ├── updateLanguage.js ... source language synchronization
 │   │   ├── updateAllSubLanguages.js  sync for all target languages
 │   │   └── uty/ ................ sync utilities (listing, reading, writing, backup, sorting) —
-│   │       incl. cliName.js, loadConfig.js, posix.js, readLanguageForSync.js, scanSource.js,
-│   │       setupFailure.js, syncReport.js, writeLanguageFile.js
+│   │       incl. cliName.js, icuOptions.js, loadConfig.js, posix.js, readLanguageForSync.js,
+│   │       scanSource.js, setupFailure.js, syncReport.js, writeLanguageFile.js
 │   └── llm/ ..................... LLM auto-translation — CLI-only, see § Phase 5 below.
 │       Never imported from lib/react/ or lib/index.js, except llmOptions.js (validated by
 │       the plugin, byte-cheap — see the invariant on this below).
@@ -163,7 +183,7 @@ lib/
 │
 ├── react/ ...................... runtime included in user's bundle
 │   ├── index.js ................ public surface of "@sepoina/vitetranslate/react"
-│   ├── TranslateContainer.jsx .. language state, Suspense, transition logic
+│   ├── TranslateContainer.jsx .. language state, Suspense, transition logic, `timeZone` prop (4.6.3)
 │   ├── TranslateContext.js ..... React context (intentionally NOT exported)
 │   ├── Translate.js ............ main component
 │   ├── useTranslateToString.js . ts() helper for string-only props
@@ -172,16 +192,17 @@ lib/
 │   ├── languageResource.js ..... cache + Suspense + chunk loading
 │   ├── resolveEntry.js ......... fallback resolution chain (and 🔸 / 🔹 diagnostic prefixes)
 │   ├── parseCompiledMarker.js .. compiled marker -> key (cached)
-│   ├── interpolate.js .......... %s replacement for uncompiled strings
+│   ├── interpolate.js .......... %s replacement for uncompiled strings (argAt-based, 4.6.3)
 │   ├── normalizeSource.js ...... object shape { t, a } -> string or tuple
 │   ├── readSource.js ........... shared verdict: EMPTY / ELEMENT / NOT_TEXT / TEXT (§ Phase 4)
 │   ├── withPrefix.js ........... attaches diagnostic prefix to string or React node
 │   └── basicHtmlToNodes.js ..... DOM-based HTML parser (dev mode + public API only)
 │
 └── dist/ ....................... output generated by Rolldown (do not edit manually)
+    └── icuParser.js ............ vendored @formatjs parser (4.6.3), gitignored, rebuilt by `npm run build`
 ```
 
-Quick reading rule: **`dev/` never enters the browser, `react/` never touches the disk.** The three files shared between both worlds are [`htmlDialect.js`](../lib/htmlDialect.js), [`errorSolve.js`](../lib/errorSolve.js) and [`markerSyntax.js`](../lib/markerSyntax.js), which accordingly import nothing — neither React nor Node. They represent logic with multiple consumers, written once so it cannot diverge.
+Quick reading rule: **`dev/` never enters the browser, `react/` never touches the disk.** The files shared between both worlds are [`htmlDialect.js`](../lib/htmlDialect.js), [`errorSolve.js`](../lib/errorSolve.js), [`markerSyntax.js`](../lib/markerSyntax.js) and, from 4.6.3, [`namedArgs.js`](../lib/namedArgs.js) and `icu/` — none of them import React or Node built-ins. `icu/` is its own case: `parse.js` and `devInterpret.js` are Node-*and*-dev-browser (the CLI, the plugin, and, only in development, the browser's fallback interpreter), while `runtime.js` is the one file in this list that ships to a **production** browser — it has no imports at all, not even from its own siblings.
 
 ---
 
@@ -512,6 +533,8 @@ This step converts raw text tables on disk into optimized JavaScript module stru
 | plain text with `%s` placeholders | `a => _cat(["...", _arg(a, 0), "..."])` |
 | HTML markup | pre-constructed React element tree (built **once**) |
 | HTML markup with `%s` | `a => jsxs(...)` with placeholders as React JSX children |
+| ICU message (4.6.3, see § 2c) | `(a, o) => …` calling `_icuN`/`_icuD`/`_icuP`/`_icuS` from `virtual:vitetranslate/icu` |
+| ICU message that is a single argument (`{0}`) | `(a, o) => _arg(a, 0)` — no wrapper, same optimization as plain `%s` |
 
 Concrete consequences:
 
@@ -546,6 +569,31 @@ Tag lists are defined in [`htmlDialect.js`](../lib/htmlDialect.js), consumed by 
 
 The single known structural difference between parsers involves **overlapping/misnested tags** (`<b>x <i>y</b> z</i>`): browser DOM parsing automatically repairs markup by re-opening `<i>` on subsequent text nodes (HTML5 adoption agency algorithm), whereas the build parser does not. [`parseMarkup.js`](../lib/dev/compile/parseMarkup.js) reports it through the same `warn(message, kind)` channel as `extractMarkers.js` — the `vitetranslate:compile-locale` transform threads it into the shared [`devReporter.js`](../lib/dev/vite/uty/devReporter.js) collector under the `mis-nested-markup` category, so it counts and dedupes like every other dev warning instead of printing on its own for every entry; a caller that doesn't pass a channel (a direct call, a test) falls back to `defaultWarn`, same as `extractMarkers.js`.
 
+### 2c. ICU MessageFormat (4.6.3)
+
+User-facing guide: [`doc/icu.md`](icu.md). This section is the compiler's-eye view.
+
+**Trigger.** A text compiles as ICU only if [`ICU_TRIGGER_RE`](../lib/markerSyntax.js) matches: `{` + digit, or `{` + name closed immediately or followed by a comma and an ICU keyword (`number`, `date`, `time`, `plural`, `selectordinal`, `select`). Any other `{...}` — `{ t: null }`, `${}`, a JSX-expression leftover — stays on the 4.6.2 path untouched; a golden hash test (`test/compileGolden.mjs`) proves it byte-for-byte on every table in the repo, with a single declared exception (the `_arg` helper, below).
+
+**Pipeline**, in [`lib/icu/parse.js`](../lib/icu/parse.js):
+
+1. `isIcuCandidate` (the trigger, cheap, called on every table entry);
+2. `normalizePlaceholders` — the *k*-th `%s` outside an ICU quote becomes `{k}`, so a mixed message and a pure-ICU message share one parser input;
+3. `parse()` from the vendored `@formatjs/icu-messageformat-parser` (`ignoreTag: true` — markup inside a literal is left alone, see below), plus our own checks: an apostrophe right before `{` (`icu-apostrophe`), an argument name outside `[\p{L}_][\p{L}\p{N}_]*` (`icu-argument-name`), `number`/`date`/`time` options validated by actually constructing the `Intl` formatter (`icu-options`, `icu-style`);
+4. the validated AST, annotated in place with `node.vtOptions` for every `number`/`date`/`time` node — mutating formatjs's own AST is safe here, since it's freshly parsed and never shared.
+
+**Slots, not string concatenation.** Markup and ICU nest in both directions — a `<b>` can contain a plural, and a plural branch can contain `<b>#</b>`. [`compileIcu.js`](../lib/dev/compile/icu/compileIcu.js) resolves this by rebuilding each message (and each branch, recursively) as a **template string**, where every ICU element becomes a private-use-character token (`SLOT_OPEN` + index + `SLOT_CLOSE`, U+E000/U+E001 — a source text containing either is `icu-reserved-char`, a hard error). [`parseMarkup.js`](../lib/dev/compile/parseMarkup.js) — the same one from § 2b — then runs on that string exactly as it would on `%s`-bearing text, and [`emitTree.js`](../lib/dev/compile/emitTree.js) (the `ARG`/`pushTextParts`/`nodesExpr`/`collectParts`/`elementExpr` moved there verbatim out of `compileTable.js`, so § 2b's forms and ICU's forms share one implementation) resolves each slot token back to its expression — reading the delimiters as a pair, not as bare digits, since a literal digit can legally sit right next to a slot in the same text.
+
+**Locale.** A translated entry compiles against its own chunk's tag; an entry that falls back to the source (null, or a source scan not yet synced) compiles against `sourceLanguage`, because that's the language the plural branches were written for.
+
+**Argument reading.** `{n}` reads `_arg(a, n)`, `{name}` reads `_key(a, "name")` — a second inline helper, emitted only when a message actually uses a name. Both, and the `_arg` they share, are the **one declared exception to byte-for-byte compilation**: from 4.6.3 `_arg` also accepts the arguments object (`a={{ name }}`) and turns a plain object used as a *value* into the same "missing" signal as `null`/`undefined` — today that shape makes React throw ("Objects are not valid as a React child"). [`lib/namedArgs.js`](../lib/namedArgs.js) is the same rule for callers that don't go through a compiled chunk (`interpolate.js`, the dev interpreter below); the two copies' parity is a dedicated test (`namedArgs.test.mjs`), not an assumption.
+
+**Runtime.** [`lib/icu/runtime.js`](../lib/icu/runtime.js) exports the four formatting helpers (`icuNumber`, `icuDate`, `icuPlural`, `icuSelect`) plus a `WeakMap`-keyed `Intl` instance cache (keyed by the options object's *identity* — those are hoisted module-level constants in the compiled chunk, so identity is a valid cache key and no `JSON.stringify` runs per render). It has **no imports**, because it ships to the browser: chunks reach it through the virtual module `virtual:vitetranslate/icu`, resolved by the same plugin that serves `virtual:vitetranslate/languages` — one shared chunk, one shared cache, pulled in only by the language chunks that actually call it. An app with no ICU table imports nothing extra.
+
+**Same arguments as the source.** One function, `compareIcu` ([`icuSignature.js`](../lib/dev/compile/icu/icuSignature.js)), used identically by compilation, `--status`, and the LLM validator (invariant 21, below) — never re-implemented. It compares two texts' *signatures* (argument keys with their family — `any`/`number`/`date`/`select` — plus plural/select branch keys), and is a no-op unless at least one of the two texts is an ICU candidate, so the 4.6.2 path pays nothing.
+
+**Dev fallback.** [`lib/icu/devInterpret.js`](../lib/icu/devInterpret.js) is the interpreter for a key written in this `vite dev` session but not yet synced — the same window `resolveEntry.missing()` already covered with `basicHtmlToNodes`. It reduces an ICU message to `%s` + values and hands that to `basicHtmlToNodes` as before. It ships only in development: `buildManifest.js` exports `icuDev` as `null` in production, so neither the interpreter nor the vendored parser it (transitively) needs ever reaches a production bundle.
+
 ---
 
 ## Phase 3 — The virtual module and code splitting
@@ -563,6 +611,8 @@ export const sourceLanguage = "it-IT";
 export const fallbackTable = __vt_pre_0;
 export const errorSolve = { badData: "🚫", malformed: "‼️", untranslated: "🔸", notFullyTranslated: "🔹", absentDataInArray: "⁇", warn: true };
 export const partiallyTranslated = { "App_1wltsn1": 1 };
+export const icu = { timeZone: "Europe/Rome" };        // the plugin's `icu` option, or null
+export { interpretIcu as icuDev } from "…/lib/icu/devInterpret.js";  // production: `export const icuDev = null;`
 ```
 
 Each configured language is represented by an entry containing its loading state and metadata.
@@ -572,6 +622,10 @@ The diagnostic options exported (`errorSolve`) contain pre-resolved values: opti
 `errorSolve` mirrors the configuration structure of `errorSolve.mark` in `vite.config.js`. The exported `warn` boolean represents the active console logging state.
 
 `partiallyTranslated` identifies keys that lack translation in **at least one** configured language. Computing this requires inspecting all language tables concurrently during build. (While individual compiled tables track their own missing keys via `__untranslated__`, cross-language completeness requires a holistic view.) The manifest builds this map using the tables already loaded in memory, avoiding extra disk I/O. If the corresponding diagnostic indicator is disabled, an empty object is emitted.
+
+`icu` and `icuDev` (4.6.3, § 2c) are **always** present, ICU tables or not — a namespace import (`import * as manifest`) turns a missing export into `undefined` on read, but a *named* import of one that doesn't exist is a link-time `SyntaxError`; the runtime reads the first through property access for exactly this reason, but the manifest itself still has to emit both unconditionally, since some other build of the plugin, or a hand-written manifest in a test, might not. `icu` carries the plugin's `icu.timeZone` option (`null` if unset) — the build-time default a compiled entry falls back to when neither `<TranslateContainer timeZone>` nor a runtime value says otherwise. `icuDev` is a re-export of `interpretIcu` from [`lib/icu/devInterpret.js`](../lib/icu/devInterpret.js) in development, and a literal `null` in production — so the dev-only interpreter, and the vendored ICU parser it needs, are never even *importable* from a production bundle, regardless of whether anything calls them.
+
+A second virtual module, `virtual:vitetranslate/icu`, is resolved by the same plugin instance (`resolveId`/`load`, next to the languages one) and re-exports the four formatting helpers from [`lib/icu/runtime.js`](../lib/icu/runtime.js). Only a compiled language chunk that actually uses ICU imports it — the bundler tree-shakes the rest away, so an app with no ICU table never receives this chunk at all.
 
 **Eager language bundling behavior** varies by environment:
 
@@ -659,7 +713,7 @@ sequenceDiagram
 
   T->>M: passes markerKey from compiled marker
   M-->>T: returns key "App_1nke42v" (cached)
-  T->>R: calls resolveEntry(table, fallbackTable, key, args, marker)
+  T->>R: calls resolveEntry(table, fallbackTable, key, args, marker, diag, icu)
   R->>Tb: checks table[key]
   alt found in active table
     Tb-->>R: returns string | React Element | interpolation function(args)
@@ -675,6 +729,8 @@ sequenceDiagram
 Lookup resolution precedence: **Active language table → Eager fallback table → Marker-embedded text (dev only) → Raw key string.** The system guarantees rendering output under all circumstances: even network failures when loading language chunks fall back gracefully to the eager table without crashing.
 
 Embedded fallback text exists specifically for development workflows: when a developer writes a new string, the compiled marker contains the text immediately, but locale files on disk only receive the key after running the sync command. In production builds, `includeFallback` defaults to `false` (the tables are already synced by the time bundling starts — see [Auto-sync at config time](#auto-sync-at-config-time)), stripping fallback text parsing code and `basicHtmlToNodes` imports from the client bundle.
+
+**`icu` (4.6.3, § 2c)** is `resolveEntry`'s seventh parameter, the ICU runtime options (currently just `{ timeZone }`). Every call site resolves it as `lang?.icu ?? manifest.icu` — the container's own `timeZone` prop first, the plugin's build-time default otherwise. Two places read it: a compiled entry that is a function receives it as its second argument (`entry(args, icu)`, alongside the args it already took); and, in the embedded-fallback branch above, `diag.icuDev?.(fallback, args, diag.icuLocale, icu)` — the dev interpreter, when the fallback text turns out to be an ICU message. `diag.icuDev` is `null` outside development (from the manifest's `icuDev` export, § Phase 3), so this call is a no-op check, not a branch, in a production build.
 
 ### Shared normalization: `readSource.js`
 
@@ -834,6 +890,8 @@ flowchart LR
 
 **`validateTranslation.js` is the piece that matters most.** Every candidate translation — first pass or repair round — passes through it before it can reach `writeLanguageFileIfChanged`; what fails stays `null`, exactly the state every other reader in the codebase already expects. It checks, in order: is-a-string, not-an-echo-of-the-key, the `%s` count (imported from [`markerSyntax.js`](../lib/markerSyntax.js), never re-implemented), the tag multiset (via `TAG_RE`, exported from [`parseMarkup.js`](../lib/dev/compile/parseMarkup.js) for this purpose), crossed tags, and a length cap. It has no imports beyond those two files and does no I/O — a candidate and a source string are all it ever needs.
 
+**ICU messages (4.6.3) branch inside the same function, never around it.** If the source is an ICU candidate, validation runs through `compareIcu` instead (§ 2c) — the identical function compilation and `--status` use — and rejects on any of its errors *or warnings*: a model that leaves a plural short one category, or drops a `select` key the source had, is treated the same as one that lost an argument outright. Everything else — tag set (as an unordered *set* here, not the multiset the plain-text path uses: a translation legitimately repeats the source's tags once per extra plural branch), crossed tags, a length cap widened to `×8` (plural branches grow with the language — Arabic has six) — mirrors the non-ICU path on purpose. `prompts.js` sends the ICU rules (argument identity, what a translator may reorder, which categories this target language requires) only to a batch that actually contains an ICU string, and `translatePass.js` sends the source text through `llmSourceText` first — a mixed message's `%s` becomes `{k}` before it ever reaches the model, so a reordering reply already speaks the same numbering `compareIcu` checks it against.
+
 **Two axes, two units: cost for the user, tokens for the model.** `llm.budget` is the user's spending and is expressed in **cost** (`maxCostPerRun`, `maxCostPerDay`); without prices the same presets fall back to caps in tokens, input plus output (`maxTokensPerRun`, `maxTokensPerDay`) — one unit at a time, the tables of presets live in [`llmOptions.js`](../lib/dev/llm/llmOptions.js) as plain data (it stays pure: the plugin bundle imports it too). `connection.modelClass` (`basic` … `frontier`, or an object) describes how much the model can take and fixes, in **tokens**, the batch size and the `max_tokens` sent. Characters are only ever raw material inside `costModel.js`, the batches and the ledger's calibration: no limit is expressed in characters, and none in keys except the class ceiling. A 4.6.1 budget field (`maxKeysPerRun`…) is a configuration error, not a silently ignored key.
 
 **Batches close on a threshold and on two ceilings, and the difference is the whole trick.** Each request repeats the system prompt — which already contains the context — the overhead **O**; the payload is **P**. A class carries a factor `k`: [`buildBatches.js`](../lib/dev/llm/buildBatches.js) closes a batch *after* adding the entry that brings `P` to `k · O`, the smallest batch with overhead at most `1/(1+k)` — and a smaller batch means fewer hallucinations. `maxOutputTokens` and `maxKeys` are ceilings checked *before* adding an entry: the entry that would cross one opens the next batch. A single entry beyond a ceiling travels alone; a string is never split. The functions that turn an entry into characters (`itemCharsIn`, `itemCharsOut`) live only in [`costModel.js`](../lib/dev/llm/costModel.js), and the estimate is computed from the batches already built, so the dry-run and the real run agree on the number of requests — for the same context: a real run that regenerates the abstract changes O before the estimate, a limit that predates this design.
@@ -943,6 +1001,8 @@ Bundled into four distribution outputs via [`rolldown.config.js`](../rolldown.co
 
 The `files: ["lib"]` manifest rule includes `lib/` in published npm packages, containing both production assets and `dev/` source files required by the CLI. Directories like `site/`, `demo/`, `test/`, and `doc/` are omitted from published npm tarballs.
 
+**`lib/dist/icuParser.js` is the one file under `lib/` that isn't checked into git (4.6.3).** It's `@formatjs/icu-messageformat-parser` (a devDependency), vendored by [`test/vendorIcu.mjs`](../test/vendorIcu.mjs) into a single minified ESM chunk with an MIT license banner — `npm run build` runs it before `rolldown -c`, since the plugin bundle imports [`lib/icu/parse.js`](../lib/icu/parse.js), which imports this file. It sits under `lib/dist/` and not `lib/vendor/` for a packaging reason: `dist/` is `.gitignore`d, and the rest of `lib/` is versioned source the "publish" job's checkout already has. A file the CI never rebuilds and never downloads would simply be missing from what ships — the CLI runs from `lib/dev/…` sources in a user's own install, and needs the parser to be *in the package*, not just in this repo's working tree. So `.github/workflows/publish.yml`'s `build` job uploads `lib/dist` as a build artifact, and `publish` downloads only that on top of its own checkout — everything else under `lib/` arrives from git, as always.
+
 Releases publish via GitHub Actions using npm OIDC trusted publishing, linking published package tarballs directly to source commit SHAs.
 
 ### The global command: `launcher/`
@@ -1023,6 +1083,8 @@ Architectural constraints that must be preserved to prevent subtle or silent fai
 17. **No pre-existing line of a transformed file ever moves.** The output has at most one line more than the input, always the appended `import`. This is why the import goes at the end and never at the top.
 18. **The LLM never runs inside the plugin.** Not in `config`, not anywhere else. Configuration lives in `vite.config` because `loadConfig()` reads it back from there, but the only thing that opens a socket is `vtranslate-cli`. A network call inside `config` would block the dev server, make a build non-reproducible, and bill every CI run — this is point 4 seen from another angle, and carries the same weight.
 19. **No translated value is ever written without passing through `validateTranslation`.** A lost `%s` is a `⁇` on screen, an invented tag is markup the runtime dissolves, a chatty reply is a paragraph inside a button. What fails stays `null` — a state every reader in the codebase already handles. This is invariant 10 ("never write over what could not be read") applied to what a machine writes.
+20. **The ICU parser never enters a production bundle (4.6.3).** Only the plugin, the CLI, and — in development only — the manifest's `icuDev` export import [`lib/icu/parse.js`](../lib/icu/parse.js), which is the only file in `lib/` allowed to import `../dist/icuParser.js`. `buildManifest.js` emits `icuDev` as a literal `null` in production, which is what keeps the vendored parser out of a build even though `devInterpret.js` — the one thing that would need it at runtime — is never imported by anything else. `reactBundleSize.test.mjs` guards it directly (`MISSING_OTHER_CLAUSE`, a string unique to the parser, absent from the runtime bundle).
+21. **A translation whose ICU arguments diverge from the source never compiles as itself.** It falls back to the compiled source text — same as a `null` — and the fallback is flagged the same way as any other untranslated key (§ 2b, `__untranslated__`), so `🔸` and `--status` both see it as work still to do, not as a silent divergence. `compareIcu` (invariant-worthy on its own: the *only* place "same arguments" is decided, § 2c) is what makes this call, identically for compilation, `--status` and the LLM validator.
 
 ---
 
@@ -1047,5 +1109,8 @@ Architectural constraints that must be preserved to prevent subtle or silent fai
 | Suspense and language switching | [`languageResource.js`](../lib/react/languageResource.js) · [`TranslateContainer.jsx`](../lib/react/TranslateContainer.jsx) |
 | The fallback chain | [`resolveEntry.js`](../lib/react/resolveEntry.js) |
 | Diagnostic prefixes and the console switch | [`errorSolve.js`](../lib/errorSolve.js) · [`withPrefix.js`](../lib/react/withPrefix.js) |
+| ICU messages: trigger, parse, compile, runtime helpers | [`parse.js`](../lib/icu/parse.js) · [`compileIcu.js`](../lib/dev/compile/icu/compileIcu.js) · [`runtime.js`](../lib/icu/runtime.js) |
+| Same ICU arguments as the source | [`icuSignature.js`](../lib/dev/compile/icu/icuSignature.js) (`compareIcu`) |
+| Named arguments outside a compiled chunk | [`namedArgs.js`](../lib/namedArgs.js) |
 | BCP 47 tags | [`bcp47.md`](bcp47.md) |
 | How to contribute, how tests run | [`CONTRIBUTING.md`](../CONTRIBUTING.md) |

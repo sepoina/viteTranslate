@@ -2,7 +2,7 @@
 #      italiano (Italia) (sourceLanguage)
 #       |    code: it-IT
 #       |    missing key: 0
-#       |    processed: 2026-09-19 18:07
+#       |    processed: 2026-09-24 15:14
 #       |    TableVersion: 260905
 #  -------------------------------------------------
 #
@@ -12,7 +12,7 @@ CodeDemo_z2n0vh: "Come si vede"
 Compare_17yirfh: "Tabelle YAML sincronizzate da sole"
 Compare_1fagnuu: "Nessun parser dei messaggi a runtime"
 Compare_1kahvi7: "= disponibile con strumenti o configurazione aggiuntivi."
-Compare_1o26z9e: "Runtime sotto i 5 kB gzip"
+Compare_1nn8wh6: "Runtime %s gzip"
 Compare_1pvsvdi: "Confronto"
 Compare_1v1fl2d: "Sintassi senza chiavi"
 Compare_1v6jhcq: "Estrazione dentro il ciclo di Vite"
@@ -32,11 +32,11 @@ Demos_1pkl1tq: "Il progetto della pagina, da importare su stackblitz.com"
 Features_15p5cow: "byte di runtime, in gzip"
 Features_17y2azt: "Caricata con import() solo quando la scegli. Chi legge in italiano non scarica mai il cinese."
 Features_1ag9tjh: "Un comando sincronizza ogni lingua: chiavi nuove aggiunte, obsolete tolte. Una frase spostata si porta dietro la sua traduzione."
-Features_1dlkuru: "Meno di 5 kB, misurati dalla suite di test: non una promessa a parole."
 Features_1fzn835: "dipendenze a runtime"
 Features_1lai6qf: "Ogni lingua è un file a sé"
 Features_1lrhwkl: "Perché viteTranslate"
 Features_1p2da2r: "Le tabelle diventano valori già pronti al momento della build. Niente parser HTML nel browser, e per questo il testo tradotto si rende anche lato server."
+Features_1r9ol0a: "%s, misurati dalla suite di test: non una promessa a parole."
 Features_1sxsslu: "Scrivi la frase dove serve, tra i delimitatori. La chiave la genera il plugin: non devi inventarla, e non devi tenerla d'occhio."
 Features_1v0k6xn: "Tutto ciò che serve. <em>Niente</em> di ciò che pesa."
 Features_1v3v7dn: "Tabelle YAML sempre allineate"

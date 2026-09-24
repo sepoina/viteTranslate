@@ -1,8 +1,8 @@
 #  -------------------------------------------------
 #      American English
 #       |    code: en-US
-#       |    missing key: 0
-#       |    processed: 2026-09-19 16:16
+#       |    missing key: 62
+#       |    processed: 2026-09-24 15:24
 #       |    TableVersion: 260905
 #  -------------------------------------------------
 #
@@ -185,3 +185,67 @@ testCases_yp610a: "%s inside <b>"
 testCases_yv0w7z: "%s + %s"
 testCases_zmrpz5: "a empty array"
 testCases_zzrrzd: "%s empty string"
+
+#  ----to be translated------------------------------------------
+testCases_11awuuv: null
+testCases_11ifzur: null
+testCases_12pmkm5: null
+testCases_13bkllm: null
+testCases_13vwpvs: null
+testCases_14223qj: null
+testCases_15gk80t: null
+testCases_15tz65m: null
+testCases_1638rlb: null
+testCases_16w54c7: null
+testCases_171kg22: null
+testCases_18l9w8v: null
+testCases_19y4mz8: null
+testCases_1a6dt3l: null
+testCases_1aepg2c: null
+testCases_1exv0a8: null
+testCases_1gvkxii: null
+testCases_1h83cho: null
+testCases_1hv2fat: null
+testCases_1iiaota: null
+testCases_1j45k30: null
+testCases_1jn1ojq: null
+testCases_1m52e2i: null
+testCases_1m55jkh: null
+testCases_1ne6198: null
+testCases_1nwxhnt: null
+testCases_1o5f6ws: null
+testCases_1o8l47j: null
+testCases_1r03dyw: null
+testCases_1uqpe88: null
+testCases_1uuw9gz: null
+testCases_1w0wbok: null
+testCases_1x23au6: null
+testCases_1xnlwmh: null
+testCases_1y6l4hy: null
+testCases_1y9rkl: null
+testCases_2big4d: null
+testCases_2cmrl1: null
+testCases_4sq2d3: null
+testCases_4vlmmx: null
+testCases_6kl9pf: null
+testCases_7pvpfk: null
+testCases_9t3f2s: null
+testCases_amm37k: null
+testCases_bmn8pl: null
+testCases_crzhar: null
+testCases_cxuywn: null
+testCases_feyq4x: null
+testCases_gg905g: null
+testCases_jo8ynr: null
+testCases_kbu702: null
+testCases_kf0lta: null
+testCases_kqqcnr: null
+testCases_mwzan7: null
+testCases_nbumhc: null
+testCases_nsy0ju: null
+testCases_s0d2nl: null
+testCases_s7zjm1: null
+testCases_tm70px: null
+testCases_vr46yz: null
+testCases_wmbgr7: null
+testCases_ynn7m: null

@@ -11,7 +11,7 @@ node -e "const s=require('fs').readFileSync('README.md','utf8').replace(/<!--[\s
 - ogni file di documentazione deve essere rivolto all'utente, ad incentivo. Discorsività minima per una lettura veloce, elementi essenziali, eventuale ironia.
 - i testi vanno scritti in inglese. Se l'originale è in italiano proporre (ask) traduzione ed adattamento.
 - quando un testo va ridotto analizza i punti confusi e pensa prima a come riorganizzarlo per renderlo più leggibile, alla luce di questo procedi. 
-- in chiusura di ogni bundle di release e a ogni revisione di versione, rilanciare `npm run estimateSize` (vedi `test/measureReactBundle.mjs` per cosa misura) e riportare il numero di byte esatto in README.md, dove si parla di "Under 5 kB gzip": non un controllo occasionale ("se cambia"), un aggiornamento sistematico ad ogni chiusura, nello stesso commit.
+- in chiusura di ogni bundle di release e a ogni revisione di versione, rilanciare `npm run estimateSize` (vedi `test/measureReactBundle.mjs` per cosa misura: runtime React + helper ICU). Lo script riscrive `site/runtimeSize.json` e confronta README.md: nello stesso commit si aggiorna README.md finché non stampa `README: OK` — il numero di byte esatto nella nota ⁴ sempre, le cifre arrotondate quando cambiano. Regola delle cifre: il peso reale si scrive arrotondato per difetto al kB (5,4 kB → "5 kB"), mai "< 5 kB", "sotto i 5 kB" o simili; nelle comparazioni si usa il kB superiore con "<" (5,4 kB → "<6 kB"). Non un controllo occasionale ("se cambia"): un aggiornamento sistematico ad ogni chiusura.
 
 ## REGOLE DI PLAN
 

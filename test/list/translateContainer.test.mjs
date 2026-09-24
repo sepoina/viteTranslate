@@ -81,21 +81,26 @@ let scenari = 0;
  * `fallisce` decide se il chunk di fr-FR arriva o no; `control` resta esportato e mutabile, così
  * un caricamento può fallire la prima volta e riuscire alla seconda (il caso del ritentativo).
  */
-async function scenario({ fallisce = false } = {}) {
+async function scenario({ fallisce = false, extraEntries = "", icu = null } = {}) {
   const id = `${stamp}-${scenari++}`;
   const nomeManifest = `__manifest-${id}.mjs`;
   const nomeRisorsa = `__resource-${id}.mjs`;
 
   // Una voce di tabella può essere una stringa: è la forma che compileLanguageModule produce
   // per un testo senza segnaposto né markup, e qui è tutto ciò che serve per vedere QUALE
-  // tabella è finita a schermo.
-  scrivi(`__tab-it-${id}.mjs`, `export default { App_saluto: "Ciao mondo" };\n`);
-  scrivi(`__tab-fr-${id}.mjs`, `export default { App_saluto: "Bonjour le monde" };\n`);
+  // tabella è finita a schermo. `extraEntries` (piano 4.6.3) aggiunge voci-funzione, per
+  // vedere come arrivano gli argomenti (a, o) a una voce compilata.
+  scrivi(`__tab-it-${id}.mjs`, `export default { App_saluto: "Ciao mondo"${extraEntries} };\n`);
+  scrivi(`__tab-fr-${id}.mjs`, `export default { App_saluto: "Bonjour le monde"${extraEntries} };\n`);
 
   scrivi(nomeManifest, `
 import tabellaIt from "./__tab-it-${id}.mjs";
 import tabellaFr from "./__tab-fr-${id}.mjs";
 export const control = { fallisce: ${fallisce}, caricamenti: 0 };
+// Sempre presenti nel manifest vero (buildManifest.js): un manifest finto che non li ha
+// deve comunque funzionare, essendo un namespace e non un import nominato (piano 4.6.3).
+export const icu = ${JSON.stringify(icu)};
+export const icuDev = null;
 export const languages = {
   "it-IT": { name: "italiano", preloaded: true, table: tabellaIt, load: () => Promise.resolve({ default: tabellaIt }) },
   "fr-FR": { name: "français", preloaded: false, load: () => {
@@ -303,6 +308,37 @@ console.log("\n== ritentativo di una lingua fallita ==");
   // Una lingua caricata bene non riparte a ogni proposta: la cache serve a questo.
   await ensureLanguage("fr-FR");
   eq("una lingua già pronta non si ricarica", 2, control.caricamenti);
+}
+
+// ------------------------------------------------------- ICU: prop timeZone (piano 4.6.3)
+console.log("\n== prop timeZone: le opzioni di runtime ICU nel context ==");
+{
+  const { TranslateContainer, Translate } = await scenario({ extraEntries: ', App_tz: (a, o) => o?.timeZone ?? "(nessuno)"' });
+  eq("timeZone valido -> nel context come o.timeZone", "Asia/Tokyo",
+    renderToStaticMarkup(h(TranslateContainer, { timeZone: "Asia/Tokyo" }, h(Translate, { t: `_<_App_tz_>_` }))));
+  eq("fuori dal container: nessun o, ricade sul default della voce", "(nessuno)",
+    renderToStaticMarkup(h(Translate, { t: `_<_App_tz_>_` })));
+}
+{
+  const { TranslateContainer, Translate } = await scenario({ extraEntries: ', App_tz: (a, o) => o?.timeZone ?? "(nessuno)"' });
+  const conta = errori.length;
+  eq("fuso non valido: ricade su undefined (nessun o.timeZone)", "(nessuno)",
+    renderToStaticMarkup(h(TranslateContainer, { timeZone: "Nope/Nowhere" }, h(Translate, { t: `_<_App_tz_>_` }))));
+  eq("e lo segnala in console", true, errori.slice(conta).some((m) => m.includes('timeZone "Nope/Nowhere" is not a valid IANA time zone')));
+}
+
+console.log("\n== argomenti per nome arrivano com'erano scritti (piano 4.6.3) ==");
+{
+  // La voce legge {nome} come farebbe _key nel chunk vero: l'argomento stesso, o il primo
+  // della tupla (vedi lib/dev/compile/compileTable.js, KEY_HELPER). Con `a={{ name }}` arriva
+  // l'oggetto stesso; con la tupla `[marcatore, { name }]` arriva `[{ name }]` — un array il
+  // cui primo elemento è l'oggetto degli argomenti (readSource.js: "embedded" è sempre un
+  // array, anche di un elemento solo).
+  const { TranslateContainer, Translate } = await scenario({ extraEntries: ", App_nome: (a) => (Array.isArray(a) ? a[0] : a).name" });
+  eq('<Translate a={{ name: "Aldo" }} />: l\'oggetto arriva alla voce così com\'è', "Aldo",
+    renderToStaticMarkup(h(TranslateContainer, null, h(Translate, { t: `_<_App_nome_>_`, a: { name: "Aldo" } }))));
+  eq("stesso risultato con la forma tupla [marcatore, { name }]", "Aldo",
+    renderToStaticMarkup(h(TranslateContainer, null, h(Translate, { t: [`_<_App_nome_>_`, { name: "Aldo" }] }))));
 }
 
 console.error = consoleErrore;

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Translate, useTranslateLanguage, useTranslateToString } from '@sepoina/vitetranslate/react';
+import { Translate, useTranslateToString } from '@sepoina/vitetranslate/react';
 import Photo from './Photo';
 import { PHOTOS } from '../photos';
 
@@ -21,22 +21,17 @@ const HOURS = [
 const today = () => new Date().toISOString().slice(0, 10);
 
 export default function Booking() {
-  const { id } = useTranslateLanguage();
   const ts = useTranslateToString();
   const [form, setForm] = useState({ date: '', time: '20:30', guests: 2, room: 'sala', name: '', email: '', phone: '', notes: '' });
   const [sent, setSent] = useState(null);
 
   const set = (key) => (e) => setForm({ ...form, [key]: e.target.value });
-  const guestsLabel = (n) => (Number(n) === 1 ? ts('_%_1 persona_%_') : ts('_%_%s persone_%_', n));
+  const guestsLabel = (n) => ts('_%_{0, plural, one {# persona} other {# persone}}_%_', Number(n));
 
   const submit = (e) => {
     e.preventDefault();
     setSent({ ...form });
   };
-
-  // la data scritta nella lingua sullo schermo: "sabato 3 ottobre", "Saturday, October 3"…
-  const dateLabel = (iso) =>
-    new Intl.DateTimeFormat(id || 'it-IT', { weekday: 'long', day: 'numeric', month: 'long' }).format(new Date(`${iso}T12:00`));
 
   return (
     <section className="section booking" id="prenota">
@@ -81,8 +76,8 @@ export default function Booking() {
               <h3><Translate>_%_Richiesta ricevuta_%_</Translate></h3>
               <p>
                 <Translate
-                  t="_%_Grazie, <b>%s</b>! Abbiamo registrato la richiesta per %s, %s alle %s. Vi scriveremo entro due ore per confermare il tavolo._%_"
-                  a={[sent.name, guestsLabel(sent.guests), dateLabel(sent.date), sent.time]}
+                  t="_%_Grazie, <b>{name}</b>! Abbiamo registrato la richiesta per {guests, plural, one {# persona} other {# persone}}, {date, date, ::EEEEdMMMM} alle {time}. Vi scriveremo entro due ore per confermare il tavolo._%_"
+                  a={{ name: sent.name, guests: Number(sent.guests), date: sent.date, time: sent.time }}
                 />
               </p>
               <button className="outline" onClick={() => setSent(null)}>

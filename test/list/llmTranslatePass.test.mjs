@@ -806,6 +806,41 @@ console.log("\n== S6 al primo run il rapporto d'uscita segue la lingua sorgente,
   eq("un lotto solo", 1, ja.totalRequests);
 }
 
+console.log("\n== piano 4.6.3: le regole ICU nel prompt, solo quando servono ==");
+{
+  const baseDir = progetto(`export default function App() {
+  return <div>{"_%_Welcome_%_"}</div>;
+}
+`);
+  let seen = "";
+  const driver = async ({ userPayload, systemPrompt }) => {
+    seen = systemPrompt;
+    const { items } = JSON.parse(userPayload);
+    const translations = {};
+    for (const item of items) translations[item.k] = `TR:${item.t}`;
+    return { translations };
+  };
+  await translatePass({ config: baseConfig(baseDir, driver), noAsk: true });
+  eq("tabella senza ICU: nessuna regola ICU nel prompt", false, seen.includes("ICU MessageFormat"));
+}
+{
+  const baseDir = progetto(`export default function App() {
+  return <div>{"_%_Hai {0, plural, one {# file} other {# file}}_%_"}</div>;
+}
+`);
+  let seen = "";
+  const driver = async ({ userPayload, systemPrompt }) => {
+    seen = systemPrompt;
+    const { items } = JSON.parse(userPayload);
+    const translations = {};
+    for (const item of items) translations[item.k] = item.t.replace("{0, plural, one {# file} other {# file}}", "{0, plural, one {# fichier} other {# fichiers}}");
+    return { translations };
+  };
+  await translatePass({ config: baseConfig(baseDir, driver), noAsk: true, tags: ["fr-FR"] });
+  eq("tabella con ICU: le regole ICU sono nel prompt", true, seen.includes("ICU MessageFormat"));
+  eq("le categorie plurali di fr-FR sono nel prompt", true, seen.includes("Plural branches for fr-FR:"));
+}
+
 for (const dir of temporanee) rmSync(dir, { recursive: true, force: true });
 
 console.log(fail ? `\n${fail} asserzioni fallite` : "\ntutto ok");

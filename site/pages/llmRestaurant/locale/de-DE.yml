@@ -2,7 +2,7 @@
 #      Deutsch (Deutschland)
 #       |    code: de-DE
 #       |    missing key: 0
-#       |    processed: 2026-09-19 17:32
+#       |    processed: 2026-09-23 13:50
 #       |    TableVersion: 260905
 #  -------------------------------------------------
 #
@@ -10,11 +10,11 @@ App_3qfl0i: "viteTranslate — Meereskuche in Cala dei Gabbiani"
 Booking_105mdzh: "19:30 – 23:30"
 Booking_17xtngx: "Datum"
 Booking_1akdk9o: "Samstag und Sonntag"
-Booking_1am35rh: "%s Personen"
 Booking_1amvxpr: "Montag"
 Booking_1aq1rup: "Innenraum"
 Booking_1cq31m3: "Dienstag – Freitag"
 Booking_1ez0xpn: "Uhrzeit"
+Booking_1nn7xtl: "{0, plural, one {# Person} other {# Personen}}"
 Booking_1nuvqaq: "Wir antworten auf jede Anfrage innerhalb von zwei Stunden. Für Gruppen von mehr als acht Personen oder für die Terrasse an Juli- und Augustabenden empfehlen wir Ihnen, uns anzurufen: Manchmal wird ein Tisch in letzter Minute frei."
 Booking_1psqarj: "Kochtheke"
 Booking_1r87nqy: "Wie wir Sie am Tisch ansprechen dürfen"
@@ -35,12 +35,11 @@ Booking_hboh5f: "E-Mail"
 Booking_jlpdjl: "Via del Molo Vecchio 14, Cala dei Gabbiani"
 Booking_l24skl: "Telefon"
 Booking_lnpfto: "Allergien, besondere Anlässe, ein Hochstuhl, eine Überraschung, die wir organisieren sollen …"
-Booking_lqzvss: "1 Person"
 Booking_p5i243: "Anfrage senden"
 Booking_pf0xta: "Ihr Tisch <i>wartet auf Sie</i>"
 Booking_s8abcq: "Tisch anfragen"
-Booking_ta4z49: "Danke, <b>%s</b>! Wir haben Ihre Anfrage für %s, %s um %s Uhr registriert. Wir schreiben Ihnen innerhalb von zwei Stunden, um den Tisch zu bestätigen."
 Booking_xpppo1: "Wir verwenden Ihre Daten nur zur Bearbeitung der Reservierung. Kein Newsletter, es sei denn, Sie wünschen ihn ausdrücklich."
+Booking_zfj2oa: "Danke, <b>{name}</b>! Wir haben Ihre Anfrage für {guests, plural, one {# Person} other {# Personen}} am {date, date, ::EEEEdMMMM} um {time} Uhr registriert. Wir schreiben Ihnen innerhalb von zwei Stunden, um den Tisch zu bestätigen."
 Cellar_18bgaoo: "Sie beherbergt 420 Etiketten, mit einer erklärten Vorliebe für Meeresweißweine und kleine Produzenten der Küste. Irene, unsere Sommelière, führt Sie durch Vermentini von der Klippe, in der Flasche nachvergorene Perlen und manche Rarität, die man für die Anlässe aufspart, die es verdienen."
 Cellar_1g02opt: "Amari, Grappe und Destillate der Küste, zum Abschluss des Abends"
 Cellar_1irml4d: "Unsere Weinkeller war die Grotte, in der die Fischer ihre Netze flickten, direkt unter dem Gastraum in den Tuffstein gehauen: vierzehn Grad das ganze Jahr, ganz ohne technische Anlagen."
@@ -224,11 +223,11 @@ Tasting_12iufd: "Drei verschiedene Routen, eine einzige Regel: Sie vertrauen uns
 Tasting_1bpmnxc: "Mare aperto"
 Tasting_1cv6xrc: "Ein erster Vorgeschmack auf unsere Küche: der Rohe, eine warme Vorspeise, ein erster Gang, ein zweiter Gang und das Dessert. Perfekt für alle, die uns zum ersten Mal besuchen."
 Tasting_1ncv1dl: "Degustationsmenü"
-Tasting_1t5tz5v: "Weinbegleitung: + %s"
 Tasting_bzh49: "Am häufigsten gewählt"
 Tasting_dij6lb: "Carta bianca"
 Tasting_f7fl33: "Sottocosta"
 Tasting_fjeql5: "Die Degustationsmenüs werden für den gesamten Tisch serviert und können bis 21:30 Uhr bestellt werden. Vegetarische Varianten auf Anfrage, mit einem Tag Vorlauf."
+Tasting_k0et6d: "Weinbegleitung: + {0, number, ::currency/EUR precision-integer}"
 Tasting_lpa9z7: "%s Gänge"
 Tasting_q8z4x9: "Diesen Weg reservieren"
 Tasting_r4v4s2: "Der komplette Weg der Saison, mit zwei Gerichten außerhalb der Karte, die jede Woche aus dem Fang erfunden werden. Es ist das Menü, das Tommaso für sich selbst bestellen würde."

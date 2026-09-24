@@ -66,3 +66,48 @@ export default async function measureReactBundle() {
   const gzip = gzipSync(Buffer.from(chunk.code, "utf8")).length;
   return { fileName: chunk.fileName, code: chunk.code, raw, gzip };
 }
+
+// Gli helper ICU (lib/icu/runtime.js) arrivano all'app in un chunk a parte, e solo se una tabella
+// usa l'ICU. Si misurano tutti e quattro, con i rami di sviluppo, come il runtime React qui
+// sopra: è lo stesso criterio "al massimo".
+export async function measureIcuRuntime() {
+  const bundle = await rolldown({ input: join(ROOT, "lib/icu/runtime.js") });
+  const { output } = await bundle.generate({ format: "esm", minify: true });
+  await bundle.close();
+  const chunks = output.filter((o) => o.type === "chunk");
+  if (chunks.length !== 1) {
+    throw new Error(`expected exactly one chunk, got ${chunks.length}`);
+  }
+  const code = chunks[0].code;
+  return { raw: Buffer.byteLength(code, "utf8"), gzip: gzipSync(Buffer.from(code, "utf8")).length };
+}
+
+/** Il peso reale del runtime che un'app può ricevere: React + helper ICU, in byte gzip. */
+export async function measureRuntime() {
+  const react = await measureReactBundle();
+  const icu = await measureIcuRuntime();
+  return { react, icu, gzip: react.gzip + icu.gzip };
+}
+
+// Come si scrive il peso nei documenti (regola dell'utente, piano 4.6.3): il peso reale si
+// arrotonda per difetto al kB (5,4 kB -> "5 kB"); nei confronti vale il kB superiore con "<"
+// (5,4 kB -> "<6 kB"; 5,0 kB esatti -> "<6 kB", perché "<5 kB" sarebbe falso). kB = 1024 B.
+export function sizeLabels(gzip) {
+  const kB = Math.floor(gzip / 1024);
+  return { real: `${kB} kB`, compare: `<${kB + 1} kB` };
+}
+
+// Ciò che README.md deve contenere per dire il vero (vedi il piano 4.6.3, Fase 5 § 2b). `rounded`
+// cambia solo quando si passa un kB; `exact` a ogni release. `forbidden` trova le formule vecchie.
+export function expectedReadme(gzip) {
+  const { real, compare } = sizeLabels(gzip);
+  return {
+    rounded: [
+      `runtime-${encodeURIComponent(real)}%20gzip-4c1`,
+      `weighs ${real} gzip`,
+      `Tiny runtime (${compare} gzip)`,
+    ],
+    exact: `\`${gzip} bytes\``,
+    forbidden: /\b(?:under|less than|below)\s+\d+\s*kB|≤\s*\d+\s*kB|%3C%20\d/i,
+  };
+}

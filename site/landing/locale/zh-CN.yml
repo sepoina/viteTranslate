@@ -2,7 +2,7 @@
 #      中文（中国）
 #       |    code: zh-CN
 #       |    missing key: 0
-#       |    processed: 2026-09-19 18:07
+#       |    processed: 2026-09-24 15:14
 #       |    TableVersion: 260905
 #  -------------------------------------------------
 #
@@ -12,7 +12,7 @@ CodeDemo_z2n0vh: "效果如何"
 Compare_17yirfh: "自动同步的 YAML 表"
 Compare_1fagnuu: "运行时无需解析消息"
 Compare_1kahvi7: "= 需要额外工具或配置才能使用。"
-Compare_1o26z9e: "运行时小于 5 kB（gzip）"
+Compare_1nn8wh6: "运行时 %s（gzip）"
 Compare_1pvsvdi: "对比"
 Compare_1v1fl2d: "无键语法"
 Compare_1v6jhcq: "提取集成在 Vite 生命周期中"
@@ -32,11 +32,11 @@ Demos_1pkl1tq: "该页面的项目，可直接导入 stackblitz.com"
 Features_15p5cow: "字节运行时（gzip）"
 Features_17y2azt: "只有在你选择时才通过 import() 加载。用意大利语阅读的人永远不会下载中文。"
 Features_1ag9tjh: "一条命令同步所有语言：新增键被添加，过期键被移除。移动过的句子会带着它的译文一起走。"
-Features_1dlkuru: "小于 5 kB，由测试套件实测——不是空口承诺。"
 Features_1fzn835: "个运行时依赖"
 Features_1lai6qf: "每种语言都是独立文件"
 Features_1lrhwkl: "为什么选择 viteTranslate"
 Features_1p2da2r: "表在构建时就变成现成的值。浏览器中没有 HTML 解析器，因此译文在服务器端同样可以渲染。"
+Features_1r9ol0a: "%s，由测试套件实测——不是空口承诺。"
 Features_1sxsslu: "把句子写在需要的地方，放在分隔符之间。键由插件生成：你不用发明它，也不用盯着它。"
 Features_1v0k6xn: "该有的都有，<em>没有</em>多余的负担。"
 Features_1v3v7dn: "始终保持一致的 YAML 表"

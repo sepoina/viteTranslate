@@ -31,6 +31,7 @@ And how languages load on the first render: [Preloading, Suspense and the initia
 | `initialLanguage` | `string` | the first eager language: `preloadedLanguages[0] ?? sourceLanguage` | Language to **start** from ([BCP 47](bcp47.md)). Read once at mount: to change language later, use [`proposeNewLanguage()`](#proposenewlanguage). Same default in dev and build |
 | `fallback` | `node` | `null` | Shown while a non-preloaded initial language loads. Chunks are local, so `null` is a near-imperceptible empty frame |
 | `debug` | `boolean` | `false` | Exposed by `useTranslateLanguage()` |
+| `timeZone` | `string` | — | IANA zone (`"Europe/Rome"`) for [ICU](icu.md) `date`/`time` messages. Precedes the plugin's `icu.timeZone` option. Unlike `initialLanguage`, it **can** change after mount |
 | `children` | `node` | — | The app tree that receives the translation context |
 
 An eagerly bundled initial language renders synchronously; any other makes the container suspend until its chunk is ready. Never the wrong language — see [Preloading](#preloading-suspense-and-the-initial-flash).
@@ -49,7 +50,7 @@ An eagerly bundled initial language renders synchronously; any other makes the c
 | Prop | Meaning |
 | :- | :- |
 | `t` | The marked text, the tuple `[text, ...args]`, or the object `{ t, a }`. A number or a React element too — see [below](#what-can-sit-in-the-text-position) |
-| `a` | Values for the `%s`, when `t` doesn't already carry them |
+| `a` | Values for the `%s`/[ICU arguments](icu.md), when `t` doesn't already carry them. An array or scalar for `{0}`, an object (`{ name: "Aldo" }`) for `{name}` |
 | `o` | The object form, for text that already travels with its arguments. Alternative to `t` |
 | `children` | The marked text, as a child. Alternative to `t` |
 | `skipMark` | An **un**marked string is legitimate here: no `‼️`, no console warning — see [below](#skipmark-when-unmarked-is-the-normal-case) |
@@ -64,7 +65,8 @@ An eagerly bundled initial language renders synchronously; any other makes the c
 - **Markup:** only `<b> <strong> <i> <em> <u> <small> <code> <br> <hr> <wbr>`, compiled at build time — no HTML parser at runtime.
 - **Arguments** can be any React node, markup included. A `%s` is a real JSX child, not a piece of string, so an argument is **never** interpreted as HTML: React escapes it like any other child.
 - **A `%s` without a value** renders `⁇` — no argument at all, fewer than the placeholders, or `null`/`undefined` in that position. `0` and `""` are values like any other. The character is `errorSolve.mark.absentDataInArray` ([Diagnostics](diagnostics.md)).
-- **TypeScript:** an argument is `TranslateArg = ReactNode`; `TranslateArgs` is one of those or a list. A `Date` is not accepted — `String()` would format it in the browser's locale, not the app's — so format it before passing it in.
+- **[ICU arguments](icu.md)** (`{0}`, `{name}`, `{n, plural, …}`) work the same way, and add a **name** form: `a={{ name: "Aldo" }}` or `ts(t, { name })` for `{name}`, mixable with positions (`a={[{ name }, 3]}` reads `{name}` and `{1}`). Only a plain object counts as the arguments container — a class instance or a `Date` renders as itself instead.
+- **TypeScript:** an argument is `TranslateArg = ReactNode | Date | bigint`; `TranslateArgs` is one of those, the named-arguments object (`TranslateNamedArgs`), or a list of either. A bare `Date` in a plain `%s`/`{0}` still isn't formatted — `String()` would use the browser's locale, not the app's — use `{0, date}` for that (see [ICU messages](icu.md)).
 
 ### What can sit in the text position
 

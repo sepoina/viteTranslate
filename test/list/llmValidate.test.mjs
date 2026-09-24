@@ -57,5 +57,34 @@ console.log("\n== T22 whitespace ==");
 eq('sorgente " x " -> " y "', " y ", validateTranslation({ key: "K", source: " x ", candidate: "y" }).value);
 eq('sorgente "x" -> "y" (trim)', "y", validateTranslation({ key: "K", source: "x", candidate: "  y  " }).value);
 
+// Piano 4.6.3 — messaggi ICU: compareIcu decide, ma resta l'unico confronto (icuSignature.test.mjs
+// lo copre a fondo). Qui solo l'integrazione con validateTranslation: le sei reason "di sempre"
+// restano quelle sopra, senza toccarle.
+console.log("\n== ICU: argomenti riordinati -> ok ==");
+eq("riordino", true, ok("K", "{0} e {1}", "{1} e {0}"));
+
+console.log("\n== ICU: rifiuti ==");
+eq("{0} sostituito da {1}", "icu-args", reason("K", "hi {0}", "ciao {1}"));
+eq("{name} tradotto in {nome}", "icu-args", reason("K", "hi {name}", "ciao {nome}"));
+eq(
+  "plurale senza 'few' per pl-PL",
+  "icu-plural-categories",
+  validateTranslation({ key: "K", source: "{0, plural, one {x} other {y}}", candidate: "{0, plural, one {a} other {b}}", targetTag: "pl-PL" }).reason
+);
+eq("sorgente non ICU, candidato ICU", "icu-introduced", reason("K", "ciao %s", "ciao {0}"));
+eq("sorgente ICU, candidato %s", "icu-missing", reason("K", "ciao {0}", "ciao %s"));
+
+console.log("\n== ICU: rami extra e lunghezza fino a 8x sono ammessi ==");
+eq(
+  "<b> in 3 rami contro 2 nel sorgente -> ok",
+  true,
+  ok("K", "{0, plural, one {<b>x</b>} other {y}}", "{0, plural, one {<b>a</b>} few {<b>c</b>} other {b}}")
+);
+{
+  const source = "{0, plural, one {x} other {y}}";
+  const candidate = `{0, plural, one {${"a".repeat(source.length * 6)}} other {b}}`;
+  eq("lunghezza fino a 8x -> ok", true, ok("K", source, candidate));
+}
+
 console.log(fail ? `\n${fail} asserzioni fallite` : "\ntutto ok");
 process.exit(fail ? 1 : 0);

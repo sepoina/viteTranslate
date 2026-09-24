@@ -2,6 +2,7 @@ import { Translate } from "@sepoina/vitetranslate/react";
 import { Code, M } from "./Code.jsx";
 import { Icon } from "./icons.jsx";
 import SectionHead from "./SectionHead.jsx";
+import SIZE from "../../runtimeSize.json";
 
 const KEYLESS = `<Translate t={["${M}Ciao %s, come stai?${M}", nome]} />
 
@@ -82,13 +83,13 @@ export default function Features() {
               <Icon name="gauge" />
             </span>
             <p className="big">
-              <span data-count="4258">4258</span>
+              <span data-count={SIZE.gzipBytes}>{SIZE.gzipBytes}</span>
             </p>
             <h3>
               <Translate>_%_byte di runtime, in gzip_%_</Translate>
             </h3>
             <p>
-              <Translate>_%_Meno di 5 kB, misurati dalla suite di test: non una promessa a parole._%_</Translate>
+              <Translate t={["_%_%s, misurati dalla suite di test: non una promessa a parole._%_", SIZE.real]} />
             </p>
           </article>
 

@@ -253,6 +253,209 @@ const testCases = [
   ],
 
   // ============================================================
+  '_%_Interpolazione standard ICU_%_',
+  // ============================================================
+  //
+  // Gli stessi casi di "Interpolazione %s", scritti con {0}, {1}, … più quello che
+  // solo ICU sa fare (ordine libero, nomi). Nei titoli le graffe sono fra apostrofi:
+  // senza, {0} sarebbe un argomento vero e il titolo mostrerebbe "%s".
+  //
+  [
+    "_%_Solo '{0}'_%_",
+    <Translate t={['_%_{0}_%_', 'solo']} />,
+    'solo',
+    "<Translate t={['_%_{0}_%_', 'solo']} />",
+  ],
+  [
+    "_%_'{0}' multipli (spread)_%_",
+    <Translate t={['_%_{0} più {1} fa {2}_%_', 1, 2, 3]} />,
+    '1 più 2 fa 3',
+    "<Translate t={['_%_{0} più {1} fa {2}_%_', 1, 2, 3]} />",
+  ],
+  [
+    "_%_'{0}' multipli (array annidato)_%_",
+    <Translate t={['_%_{0} più {1} fa {2}_%_', [1, 2, 3]]} />,
+    '123 più ⁇ fa ⁇ (l’array è UN argomento solo)',
+    "<Translate t={['_%_{0} più {1} fa {2}_%_', [1, 2, 3]]} />",
+  ],
+  [
+    "_%_'{0}' multipli (via a)_%_",
+    <Translate t={'_%_{0} più {1} fa {2}_%_'} a={[1, 2, 3]} />,
+    '1 più 2 fa 3',
+    "<Translate t={'_%_{0} più {1} fa {2}_%_'} a={[1, 2, 3]} />",
+  ],
+  [
+    '_%_Ordine libero_%_',
+    <Translate t={['_%_{2}, {1}, {0}… via!_%_', 1, 2, 3]} />,
+    '3, 2, 1… via! (la traduzione può riordinare, %s no)',
+    "<Translate t={['_%_{2}, {1}, {0}… via!_%_', 1, 2, 3]} />",
+  ],
+  [
+    '_%_Stesso argomento due volte_%_',
+    <Translate t={['_%_{0}, sempre {0}_%_', 'io']} />,
+    'io, sempre io',
+    "<Translate t={['_%_{0}, sempre {0}_%_', 'io']} />",
+  ],
+  [
+    '_%_Indice saltato_%_',
+    <Translate t={['_%_{0} e {2}_%_', 'a', 'b', 'c']} />,
+    'a e c ({1} non usato: nessun buco)',
+    "<Translate t={['_%_{0} e {2}_%_', 'a', 'b', 'c']} />",
+  ],
+  [
+    "_%_'{0}' consecutivi_%_",
+    <Translate t={['_%_{0}{1}{2}_%_', 'a', 'b', 'c']} />,
+    'abc',
+    "<Translate t={['_%_{0}{1}{2}_%_', 'a', 'b', 'c']} />",
+  ],
+  [
+    "_%_'{0}' null in mezzo_%_",
+    <Translate t={['_%_{0}-{1}-{2}_%_', 'a', null, 'c']} />,
+    'a-⁇-c',
+    "<Translate t={['_%_{0}-{1}-{2}_%_', 'a', null, 'c']} />",
+  ],
+  [
+    "_%_'{0}' extra ignorati_%_",
+    <Translate t={['_%_solo {0}_%_', 'uno', 'due', 'tre']} />,
+    'solo uno',
+    "<Translate t={['_%_solo {0}_%_', 'uno', 'due', 'tre']} />",
+  ],
+  [
+    "_%_'{0}' in meno_%_",
+    <Translate t={['_%_{0} e {1}_%_', 'uno']} />,
+    'uno e ⁇',
+    "<Translate t={['_%_{0} e {1}_%_', 'uno']} />",
+  ],
+  [
+    "_%_'{0}' zero_%_",
+    <Translate t={['_%_Zero: {0}_%_', 0]} />,
+    'Zero: 0',
+    "<Translate t={['_%_Zero: {0}_%_', 0]} />",
+  ],
+  [
+    "_%_'{0}' stringa vuota_%_",
+    <Translate t={['_%_tra parentesi: ({0})_%_', '']} />,
+    'tra parentesi: ()',
+    "<Translate t={['_%_tra parentesi: ({0})_%_', '']} />",
+  ],
+  [
+    "_%_'{0}' null_%_",
+    <Translate t={['_%_null: {0}_%_', null]} />,
+    'null: ⁇',
+    "<Translate t={['_%_null: {0}_%_', null]} />",
+  ],
+  [
+    "_%_'{0}' senza argomenti_%_",
+    <Translate t={'_%_niente: {0}_%_'} />,
+    'niente: ⁇',
+    "<Translate t={'_%_niente: {0}_%_'} />",
+  ],
+  [
+    '_%_a array vuoto (ICU)_%_',
+    <Translate t={'_%_Vuoto: {0}_%_'} a={[]} />,
+    'Vuoto: ⁇',
+    "<Translate t={'_%_Vuoto: {0}_%_'} a={[]} />",
+  ],
+  [
+    '_%_a false (ICU)_%_',
+    <Translate t={'_%_Falso: {0}_%_'} a={false} />,
+    'Falso: ⁇ (false = "non passato")',
+    "<Translate t={'_%_Falso: {0}_%_'} a={false} />",
+  ],
+  [
+    '_%_a scalare con due argomenti_%_',
+    <Translate t={'_%_Scalare: {0} e {1}_%_'} a={'uno'} />,
+    'Scalare: uno e ⁇ (lo scalare è solo {0})',
+    "<Translate t={'_%_Scalare: {0} e {1}_%_'} a={'uno'} />",
+  ],
+  [
+    "_%_%s e '{1}' insieme_%_",
+    <Translate t={['_%_%s e {1}_%_', 'a', 'b']} />,
+    'a e b (il primo %s è {0})',
+    "<Translate t={['_%_%s e {1}_%_', 'a', 'b']} />",
+  ],
+  [
+    "_%_'{0}' e %s insieme_%_",
+    <Translate t={['_%_{0} e %s_%_', 'a', 'b']} />,
+    'a e a (anche questo %s è {0}: warning di build)',
+    "<Translate t={['_%_{0} e %s_%_', 'a', 'b']} />",
+  ],
+  [
+    '_%_Argomento con nome_%_',
+    <Translate t={'_%_Ciao {name}_%_'} a={{ name: 'Mario' }} />,
+    'Ciao Mario',
+    "<Translate t={'_%_Ciao {name}_%_'} a={{ name: 'Mario' }} />",
+  ],
+  [
+    '_%_Nome e posizione insieme_%_',
+    <Translate t={['_%_{name} ha {1} anni_%_', { name: 'Mario' }, 42]} />,
+    'Mario ha 42 anni (i nomi vivono nel primo argomento)',
+    "<Translate t={['_%_{name} ha {1} anni_%_', { name: 'Mario' }, 42]} />",
+  ],
+  [
+    '_%_Nome che non c’è_%_',
+    <Translate t={'_%_Ciao {nome}_%_'} a={{ name: 'Mario' }} />,
+    'Ciao ⁇',
+    "<Translate t={'_%_Ciao {nome}_%_'} a={{ name: 'Mario' }} />",
+  ],
+  [
+    "_%_Oggetto al posto di '{0}'_%_",
+    <Translate t={'_%_Ciao {0}_%_'} a={{ name: 'Mario' }} />,
+    'Ciao ⁇ (l’oggetto contiene i nomi, non è {0})',
+    "<Translate t={'_%_Ciao {0}_%_'} a={{ name: 'Mario' }} />",
+  ],
+  [
+    "_%_Elemento come '{0}'_%_",
+    <Translate t={['_%_Ciao {0}_%_', <b>Mario</b>]} />,
+    <>
+      Ciao <b>Mario</b>
+    </>,
+    "<Translate t={['_%_Ciao {0}_%_', <b>Mario</b>]} />",
+  ],
+  [
+    "_%_'{0}' dentro &lt;b&gt;_%_",
+    <Translate t={['_%_<b>{0}</b>_%_', 'bold']} />,
+    <b>bold</b>,
+    "<Translate t={['_%_<b>{0}</b>_%_', 'bold']} />",
+  ],
+  [
+    '_%_Graffa letterale con apostrofi_%_',
+    <Translate t={"_%_Premi '{Invio}'_%_"} />,
+    'Premi {Invio}',
+    `<Translate t={"_%_Premi '{Invio}'_%_"} />`,
+  ],
+  [
+    '_%_Graffa letterale con entità_%_',
+    <Translate t={'_%_Premi &#123;Invio}_%_'} />,
+    'Premi {Invio}',
+    "<Translate t={'_%_Premi &#123;Invio}_%_'} />",
+  ],
+  [
+    '_%_Graffa non protetta_%_',
+    <Translate t={'_%_Premi {Invio}_%_'} />,
+    'Premi ⁇ (sembra un argomento, e lo è)',
+    "<Translate t={'_%_Premi {Invio}_%_'} />",
+  ],
+  [
+    '_%_La trappola dell’apostrofo_%_',
+    <Translate t={["_%_dell'{0}_%_", 'albero']} />,
+    "dell'{0} (l’apostrofo apre una citazione: testo semplice + warning di build)",
+    `<Translate t={["_%_dell'{0}_%_", 'albero']} />`,
+  ],
+  [
+    '_%_Apostrofo tipografico_%_',
+    <Translate t={['_%_dell’{0}_%_', 'albero']} />,
+    'dell’albero',
+    "<Translate t={['_%_dell’{0}_%_', 'albero']} />",
+  ],
+  [
+    '_%_Apostrofo raddoppiato_%_',
+    <Translate t={["_%_dell''{0}_%_", 'albero']} />,
+    "dell'albero",
+    `<Translate t={["_%_dell''{0}_%_", 'albero']} />`,
+  ],
+
+  // ============================================================
   '_%_Argomenti che sono nodi React_%_',
   // ============================================================
   [

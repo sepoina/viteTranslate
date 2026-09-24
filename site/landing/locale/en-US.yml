@@ -2,7 +2,7 @@
 #      American English
 #       |    code: en-US
 #       |    missing key: 0
-#       |    processed: 2026-09-19 18:07
+#       |    processed: 2026-09-24 15:14
 #       |    TableVersion: 260905
 #  -------------------------------------------------
 #
@@ -12,7 +12,7 @@ CodeDemo_z2n0vh: "How it looks"
 Compare_17yirfh: "Auto-synced YAML tables"
 Compare_1fagnuu: "No message parsing at runtime"
 Compare_1kahvi7: "= available with additional tooling or configuration."
-Compare_1o26z9e: "Runtime under 5 kB gzip"
+Compare_1nn8wh6: "Runtime %s gzip"
 Compare_1pvsvdi: "Comparison"
 Compare_1v1fl2d: "Keyless syntax"
 Compare_1v6jhcq: "Extraction inside the Vite lifecycle"
@@ -32,11 +32,11 @@ Demos_1pkl1tq: "The page's project, ready to import on stackblitz.com"
 Features_15p5cow: "bytes of runtime, gzipped"
 Features_17y2azt: "Loaded with import() only when you pick it. Someone reading in Italian never downloads the Chinese."
 Features_1ag9tjh: "One command syncs every language: new keys added, stale ones removed. A sentence that moved takes its translation with it."
-Features_1dlkuru: "Under 5 kB, measured by the test suite — not a promise on trust."
 Features_1fzn835: "runtime dependencies"
 Features_1lai6qf: "Every language is its own file"
 Features_1lrhwkl: "Why viteTranslate"
 Features_1p2da2r: "Tables become ready-made values at build time. No HTML parser in the browser, which is why translated text renders on the server too."
+Features_1r9ol0a: "%s, measured by the test suite — not a promise on trust."
 Features_1sxsslu: "Write the sentence where you need it, between the delimiters. The plugin generates the key: you don't invent it, and you never have to keep an eye on it."
 Features_1v0k6xn: "Everything you need. <em>None</em> of the weight."
 Features_1v3v7dn: "YAML tables that stay in line"

@@ -10,7 +10,7 @@
 import { readFileSync, existsSync } from "node:fs";
 import { dirname, resolve, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import measureReactBundle, { EXTERNAL } from "../measureReactBundle.mjs";
+import measureReactBundle, { EXTERNAL, measureRuntime, sizeLabels } from "../measureReactBundle.mjs";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 
@@ -31,11 +31,31 @@ console.log(`      ${fileName}: ${raw} B minificati, ${gzip} B gzip`);
 // external — bundlerebbe un secondo React nell'app di chiunque.
 eq('"react" resta un import esterno, non bundlato', true, code.includes(`from"react"`) || code.includes(`from "react"`));
 
-// La soglia che il README promette ("< 5 kB gzip" per l'intero runtime). Un salto oltre non è un
-// errore in sé, ma è esattamente il tipo di regressione silenziosa che questo file esiste per
-// far notare a chi ha appena aggiunto un import pesante in lib/react.
-const SOGLIA_GZIP = 5 * 1024;
-eq(`sotto i ${SOGLIA_GZIP} B gzip promessi dal README`, true, gzip < SOGLIA_GZIP);
+// Nessun bundle di produzione deve mai contenere il parser ICU: né un pezzo del suo codice
+// (MISSING_OTHER_CLAUSE è una stringa che formatjs incorpora, univoca), né il nome del
+// pacchetto stesso.
+eq("nessuna traccia del parser ICU (MISSING_OTHER_CLAUSE)", false, code.includes("MISSING_OTHER_CLAUSE"));
+eq('nessuna traccia di "icu-messageformat"', false, code.includes("icu-messageformat"));
+
+// Il peso reale (React + helper ICU) confrontato con site/runtimeSize.json, che npm run
+// estimateSize riscrive: un salto di un kB fa fallire questo test finché le cifre non vengono
+// aggiornate — è la guardia contro le fughe silenziose, legata a ciò che i documenti dicono
+// (piano 4.6.3, Fase 5 § 2b). I byte esatti NON si confrontano: cambiano con la versione di
+// rolldown, e li controlla estimateSize a ogni chiusura. Il README non si legge qui: la Fase 2
+// viene prima della Fase 5.
+{
+  const { gzip: totalGzip } = await measureRuntime();
+  const { real, compare } = sizeLabels(totalGzip);
+  const KO_HINT = 'run "npm run estimateSize", then update README.md (plan 4.6.3, Fase 5 § 2b)';
+  let runtimeSize;
+  try {
+    runtimeSize = JSON.parse(readFileSync(join(ROOT, "site/runtimeSize.json"), "utf8"));
+  } catch {
+    runtimeSize = null;
+  }
+  eq(`site/runtimeSize.json: real combacia — ${KO_HINT}`, real, runtimeSize?.real);
+  eq(`site/runtimeSize.json: compare combacia — ${KO_HINT}`, compare, runtimeSize?.compare);
+}
 
 // --- La barra: Babel sta in "serve" e in "build", MAI nel bundle che l'utente produce ---
 //

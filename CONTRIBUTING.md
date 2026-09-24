@@ -21,6 +21,10 @@ plus the demos under `demo/Vite_8/` — so one install is enough for all of them
 `npm run dev -w site/pages/playground` (or any other workspace path). Like the playground, they all resolve the library from
 this checkout, not from npm. How the site is put together is in [site/README.md](site/README.md).
 
+`npm run build` also vendors the ICU parser into `lib/dist/icuParser.js` (gitignored, not versioned) — the tests and
+the CLI import it from source, so run `npm run build` once after a fresh checkout before either one, and again if
+`lib/dist/` ever goes missing.
+
 ## Tests
 
 Tests live in `test/list/`, one file per concern, and run without any test framework:

@@ -1,6 +1,7 @@
 import { Translate } from "@sepoina/vitetranslate/react";
 import { Icon } from "./icons.jsx";
 import SectionHead from "./SectionHead.jsx";
+import SIZE from "../../runtimeSize.json";
 
 const COLUMNS = ["viteTranslate", "i18next", "Lingui", "FormatJS"];
 
@@ -12,7 +13,7 @@ const ROWS = [
   { label: "_%_Zero dipendenze a runtime_%_", v: ["y", "n", "n", "n"] },
   { label: "_%_Integrazione nativa con Vite_%_", v: ["y", "n", "p", "n"] },
   { label: "_%_Sintassi senza chiavi_%_", v: ["y", "n", "y", "p"] },
-  { label: "_%_Runtime sotto i 5 kB gzip_%_", v: ["y", "n", "p", "n"] },
+  { label: "_%_Runtime %s gzip_%_", a: [SIZE.compare], v: ["y", "n", "p", "n"] },
   { label: "_%_Nessun parser dei messaggi a runtime_%_", v: ["y", "n", "p", "p"] },
   { label: "_%_Lingue caricate a richiesta_%_", v: ["y", "y", "y", "y"] },
 ];
@@ -58,7 +59,7 @@ export default function Compare() {
                 {ROWS.map((row) => (
                   <tr key={row.label}>
                     <th scope="row">
-                      <Translate t={row.label} />
+                      <Translate t={row.label} a={row.a} />
                     </th>
                     {row.v.map((kind, n) => (
                       <td key={COLUMNS[n]} className={n === 0 ? "col-us" : undefined}>

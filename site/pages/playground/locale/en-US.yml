@@ -2,7 +2,7 @@
 #      American English
 #       |    code: en-US
 #       |    missing key: 0
-#       |    processed: 2026-09-19 16:16
+#       |    processed: 2026-09-24 15:15
 #       |    TableVersion: 260905
 #  -------------------------------------------------
 #
@@ -39,12 +39,12 @@ PlaceholderExample_rwflob: "Username"
 StrengthsSection_146suvo: "<strong>Text marked directly in the source.</strong> No keys to create or manage by hand."
 StrengthsSection_15r2z3b: "<strong>New languages detected automatically.</strong> Just add a .yml file in the languages folder, with no need to register it anywhere else in the code."
 StrengthsSection_1ecmosj: "<strong>The tables are data, not JS modules.</strong> A language file carries no executable code: it is compiled at build time, never served as it is."
+StrengthsSection_1hve07m: "<strong>%s gzip in the final bundle.</strong> The runtime that actually reaches the browser (<code>&#60;Translate&#62;</code>, <code>TranslateContainer</code>, <code>useTranslateLanguage</code>) weighs %s gzip, measured by comparing a production build with and without the library. The translation payload scales with your content, not with the library."
 StrengthsSection_1r3j0je: "<strong>Automatic fallback in development.</strong> Until a translation is ready, the original text stays visible, never an empty string or an error."
 StrengthsSection_1rplbik: "<strong>Lazy language loading.</strong> Switching language at runtime downloads only the required chunk, without bloating the initial bundle with unused languages."
 StrengthsSection_1uxxl2f: "Strengths"
 StrengthsSection_7t8nu9: "<strong>Translations survive renames.</strong> If the same text only changes id, the sync inherits the translation already done instead of starting it over from scratch."
 StrengthsSection_qgqq5v: "<strong>Works on Vite 7 and Vite 8 alike.</strong> Same code for both: on Vite 7 it runs on Rollup (build) and esbuild (dev), on Vite 8 it runs on Rolldown (Rust bundler) and Oxc (compiler), no different configuration needed."
-StrengthsSection_wlo9da: "<strong>Under 5 kB gzip in the final bundle.</strong> The runtime that actually reaches the browser (<code>&#60;Translate&#62;</code>, <code>TranslateContainer</code>, <code>useTranslateLanguage</code>) weighs under 5 kB gzip, measured by comparing a production build with and without the library. The translation payload scales with your content, not with the library."
 StrengthsSection_wv4ype: "<strong>Automatic table sync.</strong> A single command updates all languages and flags what remains to be translated."
 TableOfContents_1bvsbql: "Section index"
 TableOfContents_1epa0dl: "Strengths"

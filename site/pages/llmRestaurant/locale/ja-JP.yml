@@ -2,7 +2,7 @@
 #      日本語 (日本)
 #       |    code: ja-JP
 #       |    missing key: 0
-#       |    processed: 2026-09-19 16:16
+#       |    processed: 2026-09-23 13:50
 #       |    TableVersion: 260905
 #  -------------------------------------------------
 #
@@ -10,11 +10,11 @@ App_3qfl0i: "viteTranslate — Cala dei Gabbianiの海の料理"
 Booking_105mdzh: "19:30 – 23:30"
 Booking_17xtngx: "日付"
 Booking_1akdk9o: "土曜日と日曜日"
-Booking_1am35rh: "%s名"
 Booking_1amvxpr: "月曜日"
 Booking_1aq1rup: "店内のお席"
 Booking_1cq31m3: "火曜日 – 金曜日"
 Booking_1ez0xpn: "時刻"
+Booking_1nn7xtl: "{0, plural, other {#名}}"
 Booking_1nuvqaq: "ご依頼には2時間以内にすべてお返事いたします。8名様を超える団体、または7月と8月の夜のテラス席については、お電話でのご予約をおすすめします。直前にお席が空くこともございます。"
 Booking_1psqarj: "シェフのカウンター"
 Booking_1r87nqy: "お席でお呼びするお名前"
@@ -35,12 +35,11 @@ Booking_hboh5f: "メールアドレス"
 Booking_jlpdjl: "Via del Molo Vecchio 14, Cala dei Gabbiani"
 Booking_l24skl: "電話番号"
 Booking_lnpfto: "アレルギー、記念日、ベビーチェア、サプライズのご相談など…"
-Booking_lqzvss: "1名"
 Booking_p5i243: "リクエストを送信"
 Booking_pf0xta: "お客様のお席が<i>お待ちしております</i>"
 Booking_s8abcq: "お席をリクエスト"
-Booking_ta4z49: "<b>%s</b>様、ありがとうございます！%s、%s、%sでご希望を承りました。2時間以内にご連絡し、お席を確定いたします。"
 Booking_xpppo1: "ご入力いただいた情報は、ご予約の管理にのみ使用します。ご希望がない限り、ニュースレターはお送りしません。"
+Booking_zfj2oa: "<b>{name}</b>様、ありがとうございます！{date, date, ::MMMMdEEEE} {time}、{guests, plural, other {#名}}でご希望を承りました。2時間以内にご連絡し、お席を確定いたします。"
 Cellar_18bgaoo: "420種類のラベルを蔵し、海の白ワインと海岸の小さな生産者をことのほか愛しております。当店のソムリエ、Ireneが、岩礁のヴェルメンティーノ、瓶内二次発酵の泡、そして特別な日に取っておきたくなるような希少な一本へとご案内いたします。"
 Cellar_1g02opt: "海岸地方のアマーロ、グラッパ、蒸留酒—宵の締めくくりに"
 Cellar_1irml4d: "当店のカンティーナは、漁師たちが網を繕っていた洞窟でした。ダイニングのすぐ下、凝灰岩を削って造られたその場所は、設備いらずで一年を通して14度を保っています。"
@@ -224,11 +223,11 @@ Tasting_12iufd: "三つの異なる航路、ただ一つのルール。私たち
 Tasting_1bpmnxc: "Mare aperto"
 Tasting_1cv6xrc: "私たちの料理の最初の味見：生魚、温かい前菜、プリモ、セコンド、そしてドルチェ。初めてお越しになる方にぴったりです。"
 Tasting_1ncv1dl: "テイスティングメニュー"
-Tasting_1t5tz5v: "ワインのペアリング: + %s"
 Tasting_bzh49: "最も選ばれる"
 Tasting_dij6lb: "Carta bianca"
 Tasting_f7fl33: "Sottocosta"
 Tasting_fjeql5: "テイスティングメニューはテーブルの全員でご注文いただき、21:30までご注文いただけます。ベジタリアン用のアレンジは1日前までにご相談ください。"
+Tasting_k0et6d: "ワインのペアリング: + {0, number, ::currency/EUR precision-integer}"
 Tasting_lpa9z7: "%s品"
 Tasting_q8z4x9: "このコースを予約する"
 Tasting_r4v4s2: "旬のすべてをめぐるコース。毎週、その日の漁獲から生まれる裏メニューの2皿付き。トマソが自分のために頼むならこのメニューです。"

@@ -7,18 +7,26 @@
 import type { FC, ReactElement, ReactNode } from 'react';
 
 /**
- * Un valore interpolabile in un `%s`. `ReactNode` e non `unknown`: copre stringhe, numeri,
- * bigint, booleani, `null`, `undefined` ed elementi React — che sono esattamente le cose che
- * la tabella compilata sa mettere in un buco — ed esclude funzioni e simboli, che a runtime
- * finivano stringificati dentro un aria-label.
+ * Un valore interpolabile in un `%s`, `{n}` o `{nome}` (vedi doc/icu.md). `ReactNode` e non
+ * `unknown`: copre stringhe, numeri, bigint, booleani, `null`, `undefined` ed elementi React —
+ * che sono esattamente le cose che la tabella compilata sa mettere in un buco — ed esclude
+ * funzioni e simboli, che a runtime finivano stringificati dentro un aria-label. `Date` in più
+ * dalla 4.6.3: gli argomenti ICU `{n, date}`/`{n, time}` la accettano insieme a millisecondi e
+ * stringhe ISO.
  */
-export type TranslateArg = ReactNode;
+export type TranslateArg = ReactNode | Date | bigint;
 
 /**
- * Valori che sostituiscono i `%s`, in ordine. Uno scalare vale come lista di un elemento;
- * un segnaposto rimasto senza valore diventa `⁇`.
+ * L'oggetto degli argomenti con nome (`{nome}`, vedi doc/icu.md): un oggetto semplice, mai
+ * un'istanza di classe. `a={{ nome: "Aldo" }}` o `ts(t, { nome })`.
  */
-export type TranslateArgs = TranslateArg | readonly TranslateArg[];
+export type TranslateNamedArgs = Readonly<Record<string, TranslateArg>>;
+
+/**
+ * Valori che sostituiscono i `%s`/`{n}`/`{nome}`, in ordine o per nome. Uno scalare vale come
+ * lista di un elemento; un segnaposto rimasto senza valore diventa `⁇`.
+ */
+export type TranslateArgs = TranslateArg | TranslateNamedArgs | readonly (TranslateArg | TranslateNamedArgs)[];
 
 /** La forma a oggetto: testo e argomenti in un valore solo. */
 export interface TranslateObjectForm {
@@ -107,6 +115,14 @@ export interface TranslateContainerProps {
   fallback?: ReactNode;
   /** Esposto da `useTranslateLanguage()`. */
   debug?: boolean;
+  /**
+   * Fuso IANA (es. `"Europe/Rome"`) per i messaggi ICU `{n, date}`/`{n, time}` (vedi doc/icu.md).
+   * Precede l'opzione `icu.timeZone` del plugin. A differenza di `initialLanguage` si può
+   * cambiare dopo il mount. In SSR va impostato esplicitamente (qui o nel plugin): senza,
+   * server e browser possono formattare in fusi diversi e React segnala un mismatch di
+   * idratazione.
+   */
+  timeZone?: string;
   children?: ReactNode;
 }
 

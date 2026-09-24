@@ -2,7 +2,7 @@
 #      italiano (Italia) (sourceLanguage)
 #       |    code: it-IT
 #       |    missing key: 0
-#       |    processed: 2026-09-19 17:34
+#       |    processed: 2026-09-23 13:50
 #       |    TableVersion: 260905
 #  -------------------------------------------------
 #
@@ -10,11 +10,11 @@ App_3qfl0i: "viteTranslate — Cucina di mare a Cala dei Gabbiani"
 Booking_105mdzh: "19:30 – 23:30"
 Booking_17xtngx: "Data"
 Booking_1akdk9o: "Sabato e domenica"
-Booking_1am35rh: "%s persone"
 Booking_1amvxpr: "Lunedì"
 Booking_1aq1rup: "Sala interna"
 Booking_1cq31m3: "Martedì – venerdì"
 Booking_1ez0xpn: "Ora"
+Booking_1nn7xtl: "{0, plural, one {# persona} other {# persone}}"
 Booking_1nuvqaq: "Rispondiamo a ogni richiesta entro due ore. Per gruppi di oltre otto persone, o per la terrazza nelle sere di luglio e agosto, vi consigliamo di chiamarci: a volte un tavolo si libera all'ultimo momento."
 Booking_1psqarj: "Bancone dello chef"
 Booking_1r87nqy: "Come vi chiamiamo al tavolo"
@@ -35,12 +35,11 @@ Booking_hboh5f: "Email"
 Booking_jlpdjl: "Via del Molo Vecchio 14, Cala dei Gabbiani"
 Booking_l24skl: "Telefono"
 Booking_lnpfto: "Allergie, ricorrenze, un seggiolone, una sorpresa da organizzare…"
-Booking_lqzvss: "1 persona"
 Booking_p5i243: "Invia la richiesta"
 Booking_pf0xta: "Il vostro tavolo <i>vi aspetta</i>"
 Booking_s8abcq: "Richiedi un tavolo"
-Booking_ta4z49: "Grazie, <b>%s</b>! Abbiamo registrato la richiesta per %s, %s alle %s. Vi scriveremo entro due ore per confermare il tavolo."
 Booking_xpppo1: "Usiamo i vostri dati solo per gestire la prenotazione. Niente newsletter, a meno che non ce la chiediate voi."
+Booking_zfj2oa: "Grazie, <b>{name}</b>! Abbiamo registrato la richiesta per {guests, plural, one {# persona} other {# persone}}, {date, date, ::EEEEdMMMM} alle {time}. Vi scriveremo entro due ore per confermare il tavolo."
 Cellar_18bgaoo: "Custodisce 420 etichette, con una predilezione dichiarata per i bianchi di mare e i piccoli produttori della costa. Irene, la nostra sommelier, vi guiderà tra vermentini di scogliera, bollicine rifermentate in bottiglia e qualche rarità da tenere da parte per le occasioni che se lo meritano."
 Cellar_1g02opt: "Amari, grappe e distillati della costa, per chiudere la serata"
 Cellar_1irml4d: "La nostra cantina era la grotta dove i pescatori riparavano le reti, scavata nel tufo proprio sotto la sala: quattordici gradi tutto l'anno, senza bisogno di impianti."
@@ -224,11 +223,11 @@ Tasting_12iufd: "Tre rotte diverse, un'unica regola: vi fidate di noi e noi non 
 Tasting_1bpmnxc: "Mare aperto"
 Tasting_1cv6xrc: "Un primo assaggio della nostra cucina: il crudo, un antipasto caldo, un primo, un secondo e il dolce. Perfetto per chi ci viene a trovare per la prima volta."
 Tasting_1ncv1dl: "Menù degustazione"
-Tasting_1t5tz5v: "Abbinamento vini: + %s"
 Tasting_bzh49: "Il più scelto"
 Tasting_dij6lb: "Carta bianca"
 Tasting_f7fl33: "Sottocosta"
 Tasting_fjeql5: "I menù degustazione sono serviti all'intero tavolo e si possono ordinare fino alle 21:30. Varianti vegetariane su richiesta, con un giorno di preavviso."
+Tasting_k0et6d: "Abbinamento vini: + {0, number, ::currency/EUR precision-integer}"
 Tasting_lpa9z7: "%s portate"
 Tasting_q8z4x9: "Prenota questo percorso"
 Tasting_r4v4s2: "Il percorso completo della stagione, con due piatti fuori carta inventati ogni settimana sul pescato. È il menù che Tommaso ordinerebbe per sé."

@@ -7,7 +7,7 @@ No translation keys to maintain. No separate extraction workflow. No runtime dep
 
 [![Vite](https://img.shields.io/badge/Vite-5%20%7C%206%20%7C%207%20%7C%208-646CFF?logo=vite&logoColor=white)](https://vite.dev)
 [![publish](https://img.shields.io/github/actions/workflow/status/sepoina/viteTranslate/publish.yml?logo=githubactions&logoColor=white&label=publish&job=publish)](https://github.com/sepoina/viteTranslate/actions/workflows/publish.yml)
-[![runtime size](https://img.shields.io/badge/runtime-%3C%205%20kB%20gzip-4c1)](#-why-vitetranslate)
+[![runtime size](https://img.shields.io/badge/runtime-5%20kB%20gzip-4c1)](#-why-vitetranslate)
 
 [![npm version](https://img.shields.io/npm/v/@sepoina/vitetranslate?logo=npm&logoColor=white&label=npm&color=CB3837)](https://www.npmjs.com/package/@sepoina/vitetranslate)
 [![npm downloads](https://img.shields.io/npm/dm/@sepoina/vitetranslate?logo=npm&logoColor=white&label=downloads&color=CB3837)](https://www.npmjs.com/package/@sepoina/vitetranslate)
@@ -51,7 +51,7 @@ Get a table to hand to a translator, kept in sync for you:
 App_1q8xz4: "Bienvenue sur notre site"
 ```
 
-The key is generated for you, the sync is a single command, and the runtime that ships to your users stays under 5 kB gzip.
+The key is generated for you, the sync is a single command, and the runtime that ships to your users weighs 5 kB gzip.
 
 ---
 
@@ -67,7 +67,8 @@ Every library in this table solves the same problem. They differ in how much mac
 | **Zero runtime dependencies** | ✅ | ❌ | ❌ | ❌ |
 | **Native Vite integration** | ✅ | ❌ | 🟡 | ❌ |
 | **Keyless / Natural text syntax** ³ | ✅ | ❌ | ✅ | 🟡 |
-| **Tiny runtime (≤ 5 kB gzip)** ⁴ | ✅ | ❌ | 🟡 | ❌ |
+| **Tiny runtime (<6 kB gzip)** ⁴ | ✅ | ❌ | 🟡 | ❌ |
+| **ICU MessageFormat (plural, select, dates)** | ✅ | 🟡 | ✅ | ✅ |
 | **Build-time message compilation** ⁵ | ✅ | ❌ | ✅ | ✅ |
 | **No runtime message parsing** ⁵ | ✅ | ❌ | 🟡 | 🟡 |
 | **Lazy-loaded locales** | ✅ | ✅ | ✅ | ✅ |
@@ -87,7 +88,8 @@ Every library in this table solves the same problem. They differ in how much mac
 - **Native Vite integration:** one codebase for Vite 5 through 8, no config switch.
 - **³ Keyless syntax:** Lingui and viteTranslate can use source strings directly instead of manually maintained translation keys. FormatJS can also omit manual IDs by generating message identifiers through Babel or SWC tooling.
 - **Keyless syntax, in practice:** the marker is extracted at build time and resolved against the current table at runtime — no key to invent, nothing to keep in sync by hand.
-- **⁴ Runtime size:** viteTranslate adds less than 5 kB gzip for its browser runtime — `4258 bytes` actually, checked by `npm run estimateSize`, the source of truth for this number. Other solutions vary depending on imported packages, tree-shaking, plugins and optional polyfills, so exact bundle sizes are not directly comparable.
+- **ICU MessageFormat:** plurals, `select`, numbers and dates — compiled at build time, same as everything else; i18next needs the `i18next-icu` plugin. See [the ICU guide](doc/icu.md).
+- **⁴ Runtime size:** viteTranslate's browser runtime weighs 5 kB gzip — `5607 bytes` exactly: 4520 B for the React runtime plus 1087 B for the ICU helpers, which ship only when a table uses ICU. Measured by `npm run estimateSize`, the source of truth for this number. Other solutions vary depending on imported packages, tree-shaking, plugins and optional polyfills, so exact bundle sizes are not directly comparable.
 - **⁵ Compilation & parsing:** Lingui and FormatJS can move message parsing and compilation to build time when their compilation tooling is enabled. viteTranslate's tables are compiled at build time into ready-made values, no HTML parser at runtime, so `<Translate>` renders server-side too.
 - **Lazy-loaded locales:** each language is its own chunk, `import()`-ed only when selected.
 - **Dev fallback, always visible:** until a translation exists you get the original text. Never a blank, never a crash.
@@ -157,6 +159,8 @@ function App({ name }) {
 }
 ```
 
+Plurals, dates and other ICU MessageFormat arguments work the same way — one extra line of syntax, no extra step: `ts("_%_{0, plural, one {# file} other {# files}}_%_", count)`. Details: **[doc/icu.md](doc/icu.md)**.
+
 That is the whole authoring workflow. Now build the tables and add a language:
 
 ```sh
@@ -185,14 +189,6 @@ The examples below use the short form. Full reference: **[doc/cli.md](doc/cli.md
 | `vitetranslate --add fr-FR de-DE` | Adds languages, each file listing every key with `null` to fill |
 | `vitetranslate --status` | Reports every table and writes nothing. Exits `1` on errors only, so it works as a CI check |
 | `vitetranslate --llm-translate` | Fills the `null` keys through an LLM — see [below](#-llm-auto-translation) |
-
-```text
-::: status               ║  CODE   LANGUAGE            KEYS  MISSING  STATUS
-:::                      ║  en-US  American English      53        0  fully translated
-:::                      ║  it-IT  italiano (Italia)     53        0  source language
-:::                      ║  fr-FR  français (France)     51       12  out of sync with the source code:
-:::                      ║                                           2 key(s) to add, 0 to remove
-```
 
 ---
 
@@ -226,6 +222,7 @@ Everything past "hello world" lives in `doc/`, one topic per page:
 | [**React API**](doc/react-api.md) | `<Translate>`, `useTranslateToString`, `useTranslateLanguage`, `TranslateContainer`, preloading & Suspense |
 | [**Plugin options**](doc/plugin-options.md) | Full `vitetranslate(options)` reference |
 | [**Translation file format**](doc/translations.md) | The `.yml` layout, adding a new language |
+| [**ICU messages**](doc/icu.md) | Plurals, `select`, numbers, dates — the syntax and what checks it |
 | [**LLM auto-translation**](doc/llm.md) | Filling `null` keys through an LLM, costs, guardrails |
 | [**Diagnostics**](doc/diagnostics.md) | `errorSolve` — what each on-screen mark means and when it fires |
 | [**BCP 47 codes**](doc/bcp47.md) | Supported language/region tags |

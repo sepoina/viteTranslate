@@ -20,6 +20,7 @@ vitetranslate(options)
 | `errorSolve` | `object` | see below | On-screen and console diagnostics for strings that didn't arrive where they should — see [Diagnostics](diagnostics.md) |
 | `simpleLog` | `boolean` | `false` | Plain, un-boxed console output for the plugin and the CLI: no label column, no rules, same colors — useful in CI or a narrow terminal. Same as the CLI's `--simpleLog` flag, which always wins over this option |
 | `llm` | `object` | off | Configuration for `npx vitetranslate --llm-translate` — see below. Validated at plugin construction, like `localeDir`; absent means the feature stays off, byte for byte like before this option existed |
+| `icu` | `object` | off | Build-time default time zone for ICU `date`/`time` messages — see below and [ICU messages](icu.md) |
 
 Only `false` turns `autoSyncDev` / `autoSyncBuild` off — any other value counts as on. Setting `VITETRANSLATE_NO_SYNC` (to anything non-empty) turns both off without touching `vite.config.*`, which is the only way to reach this from a read-only checkout. Neither one ever runs under Vitest or `vite preview`: a test run shouldn't rewrite your tables, and a preview has no source changes to catch up on.
 
@@ -35,7 +36,7 @@ Only `false` turns `autoSyncDev` / `autoSyncBuild` off — any other value count
 | `mark.malformed` | `string \| false` | `"‼️"` | Prefix for text nobody marked, and for incompatible props |
 | `mark.untranslated` | `string \| false` | `"🔸"` | Prefix when the current language has no translation for that entry |
 | `mark.notFullyTranslated` | `string \| false` | `"🔹"` | Prefix when the entry is translated here but missing in some other language |
-| `mark.absentDataInArray` | `string` | `"⁇"` | Stands in for a `%s` left without a value. Ordinary rendering, not a diagnostic: applies in dev **and** in a build, and `markOnlyDev` doesn't touch it |
+| `mark.absentDataInArray` | `string` | `"⁇"` | Stands in for an argument with no value — a `%s`, a `{0}` or a `{name}` missing from the object. A plain object used as the *value* itself counts as missing too (it's the arguments container, never something to render). Ordinary rendering, not a diagnostic: applies in dev **and** in a build, and `markOnlyDev` doesn't touch it |
 | `markOnlyDev` | `boolean` | `true` | In a build, no diagnostic marks on screen — just the fallback. The data behind them isn't shipped either |
 | `warningDev` | `boolean` | `true` | Runtime console output in development |
 | `warningBuild` | `boolean` | `false` | Runtime console output in production — **all** of it, failures included |
@@ -60,3 +61,21 @@ vitetranslate({
 ```
 
 Full reference — every field, the budget presets, the context abstract, the keyring, the validator, the flags: **[doc/llm.md](llm.md)**.
+
+## `icu`
+
+The build-time default time zone for ICU `{n, date}` / `{n, time}` messages — a restaurant's hours, shown in the restaurant's zone no matter who's looking:
+
+```js
+vitetranslate({
+  localeDir: "locale",
+  sourceLanguage: "it-IT",
+  icu: { timeZone: "Europe/Rome" },
+});
+```
+
+| Field | Type | Description |
+| :- | :- | :- |
+| `timeZone` | `string` | An IANA zone name (`"Europe/Rome"`, `"UTC"`, …). Validated at plugin construction — an unknown zone is a build-time error, not a silent fallback |
+
+Lowest of three precedences: a calendar date (`"YYYY-MM-DD"`) is always UTC regardless of this option; the `timeZone` prop of `<TranslateContainer>` wins over it; with neither, the message uses whatever zone the runtime itself is in. See [ICU messages](icu.md#dates-and-time-zones).

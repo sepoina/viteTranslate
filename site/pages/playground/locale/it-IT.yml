@@ -2,7 +2,7 @@
 #      italiano (Italia) (sourceLanguage)
 #       |    code: it-IT
 #       |    missing key: 0
-#       |    processed: 2026-09-19 16:16
+#       |    processed: 2026-09-24 15:15
 #       |    TableVersion: 260905
 #  -------------------------------------------------
 #
@@ -39,12 +39,12 @@ PlaceholderExample_rwflob: "Nome utente"
 StrengthsSection_146suvo: "<strong>Marcatura diretta del testo nel sorgente.</strong> Nessuna chiave da creare o gestire a mano."
 StrengthsSection_15r2z3b: "<strong>Nuove lingue rilevate in automatico.</strong> Basta aggiungere un file .yml nella cartella delle lingue, senza registrarlo altrove nel codice."
 StrengthsSection_1ecmosj: "<strong>Le tabelle sono dati, non moduli JS.</strong> Un file di lingua non porta codice eseguibile: viene compilato in fase di build, non servito com’è."
+StrengthsSection_1hve07m: "<strong>%s gzip nel bundle finale.</strong> Il runtime che arriva al browser (<code>&#60;Translate&#62;</code>, <code>TranslateContainer</code>, <code>useTranslateLanguage</code>) pesa %s gzip, misurati confrontando una build di produzione con e senza la libreria. Il payload delle traduzioni scala con i tuoi contenuti, non con la libreria."
 StrengthsSection_1r3j0je: "<strong>Fallback automatico in sviluppo.</strong> Finché una traduzione non è pronta resta visibile il testo originale, mai una stringa vuota o un errore."
 StrengthsSection_1rplbik: "<strong>Caricamento delle lingue lazy.</strong> Il cambio lingua a runtime scarica solo il chunk necessario, senza appesantire il bundle iniziale con le lingue non usate."
 StrengthsSection_1uxxl2f: "Punti di forza"
 StrengthsSection_7t8nu9: "<strong>Le traduzioni sopravvivono ai rename.</strong> Se lo stesso testo cambia solo id, la sincronizzazione eredita la traduzione già fatta invece di farla ripartire da zero."
 StrengthsSection_qgqq5v: "<strong>Compatibile con Vite 7 e Vite 8.</strong> Stesso codice per entrambi: su Vite 7 gira su Rollup (build) ed esbuild (dev), su Vite 8 gira su Rolldown (bundler Rust) e Oxc (compilatore), senza bisogno di configurazione diversa."
-StrengthsSection_wlo9da: "<strong>Meno di 5 kB gzip nel bundle finale.</strong> Il runtime che arriva al browser (<code>&#60;Translate&#62;</code>, <code>TranslateContainer</code>, <code>useTranslateLanguage</code>) pesa meno di 5 kB gzip, misurati confrontando una build di produzione con e senza la libreria. Il payload delle traduzioni scala con i tuoi contenuti, non con la libreria."
 StrengthsSection_wv4ype: "<strong>Sincronizzazione automatica delle tabelle.</strong> Un solo comando aggiorna tutte le lingue e segnala cosa resta da tradurre."
 TableOfContents_1bvsbql: "Indice delle sezioni"
 TableOfContents_1epa0dl: "Punti di forza"

@@ -50,7 +50,7 @@ function warnInitialNotPreloaded(tag) {
  * non in TranslateContainer — che deve avvenire la sospensione, così a catturarla è il
  * <Suspense> reso dal container.
  */
-function TranslateProvider({ lang, debug, proposeNewLanguage, children }) {
+function TranslateProvider({ lang, debug, proposeNewLanguage, icu, children }) {
   const table = readLanguage(lang); // sospende finché la lingua non è caricata
 
   // Un caricamento fallito ricade sulla tabella eager (vedi readLanguage): a schermo c'è
@@ -63,10 +63,25 @@ function TranslateProvider({ lang, debug, proposeNewLanguage, children }) {
   const id = hasFailedLanguage(lang) ? firstPreloadedLanguage : lang;
 
   const value = React.useMemo(
-    () => ({ id, debug, table, proposeNewLanguage }),
-    [id, debug, table, proposeNewLanguage]
+    () => ({ id, debug, table, proposeNewLanguage, icu }),
+    [id, debug, table, proposeNewLanguage, icu]
   );
   return <TranslateContext.Provider value={value}>{children}</TranslateContext.Provider>;
+}
+
+// Il fuso delle date nei messaggi ICU. Validato qui e non a ogni formattazione: un fuso
+// sbagliato è un errore di chi scrive l'app, e va detto una volta, nel punto in cui è stato
+// scritto.
+function validTimeZone(tz) {
+  if (tz === undefined || tz === null) return undefined;
+  try {
+    // eslint-disable-next-line no-new
+    new Intl.DateTimeFormat("en-US", { timeZone: tz });
+    return tz;
+  } catch {
+    report(diag, "error", `TranslateContainer: timeZone "${tz}" is not a valid IANA time zone, ignored`);
+    return undefined;
+  }
 }
 
 /**
@@ -79,8 +94,13 @@ function TranslateProvider({ lang, debug, proposeNewLanguage, children }) {
  * @param {React.ReactNode} [fallback=null] - mostrato durante il caricamento di una lingua
  *   non precaricata. Di default null: i chunk sono locali, il "loading" è un frame vuoto.
  * @param {boolean} [debug]
+ * @param {string} [timeZone] - fuso IANA (es. "Europe/Rome") per i messaggi ICU `date`/`time`
+ *   (piano 4.6.3): precede l'opzione `icu.timeZone` del plugin, ceduta invece dal manifest. A
+ *   differenza di `initialLanguage`, si PUÒ cambiare dopo il mount — utile per la preferenza
+ *   dell'utente o il fuso della richiesta in SSR. Un fuso non valido si segnala in console e si
+ *   ignora (vedi doc/icu.md § "Dates and time zones").
  */
-export default function TranslateContainer({ initialLanguage = firstPreloadedLanguage, children, debug, fallback = null }) {
+export default function TranslateContainer({ initialLanguage = firstPreloadedLanguage, children, debug, fallback = null, timeZone }) {
   // initialLanguage inesistente -> ricade sulla prima precaricata (quindi sempre disponibile)
   // senza far esplodere l'app. Inizializzatore: eseguito una sola volta — `initialLanguage` è
   // la lingua di PARTENZA, cambiarla dopo il mount non ha effetto (si usa proposeNewLanguage).
@@ -135,9 +155,14 @@ export default function TranslateContainer({ initialLanguage = firstPreloadedLan
     React.startTransition(() => setLanguageState(prev => nextLanguageState(prev, next, retrying)));
   }, []);
 
+  const icu = React.useMemo(() => {
+    const tz = validTimeZone(timeZone);
+    return tz === undefined ? undefined : { timeZone: tz };
+  }, [timeZone]);
+
   return (
     <React.Suspense fallback={fallback}>
-      <TranslateProvider lang={lang} debug={debug} proposeNewLanguage={proposeNewLanguage}>
+      <TranslateProvider lang={lang} debug={debug} proposeNewLanguage={proposeNewLanguage} icu={icu}>
         {children}
       </TranslateProvider>
     </React.Suspense>

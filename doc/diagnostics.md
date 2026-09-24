@@ -18,7 +18,7 @@ vitetranslate({
       malformed: "‼️",          // text nobody marked, or incompatible props
       untranslated: "🔸",       // no translation in the current language
       notFullyTranslated: "🔹", // translated here, missing in some other language
-      absentDataInArray: "⁇",   // a %s left without a value
+      absentDataInArray: "⁇",   // an argument with no value — a %s, a {0} or a {name}
     },
     markOnlyDev: true,          // in a build: just the fallback, no characters
     warningDev: true,           // runtime console in development
@@ -31,7 +31,7 @@ Two questions, kept apart: `mark` is **what** you see, everything else is **when
 
 One prefix per string, the worst one wins: `‼️` → `🔸` → `🔹`. Set any of them to `""` or `false` to turn that one off. `🚫` never competes with the other three — it fires only where there is no text for a prefix to sit in front of; see [below](#when-there-is-no-text-at-all).
 
-With `markOnlyDev: true` (the default) a production build ships none of this — not the characters, and not the data behind them: the untranslated-key lists never enter the language chunks and the global set stays empty. `mark.absentDataInArray` is the exception: it isn't a diagnostic but ordinary rendering, so it applies in development and in a build alike.
+With `markOnlyDev: true` (the default) a production build ships none of this — not the characters, and not the data behind them: the untranslated-key lists never enter the language chunks and the global set stays empty. `mark.absentDataInArray` is the exception: it isn't a diagnostic but ordinary rendering, so it applies in development and in a build alike. A plain object passed as the *value* itself — not as the arguments container — renders the same character: it's what would otherwise make React throw ("Objects are not valid as a React child"), see [ICU messages](icu.md#arguments-positions-or-names).
 
 ## Case by case
 
@@ -43,7 +43,7 @@ With `markOnlyDev: true` (the default) a production build ships none of this —
 | No translation in this language | `🔸` + source text | source text |
 | Translated here, missing elsewhere | `🔹` + translation | translation |
 | A value that is not text — `t={() => {}}` | `🚫[func]` | nothing |
-| A `%s` with no value | `⁇` (`mark.absentDataInArray`) | `⁇` (`mark.absentDataInArray`) |
+| An argument with no value — a `%s`, a `{0}` or a `{name}` missing from the object | `⁇` (`mark.absentDataInArray`) | `⁇` (`mark.absentDataInArray`) |
 
 Incompatible props never erase the text: the best available one is recovered and rendered — the string in `t`, the children, the first element of the tuple. A mistake in *your* props is not paid for by whoever is reading the screen.
 

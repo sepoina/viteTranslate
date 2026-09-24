@@ -73,6 +73,16 @@ export interface ErrorSolveOptions {
   warningBuild?: boolean;
 }
 
+/** Opzioni ICU (vedi doc/icu.md), il default di build per i messaggi `{n, date}`/`{n, time}`. */
+export interface IcuOptions {
+  /**
+   * Fuso IANA di default (es. `"Europe/Rome"`) per i messaggi ICU `date`/`time`, quando non lo
+   * dà la prop `timeZone` di `<TranslateContainer>`. Senza nessuno dei due si usa il fuso del
+   * runtime (il browser, o il server in SSR).
+   */
+  timeZone?: string;
+}
+
 /** Opzioni di `vitetranslate(...)`, da registrare fra i `plugins` di vite.config. */
 export interface VitetranslateOptions {
   /** Cartella con i file di lingua (`.yml`), relativa a `baseDir` (es. `"src/locale"`). */
@@ -138,6 +148,8 @@ export interface VitetranslateOptions {
    * Stessi colori, righe più corte. Utile in CI o in un terminale stretto. Default: `false`.
    */
   simpleLog?: boolean;
+  /** Il default di build per i messaggi ICU `date`/`time` (vedi doc/icu.md). */
+  icu?: IcuOptions;
 }
 
 /**

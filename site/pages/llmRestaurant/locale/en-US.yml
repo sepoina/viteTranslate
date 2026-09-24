@@ -2,7 +2,7 @@
 #      American English
 #       |    code: en-US
 #       |    missing key: 0
-#       |    processed: 2026-09-19 17:33
+#       |    processed: 2026-09-23 13:50
 #       |    TableVersion: 260905
 #  -------------------------------------------------
 #
@@ -10,11 +10,11 @@ App_3qfl0i: "viteTranslate — Seafood kitchen at Cala dei Gabbiani"
 Booking_105mdzh: "19:30 – 23:30"
 Booking_17xtngx: "Date"
 Booking_1akdk9o: "Saturday and Sunday"
-Booking_1am35rh: "%s people"
 Booking_1amvxpr: "Monday"
 Booking_1aq1rup: "Indoor dining room"
 Booking_1cq31m3: "Tuesday – Friday"
 Booking_1ez0xpn: "Time"
+Booking_1nn7xtl: "{0, plural, one {# person} other {# people}}"
 Booking_1nuvqaq: "We answer every request within two hours. For groups of more than eight, or for the terrace on July and August evenings, we suggest you call us: sometimes a table frees up at the last moment."
 Booking_1psqarj: "Chef's counter"
 Booking_1r87nqy: "What should we call you at the table"
@@ -35,12 +35,11 @@ Booking_hboh5f: "Email"
 Booking_jlpdjl: "Via del Molo Vecchio 14, Cala dei Gabbiani"
 Booking_l24skl: "Phone"
 Booking_lnpfto: "Allergies, celebrations, a high chair, a surprise to arrange…"
-Booking_lqzvss: "1 person"
 Booking_p5i243: "Send request"
 Booking_pf0xta: "Your table <i>is waiting</i>"
 Booking_s8abcq: "Request a table"
-Booking_ta4z49: "Thank you, <b>%s</b>! We've recorded your request for %s, %s at %s. We'll write within two hours to confirm your table."
 Booking_xpppo1: "We use your details only to manage the reservation. No newsletter, unless you ask us for one."
+Booking_zfj2oa: "Thank you, <b>{name}</b>! We've recorded your request for {guests, plural, one {# person} other {# people}} on {date, date, ::EEEEdMMMM} at {time}. We'll write within two hours to confirm your table."
 Cellar_18bgaoo: "It holds 420 labels, with a declared fondness for coastal whites and small producers along the shore. Irene, our sommelier, will guide you through cliffside vermentinos, bottle-fermented sparkling wines and a few rarities to set aside for occasions that deserve them."
 Cellar_1g02opt: "Amari, grappas and coastal spirits, to close the evening"
 Cellar_1irml4d: "Our cellar was the cave where fishermen mended their nets, carved into the tufa right beneath the dining room: fourteen degrees all year, with no need for climate control."
@@ -224,11 +223,11 @@ Tasting_12iufd: "Three different routes, one rule: you trust us and we never ser
 Tasting_1bpmnxc: "Mare aperto"
 Tasting_1cv6xrc: "A first taste of our kitchen: the raw course, a warm appetizer, a first course, a second course and dessert. Perfect for those visiting us for the first time."
 Tasting_1ncv1dl: "Tasting menu"
-Tasting_1t5tz5v: "Wine pairing: + %s"
 Tasting_bzh49: "The most chosen"
 Tasting_dij6lb: "Carta bianca"
 Tasting_f7fl33: "Sottocosta"
 Tasting_fjeql5: "The tasting menus are served to the whole table and can be ordered until 9:30 PM. Vegetarian variations on request, with one day's notice."
+Tasting_k0et6d: "Wine pairing: + {0, number, ::currency/EUR precision-integer}"
 Tasting_lpa9z7: "%s courses"
 Tasting_q8z4x9: "Book this journey"
 Tasting_r4v4s2: "The complete journey of the season, with two off-menu dishes invented each week from the catch. It's the menu Tommaso would order for himself."

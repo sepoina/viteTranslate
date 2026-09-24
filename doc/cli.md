@@ -57,6 +57,16 @@ The `CODE` cell is coloured by what the language needs: green when there is noth
 
 The exit code is `1` on errors only, so it works as a CI check. An incomplete table is not an error — it is the normal state of a project still being translated.
 
+An [ICU message](icu.md) that's broken, or whose arguments don't match the source, adds a warning note to the row — never an error, so it never trips the CI check on its own:
+
+```text
+:::                      ║  fr-FR  français (France)     53        0  1 key(s) whose ICU arguments or
+:::                      ║                                           syntax don't match the source,
+:::                      ║                                           shown in it-IT until fixed: App_1nn7xtl
+```
+
+The same note appears on the source row for a message that doesn't parse (`shown as plain text`), and as `key(s) with incomplete plural or select branches` when a translation is valid but doesn't cover every category this language's plural rules require.
+
 ```bash
 vitetranslate --migrate
 ```
