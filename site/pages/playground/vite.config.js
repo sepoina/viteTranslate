@@ -14,6 +14,9 @@ export default defineConfig({
       // in build la sorgente NON viene precaricata (ogni tabella compilata è autonoma) — in
       // dev sì. La prima della lista è la lingua iniziale di default di <TranslateContainer>.
       preloadedLanguages: ["en-US","it-IT","zh-CN"],
+      // Acceso per l'esempio "autoWrap" (src/snippets/AutoWrapExample.jsx): il testo JSX e gli
+      // attributi marcati sotto un tag HTML si traducono senza <Translate> né ts().
+      autoWrap: true,
     }),
     react(),
     mkcert(),

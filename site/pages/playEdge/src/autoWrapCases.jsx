@@ -105,7 +105,7 @@ export function AutoWrapOpaqueTag() {
 
 // Titoli marcati come il resto, nella stessa lingua sorgente del file che estendono.
 const autoWrapCases = [
-  '_%_autoWrap: marcatori senza &lt;Translate&gt;_%_',
+  { id: 'autowrap', title: '_%_autoWrap: marcatori senza &lt;Translate&gt;_%_' },
   [
     '_%_1. Figlio nudo, componente riconosciuto_%_',
     <AutoWrapHost />,
@@ -178,6 +178,7 @@ export function AutoWrapAttrOnComponent() {
     `export function AutoWrapPlaceholderWarning() {
   return <p>_%_Hai %s messaggi_%_</p>;
 }`,
+    'warn',
   ],
   [
     '_%_9. Un tag DENTRO il marcatore lo spezza_%_',
@@ -188,6 +189,7 @@ export function AutoWrapAttrOnComponent() {
 }
 // non funziona ne' con ne' senza autoWrap — usa invece:
 //   <Translate t="_%_Ciao <b>mondo</b>_%_" />`,
+    'error',
   ],
   [
     '_%_10. Tag escluso dalla RegExp del progetto_%_',
@@ -197,6 +199,7 @@ export function AutoWrapAttrOnComponent() {
 export function AutoWrapOpaqueTag() {
   return <blockquote>_%_Questo tag non è nella RegExp del progetto: resta come prima, nessuna riscrittura._%_</blockquote>;
 }`,
+    'error',
   ],
 ];
 

@@ -2,7 +2,7 @@
 #      中文（中国）
 #       |    code: zh-CN
 #       |    missing key: 0
-#       |    processed: 2026-09-24 15:14
+#       |    processed: 2026-09-24 21:44
 #       |    TableVersion: 260905
 #  -------------------------------------------------
 #
@@ -64,8 +64,8 @@ Outro_pedtx3: "请我喝杯咖啡"
 pages_1lm0j53: "一整个落地页，228 句话，四种语言由 <code>vitetranslate --llm-translate</code> 填充。"
 pages_1t0ndvi: "每一种调用形式和每一条诊断，都与它应有的渲染结果并排展示。"
 pages_1vpprca: "边界用例"
-pages_cwlvfs: "完整导览：安装、语言切换、变量、译文中的标记。"
 pages_f725ta: "Playground"
+pages_jmgmfq: "完整导览，实时呈现：变量与标记、ICU 复数与日期、autoWrap，直到用 LLM 翻译。"
 pages_vv62gb: "由 LLM 翻译的餐厅"
 Steps_13v2590: "翻译"
 Steps_196we9t: "手动翻译、交给译者，或使用会保留占位符和标签的 LLM。然后发布。"

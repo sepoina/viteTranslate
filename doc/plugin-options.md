@@ -24,7 +24,7 @@ vitetranslate(options)
 
 Only `false` turns `autoSyncDev` / `autoSyncBuild` off — any other value counts as on. Setting `VITETRANSLATE_NO_SYNC` (to anything non-empty) turns both off without touching `vite.config.*`, which is the only way to reach this from a read-only checkout. Neither one ever runs under Vitest or `vite preview`: a test run shouldn't rewrite your tables, and a preview has no source changes to catch up on.
 
-`autoWrap` is the mirror case: only `true` or a `RegExp` turn it on, any other value (including a typo'd truthy one) leaves it off — a mistake here should fall back to today's behavior, not switch it on by accident. A `RegExp` with the `g` or `y` flag is accepted too — those flags are stripped internally, since a stateful `.test()` would otherwise answer differently for the second tag it checks in the same file.
+`autoWrap` is the mirror case: only `true` or a `RegExp` turn it on, any other value (including a typo'd truthy one) leaves it off — a mistake here should fall back to today's behavior, not switch it on by accident. A `RegExp` with the `g` or `y` flag is accepted too — those flags are stripped internally, since a stateful `.test()` would otherwise answer differently for the second tag it checks in the same file. 🎮 Live: [playground/#autowrap](https://sepoina.github.io/viteTranslate/playground/#autowrap); 🧪 ten edge cases: [edge/#autowrap](https://sepoina.github.io/viteTranslate/edge/#autowrap).
 
 ## `errorSolve`
 

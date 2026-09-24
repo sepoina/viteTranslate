@@ -7,7 +7,7 @@ export const PAGES = [
     preview: "previews/playground.webp",
     icon: "🎮",
     title: "_%_Playground_%_",
-    text: "_%_Il giro completo: installazione, cambio lingua, variabili, markup nelle traduzioni._%_",
+    text: "_%_Il giro completo, dal vivo: variabili e markup, plurali e date ICU, autoWrap, fino alla traduzione con un LLM._%_",
     source: "site/pages/playground",
   },
   {

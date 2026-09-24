@@ -2,7 +2,7 @@
 #      American English
 #       |    code: en-US
 #       |    missing key: 0
-#       |    processed: 2026-09-24 15:14
+#       |    processed: 2026-09-24 21:44
 #       |    TableVersion: 260905
 #  -------------------------------------------------
 #
@@ -64,8 +64,8 @@ Outro_pedtx3: "Buy me a coffee"
 pages_1lm0j53: "A whole landing page, 228 sentences, four languages filled in by <code>vitetranslate --llm-translate</code>."
 pages_1t0ndvi: "Every call form and every diagnostic, next to what it should render."
 pages_1vpprca: "Edge cases"
-pages_cwlvfs: "The full tour: installation, language switching, variables, markup inside translations."
 pages_f725ta: "Playground"
+pages_jmgmfq: "The full tour, live: variables and markup, ICU plurals and dates, autoWrap, all the way to translating with an LLM."
 pages_vv62gb: "The restaurant translated by an LLM"
 Steps_13v2590: "Translate"
 Steps_196we9t: "By hand, by a translator, or with an LLM that respects placeholders and tags. Then you publish."

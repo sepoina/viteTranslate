@@ -1,9 +1,4 @@
-import { Fragment, useState } from 'react';
-import {
-  Translate,
-  useTranslateLanguage,
-  version,
-} from '@sepoina/vitetranslate/react';
+import { Translate } from '@sepoina/vitetranslate/react';
 
 //
 // Valore che al momento del build non esiste: serve a provare il template literal
@@ -11,9 +6,11 @@ import {
 //
 const nome = 'Mario';
 
+// Il formato delle righe (e dello stato 'warn' / 'error' in quinta posizione) è descritto in
+// ShowAllRowTests.jsx.
 const testCases = [
   // ============================================================
-  '_%_Forme di chiamata_%_',
+  { id: 'call-forms', title: '_%_Forme di chiamata_%_' },
   // ============================================================
   [
     '_%_children marcati_%_',
@@ -95,7 +92,7 @@ const testCases = [
   ],
 
   // ============================================================
-  '_%_Cosa diventa un marcatore, e cosa no_%_',
+  { id: 'markers', title: '_%_Cosa diventa un marcatore, e cosa no_%_' },
   // ============================================================
   [
     '_%_Marcatore vuoto_%_',
@@ -114,40 +111,46 @@ const testCases = [
     <Translate t={' _%_non estratto_%_ '} />,
     '‼️ _%_non estratto_%_ (nei children il trim c’è, in t no)',
     "<Translate t={' _%_non estratto_%_ '} />",
+    'error',
   ],
   [
     '_%_Marcatori annidati_%_',
     <Translate t={'_%_uno_%_ e _%_due_%_'} />,
     'uno_%_ e _%_due (una chiave sola + warning di build)',
     "<Translate t={'_%_uno_%_ e _%_due_%_'} />",
+    'warn',
   ],
   [
     '_%_Marcatore aperto a runtime_%_',
     <Translate t={'_%_' + 'mai chiuso'} />,
     '‼️_%_mai chiuso (i delimitatori restano: non si chiude)',
     "<Translate t={'_%_' + 'mai chiuso'} />",
+    'error',
   ],
   [
     '_%_Marcatore chiuso a runtime_%_',
     <Translate t={'_%_' + 'chiuso a runtime' + '_%_'} />,
     '‼️chiuso a runtime (delimitatori tolti, ma nessuna chiave)',
     "<Translate t={'_%_' + 'chiuso a runtime' + '_%_'} />",
+    'error',
   ],
   [
     '_%_Template con ${}_%_',
     <Translate t={`_%_ciao ${nome}_%_`} />,
     '‼️ciao Mario (limite noto: usare %s)',
     '<Translate t={`_%_ciao ${nome}_%_`} />',
+    'error',
   ],
   [
     '_%_Marcatore in mezzo_%_',
     <Translate t={'prima _%_in mezzo_%_ dopo'} />,
     '‼️prima _%_in mezzo_%_ dopo',
     "<Translate t={'prima _%_in mezzo_%_ dopo'} />",
+    'error',
   ],
 
   // ============================================================
-  '_%_Interpolazione %s_%_',
+  { id: 'percent-s', title: '_%_Interpolazione %s_%_' },
   // ============================================================
   [
     '_%_Solo %s_%_',
@@ -166,6 +169,7 @@ const testCases = [
     <Translate t={['_%_%s più %s fa %s_%_', [1, 2, 3]]} />,
     '123 più ⁇ fa ⁇ (l’array è UN argomento solo)',
     "<Translate t={['_%_%s più %s fa %s_%_', [1, 2, 3]]} />",
+    'warn',
   ],
   [
     '_%_%s multipli (via a)_%_',
@@ -184,6 +188,7 @@ const testCases = [
     <Translate t={['_%_%s-%s-%s_%_', 'a', null, 'c']} />,
     'a-⁇-c',
     "<Translate t={['_%_%s-%s-%s_%_', 'a', null, 'c']} />",
+    'warn',
   ],
   [
     '_%_%s extra ignorati_%_',
@@ -196,6 +201,7 @@ const testCases = [
     <Translate t={['_%_%s e %s_%_', 'uno']} />,
     'uno e ⁇',
     "<Translate t={['_%_%s e %s_%_', 'uno']} />",
+    'warn',
   ],
   [
     '_%_%s zero_%_',
@@ -214,24 +220,28 @@ const testCases = [
     <Translate t={['_%_null: %s_%_', null]} />,
     'null: ⁇',
     "<Translate t={['_%_null: %s_%_', null]} />",
+    'warn',
   ],
   [
     '_%_%s senza argomenti_%_',
     <Translate t={'_%_niente: %s_%_'} />,
     'niente: ⁇',
     "<Translate t={'_%_niente: %s_%_'} />",
+    'warn',
   ],
   [
     '_%_a array vuoto_%_',
     <Translate t={'_%_Vuoto: %s_%_'} a={[]} />,
     'Vuoto: ⁇',
     "<Translate t={'_%_Vuoto: %s_%_'} a={[]} />",
+    'warn',
   ],
   [
     '_%_a false_%_',
     <Translate t={'_%_Falso: %s_%_'} a={false} />,
     'Falso: ⁇ (false = "non passato")',
     "<Translate t={'_%_Falso: %s_%_'} a={false} />",
+    'warn',
   ],
   [
     '_%_%s letterale come dato_%_',
@@ -250,10 +260,11 @@ const testCases = [
     <Translate>_%_Sconto 100%sicuro_%_</Translate>,
     'Sconto 100⁇icuro (trappola: %s attaccato al testo)',
     '<Translate>_%_Sconto 100%sicuro_%_</Translate>',
+    'warn',
   ],
 
   // ============================================================
-  '_%_Interpolazione standard ICU_%_',
+  { id: 'icu', title: '_%_Interpolazione standard ICU_%_' },
   // ============================================================
   //
   // Gli stessi casi di "Interpolazione %s", scritti con {0}, {1}, … più quello che
@@ -277,6 +288,7 @@ const testCases = [
     <Translate t={['_%_{0} più {1} fa {2}_%_', [1, 2, 3]]} />,
     '123 più ⁇ fa ⁇ (l’array è UN argomento solo)',
     "<Translate t={['_%_{0} più {1} fa {2}_%_', [1, 2, 3]]} />",
+    'warn',
   ],
   [
     "_%_'{0}' multipli (via a)_%_",
@@ -313,6 +325,7 @@ const testCases = [
     <Translate t={['_%_{0}-{1}-{2}_%_', 'a', null, 'c']} />,
     'a-⁇-c',
     "<Translate t={['_%_{0}-{1}-{2}_%_', 'a', null, 'c']} />",
+    'warn',
   ],
   [
     "_%_'{0}' extra ignorati_%_",
@@ -325,6 +338,7 @@ const testCases = [
     <Translate t={['_%_{0} e {1}_%_', 'uno']} />,
     'uno e ⁇',
     "<Translate t={['_%_{0} e {1}_%_', 'uno']} />",
+    'warn',
   ],
   [
     "_%_'{0}' zero_%_",
@@ -343,30 +357,35 @@ const testCases = [
     <Translate t={['_%_null: {0}_%_', null]} />,
     'null: ⁇',
     "<Translate t={['_%_null: {0}_%_', null]} />",
+    'warn',
   ],
   [
     "_%_'{0}' senza argomenti_%_",
     <Translate t={'_%_niente: {0}_%_'} />,
     'niente: ⁇',
     "<Translate t={'_%_niente: {0}_%_'} />",
+    'warn',
   ],
   [
     '_%_a array vuoto (ICU)_%_',
     <Translate t={'_%_Vuoto: {0}_%_'} a={[]} />,
     'Vuoto: ⁇',
     "<Translate t={'_%_Vuoto: {0}_%_'} a={[]} />",
+    'warn',
   ],
   [
     '_%_a false (ICU)_%_',
     <Translate t={'_%_Falso: {0}_%_'} a={false} />,
     'Falso: ⁇ (false = "non passato")',
     "<Translate t={'_%_Falso: {0}_%_'} a={false} />",
+    'warn',
   ],
   [
     '_%_a scalare con due argomenti_%_',
     <Translate t={'_%_Scalare: {0} e {1}_%_'} a={'uno'} />,
     'Scalare: uno e ⁇ (lo scalare è solo {0})',
     "<Translate t={'_%_Scalare: {0} e {1}_%_'} a={'uno'} />",
+    'warn',
   ],
   [
     "_%_%s e '{1}' insieme_%_",
@@ -379,6 +398,7 @@ const testCases = [
     <Translate t={['_%_{0} e %s_%_', 'a', 'b']} />,
     'a e a (anche questo %s è {0}: warning di build)',
     "<Translate t={['_%_{0} e %s_%_', 'a', 'b']} />",
+    'warn',
   ],
   [
     '_%_Argomento con nome_%_',
@@ -397,12 +417,14 @@ const testCases = [
     <Translate t={'_%_Ciao {nome}_%_'} a={{ name: 'Mario' }} />,
     'Ciao ⁇',
     "<Translate t={'_%_Ciao {nome}_%_'} a={{ name: 'Mario' }} />",
+    'warn',
   ],
   [
     "_%_Oggetto al posto di '{0}'_%_",
     <Translate t={'_%_Ciao {0}_%_'} a={{ name: 'Mario' }} />,
     'Ciao ⁇ (l’oggetto contiene i nomi, non è {0})',
     "<Translate t={'_%_Ciao {0}_%_'} a={{ name: 'Mario' }} />",
+    'warn',
   ],
   [
     "_%_Elemento come '{0}'_%_",
@@ -435,12 +457,14 @@ const testCases = [
     <Translate t={'_%_Premi {Invio}_%_'} />,
     'Premi ⁇ (sembra un argomento, e lo è)',
     "<Translate t={'_%_Premi {Invio}_%_'} />",
+    'warn',
   ],
   [
     '_%_La trappola dell’apostrofo_%_',
     <Translate t={["_%_dell'{0}_%_", 'albero']} />,
     "dell'{0} (l’apostrofo apre una citazione: testo semplice + warning di build)",
     `<Translate t={["_%_dell'{0}_%_", 'albero']} />`,
+    'warn',
   ],
   [
     '_%_Apostrofo tipografico_%_',
@@ -456,7 +480,7 @@ const testCases = [
   ],
 
   // ============================================================
-  '_%_Argomenti che sono nodi React_%_',
+  { id: 'react-nodes', title: '_%_Argomenti che sono nodi React_%_' },
   // ============================================================
   [
     '_%_Elemento come argomento_%_',
@@ -467,7 +491,7 @@ const testCases = [
     "<Translate t={['_%_Ciao %s_%_', <b>Mario</b>]} />",
   ],
   [
-    '_%_Elemento dentro <b>_%_',
+    '_%_Elemento dentro &lt;b&gt;_%_',
     <Translate
       t={['_%_Firmato come <b>%s</b>_%_', <a href="#chi">Mario</a>]}
     />,
@@ -492,10 +516,11 @@ const testCases = [
     <Translate t={[<b>errore</b>, 'x']} />,
     '🚫[badDom] (lì il testo è il testo: resta un errore)',
     "<Translate t={[<b>errore</b>, 'x']} />",
+    'error',
   ],
 
   // ============================================================
-  '_%_Dialetto HTML dentro il marcatore_%_',
+  { id: 'html', title: '_%_Dialetto HTML dentro il marcatore_%_' },
   // ============================================================
   [
     '_%_b / i_%_',
@@ -506,7 +531,7 @@ const testCases = [
     "<Translate t={'_%_Testo <b>in grassetto</b> e <i>corsivo</i>_%_'} />",
   ],
   [
-    '_%_%s dentro <b>_%_',
+    '_%_%s dentro &lt;b&gt;_%_',
     <Translate t={['_%_<b>%s</b>_%_', 'bold']} />,
     <b>bold</b>,
     "<Translate t={['_%_<b>%s</b>_%_', 'bold']} />",
@@ -530,18 +555,21 @@ const testCases = [
       <b>solo grassetto</b> (nessun attributo sopravvive)
     </>,
     `<Translate t={'_%_<b class="x" title="y" onclick="boom()">solo grassetto</b>_%_'} />`,
+    'warn',
   ],
   [
     '_%_Tag sconosciuto sciolto_%_',
     <Translate t={'_%_<div>sciolto</div> e <span>anche</span>_%_'} />,
     'sciolto e anche',
     "<Translate t={'_%_<div>sciolto</div> e <span>anche</span>_%_'} />",
+    'warn',
   ],
   [
     '_%_script sciolto_%_',
     <Translate t={'_%_<script>alert(1)</script>_%_'} />,
     'alert(1) come testo, niente esecuzione',
     "<Translate t={'_%_<script>alert(1)</script>_%_'} />",
+    'warn',
   ],
   [
     '_%_Tag lasciato aperto_%_',
@@ -550,12 +578,14 @@ const testCases = [
       <b>resta aperto</b> (chiuso implicitamente a fine stringa)
     </>,
     "<Translate t={'_%_<b>resta aperto_%_'} />",
+    'warn',
   ],
   [
     '_%_Chiusura spaiata_%_',
     <Translate t={'_%_testo </b> spaiato_%_'} />,
     'testo  spaiato (il tag spaiato si ignora)',
     "<Translate t={'_%_testo </b> spaiato_%_'} />",
+    'warn',
   ],
   [
     '_%_Commento HTML_%_',
@@ -585,6 +615,7 @@ const testCases = [
       z — divergenza nota dal browser, + warning di build
     </>,
     "<Translate t={'_%_<b>x <i>y</b> z</i>_%_'} />",
+    'warn',
   ],
   [
     '_%_Markup come JSX (rotto)_%_',
@@ -593,28 +624,32 @@ const testCases = [
     </Translate>,
     '‼️_%_ — i "_%_" sono due JSXText separati: niente chiave, e marquee viene buttato',
     '<Translate>_%_<marquee>boom</marquee>_%_</Translate>',
+    'error',
   ],
 
   // ============================================================
-  '_%_Testo non marcato e skipMark_%_',
+  { id: 'unmarked', title: '_%_Testo non marcato e skipMark_%_' },
   // ============================================================
   [
     '_%_Non marcato_%_',
     <Translate>Questa stringa è senza marcatori</Translate>,
     '‼️Questa stringa è senza marcatori',
     '<Translate>Questa stringa è senza marcatori</Translate>',
+    'error',
   ],
   [
     '_%_Non marcato con accenti_%_',
     <Translate>è già tutto pronto, è un'occasione</Translate>,
     "‼️è già tutto pronto, è un'occasione",
     "<Translate>è già tutto pronto, è un'occasione</Translate>",
+    'error',
   ],
   [
     '_%_Non marcato + %s_%_',
     <Translate t={'ordine numero %s'} a={7} />,
     '‼️ordine numero 7 (l’interpolazione funziona lo stesso)',
     "<Translate t={'ordine numero %s'} a={7} />",
+    'error',
   ],
   [
     '_%_skipMark_%_',
@@ -639,10 +674,11 @@ const testCases = [
     <Translate>testo {'ed espressione'}</Translate>,
     '‼️testo  (i children sono una tupla: il secondo diventa un argomento e sparisce)',
     "<Translate>testo {'ed espressione'}</Translate>",
+    'error',
   ],
 
   // ============================================================
-  '_%_Valori che testo non sono_%_',
+  { id: 'not-text', title: '_%_Valori che testo non sono_%_' },
   // ============================================================
   [
     '_%_Numero_%_',
@@ -672,6 +708,7 @@ const testCases = [
     <Translate t={{ foo: 'bar' }} />,
     '(vuoto + un console.error una volta sola)',
     "<Translate t={{ foo: 'bar' }} />",
+    'error',
   ],
   [
     '_%_Oggetto { t: null }_%_',
@@ -684,35 +721,40 @@ const testCases = [
     <Translate t={true} />,
     '🚫[true] (niente da salvare: si dice cosa c’era)',
     '<Translate t={true} />',
+    'error',
   ],
-  ['_%_Array vuoto_%_', <Translate t={[]} />, '🚫[array]', '<Translate t={[]} />'],
+  ['_%_Array vuoto_%_', <Translate t={[]} />, '🚫[array]', '<Translate t={[]} />', 'error'],
   [
     '_%_Tupla che porta solo null_%_',
     <Translate t={[null]} />,
     '🚫[nullArray] (la tupla c’è, il posto del testo è vuoto)',
     '<Translate t={[null]} />',
+    'error',
   ],
   [
     '_%_Funzione_%_',
     <Translate t={() => 'x'} />,
     '🚫[func]',
     "<Translate t={() => 'x'} />",
+    'error',
   ],
   [
     '_%_Symbol_%_',
     <Translate t={Symbol('x')} />,
     '🚫[symbol]',
     "<Translate t={Symbol('x')} />",
+    'error',
   ],
 
   // ============================================================
-  '_%_Prop incompatibili: il testo non si perde più_%_',
+  { id: 'conflicting-props', title: '_%_Prop incompatibili: il testo non si perde più_%_' },
   // ============================================================
   [
     '_%_o + t_%_',
     <Translate o={{ t: '_%_vince oggetto_%_' }} t={'_%_t_%_'} />,
     '‼️vince oggetto (o è il canale esplicito)',
     "<Translate o={{ t: '_%_vince oggetto_%_' }} t={'_%_t_%_'} />",
+    'error',
   ],
   [
     '_%_o + children_%_',
@@ -721,34 +763,39 @@ const testCases = [
     </Translate>,
     '‼️o vince su children',
     "<Translate o={{ t: '_%_o vince su children_%_' }}>_%_children_%_</Translate>",
+    'error',
   ],
   [
     '_%_t + children_%_',
     <Translate t={'_%_vince t_%_'}>_%_children_%_</Translate>,
     '‼️vince t',
     "<Translate t={'_%_vince t_%_'}>_%_children_%_</Translate>",
+    'error',
   ],
   [
     '_%_tupla + a_%_',
     <Translate t={['_%_%s_%_', 'vince la tupla']} a={['y']} />,
     '‼️vince la tupla',
     "<Translate t={['_%_%s_%_', 'vince la tupla']} a={['y']} />",
+    'error',
   ],
   [
     '_%_t="" + children_%_',
     <Translate t="">_%_i children non spariscono_%_</Translate>,
     '‼️i children non spariscono (la stringa vuota non conta come testo)',
     '<Translate t="">_%_i children non spariscono_%_</Translate>',
+    'error',
   ],
   [
     '_%_t + children, nessuno dei due è testo_%_',
     <Translate t={<b>a</b>}>{<i>b</i>}</Translate>,
     '🚫[badDom] (prop incompatibili E niente da salvare)',
     '<Translate t={<b>a</b>}>{<i>b</i>}</Translate>',
+    'error',
   ],
 
   // ============================================================
-  '_%_Testi veri_%_',
+  { id: 'real-text', title: '_%_Testi veri_%_' },
   // ============================================================
   [
     '_%_Accenti marcati_%_',
@@ -785,6 +832,7 @@ const testCases = [
     <Translate t={'_%_riga 1\nriga 2_%_'} />,
     'riga 1 riga 2 su una riga sola: l’a-capo lo mangia l’HTML, serve <br>',
     "<Translate t={'_%_riga 1\\nriga 2_%_'} />",
+    'warn',
   ],
   [
     '_%_Testo lungo su più righe_%_',

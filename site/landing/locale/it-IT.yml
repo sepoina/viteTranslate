@@ -2,7 +2,7 @@
 #      italiano (Italia) (sourceLanguage)
 #       |    code: it-IT
 #       |    missing key: 0
-#       |    processed: 2026-09-24 15:14
+#       |    processed: 2026-09-24 21:44
 #       |    TableVersion: 260905
 #  -------------------------------------------------
 #
@@ -64,8 +64,8 @@ Outro_pedtx3: "Offrimi un caffè"
 pages_1lm0j53: "Una landing intera, 228 frasi, quattro lingue riempite da <code>vitetranslate --llm-translate</code>."
 pages_1t0ndvi: "Ogni forma di chiamata e ogni diagnostica, accanto a ciò che dovrebbe rendere."
 pages_1vpprca: "Edge case"
-pages_cwlvfs: "Il giro completo: installazione, cambio lingua, variabili, markup nelle traduzioni."
 pages_f725ta: "Playground"
+pages_jmgmfq: "Il giro completo, dal vivo: variabili e markup, plurali e date ICU, autoWrap, fino alla traduzione con un LLM."
 pages_vv62gb: "Il ristorante tradotto da un LLM"
 Steps_13v2590: "Traduci"
 Steps_196we9t: "A mano, da un traduttore, o con un LLM che rispetta segnaposto e tag. Poi pubblichi."

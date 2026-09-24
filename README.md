@@ -143,7 +143,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
 );
 ```
 
-Then mark your strings, one at a time, with `_%_..._%_`, and render them through `<Translate>` (follow these links for more complex examples of [language switching](https://sepoina.github.io/viteTranslate/playground/#cambio-lingua), [dynamic variables](https://sepoina.github.io/viteTranslate/playground/#traduzione-dinamica), and [placeholders & attributes](https://sepoina.github.io/viteTranslate/playground/#placeholder-e-attributi)):
+Then mark your strings, one at a time, with `_%_..._%_`, and render them through `<Translate>` — the [playground](https://sepoina.github.io/viteTranslate/playground/) runs every form live, from [dynamic variables](https://sepoina.github.io/viteTranslate/playground/#dynamic-text) to [placeholders & attributes](https://sepoina.github.io/viteTranslate/playground/#attributes):
 
 ```jsx
 // App.jsx
@@ -159,7 +159,7 @@ function App({ name }) {
 }
 ```
 
-Plurals, dates and other ICU MessageFormat arguments work the same way — one extra line of syntax, no extra step: `ts("_%_{0, plural, one {# file} other {# files}}_%_", count)`. Details: **[doc/icu.md](doc/icu.md)**.
+Plurals, dates and other ICU MessageFormat arguments work the same way — one extra line of syntax, no extra step: `ts("_%_{0, plural, one {# file} other {# files}}_%_", count)`. Details: **[doc/icu.md](doc/icu.md)**, live in the [playground](https://sepoina.github.io/viteTranslate/playground/#icu-plural).
 
 That is the whole authoring workflow. Now build the tables and add a language:
 

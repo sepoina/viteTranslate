@@ -1,0 +1,619 @@
+/* La pagina dei casi limite, vestita come la landing (site/landing/src/landing.css): stessi token,
+   stessi font, scura di partenza e chiara se il sistema o la scelta fatta sulla landing lo chiedono.
+   I token sono copiati e non importati: una pagina del sito deve restare autonoma. */
+
+/* ---------- Token ---------- */
+:root {
+  color-scheme: dark;
+  --bg: #06060b;
+  --surface: rgba(255, 255, 255, 0.04);
+  --surface-2: rgba(255, 255, 255, 0.08);
+  --line: rgba(255, 255, 255, 0.09);
+  --line-2: rgba(255, 255, 255, 0.18);
+  --text: #f5f5fa;
+  --muted: #9c9cb4;
+  --accent: #646cff;
+  --cyan: #22d3ee;
+  --grad: linear-gradient(100deg, #9aa1ff 0%, #4fd8f2 55%, #7cf5c4 100%);
+  /* i tre stati di una riga */
+  --ok: #6ee7b7;
+  --warn: #ffd479;
+  --error: #ff7a8a;
+  --tint: 7%;
+
+  --font: "Geist", "Inter", system-ui, -apple-system, "Segoe UI", "PingFang SC", "Noto Sans CJK SC", "Microsoft YaHei", sans-serif;
+  --mono: "Geist Mono", ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
+  --serif: "Instrument Serif", "Iowan Old Style", Georgia, serif;
+}
+
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    color-scheme: light;
+    --bg: #fafaff;
+    --surface: rgba(20, 20, 70, 0.04);
+    --surface-2: rgba(20, 20, 70, 0.07);
+    --line: rgba(20, 20, 70, 0.1);
+    --line-2: rgba(20, 20, 70, 0.2);
+    --text: #12121f;
+    --muted: #5d5d78;
+    --grad: linear-gradient(100deg, #4b54f0 0%, #0aa5c4 55%, #0f9f74 100%);
+    --ok: #0f9f74;
+    --warn: #c07a00;
+    --error: #d6364f;
+    --tint: 8%;
+  }
+}
+
+:root[data-theme="light"] {
+  color-scheme: light;
+  --bg: #fafaff;
+  --surface: rgba(20, 20, 70, 0.04);
+  --surface-2: rgba(20, 20, 70, 0.07);
+  --line: rgba(20, 20, 70, 0.1);
+  --line-2: rgba(20, 20, 70, 0.2);
+  --text: #12121f;
+  --muted: #5d5d78;
+  --grad: linear-gradient(100deg, #4b54f0 0%, #0aa5c4 55%, #0f9f74 100%);
+  --ok: #0f9f74;
+  --warn: #c07a00;
+  --error: #d6364f;
+  --tint: 8%;
+}
+
+/* ---------- Base ---------- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 1rem;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: clip;
+}
+
+a {
+  color: inherit;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+}
+
+code {
+  font-family: var(--mono);
+  font-size: 0.88em;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
+::selection {
+  background: var(--accent);
+  color: #fff;
+}
+
+.wrap {
+  width: 100%;
+  max-width: 1180px;
+  margin-inline: auto;
+  padding-inline: 20px;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* ---------- Barra in alto ---------- */
+.top {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  background: color-mix(in srgb, var(--bg) 88%, transparent);
+  backdrop-filter: blur(16px) saturate(1.4);
+  -webkit-backdrop-filter: blur(16px) saturate(1.4);
+  border-bottom: 1px solid var(--line);
+}
+
+.top-in {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  min-height: 60px;
+}
+
+.back {
+  color: var(--muted);
+  font-size: 0.93rem;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.back:hover {
+  color: var(--text);
+}
+
+.top-tools {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.lang-switch {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px;
+  padding: 3px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface);
+}
+
+.lang-switch button {
+  padding: 0.3rem 0.6rem;
+  border-radius: 999px;
+  font-family: var(--mono);
+  font-size: 0.74rem;
+  font-weight: 500;
+  color: var(--muted);
+  transition: background 0.2s, color 0.2s;
+}
+
+.lang-switch button:hover {
+  color: var(--text);
+}
+
+.lang-switch button[aria-pressed="true"] {
+  background: var(--text);
+  color: var(--bg);
+  cursor: default;
+}
+
+.icon-btn {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--muted);
+  transition: color 0.2s, border-color 0.2s;
+}
+
+.icon-btn:hover {
+  color: var(--text);
+  border-color: var(--line-2);
+}
+
+/* ---------- Apertura ---------- */
+.hero {
+  padding-block: clamp(3rem, 8vw, 5.5rem) 1rem;
+}
+
+.eyebrow {
+  margin: 0 0 1rem;
+  color: var(--cyan);
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.hero h1 {
+  margin: 0;
+  font-size: clamp(2.2rem, 6vw, 4rem);
+  font-weight: 600;
+  letter-spacing: -0.04em;
+  line-height: 1.06;
+  text-wrap: balance;
+}
+
+/* Il corsivo serif con il gradiente: la firma tipografica dei titoli della landing. */
+.hero h1 em {
+  font-family: var(--serif);
+  font-style: italic;
+  font-weight: 400;
+  font-size: 1.1em;
+  letter-spacing: -0.01em;
+  background: var(--grad);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  padding-right: 0.08em;
+}
+
+:lang(zh) .hero h1 em,
+:lang(ja) .hero h1 em {
+  font-family: var(--font);
+  font-style: normal;
+  font-weight: 700;
+  font-size: 1em;
+}
+
+.lead {
+  max-width: 44rem;
+  margin: 1.2rem 0 0;
+  color: var(--muted);
+  font-size: clamp(1rem, 1.8vw, 1.15rem);
+  text-wrap: pretty;
+}
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 1.6rem;
+}
+
+.chip {
+  --st: var(--ok);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.25rem 0.75rem;
+  border: 1px solid color-mix(in srgb, var(--st) 35%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--st) var(--tint), transparent);
+  font-size: 0.85rem;
+}
+
+.chip::before {
+  content: "";
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: var(--st);
+}
+
+.legend-more {
+  margin-left: 0.4rem;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.toc {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 2rem;
+  padding-top: 1.4rem;
+  border-top: 1px solid var(--line);
+}
+
+.toc a {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.45rem;
+  padding: 0.35rem 0.8rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--muted);
+  font-size: 0.85rem;
+  text-decoration: none;
+  transition: color 0.2s, border-color 0.2s;
+}
+
+.toc a:hover {
+  color: var(--text);
+  border-color: var(--line-2);
+}
+
+.toc-count {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  opacity: 0.7;
+}
+
+/* ---------- Categorie ---------- */
+.cases {
+  padding-top: clamp(2.5rem, 6vw, 4rem);
+  scroll-margin-top: 60px;
+}
+
+.cases h2,
+.notes h2 {
+  position: relative;
+  margin: 0 0 1rem;
+  font-size: clamp(1.4rem, 3vw, 1.9rem);
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  line-height: 1.2;
+}
+
+.anchor {
+  margin-right: 0.45em;
+  color: var(--accent);
+  font-family: var(--mono);
+  font-weight: 400;
+  text-decoration: none;
+  opacity: 0.55;
+  transition: opacity 0.2s;
+}
+
+.cases h2:hover .anchor,
+.anchor:focus-visible {
+  opacity: 1;
+}
+
+.cases table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  font-size: 0.92rem;
+  line-height: 1.45;
+}
+
+.cases thead th {
+  padding: 0 0.9rem 0.6rem;
+  border-bottom: 1px solid var(--line-2);
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-align: left;
+  text-transform: uppercase;
+}
+
+.cases thead th:first-child {
+  width: 28%;
+}
+
+/* Le righe ottimali sono la maggioranza: tinta a metà, così warning ed errori spiccano. */
+.cases tbody tr {
+  --st: var(--ok);
+  --row-tint: calc(var(--tint) / 2);
+  background: color-mix(in srgb, var(--st) var(--row-tint), transparent);
+  border-bottom: 1px solid var(--line);
+}
+
+.cases tbody tr.st-warn,
+.chip.st-warn {
+  --st: var(--warn);
+  --row-tint: var(--tint);
+}
+
+.cases tbody tr.st-error,
+.chip.st-error {
+  --st: var(--error);
+  --row-tint: var(--tint);
+}
+
+/* Il primo stato di un gruppo stacca dal precedente: ok | warn | error, a colpo d'occhio. */
+.cases tbody tr.st-ok + tr:not(.st-ok),
+.cases tbody tr.st-warn + tr.st-error {
+  border-top: 1px solid var(--line-2);
+}
+
+.cases tbody th,
+.cases tbody td {
+  padding: 0.65rem 0.9rem;
+  vertical-align: top;
+  text-align: left;
+  overflow-wrap: anywhere;
+}
+
+.cases tbody th {
+  box-shadow: inset 3px 0 0 var(--st);
+  font-weight: 500;
+}
+
+.src-btn {
+  margin-right: 0.5rem;
+  padding: 0.05rem 0.35rem;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  cursor: help;
+  transition: color 0.2s, border-color 0.2s;
+}
+
+.src-btn:hover,
+.src-btn:focus-visible {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+/* Il bordo tratteggiato fa vedere dove comincia e finisce la resa: conta quando è vuota,
+   o è solo uno spazio. */
+.out {
+  display: inline-block;
+  min-width: 1.4rem;
+  min-height: 1.5em;
+  padding: 0.05rem 0.4rem;
+  border: 1px dashed var(--line-2);
+  border-radius: 6px;
+}
+
+.out p,
+.out ul,
+.out blockquote {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.out input {
+  font: inherit;
+  padding: 0.2rem 0.4rem;
+  border: 1px solid var(--line-2);
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--text);
+}
+
+.av-badge {
+  padding: 0.05rem 0.5rem;
+  border-radius: 999px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 0.8em;
+}
+
+.expected {
+  color: var(--muted);
+}
+
+/* ---------- Note in fondo ---------- */
+.notes {
+  margin-top: clamp(3rem, 8vw, 5rem);
+  padding-block: 2rem 4rem;
+  border-top: 1px solid var(--line);
+  scroll-margin-top: 60px;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.notes h2 {
+  color: var(--text);
+  font-size: 1.1rem;
+}
+
+.notes ul {
+  max-width: 52rem;
+  margin: 0;
+  padding-left: 1.1rem;
+}
+
+.notes li + li {
+  margin-top: 0.5rem;
+}
+
+.notes b {
+  color: var(--text);
+  font-weight: 600;
+}
+
+/* ---------- Il sorgente di una riga ---------- */
+/* Sempre montato: se lo si smontasse il browser non avrebbe nulla da animare. Non ruba mai
+   l'hover al bottone che lo ha aperto (pointer-events), o si chiuderebbe e riaprirebbe a scatti. */
+.src-pop {
+  position: fixed;
+  right: 1.5rem;
+  bottom: 1.5rem;
+  z-index: 50;
+  max-width: min(46rem, calc(100vw - 3rem));
+  max-height: 40vh;
+  margin: 0;
+  padding: 1.4rem 1.6rem;
+  overflow: auto;
+  background: #0d1117;
+  color: #e6edf3;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 14px;
+  box-shadow: 0 30px 80px -30px rgba(80, 90, 255, 0.45);
+  font: clamp(12px, 1.6vw, 15px) / 1.55 var(--mono);
+  white-space: pre-wrap;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(8px) scale(0.98);
+  visibility: hidden;
+  /* L'uscita è più lenta dell'entrata, e visibility scatta secca a dissolvenza finita. */
+  transition:
+    opacity 300ms ease-in,
+    transform 300ms ease-in,
+    visibility 0ms linear 1000ms;
+}
+
+.src-pop.is-open {
+  opacity: 1;
+  transform: none;
+  visibility: visible;
+  transition:
+    opacity 50ms ease-out,
+    transform 50ms cubic-bezier(0.16, 1, 0.3, 1),
+    visibility 0ms;
+}
+
+.src-pop code {
+  padding: 0;
+  background: none;
+  font: inherit;
+}
+
+/* ---------- Telefono: ogni riga diventa una scheda ---------- */
+@media (max-width: 720px) {
+  .top-in {
+    flex-wrap: wrap;
+    padding-block: 0.6rem;
+  }
+
+  /* la barra va su due righe: l'ancora deve atterrare sotto */
+  .cases,
+  .notes {
+    scroll-margin-top: 110px;
+  }
+
+  .cases thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+
+  .cases table,
+  .cases tbody,
+  .cases tr,
+  .cases tbody th,
+  .cases tbody td {
+    display: block;
+    width: 100%;
+  }
+
+  .cases tbody tr {
+    padding-block: 0.4rem;
+    box-shadow: inset 3px 0 0 var(--st);
+  }
+
+  .cases tbody th {
+    box-shadow: none;
+  }
+
+  .cases tbody td {
+    padding-top: 0.2rem;
+  }
+
+  .cases tbody td::before {
+    content: attr(data-label);
+    display: block;
+    color: var(--muted);
+    font-family: var(--mono);
+    font-size: 0.66rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .src-pop {
+    right: 0.75rem;
+    left: 0.75rem;
+    bottom: 0.75rem;
+    max-width: none;
+  }
+}

@@ -228,7 +228,7 @@ Without `initialLanguage`, the container starts from the first eager language (`
 
 ## `basicHtmlToNodes()`
 
-Turns a string with basic HTML into React nodes, without `dangerouslySetInnerHTML`. `<Translate>` doesn't need it — its tables are compiled at build time — except in development, for a key not synced yet. It is exported because it is useful on its own:
+Turns a string with basic HTML into React nodes, without `dangerouslySetInnerHTML`. `<Translate>` doesn't need it — its tables are compiled at build time — except in development, for a key not synced yet. It is exported because it is useful on its own ([live in the playground](https://sepoina.github.io/viteTranslate/playground/#html-to-nodes)):
 
 ```jsx
 import { basicHtmlToNodes } from "@sepoina/vitetranslate/react";

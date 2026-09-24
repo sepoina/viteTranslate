@@ -50,7 +50,13 @@ async function loadRuntime({ preloadedLanguages, isProduction }) {
   const compila = (percorso) => {
     const compilato = localeCompiler.transform.handler.call({}, readFileSync(percorso, "utf8"), percorso);
     const dest = join(ROOT, "lib/react", `__lang-${stamp}-${basename(percorso, ".yml")}.mjs`);
-    writeFileSync(dest, compilato.code, "utf8");
+    // Una tabella con messaggi ICU importa gli helper dal modulo virtuale, che nel bundler il
+    // plugin risolve in lib/icu/runtime.js: qui lo stesso passo, a mano.
+    const codice = compilato.code.replace(
+      /"virtual:vitetranslate\/icu"/g,
+      JSON.stringify(pathToFileURL(join(ROOT, "lib/icu/runtime.js")).href)
+    );
+    writeFileSync(dest, codice, "utf8");
     temporanei.push(dest);
     return pathToFileURL(dest).href;
   };

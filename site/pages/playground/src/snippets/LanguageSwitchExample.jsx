@@ -15,18 +15,18 @@ export default function LanguageSwitchExample() {
   };
 
   return (
-    <div>
-      <p className="lang-switch-status">
+    <>
+      <p className="status-line">
         <Translate t="_%_<b>Scegli la tua lingua </b> (%s)_%_" a={actual} />
       </p>
-      <div className="lang-switch-group" role="group">
+      <div className="chips" role="group">
         {languages.map(entry => (
-          <button key={entry.tag} type="button" className="lang-switch-chip"
+          <button key={entry.tag} type="button"
             disabled={id === entry.tag}
             onClick={() => switchTo(entry.tag)}
           >{entry.languageName}</button>
         ))}
       </div>
-    </div>
+    </>
   );
 }

@@ -4,6 +4,10 @@
 
 🎮 **[Live showcase](https://sepoina.github.io/viteTranslate/llmrestaurant/)** — a booking form using all three: plural guests, a formatted date, a formatted price. The Japanese translation reorders every one of them.
 
+🎮 **Playground, live:** [plurals & ordinals](https://sepoina.github.io/viteTranslate/playground/#icu-plural), [select & named arguments](https://sepoina.github.io/viteTranslate/playground/#icu-select), [numbers, currencies & dates](https://sepoina.github.io/viteTranslate/playground/#icu-format): change the language and watch them adapt.
+
+🧪 **[ICU edge cases, live](https://sepoina.github.io/viteTranslate/edge/#icu)** — positions, names, literal braces and the apostrophe trap, each next to what it should render.
+
 ## When a string becomes ICU
 
 A text is an ICU message only if it contains an ICU **argument**: `{0}`, `{name}`, or `{n, plural, …}` and friends. `%s` still works exactly as before — the two can coexist in the same table.

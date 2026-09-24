@@ -19,11 +19,12 @@ function Root() {
 
 // Fino alla riorganizzazione del sito la radice era il playground: i link già in giro
 // (README vecchi, npm, articoli) portano qui con un'ancora del playground, o con "?edge".
-// La landing non usa ancore sue, quindi QUALUNQUE hash appartiene al playground. `replace`
+// La landing non usa ancore sue: con "?edge" l'hash è una categoria di edge (#icu), altrimenti
+// appartiene al playground. `replace`
 // e non `assign`: il "torna indietro" non deve rimbalzare di nuovo qui.
 const { hash, search } = location;
 if (new URLSearchParams(search).has("edge")) {
-  location.replace(siteUrl("edge"));
+  location.replace(siteUrl("edge") + hash);
 } else if (hash) {
   location.replace(siteUrl("playground") + hash);
 } else {

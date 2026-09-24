@@ -32,6 +32,25 @@ export default defineConfig({
         warningDev: true, // runtime console in development
         warningBuild: false, // runtime console in production
       },
+      // Come parlare col modello. Da qui non parte nessuna chiamata: questo blocco lo
+      // legge solo il comando (`vitetranslate --llm-translate`, da terminale), mai `vite dev` e mai la build.
+      llm: {
+        connection: {
+          // endpoint OpenAI-compatibile
+          baseURL: 'https://api.deepseek.com',
+          // model to use
+          model: 'deepseek-flash',
+          // generic name for api key
+          apiKeyEnv: 'DEEPSEEK_API_KEY',
+          // $ per milione di token
+          costMillionInput: 0.6,
+          costMillionOutput: 1.2,
+          modelClass: 'standard', // lotti fino a ~3k token di output / 100 chiavi
+        },
+        budget: 'safe', // $0.10 per run, $0.50 al giorno (con i prezzi qui sopra)
+        context: { mode: 'auto' }, // l'abstract di contesto nasce (e si aggiorna) da solo
+        costGuard: 0.2, // sotto questa stima non chiede conferma
+      },
     }),
   ],
   // La libreria è un link al working tree (workspace di npm): il suo dist vive fuori da

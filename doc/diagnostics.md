@@ -61,7 +61,7 @@ Sometimes there is genuinely nothing to recover: a function, a symbol, a React e
 | `t={[<i/>]}`, or `t` and `children` both elements | `🚫[badDom]` | nothing |
 | any other unreadable shape | `🚫[badData]` | nothing |
 
-🧪 The seven of them are live on the [edge cases page](https://sepoina.github.io/viteTranslate/edge/), under *Valori che testo non sono*.
+🧪 The seven of them are live on the edge cases page: [values that aren't text](https://sepoina.github.io/viteTranslate/edge/#not-text).
 
 The name comes from the **first slot that mattered** — the first element of the tuple, the `t` field of the object — because that is where the text was supposed to be: about `t={[<i/>]}` the thing worth saying is that a node sits where the text belonged, not that there is an array. `array` and `nullArray` are for the tuples where that slot doesn't exist or is empty, and there the wrapper *is* the information.
 
@@ -89,7 +89,7 @@ In development that phone number shows a `‼️`, and that is the point: the pr
 
 A number and a React element don't need the declaration: neither can ever come from the source marked, so both are rendered directly, with no prefix and no warning.
 
-🧪 Marked, unmarked, `skipMark` and everything in between are live on the [edge cases page](https://sepoina.github.io/viteTranslate/edge/), under *Testo non marcato e skipMark*.
+🧪 Marked, unmarked, `skipMark` and everything in between are live on the edge cases page: [unmarked text and skipMark](https://sepoina.github.io/viteTranslate/edge/#unmarked).
 
 ## Console output
 

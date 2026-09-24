@@ -1,6 +1,6 @@
 # viteTranslate — edge case
 
-Una tabella sola, un caso per riga: cosa scrive chi programma, cosa rende `<Translate>`,
+Una tabella per categoria, un caso per riga: cosa scrive chi programma, cosa rende `<Translate>`,
 cosa dovrebbe rendere. Serve a fissare per iscritto i comportamenti di confine — marcatori
 malformati, `%s` senza argomento, markup incrociato, valori che testo non sono — dove la
 documentazione a prosa diventa vaga e i test unitari non si guardano.
@@ -8,11 +8,37 @@ documentazione a prosa diventa vaga e i test unitari non si guardano.
 **Live:** [sepoina.github.io/viteTranslate/edge/](https://sepoina.github.io/viteTranslate/edge/)
 (dalla landing [sepoina.github.io/viteTranslate](https://sepoina.github.io/viteTranslate/): la card «Edge case», oppure `?edge=true` sull'indirizzo della landing, e dal playground la voce «Edge case» nell'indice)
 
-I casi stanno tutti in [`src/testCases.jsx`](src/testCases.jsx), come quaterne
-`[titolo, elemento, atteso, sorgente]`. Il quarto elemento — il sorgente mostrato passando
-sopra l'icona `</>` — è scritto a mano e non ricavato dall'elemento: quando l'elemento arriva
-alla tabella il transform ha già riscritto i marcatori, e ricostruirlo da lì vorrebbe dire
-raccontare il primo meccanismo fidandosi del secondo.
+I casi stanno in [`src/testCases.jsx`](src/testCases.jsx) e [`src/autoWrapCases.jsx`](src/autoWrapCases.jsx):
+un oggetto `{ id, title }` apre una categoria, una riga è `[titolo, elemento, atteso, sorgente, stato?]`.
+Il formato completo è descritto in testa a [`src/ShowAllRowTests.jsx`](src/ShowAllRowTests.jsx).
+
+- **Stato** — assente per i casi ottimali, `'warn'` se rende ma qualcosa si perde o sorprende,
+  `'error'` se esce un mark `‼️`/`🚫` o un errore in console. In pagina ogni categoria mostra
+  prima gli ottimali, in fondo gli errori; lo sfondo della riga dice quale dei tre.
+- **Sorgente** — il codice mostrato passando sopra `</>`, scritto a mano: quando l'elemento arriva
+  alla tabella il transform ha già riscritto i marcatori, e ricostruirlo da lì vorrebbe dire
+  raccontare il primo meccanismo fidandosi del secondo.
+
+### Link alle categorie
+
+Ogni categoria ha un'ancora stabile, in inglese e mai tradotta: la documentazione ci punta, quindi
+rinominarne una rompe dei link.
+
+| Ancora | Categoria |
+| --- | --- |
+| `#call-forms` | Forme di chiamata |
+| `#markers` | Cosa diventa un marcatore, e cosa no |
+| `#percent-s` | Interpolazione `%s` |
+| `#icu` | Interpolazione standard ICU |
+| `#react-nodes` | Argomenti che sono nodi React |
+| `#html` | Dialetto HTML dentro il marcatore |
+| `#unmarked` | Testo non marcato e `skipMark` |
+| `#not-text` | Valori che testo non sono |
+| `#conflicting-props` | Prop incompatibili |
+| `#real-text` | Testi veri |
+| `#autowrap` | autoWrap: marcatori senza `<Translate>` |
+
+`#note` porta alle note in fondo. Dalla landing, `?edge#icu` arriva allo stesso punto.
 
 ## Perché non è una pagina del playground
 
@@ -52,12 +78,9 @@ si vede il sito completo in locale.
 
 ## Warning attesi
 
-Due, e non vanno «sistemati»: sono i casi che la tabella descrive.
-
-```text
-[vitetranslate] nested markers in "src/testCases.jsx": "uno_%_ e _%_due" was read as a single text.
-[vitetranslate] mis-nested markup: </b> closes across <i> in "<b>x <i>y</b> z</i>".
-```
+Tutti voluti, e non vanno «sistemati»: sono i casi che la tabella descrive — marcatori annidati o
+spezzati, markup incrociato, la `key` marcata, i casi ICU con l'apostrofo o con `%s` e `{0}`
+insieme. L'elenco completo: `npx vitetranslate --status` dentro questa cartella.
 
 ## Il resto
 
