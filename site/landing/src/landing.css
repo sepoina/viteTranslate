@@ -674,6 +674,17 @@ ul {
   font-size: 0.8125rem;
 }
 
+/* Le note che seguono la prima (legenda, data del confronto) stanno sotto lo stesso filetto. */
+.compare-note + .compare-note {
+  padding-top: 0;
+  border-top: 0;
+}
+
+/* Il link alle note del README: la sottolineatura del tema, che in cima a questo file è spenta. */
+.compare-note a {
+  text-decoration: underline;
+}
+
 /* ---------- Chiusura e piè di pagina ---------- */
 .outro-sec {
   padding-bottom: clamp(3rem, 8vw, 5rem);

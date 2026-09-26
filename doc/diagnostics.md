@@ -2,7 +2,7 @@
 
 > The [README](../README.md) covers the quick start. This is the full detail on on-screen and console diagnostics — see [plugin options](plugin-options.md) for the config shape.
 
-🧪 **[Edge cases, live](https://sepoina.github.io/viteTranslate/edge/)** — every case below, rendered next to what it is supposed to render.
+🧪 **[Edge cases, live](https://sepoina.github.io/viteTranslate/edge/)** — every case below, rendered next to what it is supposed to render ([how to read the marks there](https://sepoina.github.io/viteTranslate/edge/#note)).
 
 A string that doesn't reach the screen translated is not always a bug you can see. A key nobody has translated yet still renders — in the source language, indistinguishable from a real translation. A text nobody marked renders too. Both look fine, and that is the problem.
 
@@ -46,6 +46,8 @@ With `markOnlyDev: true` (the default) a production build ships none of this —
 | An argument with no value — a `%s`, a `{0}` or a `{name}` missing from the object | `⁇` (`mark.absentDataInArray`) | `⁇` (`mark.absentDataInArray`) |
 
 Incompatible props never erase the text: the best available one is recovered and rendered — the string in `t`, the children, the first element of the tuple. A mistake in *your* props is not paid for by whoever is reading the screen.
+
+🧪 Live: [incompatible props](https://sepoina.github.io/viteTranslate/edge/#conflicting-props), and the `⁇` of a missing argument in [`%s`](https://sepoina.github.io/viteTranslate/edge/#percent-s) and [ICU](https://sepoina.github.io/viteTranslate/edge/#icu) messages.
 
 ## When there is no text at all
 

@@ -2,25 +2,28 @@
 #      American English
 #       |    code: en-US
 #       |    missing key: 0
-#       |    processed: 2026-09-26 21:43
+#       |    processed: 2026-09-27 01:06
 #       |    TableVersion: 260905
 #  -------------------------------------------------
 #
 CodeDemo_1w62voa: "The sentence stays in the JSX. The plugin keeps one YAML table per language; switching language loads only that one."
 CodeDemo_xfxax9: "One source, <em>many tables</em>."
 CodeDemo_z2n0vh: "How it looks"
-Compare_17yirfh: "Auto-synced YAML tables"
+Compare_1adahbh: "Compared as of September 2026: i18next 26 + react-i18next 17, Lingui 6, FormatJS (react-intl 12)."
 Compare_1fagnuu: "No message parsing at runtime"
 Compare_1kahvi7: "= available with additional tooling or configuration."
 Compare_1nn8wh6: "Runtime %s gzip"
 Compare_1pvsvdi: "Comparison"
 Compare_1v1fl2d: "Keyless syntax"
 Compare_1v6jhcq: "Extraction inside the Vite lifecycle"
+Compare_1wjx71n: "Why each mark"
 Compare_2msczb: "Lazy-loaded languages"
 Compare_d3nw0g: "LLM auto-translation"
 Compare_dw2pxz: "Same problem, <em>less machinery</em>."
-Compare_fqc2j6: "Native Vite integration"
+Compare_lyqtwv: "Official Vite plugin"
+Compare_myi979: "ICU MessageFormat (plurals, select, dates)"
 Compare_nphnkf: "Zero runtime dependencies"
+Compare_o0affp: "= not offered by the project's own tooling; a third-party tool may fill the gap."
 Compare_yc6fmw: "The other libraries do their job well. The difference is how much you have to configure, and how much ends up in your bundle."
 CopyCommand_1qgmjg5: "Copy the command"
 CopyCommand_1r0mqh1: "Copy"
@@ -43,12 +46,12 @@ Features_nsh4rn: "Compiled at build time, no runtime parser"
 Features_qlydjr: "<code>--llm-translate</code> fills the missing keys through the model you configure. The validator rejects whatever would break at runtime."
 Features_u5mby: "No keys to invent"
 Hero_10s6wdy: "runtime dependencies"
+Hero_11jq5ef: "Babel and Vite run on your machine and never enter the bundle; React is the one your app already has."
 Hero_150etoz: "Try the playground"
 Hero_1d3n0h: "%s, measured by the test suite — not a promise on trust."
 Hero_1dtjxm2: "Extract the text to translate straight from your JSX. No keys to maintain, no separate extraction workflow, no runtime dependencies."
 Hero_1eptjs7: "bytes of runtime, gzipped"
 Hero_1gdm8ga: "New: automatic translation with an LLM"
-Hero_1qebjnk: "Babel, Vite and React are peers: they run on your machine and never enter the bundle."
 Hero_mbzf93: "Write the text <em>once</em>.<br>Vite does the rest."
 LanguageSwitch_gzrcyx: "Page language"
 Marquee_aimam1: "One source. As many languages as you like."

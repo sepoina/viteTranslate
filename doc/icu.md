@@ -50,6 +50,8 @@ A literal `{` isn't enough on its own — `{ t: null }` stays plain text — but
 
 A translation can put the arguments in whatever order the target grammar needs — see the Japanese line in the showcase above — but a name is code, not text: `{name}` stays `{name}` in every language.
 
+🎮 [Named arguments, live](https://sepoina.github.io/viteTranslate/playground/#icu-select) · 🧪 every position and name case — skipped, repeated, missing — on [edge/#icu](https://sepoina.github.io/viteTranslate/edge/#icu).
+
 ## Mixing `%s` with `{n}` or names
 
 The *k*-th `%s` (counted from 0) is `{k}` under the hood, so `"%s and {1}"` is legal and both point at the same thing. A `%s` inside an ICU argument or branch is not — write it as `{n}` there instead. And once a message has named arguments, drop `%s` for the rest of it too: `%s` counts positions starting from the object that holds the names, which is rarely what you want — `{1}`, `{2}` say what you mean.
@@ -86,6 +88,8 @@ Standard ICU uses `'` as an escape character: `dell'{0}` hides the argument, `'{
 For the characters ICU does care about, use entities: `&#123;` or `&lbrace;` for `{`, `&rbrace;` for `}`, and `&num;` for a literal `#` inside a plural branch (`&#35;` won't do there: its `#` is the number).
 
 Why bother? Because every translator — human or LLM — "prettifies" `'` into `’` or `「」` now and then, and with ICU quoting that would silently add or remove an argument.
+
+🧪 Straight, curly and doubled apostrophes, braces with and without an entity, `&num;` in a plural: live on [edge/#icu](https://sepoina.github.io/viteTranslate/edge/#icu).
 
 ## What checks it
 

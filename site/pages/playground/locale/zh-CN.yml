@@ -2,7 +2,7 @@
 #      中文（中国）
 #       |    code: zh-CN
 #       |    missing key: 0
-#       |    processed: 2026-09-26 21:43
+#       |    processed: 2026-09-27 01:06
 #       |    TableVersion: 260905
 #  -------------------------------------------------
 #
@@ -79,14 +79,14 @@ StrengthsSection_15r2z3b: "<strong>自动检测新语言。</strong>只需在语
 StrengthsSection_18ktc1p: "<strong>在 CLI 中用 LLM 翻译。</strong>一个命令就能用你选择的模型填补缺失的键：先估算费用，并拒绝任何会在运行时出错的译文。"
 StrengthsSection_1dj4mdv: "<strong>ICU MessageFormat，构建时编译。</strong>复数、select、数字和日期，浏览器中无需解析器：只有当某张表用到时才会打包这些辅助函数。"
 StrengthsSection_1ecmosj: "<strong>翻译表是数据，不是 JS 模块。</strong>语言文件不携带可执行代码：它在构建时被编译，而不是原样提供给浏览器。"
-StrengthsSection_1hve07m: "<strong>最终产物中 %s gzip。</strong>真正发送到浏览器的运行时（<code>&#60;Translate&#62;</code>、<code>TranslateContainer</code>、<code>useTranslateLanguage</code>）为 %s gzip，该数值通过对比引入库前后的生产构建测得。翻译内容的体积随你的内容增长，而非随库本身增长。"
 StrengthsSection_1r3j0je: "<strong>开发环境中自动回退。</strong> 在翻译准备好之前，原始文本始终可见，绝不会出现空字符串或错误。"
 StrengthsSection_1rplbik: "<strong>语言延迟加载。</strong> 在运行时切换语言只会下载所需的 chunk，而不会用未使用的语言使初始 bundle 变得臃肿。"
+StrengthsSection_1tgj83t: "<strong>零运行时依赖。</strong>Babel 和 Vite 都是 peer dependency：它们在你的机器上工作，绝不会进入打包产物。React 就是你的应用本来就有的那一份。"
 StrengthsSection_1uxxl2f: "优势"
-StrengthsSection_1y1sghw: "<strong>零运行时依赖。</strong>Babel、Vite 和 React 都是 peer dependency：它们在你的机器上工作，绝不会进入打包产物。"
 StrengthsSection_7t8nu9: "<strong>翻译在重命名后依然保留。</strong> 如果同一段文本只是 id 发生变化，同步会沿用已完成的翻译，而不是从头开始。"
 StrengthsSection_qebam7: "<strong>从 Vite 5 到 Vite 8，同一套代码。</strong>Vite 7 及以前用 Rollup 和 esbuild，Vite 8 用 Rolldown 和 Oxc：无需不同的配置。"
 StrengthsSection_wv4ype: "<strong>自动同步翻译表。</strong> 一条命令即可更新所有语言并标出仍需翻译的内容。"
+StrengthsSection_x5t768: "<strong>最终产物中 %s gzip。</strong>真正发送到浏览器的运行时（<code>&#60;Translate&#62;</code>、<code>TranslateContainer</code>、<code>useTranslateLanguage</code>）为 %s gzip，包含 ICU 辅助函数，由测试套件测得。翻译内容的体积随你的内容增长，而非随库本身增长。"
 ThemeToggle_1i35buc: "切换主题"
 TopBar_1dz7foh: "全部演示"
 ZZZsnippetList_1cpi6bi: "autoWrap：无需组件的标记"

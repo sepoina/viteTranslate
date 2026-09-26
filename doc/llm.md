@@ -4,9 +4,11 @@
 
 `vitetranslate --llm-translate` syncs the tables, then fills every `null` key through an LLM you configure. The manual workflow — copy the `----to be translated----` block into a chat, paste the answer back (see [translation file format](translations.md)) — still works and always will; this does the same thing for you.
 
-It runs **only from the CLI**, never from the Vite plugin: an LLM call inside `vite dev` would mean a network call, and a bill, on every dev server start and every CI build ([why](structure.md#fase-5--traduzione-automatica)).
+It runs **only from the CLI**, never from the Vite plugin: an LLM call inside `vite dev` would mean a network call, and a bill, on every dev server start and every CI build ([why](structure.md#phase-5--llm-auto-translation)).
 
 Runnable example: [`demo/Vite_8/llmTranslate`](../demo/Vite_8/llmTranslate) — three languages at `null`, the `llm` block already wired, one command to fill them.
+
+🎮 **[Live walkthrough](https://sepoina.github.io/viteTranslate/playground/#install-llm)** — the config and one run. 🍽️ **[The restaurant](https://sepoina.github.io/viteTranslate/llmrestaurant/)** — a whole landing page translated by this command, four languages, the Japanese one reordering its ICU arguments.
 
 ## Contents
 

@@ -4,7 +4,7 @@ import SIZE from "../theme/runtimeSize.json";
 // Una card per punto di forza: icona, poi un testo che si apre con il titolo in <strong>.
 // Il titolo sta nella stessa frase marcata del testo, così chi traduce li vede insieme.
 const STRENGTHS = [
-  ["⚖️", ["_%_<strong>%s gzip nel bundle finale.</strong> Il runtime che arriva al browser (<code>&#60;Translate&#62;</code>, <code>TranslateContainer</code>, <code>useTranslateLanguage</code>) pesa %s gzip, misurati confrontando una build di produzione con e senza la libreria. Il payload delle traduzioni scala con i tuoi contenuti, non con la libreria._%_", SIZE.real, SIZE.real]],
+  ["⚖️", ["_%_<strong>%s gzip nel bundle finale.</strong> Il runtime che arriva al browser (<code>&#60;Translate&#62;</code>, <code>TranslateContainer</code>, <code>useTranslateLanguage</code>) pesa %s gzip, helper ICU compresi, misurati dalla suite di test. Il payload delle traduzioni scala con i tuoi contenuti, non con la libreria._%_", SIZE.real, SIZE.real]],
   ["🏷️", "_%_<strong>Marcatura diretta del testo nel sorgente.</strong> Nessuna chiave da creare o gestire a mano._%_"],
   ["🧮", "_%_<strong>ICU MessageFormat, compilato in build.</strong> Plurali, select, numeri e date senza un parser nel browser: gli helper arrivano solo se una tabella li usa._%_"],
   ["🤖", "_%_<strong>Traduzione con un LLM, dalla CLI.</strong> Un comando riempie le chiavi mancanti con il modello che scegli: stima il costo prima, scarta ciò che romperebbe il runtime._%_"],
@@ -14,7 +14,7 @@ const STRENGTHS = [
   ["🔍", "_%_<strong>Nuove lingue rilevate in automatico.</strong> Basta aggiungere un file .yml nella cartella delle lingue, senza registrarlo altrove nel codice._%_"],
   ["🛟", "_%_<strong>Fallback automatico in sviluppo.</strong> Finché una traduzione non è pronta resta visibile il testo originale, mai una stringa vuota o un errore._%_"],
   ["🔒", "_%_<strong>Le tabelle sono dati, non moduli JS.</strong> Un file di lingua non porta codice eseguibile: viene compilato in fase di build, non servito com’è._%_"],
-  ["🧩", "_%_<strong>Nessuna dipendenza a runtime.</strong> Babel, Vite e React sono peer dependency: lavorano sulla tua macchina e non entrano nel bundle._%_"],
+  ["🧩", "_%_<strong>Nessuna dipendenza a runtime.</strong> Babel e Vite sono peer dependency: lavorano sulla tua macchina e non entrano nel bundle. React è quello che la tua app ha già._%_"],
   ["🔀", "_%_<strong>Da Vite 5 a Vite 8, stesso codice.</strong> Rollup ed esbuild fino a Vite 7, Rolldown e Oxc su Vite 8: nessuna configurazione diversa._%_"],
 ];
 

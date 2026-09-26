@@ -4,6 +4,8 @@
 >
 > **Coming from 3.x?** Language files used to be JS modules — see [migrating from 3.x](cli.md#migrating-from-3x).
 
+🎮 **[The same steps, live](https://sepoina.github.io/viteTranslate/playground/#install-new-language)** — `--add`, the `null`s, the finished file.
+
 ## Adding a language
 
 ```bash
@@ -78,3 +80,5 @@ Each language is one `.yml` file in `localeDir`, named after its BCP 47 tag (`it
 A header comment (language name, tag, count of keys still missing, last-sync timestamp, format version) sits at the top, regenerated on every sync — never hand-edit it. Everything below it is text: the rest of the file holds nothing else.
 
 Values are always double-quoted, one entry per line, no indentation. It is a **strict subset of YAML**: whatever this format accepts, a real YAML parser reads the same way, so your editor colours it and any YAML tool can read it. The subset is narrow on purpose — unquoted YAML scalars mangle exactly the text translators write (`%s è pronto` is a syntax error, `price 5 # off` truncates to `price 5`, `1.20` becomes the number `1.2`). Anything outside the subset is an error naming the **line number**, not a plausible wrong value.
+
+🧪 What that text looks like on screen — accents, emoji, CJK, quotes, backslashes, new lines: [real texts, live](https://sepoina.github.io/viteTranslate/edge/#real-text).

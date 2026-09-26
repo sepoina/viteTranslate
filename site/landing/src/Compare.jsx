@@ -1,20 +1,23 @@
 import { Translate } from "@sepoina/vitetranslate/react";
 import { Icon } from "./icons.jsx";
+import { REPO } from "./links.js";
 import SectionHead from "./SectionHead.jsx";
 import SIZE from "./theme/runtimeSize.json";
 
 const COLUMNS = ["viteTranslate", "i18next", "Lingui", "FormatJS"];
 
-// y = sì, n = no, p = con strumenti o configurazione in più. Le righe vengono dalla tabella del README.
+// y = sì, n = no, p = con un'aggiunta ufficiale o configurazione in più. Le righe vengono dalla
+// tabella del README (manca solo la licenza), e le note che giustificano ogni casella stanno lì:
+// una casella cambiata qui si cambia anche là, con la sua nota, e con la data qui sotto.
 const ROWS = [
-  { label: "_%_Traduzione automatica con LLM_%_", v: ["y", "n", "n", "n"] },
-  { label: "_%_Tabelle YAML sincronizzate da sole_%_", v: ["y", "n", "n", "n"] },
+  { label: "_%_Traduzione automatica con LLM_%_", v: ["y", "p", "n", "n"] },
   { label: "_%_Estrazione dentro il ciclo di Vite_%_", v: ["y", "n", "n", "n"] },
   { label: "_%_Zero dipendenze a runtime_%_", v: ["y", "n", "n", "n"] },
-  { label: "_%_Integrazione nativa con Vite_%_", v: ["y", "n", "p", "n"] },
-  { label: "_%_Sintassi senza chiavi_%_", v: ["y", "n", "y", "p"] },
-  { label: "_%_Runtime %s gzip_%_", a: [SIZE.compare], v: ["y", "n", "p", "n"] },
-  { label: "_%_Nessun parser dei messaggi a runtime_%_", v: ["y", "n", "p", "p"] },
+  { label: "_%_Plugin Vite ufficiale_%_", v: ["y", "n", "y", "y"] },
+  { label: "_%_Sintassi senza chiavi_%_", v: ["y", "p", "y", "p"] },
+  { label: "_%_Runtime %s gzip_%_", a: [SIZE.compare], v: ["y", "n", "y", "n"] },
+  { label: "_%_ICU MessageFormat (plurali, select, date)_%_", v: ["y", "p", "y", "y"] },
+  { label: "_%_Nessun parser dei messaggi a runtime_%_", v: ["y", "n", "y", "p"] },
   { label: "_%_Lingue caricate a richiesta_%_", v: ["y", "y", "y", "y"] },
 ];
 
@@ -74,6 +77,20 @@ export default function Compare() {
           <p className="compare-note">
             <Icon name="minus" size={14} strokeWidth={2.4} />
             <Translate>_%_= disponibile con strumenti o configurazione aggiuntivi._%_</Translate>
+          </p>
+          <p className="compare-note">
+            <Icon name="x" size={14} strokeWidth={2.4} />
+            <Translate>_%_= non offerto dagli strumenti del progetto: può supplire uno strumento di terzi._%_</Translate>
+          </p>
+          <p className="compare-note">
+            <span>
+              <Translate>
+                _%_Confronto aggiornato a settembre 2026: i18next 26 + react-i18next 17, Lingui 6, FormatJS (react-intl 12)._%_
+              </Translate>{" "}
+              <a href={`${REPO}#-why-vitetranslate`}>
+                <Translate>_%_Il perché di ogni casella_%_</Translate> ↗
+              </a>
+            </span>
           </p>
         </div>
       </div>

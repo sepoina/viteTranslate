@@ -2,7 +2,7 @@
 #      italiano (Italia) (sourceLanguage)
 #       |    code: it-IT
 #       |    missing key: 0
-#       |    processed: 2026-09-26 21:43
+#       |    processed: 2026-09-27 01:06
 #       |    TableVersion: 260905
 #  -------------------------------------------------
 #
@@ -79,14 +79,14 @@ StrengthsSection_15r2z3b: "<strong>Nuove lingue rilevate in automatico.</strong>
 StrengthsSection_18ktc1p: "<strong>Traduzione con un LLM, dalla CLI.</strong> Un comando riempie le chiavi mancanti con il modello che scegli: stima il costo prima, scarta ciò che romperebbe il runtime."
 StrengthsSection_1dj4mdv: "<strong>ICU MessageFormat, compilato in build.</strong> Plurali, select, numeri e date senza un parser nel browser: gli helper arrivano solo se una tabella li usa."
 StrengthsSection_1ecmosj: "<strong>Le tabelle sono dati, non moduli JS.</strong> Un file di lingua non porta codice eseguibile: viene compilato in fase di build, non servito com’è."
-StrengthsSection_1hve07m: "<strong>%s gzip nel bundle finale.</strong> Il runtime che arriva al browser (<code>&#60;Translate&#62;</code>, <code>TranslateContainer</code>, <code>useTranslateLanguage</code>) pesa %s gzip, misurati confrontando una build di produzione con e senza la libreria. Il payload delle traduzioni scala con i tuoi contenuti, non con la libreria."
 StrengthsSection_1r3j0je: "<strong>Fallback automatico in sviluppo.</strong> Finché una traduzione non è pronta resta visibile il testo originale, mai una stringa vuota o un errore."
 StrengthsSection_1rplbik: "<strong>Caricamento delle lingue lazy.</strong> Il cambio lingua a runtime scarica solo il chunk necessario, senza appesantire il bundle iniziale con le lingue non usate."
+StrengthsSection_1tgj83t: "<strong>Nessuna dipendenza a runtime.</strong> Babel e Vite sono peer dependency: lavorano sulla tua macchina e non entrano nel bundle. React è quello che la tua app ha già."
 StrengthsSection_1uxxl2f: "Punti di forza"
-StrengthsSection_1y1sghw: "<strong>Nessuna dipendenza a runtime.</strong> Babel, Vite e React sono peer dependency: lavorano sulla tua macchina e non entrano nel bundle."
 StrengthsSection_7t8nu9: "<strong>Le traduzioni sopravvivono ai rename.</strong> Se lo stesso testo cambia solo id, la sincronizzazione eredita la traduzione già fatta invece di farla ripartire da zero."
 StrengthsSection_qebam7: "<strong>Da Vite 5 a Vite 8, stesso codice.</strong> Rollup ed esbuild fino a Vite 7, Rolldown e Oxc su Vite 8: nessuna configurazione diversa."
 StrengthsSection_wv4ype: "<strong>Sincronizzazione automatica delle tabelle.</strong> Un solo comando aggiorna tutte le lingue e segnala cosa resta da tradurre."
+StrengthsSection_x5t768: "<strong>%s gzip nel bundle finale.</strong> Il runtime che arriva al browser (<code>&#60;Translate&#62;</code>, <code>TranslateContainer</code>, <code>useTranslateLanguage</code>) pesa %s gzip, helper ICU compresi, misurati dalla suite di test. Il payload delle traduzioni scala con i tuoi contenuti, non con la libreria."
 ThemeToggle_1i35buc: "Cambia tema"
 TopBar_1dz7foh: "Tutte le demo"
 ZZZsnippetList_1cpi6bi: "autoWrap: marcatori senza componente"

@@ -2,6 +2,8 @@
 
 > The [README](../README.md) covers the quick start. This is the full reference for `vitetranslate(options)`.
 
+🎮 **[The setup, live](https://sepoina.github.io/viteTranslate/playground/#install-config)** — install, `vite.config.js`, folder layout; then the [first dev run](https://sepoina.github.io/viteTranslate/playground/#install-dev) and the [automatic sync](https://sepoina.github.io/viteTranslate/playground/#install-sync).
+
 ```js
 vitetranslate(options)
 ```
@@ -45,7 +47,7 @@ See [Diagnostics](diagnostics.md) for what each character means on screen and wh
 
 ## `llm`
 
-Never used by the plugin itself — the LLM only ever runs from `vitetranslate`, never inside a Vite hook. The plugin only validates the block at construction time, so a mistake here shows up when the dev server starts, not on the first paid call, and passes the normalized result to the CLI through `vitetranslateConfig` (the same mechanism `localeDir`/`sourceLanguage` use, see [structure.md](structure.md#no-separate-config-file)).
+Never used by the plugin itself — the LLM only ever runs from `vitetranslate`, never inside a Vite hook. The plugin only validates the block at construction time, so a mistake here shows up when the dev server starts, not on the first paid call, and passes the normalized result to the CLI through `vitetranslateConfig` (the same mechanism `localeDir`/`sourceLanguage` use, see [structure.md](structure.md#no-separate-config-file)). 🎮 [The `llm` block and one run, live](https://sepoina.github.io/viteTranslate/playground/#install-llm).
 
 ```js
 vitetranslate({
@@ -78,4 +80,4 @@ vitetranslate({
 | :- | :- | :- |
 | `timeZone` | `string` | An IANA zone name (`"Europe/Rome"`, `"UTC"`, …). Validated at plugin construction — an unknown zone is a build-time error, not a silent fallback |
 
-Lowest of three precedences: a calendar date (`"YYYY-MM-DD"`) is always UTC regardless of this option; the `timeZone` prop of `<TranslateContainer>` wins over it; with neither, the message uses whatever zone the runtime itself is in. See [ICU messages](icu.md#dates-and-time-zones).
+Lowest of three precedences: a calendar date (`"YYYY-MM-DD"`) is always UTC regardless of this option; the `timeZone` prop of `<TranslateContainer>` wins over it; with neither, the message uses whatever zone the runtime itself is in. See [ICU messages](icu.md#dates-and-time-zones), 🎮 [live](https://sepoina.github.io/viteTranslate/playground/#icu-format).

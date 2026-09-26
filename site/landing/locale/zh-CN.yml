@@ -2,25 +2,28 @@
 #      中文（中国）
 #       |    code: zh-CN
 #       |    missing key: 0
-#       |    processed: 2026-09-26 21:43
+#       |    processed: 2026-09-27 01:06
 #       |    TableVersion: 260905
 #  -------------------------------------------------
 #
 CodeDemo_1w62voa: "句子留在 JSX 里。插件为每种语言维护一张 YAML 表；切换语言只会加载对应的那一张。"
 CodeDemo_xfxax9: "一份源码，<em>多张表</em>。"
 CodeDemo_z2n0vh: "效果如何"
-Compare_17yirfh: "自动同步的 YAML 表"
+Compare_1adahbh: "对比截至 2026 年 9 月：i18next 26 + react-i18next 17、Lingui 6、FormatJS（react-intl 12）。"
 Compare_1fagnuu: "运行时无需解析消息"
 Compare_1kahvi7: "= 需要额外工具或配置才能使用。"
 Compare_1nn8wh6: "运行时 %s（gzip）"
 Compare_1pvsvdi: "对比"
 Compare_1v1fl2d: "无键语法"
 Compare_1v6jhcq: "提取集成在 Vite 生命周期中"
+Compare_1wjx71n: "每个标记的依据"
 Compare_2msczb: "按需加载语言"
 Compare_d3nw0g: "LLM 自动翻译"
 Compare_dw2pxz: "同样的问题，<em>更少的机器</em>。"
-Compare_fqc2j6: "原生 Vite 集成"
+Compare_lyqtwv: "官方 Vite 插件"
+Compare_myi979: "ICU MessageFormat（复数、select、日期）"
 Compare_nphnkf: "零运行时依赖"
+Compare_o0affp: "= 项目自身的工具未提供；第三方工具或可弥补。"
 Compare_yc6fmw: "其他库都做得很好。区别在于你需要配置多少，以及有多少最终进入你的包。"
 CopyCommand_1qgmjg5: "复制命令"
 CopyCommand_1r0mqh1: "复制"
@@ -43,12 +46,12 @@ Features_nsh4rn: "构建时编译，运行时无需解析器"
 Features_qlydjr: "<code>--llm-translate</code> 通过你配置的模型填充缺失的键。验证器会拒绝任何会在运行时出错的内容。"
 Features_u5mby: "无需发明键"
 Hero_10s6wdy: "个运行时依赖"
+Hero_11jq5ef: "Babel 和 Vite 在你的机器上运行，永远不会进入包中；React 就是你的应用本来就有的那一份。"
 Hero_150etoz: "试用 Playground"
 Hero_1d3n0h: "%s，由测试套件实测——不是空口承诺。"
 Hero_1dtjxm2: "直接从 JSX 中提取需要翻译的文本。无需维护键，没有单独的提取流程，没有运行时依赖。"
 Hero_1eptjs7: "字节运行时（gzip）"
 Hero_1gdm8ga: "新功能：LLM 自动翻译"
-Hero_1qebjnk: "Babel、Vite 和 React 是对等依赖：它们在你的机器上运行，永远不会进入包中。"
 Hero_mbzf93: "文本只写<em>一次</em>。<br>其余交给 Vite。"
 LanguageSwitch_gzrcyx: "页面语言"
 Marquee_aimam1: "一份源码，想要多少语言都行。"

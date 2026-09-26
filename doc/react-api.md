@@ -2,7 +2,9 @@
 
 > The [README](../README.md) covers the quick start. This is the full reference for every export of `@sepoina/vitetranslate/react`.
 
-🧪 **[Edge cases, live](https://sepoina.github.io/viteTranslate/edge/)** — every call form, every value that is not text, side by side with what it renders.
+🎮 **[Playground, live](https://sepoina.github.io/viteTranslate/playground/)** — [static](https://sepoina.github.io/viteTranslate/playground/#static-text) and [dynamic](https://sepoina.github.io/viteTranslate/playground/#dynamic-text) text, [markup](https://sepoina.github.io/viteTranslate/playground/#markup), [attributes](https://sepoina.github.io/viteTranslate/playground/#attributes), the [language switch](https://sepoina.github.io/viteTranslate/playground/#language-switch), each next to its code.
+
+🧪 **[Edge cases, live](https://sepoina.github.io/viteTranslate/edge/)** — every call form, every value that is not text, side by side with what it renders. The full map: [live examples](live-examples.md).
 
 ## At a glance
 
@@ -36,6 +38,8 @@ And how languages load on the first render: [Preloading, Suspense and the initia
 
 An eagerly bundled initial language renders synchronously; any other makes the container suspend until its chunk is ready. Never the wrong language — see [Preloading](#preloading-suspense-and-the-initial-flash).
 
+🎮 Live: [the setup](https://sepoina.github.io/viteTranslate/playground/#install-dev), and [`timeZone` at work](https://sepoina.github.io/viteTranslate/playground/#icu-format).
+
 ## `<Translate>`
 
 ```jsx
@@ -44,6 +48,8 @@ An eagerly bundled initial language renders synchronously; any other makes the c
 <Translate t="_%_Hello %s, how are you?_%_" a={[username]} />        // text and args apart
 <Translate o={{ t: "_%_Hello %s, how are you?_%_", a: [username] }} />  // one packaged value
 ```
+
+🧪 Every form, and the ones that go wrong: [call forms](https://sepoina.github.io/viteTranslate/edge/#call-forms).
 
 ### Props
 
@@ -68,6 +74,8 @@ An eagerly bundled initial language renders synchronously; any other makes the c
 - **[ICU arguments](icu.md)** (`{0}`, `{name}`, `{n, plural, …}`) work the same way, and add a **name** form: `a={{ name: "Aldo" }}` or `ts(t, { name })` for `{name}`, mixable with positions (`a={[{ name }, 3]}` reads `{name}` and `{1}`). Only a plain object counts as the arguments container — a class instance or a `Date` renders as itself instead.
 - **TypeScript:** an argument is `TranslateArg = ReactNode | Date | bigint`; `TranslateArgs` is one of those, the named-arguments object (`TranslateNamedArgs`), or a list of either. A bare `Date` in a plain `%s`/`{0}` still isn't formatted — `String()` would use the browser's locale, not the app's — use `{0, date}` for that (see [ICU messages](icu.md)).
 
+🎮 [Markup and a link as an argument, live](https://sepoina.github.io/viteTranslate/playground/#markup) · 🧪 case by case: [the HTML dialect](https://sepoina.github.io/viteTranslate/edge/#html), [`%s`](https://sepoina.github.io/viteTranslate/edge/#percent-s), [React nodes as arguments](https://sepoina.github.io/viteTranslate/edge/#react-nodes).
+
 ### What can sit in the text position
 
 One leaf component often renders whatever its caller hands it, and that is not always text a marker could be attached to:
@@ -83,6 +91,8 @@ One leaf component often renders whatever its caller hands it, and that is not a
 
 An unmarked string is not an error: it is how one component accepts both translatable text and domain data without a wrapper deciding for it — the `‼️` just shows that nobody will translate it. A number can never come from the source, and an element can't be a forgotten marker, so neither needs a diagnostic. In the tuple, though, the first slot **is** the text: an element there is an error (elements among the *arguments* are fine).
 
+🧪 Live: [unmarked strings](https://sepoina.github.io/viteTranslate/edge/#unmarked), [values that aren't text](https://sepoina.github.io/viteTranslate/edge/#not-text), [React nodes](https://sepoina.github.io/viteTranslate/edge/#react-nodes).
+
 ### `skipMark`: when unmarked is the normal case
 
 A number and an element say what they are. A **string** doesn't: unmarked can mean *forgotten marker*, or *a value that will never have one* — a phone number, a URI, a field name from an admin panel, a server message. Only the call site knows which:
@@ -97,6 +107,8 @@ A number and an element say what they are. A **string** doesn't: unmarked can me
 So it doesn't mean "don't translate", it means "unmarked is not an error here" — exactly what a prop needs that carries marked text on some rows and domain data on others. Incompatible props are still an error either way.
 
 The alternative that looks equivalent isn't: `errorSolve.mark.malformed = false` turns the diagnostic off **everywhere**, including where a marker really was forgotten.
+
+🧪 Live: [unmarked text and `skipMark`](https://sepoina.github.io/viteTranslate/edge/#unmarked).
 
 ## `useTranslateToString()`
 
@@ -122,6 +134,8 @@ ts(field.label, undefined, { skipMark: true })   // third argument: what are pro
 
 It has to return a primitive string, so a **React element** is the one form it doesn't take: a real error, with a message of its own. Other non-text values (a function, a symbol, an element inside the tuple) return `""` with a console warning in development, as in `<Translate>`.
 
+🎮 Live: [placeholders and attributes](https://sepoina.github.io/viteTranslate/playground/#attributes).
+
 ## `useTranslateNode()`
 
 The hook form of `<Translate>`: same lookup, without an element. It is what the `autoWrap` option injects ([plugin options](plugin-options.md)), so most projects never write it by hand.
@@ -138,6 +152,8 @@ function Card({ compiled }) {
 - It takes a **compiled** marker — the string a `<Translate t={...}>` already receives — not a `_%_..._%_` you type yourself.
 - A second argument fills the `%s`, like `<Translate a={...}>`.
 - Given anything that isn't a compiled marker, it has no key to look up and returns the text itself, delimiters stripped — the same fallback `<Translate>` and `ts()` use for what the compiler never saw.
+
+🎮 What `autoWrap` makes of it: [live](https://sepoina.github.io/viteTranslate/playground/#autowrap) · 🧪 [ten edge cases](https://sepoina.github.io/viteTranslate/edge/#autowrap).
 
 ## `useTranslateLanguage()`
 
@@ -168,6 +184,8 @@ function LanguageSwitcher() {
 - **Stable:** the returned object keeps its identity, so it is safe in dependency arrays.
 - **Frozen**, `languages` and its entries included: the same array is shared by the whole app, so a write throws a `TypeError` on the spot instead of corrupting the list for everyone. To reorder or filter, copy it first: `[...languages]`.
 - **Works outside `TranslateContainer`:** `languages` and `sourceLanguage` come from a manifest built at build time — no table is loaded to list them — so you can build a language list above the translated tree. There, `id` is `undefined` and `proposeNewLanguage` does nothing (reported once in the console, in development).
+
+🎮 Live: [language switch](https://sepoina.github.io/viteTranslate/playground/#language-switch), with `onStart`/`onDone`/`onError`.
 
 ### `proposeNewLanguage()`
 
@@ -248,6 +266,8 @@ basicHtmlToNodes("no markup here");             // "no markup here" (same string
 - **No attribute is ever forwarded**: the elements it builds carry only a `key`.
 - A `%s` without a value follows the same [`⁇` rule](#markup-and-placeholders).
 - A string without markup comes back untouched, allocating nothing; parsed results are cached, so each string is converted once per app.
+
+🧪 The same dialect, case by case — dropped attributes, unknown tags, broken markup: [edge/#html](https://sepoina.github.io/viteTranslate/edge/#html).
 
 > [!IMPORTANT]
 > Before using it outside the library:

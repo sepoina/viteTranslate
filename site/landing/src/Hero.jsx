@@ -59,7 +59,7 @@ export default function Hero() {
               <Translate>_%_dipendenze a runtime_%_</Translate>
             </p>
             <p className="stat-d">
-              <Translate>_%_Babel, Vite e React sono peer: girano sulla tua macchina e non entrano mai nel bundle._%_</Translate>
+              <Translate>_%_Babel e Vite girano sulla tua macchina e non entrano mai nel bundle; React è quello che la tua app ha già._%_</Translate>
             </p>
           </div>
         </div>

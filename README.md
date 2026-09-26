@@ -48,7 +48,7 @@ Get a table to hand to a translator, kept in sync for you:
 
 ```yaml
 # locale/fr-FR.yml
-App_1q8xz4: "Bienvenue sur notre site"
+App_pxxhl0: "Bienvenue sur notre site"
 ```
 
 The key is generated for you, the sync is a single command, and the runtime that ships to your users weighs 5 kB gzip.
@@ -61,39 +61,36 @@ Every library in this table solves the same problem. They differ in how much mac
 
 | Feature | viteTranslate | i18next | Lingui | FormatJS |
 | :- | :-: | :-: | :-: | :-: |
-| **LLM auto-translation** ¹ | ✅ | ❌ | ❌ | ❌ |
-| **Auto-synced YAML tables** | ✅ | ❌ | ❌ | ❌ |
-| **Integrated extraction workflow** ² | ✅ | ❌ | ❌ | ❌ |
+| **LLM auto-translation** ¹ | ✅ | 🟡 | ❌ | ❌ |
+| **Extraction inside the Vite lifecycle** ² | ✅ | ❌ | ❌ | ❌ |
 | **Zero runtime dependencies** | ✅ | ❌ | ❌ | ❌ |
-| **Native Vite integration** | ✅ | ❌ | 🟡 | ❌ |
-| **Keyless / Natural text syntax** ³ | ✅ | ❌ | ✅ | 🟡 |
-| **Tiny runtime (<6 kB gzip)** ⁴ | ✅ | ❌ | 🟡 | ❌ |
+| **Official Vite plugin** | ✅ | ❌ | ✅ | ✅ |
+| **Keyless / Natural text syntax** ³ | ✅ | 🟡 | ✅ | 🟡 |
+| **Tiny runtime (<6 kB gzip)** ⁴ | ✅ | ❌ | ✅ | ❌ |
 | **ICU MessageFormat (plural, select, dates)** | ✅ | 🟡 | ✅ | ✅ |
-| **Build-time message compilation** ⁵ | ✅ | ❌ | ✅ | ✅ |
-| **No runtime message parsing** ⁵ | ✅ | ❌ | 🟡 | 🟡 |
+| **No message parsing at runtime** ⁵ | ✅ | ❌ | ✅ | 🟡 |
 | **Lazy-loaded locales** | ✅ | ✅ | ✅ | ✅ |
-| **License** | Apache-2.0 | MIT | MIT | Apache-2.0 |
+| **License** | Apache-2.0 | MIT | MIT | BSD-3-Clause |
 
- <small> 🟡 - Available with additional tooling or configuration.</small>
+ <small>✅ out of the box · 🟡 official add-on or extra setup · ❌ not offered. As of September 2026: i18next 26 + react-i18next 17, Lingui 6, FormatJS (react-intl 12).</small>
 
 <details>
 <summary><b>🔍 Notes on the comparison, and what each feature buys you</b></summary>
 
 <br />
 
-- **¹ LLM auto-translation:** `npx vitetranslate --llm-translate` fills the untranslated keys through an LLM you configure, with a validator that refuses anything that would break at runtime (lost `%s`, mangled tags) — see [the LLM guide](doc/llm.md).
-- **Auto-synced tables:** one command syncs every language — missing keys added, stale ones removed, the rest reported. A string that moved keeps the translation it already had.
-- **² Integrated extraction workflow:** viteTranslate performs extraction and table synchronization as part of the Vite development and build lifecycle. Other solutions generally rely on separate extraction and compilation commands or watcher processes.
-- **Zero runtime dependencies:** none declared. `@babel/core`, Vite and React are _peer_ dependencies — they run the plugin on your machine and never enter the bundle. Not a promise on trust: the test suite asserts that the browser runtime imports nothing beyond React and the virtual module.
-- **Native Vite integration:** one codebase for Vite 5 through 8, no config switch.
-- **³ Keyless syntax:** Lingui and viteTranslate can use source strings directly instead of manually maintained translation keys. FormatJS can also omit manual IDs by generating message identifiers through Babel or SWC tooling.
-- **Keyless syntax, in practice:** the marker is extracted at build time and resolved against the current table at runtime — no key to invent, nothing to keep in sync by hand.
-- **ICU MessageFormat:** plurals, `select`, numbers and dates — compiled at build time, same as everything else; i18next needs the `i18next-icu` plugin. See [the ICU guide](doc/icu.md).
-- **⁴ Runtime size:** viteTranslate's browser runtime weighs 5 kB gzip — `5607 bytes` exactly: 4520 B for the React runtime plus 1087 B for the ICU helpers, which ship only when a table uses ICU. Measured by `npm run estimateSize`, the source of truth for this number. Other solutions vary depending on imported packages, tree-shaking, plugins and optional polyfills, so exact bundle sizes are not directly comparable.
-- **⁵ Compilation & parsing:** Lingui and FormatJS can move message parsing and compilation to build time when their compilation tooling is enabled. viteTranslate's tables are compiled at build time into ready-made values, no HTML parser at runtime, so `<Translate>` renders server-side too.
-- **Lazy-loaded locales:** each language is its own chunk, `import()`-ed only when selected.
-- **Dev fallback, always visible:** until a translation exists you get the original text. Never a blank, never a crash.
-- **Small, safe HTML subset:** `<b> <strong> <i> <em> <u> <small> <code> <br> <hr> <wbr>` and nothing else. Everything outside it is unwrapped to plain text, and no attribute is ever forwarded.
+- **How to read it:** a ❌ means the project's own tooling doesn't offer it — a third-party tool may still fill the gap. Every mark below says where it comes from.
+- **¹ LLM auto-translation:** `npx vitetranslate --llm-translate` fills the untranslated keys through the model you configure — any OpenAI-compatible API, or your own driver. It prints the cost first, asks before spending, and a validator refuses anything that would break at runtime (lost `%s`, mangled tags). See [the LLM guide](doc/llm.md), 🎮 [the walkthrough](https://sepoina.github.io/viteTranslate/playground/#install-llm), or [the restaurant](https://sepoina.github.io/viteTranslate/llmrestaurant/) it translated. The i18next team offers AI translation through Locize, its paid hosted service, wired into `i18next-cli`. Lingui has an [open RFC](https://github.com/lingui/js-lingui/discussions/2392) and community tools; FormatJS leaves translation to your TMS.
+- **² Extraction inside the Vite lifecycle:** the plugin extracts the markers and syncs one YAML table per language by itself — a quick check when `vite dev` starts, a full scan before every build. Missing keys added, stale ones removed, the rest reported; a string that moved keeps its translation. 🎮 [Live](https://sepoina.github.io/viteTranslate/playground/#install-sync). The others extract with a separate command: `i18next-cli extract` and `lingui extract` (both with a `--watch` mode) sync every language file; `formatjs extract` writes the source language only, the rest comes from your TMS.
+- **Zero runtime dependencies:** none declared, and not on trust: the test suite asserts that the browser runtime imports nothing beyond React and the virtual module. `@babel/core` and Vite are _peer_ dependencies: they run the plugin on your machine and never enter the bundle. React is the one your app already ships. For comparison, `react-i18next` depends on three packages (i18next core on none), `@lingui/react` on `use-sync-external-store` plus Lingui's own packages, `react-intl` on three FormatJS packages.
+- **Official Vite plugin:** viteTranslate's does the whole job — extraction, sync, compilation, one chunk per language — with the same code from Vite 5 to 8. Lingui's `@lingui/vite-plugin` compiles catalogs (its macros still need a Babel or SWC plugin); FormatJS's `@formatjs/unplugin` generates IDs and pre-parses messages. i18next has none, and needs none: there is nothing to compile.
+- **³ Keyless syntax:** the marked sentence is the source; its key is generated at build time and resolved against the current table at runtime — no key to invent, nothing to keep in sync by hand. 🎮 [Live](https://sepoina.github.io/viteTranslate/playground/#static-text). Lingui does the same with its macros; FormatJS generates IDs through its Babel/SWC plugins or `@formatjs/unplugin`. i18next can use the sentence as the key (`keySeparator: false`, `nsSeparator: false`): possible, say its docs, but not recommended.
+- **ICU MessageFormat:** plurals, `select`, numbers and dates — compiled at build time, same as everything else. One deliberate deviation: an apostrophe is always an apostrophe, never ICU quoting. i18next has its own plural and context syntax built in; ICU needs the official `i18next-icu` plugin. See [the ICU guide](doc/icu.md) — 🎮 [plurals](https://sepoina.github.io/viteTranslate/playground/#icu-plural), [select](https://sepoina.github.io/viteTranslate/playground/#icu-select), [dates](https://sepoina.github.io/viteTranslate/playground/#icu-format), 🧪 [edge cases](https://sepoina.github.io/viteTranslate/edge/#icu).
+- **⁴ Runtime size:** viteTranslate's browser runtime weighs 5 kB gzip — `5603 bytes` exactly: 4516 B for the React runtime plus 1087 B for the ICU helpers, which ship only when a table uses ICU. Measured by `npm run estimateSize`, the source of truth for this number, on the whole API. The others, with the same tools (rolldown, minified, gzip, React left out) on what a basic app imports — provider, component, hook — in September 2026: Lingui 3 kB (smaller, yes), react-intl 13 kB (6 kB with its `no-parser` alias), i18next + react-i18next 19 kB. Imports, plugins and polyfills move every figure: read them as orders of magnitude.
+- **⁵ No message parsing at runtime:** tables are compiled at build time into ready-made values. In a production build `<Translate>` parses nothing, neither ICU nor HTML — which is also why it renders server-side. Lingui does the same by default, through its CLI or Vite plugin. FormatJS pre-parses with `formatjs compile --ast`, and drops the parser only if you alias it to its `no-parser` build. i18next interpolates at runtime, and `i18next-icu` parses there too.
+- **Lazy-loaded locales:** each language is its own chunk, `import()`-ed only when selected — no loader to write. 🎮 [Live](https://sepoina.github.io/viteTranslate/playground/#language-switch). The others load catalogs through their API, from an `import()` you write, or a backend plugin for i18next.
+- **Dev fallback, always visible:** until a translation exists you get the original text. Never a blank, never a crash — and a [mark](doc/diagnostics.md) says so, in development only.
+- **Small, safe HTML subset:** `<b> <strong> <i> <em> <u> <small> <code> <br> <hr> <wbr>` and nothing else. Everything outside it is unwrapped to plain text, and no attribute is ever forwarded. 🎮 [Live](https://sepoina.github.io/viteTranslate/playground/#markup), 🧪 [broken markup included](https://sepoina.github.io/viteTranslate/edge/#html).
 
 </details>
 
@@ -229,6 +226,7 @@ Everything past "hello world" lives in `doc/`, one topic per page:
 | [**Architecture**](doc/structure.md) | How a marked string travels from source to browser, with diagrams |
 | [**Known limitations**](doc/limitations.md) | Edge cases and constraints to be aware of |
 | [**Requirements**](doc/requirements.md) | Supported peer dependency versions |
+| [**Live examples**](doc/live-examples.md) | Each live demo and edge case, next to its guide |
 
 ---
 

@@ -285,7 +285,7 @@ sequenceDiagram
 
 Key aspects worth knowing:
 
-**No separate config file.** The plugin exposes its resolved configuration directly on the object it returns (`vitetranslateConfig`), and the CLI re-reads it from there: a single source of truth. For this reason [`cli.js`](../lib/dev/vite/cli.js) imports `vite.config.*` and searches for the plugin with `name: "vitetranslate"` after applying `flat(Infinity)` — the plugin returns an **array** of two plugins, and flattening is necessary to find it.
+<a id="no-separate-config-file"></a>**No separate config file.** The plugin exposes its resolved configuration directly on the object it returns (`vitetranslateConfig`), and the CLI re-reads it from there: a single source of truth. For this reason [`cli.js`](../lib/dev/vite/cli.js) imports `vite.config.*` and searches for the plugin with `name: "vitetranslate"` after applying `flat(Infinity)` — the plugin returns an **array** of two plugins, and flattening is necessary to find it.
 
 Config loading is handled by Node, not Vite: it searches for the six file extensions accepted by Vite (`.js .mjs .ts .cjs .mts .cts`, using Vite's preference order) and accepts both raw config objects and the factory function form of `defineConfig` (invoked with `{ command: "build", mode: "production" }`). The remaining limitation is Node's own runtime capability: loading a TypeScript config requires a Node version capable of stripping type annotations (23.6+, or `--experimental-strip-types`), and non-type TS syntax will fail — throwing an explicit error message instead of an opaque `ERR_MODULE_NOT_FOUND`.
 
@@ -499,6 +499,8 @@ Using string slicing instead of AST regeneration requires three specific handlin
 
 #### `autoWrap`: rewriting a marked JSX text or attribute (4.3.0, extended 4.4.0)
 
+🧪 The ten cases, live: [edge/#autowrap](https://sepoina.github.io/viteTranslate/edge/#autowrap).
+
 A fully-marked `JSXText` with no `<Translate>` around it (`<p>_%_hi_%_</p>`), or a fully-marked JSX attribute with no `ts()` around it (`title="_%_hi_%_"`), still gets its marker compiled — `registerMarker` runs unconditionally, before any decision about rewriting — but the compiled marker then lands on screen verbatim: nothing renders it, because neither a bare text child of a host element nor an attribute value ever passes through a component. `errorSolve`'s diagnostics live inside `Translate` and `ts()`, so none of them ever fire either. `autoWrap` (default `false`) closes that gap by rewriting the emission for both cases. With the option off, output is byte-for-byte what it was before 4.3.0 for any input except the entity/whitespace normalization described below — the option (and the normalization) are additive.
 
 `autoWrap` accepts `true` or a `RegExp`. `true` covers every host tag except the four listed below; a `RegExp` narrows the *children* rewrite further to the tags it matches (`g`/`y` flags are stripped, since a stateful `.test()` would answer differently for the second tag checked in the same file) — attributes are unaffected by the `RegExp`, since a value is a value regardless of which host tag carries it.
@@ -563,6 +565,8 @@ Helper functions `_arg` and `_cat` are **inlined directly within each compiled c
 
 ### HTML dialect specification
 
+🧪 Every rule below, live: [edge/#html](https://sepoina.github.io/viteTranslate/edge/#html).
+
 Allowed tags are restricted to: `<b> <strong> <i> <em> <u> <small> <code> <br> <hr> <wbr>`. Any other tag is **stripped while retaining its inner text content** (`<div>hello</div>` → `hello`); attributes are stripped unconditionally.
 
 Tag lists are defined in [`htmlDialect.js`](../lib/htmlDialect.js), consumed by both the build-time parser and the runtime DOM parser. Shared definition prevents discrepancies between development behavior and compiled production bundles.
@@ -571,7 +575,7 @@ The single known structural difference between parsers involves **overlapping/mi
 
 ### 2c. ICU MessageFormat (4.6.3)
 
-User-facing guide: [`doc/icu.md`](icu.md). This section is the compiler's-eye view.
+User-facing guide: [`doc/icu.md`](icu.md). This section is the compiler's-eye view. 🧪 Live cases: [edge/#icu](https://sepoina.github.io/viteTranslate/edge/#icu).
 
 **Trigger.** A text compiles as ICU only if [`ICU_TRIGGER_RE`](../lib/markerSyntax.js) matches: `{` + digit, or `{` + name closed immediately or followed by a comma and an ICU keyword (`number`, `date`, `time`, `plural`, `selectordinal`, `select`). Any other `{...}` — `{ t: null }`, `${}`, a JSX-expression leftover — stays on the 4.6.2 path untouched; a golden hash test (`test/compileGolden.mjs`) proves it byte-for-byte on every table in the repo, with a single declared exception (the `_arg` helper, below).
 
@@ -761,6 +765,8 @@ Two checks in the caller have to run in a specific order relative to the verdict
 2. **`tuple` is `true` regardless of how many elements the array has.** `t={["_%_x_%_"]} a={[1]}` is still an error even though the tuple carries no arguments of its own (`embedded === undefined`) — deriving "was a tuple" from "carried embedded args" would let this combination through silently.
 
 ### Diagnostic prefixes
+
+🧪 Live: [values that aren't text](https://sepoina.github.io/viteTranslate/edge/#not-text), [unmarked text and `skipMark`](https://sepoina.github.io/viteTranslate/edge/#unmarked), [incompatible props](https://sepoina.github.io/viteTranslate/edge/#conflicting-props).
 
 To prevent missing translations from silently rendering fallback text unnoticed during development, `errorSolve` prepends visible diagnostic indicator characters in development builds by default:
 

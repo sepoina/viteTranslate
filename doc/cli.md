@@ -12,6 +12,8 @@ npx vitetranslate
 
 Reads the `vitetranslate` config from `vite.config.*` in the current working directory, scans `srcDir` for `_%_..._%_` markers, and syncs every language file in `localeDir`: adds new keys, removes stale ones (carrying over translations when a key was only renamed), and reports what's left untranslated. The plugin runs this for you now, at dev server startup and before every build (see [plugin options](plugin-options.md)); this command is what you reach for when you want it on purpose — `--add`, `--status`, `--migrate`, or a check in CI.
 
+🎮 **[Live walkthrough](https://sepoina.github.io/viteTranslate/playground/#install-sync)** — the sync and `--status`, then [`--add`](https://sepoina.github.io/viteTranslate/playground/#install-new-language) and [`--llm-translate`](https://sepoina.github.io/viteTranslate/playground/#install-llm), each with the files it writes.
+
 ```text
 ::: viteTranslate        ║  source: "src" (32 files),  translations: "locale" (59 keys)
 :::                      ║

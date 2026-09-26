@@ -10,16 +10,16 @@
   "demo/Vite_8/minimal/locale/en-US.yml": "92a2ef1217097509f5919b70e50c32c5a4a119d7d6d720bb273d72db056c1142",
   "demo/Vite_8/minimal/locale/it-IT.yml": "66b3553be086a49ee35ed504b44c0228ad65884d3e310b77e010535e2dd953f1",
   "demo/Vite_8/minimal/locale/zh-CN.yml": "110ec3906c59bd5b65e4d721d9104270739b2195f46c11514a97b4a6ddb42cee",
-  "site/landing/locale/en-US.yml": "5f209707c1968574e91f119d3b034b6d3f35d361170378df7ec4fb602ca76082",
-  "site/landing/locale/it-IT.yml": "4e64e842000c43a3a873328d744876338b47ae7210edf83c30012414a1f5b4bd",
-  "site/landing/locale/zh-CN.yml": "32d8428dc2a34a4983d28575126ef36e4eba5f6b1a9ae967755ad3bc83fcef4e",
+  "site/landing/locale/en-US.yml": "0c36b8a02366144ec2868e28d3b200d02c4fc91bf262e2e48a3d0e8318c03e0a",
+  "site/landing/locale/it-IT.yml": "6f10677784b46939966a4f0ff0978558269b9de75addbd42bd16b1ebd91dca30",
+  "site/landing/locale/zh-CN.yml": "c3e1fdcd752f20c8ecfc53655cdee8dccf93cc0d066c01a2bdc8bb89eed18fb4",
   "site/pages/playEdge/locale/de-DE.yml": "47362b1c2c217b90fd8870d3ce97baf77ff35a721d7a2f9e7c24c5720d91811b",
   "site/pages/playEdge/locale/en-US.yml": "4c0b438cd8d64500100f7792c10520e7556924427c867089f0357c484a93edcc",
   "site/pages/playEdge/locale/fr-FR.yml": "6fb0af7e6b5b49365d417c865436ec9c652bd38f940bca30f533fd9a2aaa09d3",
   "site/pages/playEdge/locale/it-IT.yml": "4bac07bbe42abadd59048328caa69997517e04011143a5fd281b7ab7fb4e0adb",
   "site/pages/playEdge/locale/pt-BR.yml": "59e96e1d997f0045d1a133a885848f1c6c7b9652421e371db728a4d6f9990567",
   "site/pages/playEdge/locale/zh-CN.yml": "faa8e279adc3614434183ba565881092aa558e9796dd8f611c351ef32b66d07d",
-  "site/pages/playground/locale/en-US.yml": "1b8531c468f7e1a9fc7158cde61e23efa5559a3402900e38d692a765436cf2f8",
-  "site/pages/playground/locale/it-IT.yml": "b40a080316fd37a75e2f80de27754ed15578e82ac10441a925ebc39789e1696b",
-  "site/pages/playground/locale/zh-CN.yml": "28cd22b7e82f4a1f5df1c609b1565e94ee6500a0d7e903b4cf609699e4d943d3"
+  "site/pages/playground/locale/en-US.yml": "a639fd362eff512f31f02dbaf8aa9bbdf3b99489f6a9c3805e520e44c8f263e6",
+  "site/pages/playground/locale/it-IT.yml": "0502ec10c79f3629a59080e2cd2f5ca168a27b56e58c3c4defb1a8eac8bcc577",
+  "site/pages/playground/locale/zh-CN.yml": "8194c9c6eec0987720b7bf1360bee15c82dcff635d9b15cf6dbd1e7247f610a9"
 }

@@ -1,5 +1,7 @@
 ## BCP47 
 
+> The tags `vitetranslate --add` accepts: `<language>-<REGION>`, a real language in a real region ([CLI](cli.md)). 🎮 [Adding one](https://sepoina.github.io/viteTranslate/playground/#install-new-language) and [switching between them](https://sepoina.github.io/viteTranslate/playground/#language-switch), live.
+
 | Code | Language | Region |
 | --- | --- | --- |
 | **sq-AL** | Albanian | Albania |
