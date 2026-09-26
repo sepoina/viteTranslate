@@ -1,17 +1,20 @@
 // Il sito (landing + site/pages/*): la lista delle pagine è scritta in due posti, il campo
 // "vitetranslateSite.slug" nel package.json di ogni pagina e le card di site/landing/src/pages.js,
 // e i due devono coincidere. In più, siteLinks.js è una copia in ogni progetto (una pagina deve
-// restare scaricabile da sola) e le copie devono restare identiche.
+// restare scaricabile da sola) e le copie devono restare identiche. Il tema di site/theme/ è
+// copiato identico nei progetti, i colori stanno solo in tokens.css, le coppie di testo passano
+// AA e nessuna pagina importa da fuori della sua cartella.
 //
 //   node test/list/site.test.mjs
 import { inflateRawSync } from "node:zlib";
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { dirname, join, resolve } from "node:path";
+import { dirname, join, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 import { sitePages } from "../../site/build.mjs";
 import { PAGES } from "../../site/landing/src/pages.js";
 import { collectFiles, crc32, makeZip, zipPages } from "../../site/zip.mjs";
+import { checkTheme, syncTheme, themeTargets } from "../../site/syncTheme.mjs";
 import { demoDirs } from "../syncDemoDeps.mjs";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
@@ -121,5 +124,102 @@ try {
 }
 // Ogni card della landing ha il suo zip: lo slug è quello della pagina, lo scrive zipPages.
 for (const { slug } of PAGES) eq(`card ${slug}: c'è una pagina da zippare con questo slug`, true, pagine.some((p) => p.slug === slug));
+
+// 8. Il tema: site/theme/ (più runtimeSize.json) copiato identico in src/theme/ di ogni progetto che lo usa.
+eq("themeTargets: la landing e le pagine con theme: true", ["site/landing", "site/pages/playEdge", "site/pages/playground"], themeTargets(ROOT));
+eq("le copie del tema sono allineate (npm run site:theme)", [], checkTheme(ROOT));
+for (const t of themeTargets(ROOT)) {
+  eq(`${t}: main.jsx importa theme/theme.css`, true, readFileSync(join(ROOT, t, "src/main.jsx"), "utf8").includes("./theme/theme.css"));
+}
+eq("site/theme/logo.svg è doc/logo.svg", true, readFileSync(join(ROOT, "site/theme/logo.svg")).equals(readFileSync(join(ROOT, "doc/logo.svg"))));
+
+// 9. syncTheme su un albero finto: scrive, toglie i file che non ci sono più, lascia stare chi non lo chiede.
+const alberoTema = mkdtempSync(join(tmpdir(), "vt-theme-"));
+try {
+  const scrivi = (rel, testo) => {
+    mkdirSync(dirname(join(alberoTema, rel)), { recursive: true });
+    writeFileSync(join(alberoTema, rel), testo);
+  };
+  scrivi("site/theme/a.css", "a{}");
+  scrivi("site/theme/B.jsx", "export default 1;");
+  scrivi("site/runtimeSize.json", "{}");
+  scrivi("site/landing/package.json", "{}");
+  scrivi("site/pages/p1/package.json", JSON.stringify({ vitetranslateSite: { slug: "p1", theme: true } }));
+  scrivi("site/pages/p2/package.json", JSON.stringify({ vitetranslateSite: { slug: "p2" } }));
+  eq("tema finto: chi lo riceve", ["site/landing", "site/pages/p1"], themeTargets(alberoTema));
+  eq("tema finto: prima della copia mancano 3 file x 2 progetti", 6, checkTheme(alberoTema).length);
+  syncTheme(alberoTema);
+  eq("tema finto: dopo la copia è allineato", [], checkTheme(alberoTema));
+  eq("tema finto: la copia porta anche runtimeSize.json", true, existsSync(join(alberoTema, "site/pages/p1/src/theme/runtimeSize.json")));
+  scrivi("site/pages/p1/src/theme/vecchio.css", "x");
+  eq("tema finto: un file in più si vede", ["site/pages/p1/src/theme/vecchio.css: in più"], checkTheme(alberoTema));
+  syncTheme(alberoTema);
+  eq("tema finto: e la copia lo toglie", false, existsSync(join(alberoTema, "site/pages/p1/src/theme/vecchio.css")));
+  eq("tema finto: p2 non riceve niente", false, existsSync(join(alberoTema, "site/pages/p2/src/theme")));
+} finally {
+  rmSync(alberoTema, { recursive: true, force: true });
+}
+
+// 10. I colori stanno solo in tokens.css: nel resto del CSS del sito, solo var(--…).
+const senzaCommenti = (t) => t.replace(/\/\*[\s\S]*?\*\//g, "");
+for (const f of ["site/theme/theme.css", "site/landing/src/landing.css", "site/pages/playground/src/playground.css", "site/pages/playEdge/src/edge.css"]) {
+  const trovati = senzaCommenti(readFileSync(join(ROOT, f), "utf8")).match(/#[0-9a-fA-F]{3,8}\b|\b(?:rgba?|hsla?)\(/g) ?? [];
+  eq(`${f}: nessun colore scritto a mano`, [], trovati);
+}
+
+// 11. tokens.css: i due blocchi del tema chiaro sono uguali, e ogni coppia di testo passa 4.5:1 in entrambi i temi.
+const tokens = readFileSync(join(ROOT, "site/theme/tokens.css"), "utf8");
+const blocco = (selettore) => {
+  const a = tokens.indexOf("{", tokens.indexOf(selettore));
+  return tokens.slice(a + 1, tokens.indexOf("}", a));
+};
+const variabili = (testo) => Object.fromEntries([...testo.matchAll(/--([\w-]+):\s*([^;]+);/g)].map((m) => [m[1], m[2].trim()]));
+const chiaroSistema = blocco(':root:not([data-theme="dark"])');
+eq("tokens.css: i due blocchi chiari sono uguali", chiaroSistema.replace(/\s+/g, " ").trim(), blocco(':root[data-theme="light"]').replace(/\s+/g, " ").trim());
+const scuro = variabili(blocco(":root {"));
+const chiaro = { ...scuro, ...variabili(chiaroSistema) };
+const risolvi = (mappa, nome, n = 0) => {
+  const v = mappa[nome] ?? "";
+  const r = /^var\(--([\w-]+)\)$/.exec(v);
+  return r && n < 5 ? risolvi(mappa, r[1], n + 1) : v;
+};
+const luminanza = (hex) => {
+  const c = hex.slice(1).match(/../g).map((x) => parseInt(x, 16) / 255).map((v) => (v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4));
+  return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2];
+};
+const contrasto = (a, b) => {
+  const [x, y] = [luminanza(a), luminanza(b)].sort((p, q) => q - p);
+  return (x + 0.05) / (y + 0.05);
+};
+const COPPIE = [
+  ...["text", "muted", "faint", "accent"].flatMap((f) => ["bg", "surface-2", "bg-deep"].map((b) => [f, b])),
+  ["accent-ink", "accent-fill"],
+  ...["warn", "error"].flatMap((f) => ["bg", "surface-2"].map((b) => [f, b])),
+  ...["tk-c", "tk-s", "tk-t", "tk-k", "tk-n"].map((f) => [f, "code-bg"]),
+];
+const esa = /^#[0-9a-f]{6}$/i;
+for (const [nome, mappa] of [["scuro", scuro], ["chiaro", chiaro]]) {
+  const sotto = COPPIE.filter(([f, b]) => {
+    const [a, c] = [risolvi(mappa, f), risolvi(mappa, b)];
+    return !esa.test(a) || !esa.test(c) || contrasto(a, c) < 4.5;
+  }).map(([f, b]) => `${f} su ${b}`);
+  eq(`tema ${nome}: ogni coppia di testo passa 4.5:1`, [], sotto);
+}
+
+// 12. Una pagina resta autonoma: nessun import relativo esce dalla sua cartella (lo zip per StackBlitz non lo avrebbe).
+const sorgenti = (dir) =>
+  readdirSync(dir, { withFileTypes: true }).flatMap((e) =>
+    e.isDirectory() ? (["node_modules", "dist"].includes(e.name) ? [] : sorgenti(join(dir, e.name))) : /\.(jsx?|mjs|css)$/.test(e.name) ? [join(dir, e.name)] : []
+  );
+for (const { dir } of pagine) {
+  const radicePagina = join(ROOT, dir);
+  const fuori = [];
+  for (const f of sorgenti(radicePagina)) {
+    for (const m of readFileSync(f, "utf8").matchAll(/(?:from\s*|import\s*\(\s*|@import\s+(?:url\()?)["'](\.{1,2}\/[^"']+)["']/g)) {
+      if (!resolve(dirname(f), m[1]).startsWith(radicePagina + sep)) fuori.push(`${f.slice(radicePagina.length + 1)} -> ${m[1]}`);
+    }
+  }
+  eq(`${dir}: nessun import fuori dalla cartella`, [], fuori);
+}
 
 process.exit(fail > 0 ? 1 : 0);

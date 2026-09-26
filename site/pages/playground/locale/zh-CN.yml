@@ -2,7 +2,7 @@
 #      中文（中国）
 #       |    code: zh-CN
 #       |    missing key: 0
-#       |    processed: 2026-09-24 21:38
+#       |    processed: 2026-09-26 21:43
 #       |    TableVersion: 260905
 #  -------------------------------------------------
 #
@@ -57,6 +57,7 @@ installSubsections_4vmyzb: "语言构建"
 installSubsections_dxj27y: "用 LLM 翻译"
 installSubsections_nfxr02: "开发运行"
 installSubsections_p7mj0v: "插件配置"
+LanguageSwitch_gzrcyx: "页面语言"
 LanguageSwitchExample_lbdkn8: "<b>请选择您的语言</b> (%s)"
 MarkupExample_10fzz05: "当前登录：<b>%s</b>"
 MarkupExample_l1xgjf: "<b>粗体</b>、<i>斜体</i>和<code>代码</code>混排：只需翻译一句话。"
@@ -86,9 +87,8 @@ StrengthsSection_1y1sghw: "<strong>零运行时依赖。</strong>Babel、Vite �
 StrengthsSection_7t8nu9: "<strong>翻译在重命名后依然保留。</strong> 如果同一段文本只是 id 发生变化，同步会沿用已完成的翻译，而不是从头开始。"
 StrengthsSection_qebam7: "<strong>从 Vite 5 到 Vite 8，同一套代码。</strong>Vite 7 及以前用 Rollup 和 esbuild，Vite 8 用 Rolldown 和 Oxc：无需不同的配置。"
 StrengthsSection_wv4ype: "<strong>自动同步翻译表。</strong> 一条命令即可更新所有语言并标出仍需翻译的内容。"
-TopBar_17cwgp7: "页面语言"
+ThemeToggle_1i35buc: "切换主题"
 TopBar_1dz7foh: "全部演示"
-TopBar_1h6d3kr: "切换主题"
 ZZZsnippetList_1cpi6bi: "autoWrap：无需组件的标记"
 ZZZsnippetList_1f899uf: "有了 ICU，复数形式由语言决定：<code>&#123;0, plural, …}</code> 为每个数字选择正确的分支，<code>#</code> 就是已格式化的数字本身。每种语言都有自己的类别：意大利语序数词区分 “l’8º” 和 “il 7º”，英语则需要四种（1st、2nd、3rd、4th）。"
 ZZZsnippetList_1itbzsw: "<code>&lt;Translate&gt;</code> 返回 React 节点：它不能用于需要纯字符串的 HTML 属性中，例如 <code>placeholder</code>、<code>aria-label</code> 或 <code>title</code>。这些情况下需要使用 <code>useTranslateToString()</code> hook，它解析相同的翻译，但返回一个原始字符串。这些属性不会作为屏幕上的文本可见：要查看它们的翻译，请用 F12 检查该元素。"

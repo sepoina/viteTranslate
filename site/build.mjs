@@ -1,6 +1,7 @@
 // Riunisce il sito pubblicato su GitHub Pages: la landing alla radice, ogni pagina di
 // site/pages/* nella sottocartella del suo slug. Ogni progetto si builda nella sua cartella,
 // da solo, con la sua `base`; qui si copiano i dist uno dentro l'altro.
+// Prima di buildare copia il tema in ogni progetto (site/syncTheme.mjs).
 //
 //   node site/build.mjs                          # site/dist per /viteTranslate/
 //   node site/build.mjs --root=/altroNome/       # un fork: la CI passa il nome del repo
@@ -15,6 +16,7 @@ import { cpSync, existsSync, readdirSync, readFileSync, rmSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { zipPages } from "./zip.mjs";
+import { syncTheme } from "./syncTheme.mjs";
 
 const RADICE = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const ROOT_DEFAULT = "/viteTranslate/";
@@ -73,6 +75,9 @@ function main() {
     console.error(`--root deve iniziare e finire con "/" (ricevuto "${root}")`);
     process.exit(1);
   }
+
+  // Il tema per primo: ogni progetto builda la sua copia in src/theme/ (vedi site/syncTheme.mjs).
+  console.log(`tema copiato in ${syncTheme().join(", ")}`);
 
   const pagine = sitePages();
   const dist = join(RADICE, "site/dist");

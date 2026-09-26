@@ -1,6 +1,6 @@
 {
   "name": "@sepoina/vitetranslate",
-  "version": "4.6.3-rc.2",
+  "version": "4.6.3",
   "versionDescription": "ICU MessageFormat: plurals, select, numbers and dates compiled at build time, with configurable time zones.",
   "description": "Extract translatable strings straight from your JSX — a Vite plugin that auto-generates and syncs your translation tables, with zero runtime dependencies.",
   "author": {
@@ -67,9 +67,10 @@
     "version": "node test/syncDemoDeps.mjs",
     "sync:demos": "node test/syncDemoDeps.mjs",
     "prepare": "npm run build",
-    "site": "npm --prefix site/landing run dev",
+    "site": "node site/syncTheme.mjs && npm --prefix site/landing run dev",
     "site:build": "node site/build.mjs",
-    "site:preview": "node site/build.mjs --preview"
+    "site:preview": "node site/build.mjs --preview",
+    "site:theme": "node site/syncTheme.mjs"
   },
   "files": [
     "lib"

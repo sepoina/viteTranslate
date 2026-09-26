@@ -2,18 +2,16 @@
 #      American English
 #       |    code: en-US
 #       |    missing key: 0
-#       |    processed: 2026-09-26 16:54
+#       |    processed: 2026-09-26 21:43
 #       |    TableVersion: 260905
 #  -------------------------------------------------
 #
 App_17k0c41: "The <b>expected</b> column applies in <b>development</b>, with the source language active and the language files already synchronized."
-App_1ekphjo: "Toggle theme"
 App_1ombhjz: "Every category has its own address (<code>#icu</code>, <code>#html</code>, <code>#not-text</code>…): the <code>#</code> next to the title is the link to share."
 App_1wc6kj8: "<b>Optimal</b>: renders exactly what is written, no diagnostics. <b>Warning</b>: renders, but something gets lost or surprises you (a <code>⁇</code>, a dropped tag, a build warning). <b>Error</b>: a <code>‼️</code> or <code>🚫</code> mark, or a console error: fix it."
 App_20ci9k: "Hover over <code>&lt;/&gt;</code> next to a case name to see the code that produced it."
 App_4ibyhz: "Edge cases · v%s"
 App_4j76hr: "How to read the table"
-App_4lj7z0: "Page language"
 App_a9vbkj: "In a real app the diagnostic marks disappear in the build — where you read <code>🚫[type]</code> here, nothing is rendered any more — while <code>⁇</code> stays: it isn’t a diagnostic, it’s normal output. This page keeps them on in the build too, on purpose."
 App_aj0s62: "How to read the table ↓"
 App_iy34f8: "<code>🔸</code> (not translated here) and <code>🔹</code> (not translated elsewhere) are not shown: they depend on the state of the language files, not on the row. <code>‼️</code>, <code>🚫</code> and <code>⁇</code>, on the other hand, are part of the expected result."
@@ -40,6 +38,7 @@ autoWrapCases_twlewm: "6. Attribute on a component"
 autoWrapCases_ukn802: "autoWrap: markers with no &lt;Translate&gt;"
 autoWrapCases_xfi6mi: "7. The key is never translated"
 autoWrapCases_y19l6w: "3. Bare child, component NOT recognised"
+LanguageSwitch_gzrcyx: "Page language"
 ShowAllRowTests_12hjh7n: "Link to this section"
 ShowAllRowTests_1gizqwy: "expected in source (IT)"
 ShowAllRowTests_1lotodh: "result"
@@ -264,3 +263,4 @@ testCases_ynn7m: "{0}"
 testCases_yv0w7z: "%s + %s"
 testCases_zmrpz5: "a empty array"
 testCases_zzrrzd: "%s empty string"
+ThemeToggle_1i35buc: "Toggle theme"

@@ -1,4 +1,6 @@
+import { useMemo } from 'react';
 import { Translate, useTranslateToString } from '@sepoina/vitetranslate/react';
+import { highlight } from './theme/Code.jsx';
 //
 // I dati (testCases.jsx, autoWrapCases.jsx) sono una lista piatta di due forme:
 //
@@ -53,7 +55,7 @@ export function StatusLabel({ status }) {
   return <Translate>_%_ottimale_%_</Translate>;
 }
 
-export default function CaseSection({ group, onShow, onHide }) {
+export default function CaseSection({ group, active, onShow }) {
   const ts = useTranslateToString();
   const { id, title, rows } = group;
   const labels = {
@@ -79,18 +81,19 @@ export default function CaseSection({ group, onShow, onHide }) {
         </thead>
         <tbody>
           {rows.map((row) => (
-            <tr key={row.title} className={`st-${row.status}`}>
+            <tr
+              key={row.title}
+              className={`st-${row.status}${row === active ? ' is-showing' : ''}`}
+              onMouseEnter={() => onShow(row)}
+            >
               <th scope="row" data-label={labels.case}>
-                {/* Un <button> e non uno <span>: così la tastiera ci arriva da sola,
-                    e focus/blur sono gli stessi due eventi di enter/leave. */}
+                {/* Col mouse basta passare sulla riga; il <button> c'è per la tastiera e per il
+                    tocco, che ci arrivano da soli: il focus fa la stessa cosa del passaggio. */}
                 <button
                   type="button"
                   className="src-btn"
                   aria-label={ts('_%_Sorgente di: %s_%_', ts(row.title, S))}
-                  onMouseEnter={() => onShow(row.source)}
-                  onFocus={() => onShow(row.source)}
-                  onMouseLeave={onHide}
-                  onBlur={onHide}
+                  onFocus={() => onShow(row)}
                 >
                   &lt;/&gt;
                 </button>
@@ -111,5 +114,56 @@ export default function CaseSection({ group, onShow, onHide }) {
         </tbody>
       </table>
     </section>
+  );
+}
+
+/**
+ * La sezione fissa in fondo allo schermo (un quarto dell'altezza) con il sorgente dell'ultima riga
+ * puntata; la riga resta accesa finché non se ne punta un'altra. Resta scura anche nel tema chiaro
+ * (data-theme="dark", vedi src/theme/tokens.css).
+ *
+ * Il codice si ingrandisce fino a riempire la sezione: --cols e --rows dicono al CSS quanti
+ * caratteri è largo il sorgente e quante righe è alto, e la dimensione del carattere la calcola il
+ * CSS con le unità del container (cqw, cqh). Una riga sola viene grande, sette righe più piccole.
+ *
+ * @param {{ row: object | null, hint: import('react').ReactNode }} props
+ *   row: la riga da mostrare, o null prima del primo passaggio; hint: cosa dire intanto
+ */
+export function SourceDock({ row, hint }) {
+  const source = row ? row.source.trim() : '';
+  // colorato con lo stesso highlight dei blocchi di codice del sito (src/theme/Code.jsx)
+  const nodes = useMemo(() => highlight(source, 'jsx'), [source]);
+  const lines = source.split('\n');
+  const size = { '--cols': Math.max(1, ...lines.map((l) => l.length)), '--rows': lines.length };
+  const status = row?.status ?? 'ok';
+  return (
+    <aside data-theme="dark" className={`src-dock st-${status}`}>
+      <div className="dock-bar">
+        <div className="wrap dock-head">
+          <span className="dock-tag" aria-hidden="true">
+            &lt;/&gt;
+          </span>
+          {row && (
+            <>
+              <span className="dock-title">
+                <Translate t={row.title} a={S} />
+              </span>
+              <span className={`chip st-${status}`}>
+                <StatusLabel status={status} />
+              </span>
+            </>
+          )}
+        </div>
+      </div>
+      <div className="wrap dock-body">
+        {row ? (
+          <pre key={row.title} style={size}>
+            <code>{nodes}</code>
+          </pre>
+        ) : (
+          <p className="dock-hint">{hint}</p>
+        )}
+      </div>
+    </aside>
   );
 }

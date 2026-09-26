@@ -2,7 +2,7 @@
 #      American English
 #       |    code: en-US
 #       |    missing key: 0
-#       |    processed: 2026-09-24 21:38
+#       |    processed: 2026-09-26 21:43
 #       |    TableVersion: 260905
 #  -------------------------------------------------
 #
@@ -57,6 +57,7 @@ installSubsections_4vmyzb: "Language build"
 installSubsections_dxj27y: "Translating with an LLM"
 installSubsections_nfxr02: "Dev run"
 installSubsections_p7mj0v: "Plugin config"
+LanguageSwitch_gzrcyx: "Page language"
 LanguageSwitchExample_lbdkn8: "<b>Choose your language</b> (%s)"
 MarkupExample_10fzz05: "Signed in as <b>%s</b>"
 MarkupExample_l1xgjf: "Text in <b>bold</b>, in <i>italic</i> and <code>code</code>: a single sentence to translate."
@@ -86,9 +87,8 @@ StrengthsSection_1y1sghw: "<strong>No runtime dependencies.</strong> Babel, Vite
 StrengthsSection_7t8nu9: "<strong>Translations survive renames.</strong> If the same text only changes id, the sync inherits the translation already done instead of starting it over from scratch."
 StrengthsSection_qebam7: "<strong>Vite 5 to Vite 8, same code.</strong> Rollup and esbuild up to Vite 7, Rolldown and Oxc on Vite 8: no different configuration."
 StrengthsSection_wv4ype: "<strong>Automatic table sync.</strong> A single command updates all languages and flags what remains to be translated."
-TopBar_17cwgp7: "Page language"
+ThemeToggle_1i35buc: "Toggle theme"
 TopBar_1dz7foh: "All demos"
-TopBar_1h6d3kr: "Toggle theme"
 ZZZsnippetList_1cpi6bi: "autoWrap: markers without a component"
 ZZZsnippetList_1f899uf: "With ICU the language decides the plural: <code>&#123;0, plural, …}</code> picks the right branch for each number, and <code>#</code> is the number itself, already formatted. Every language has its own categories: Italian ordinals tell “l’8º” from “il 7º”, English wants four (1st, 2nd, 3rd, 4th)."
 ZZZsnippetList_1itbzsw: "<code>&lt;Translate&gt;</code> returns React nodes: it cannot be used in HTML attributes that require a plain string, such as <code>placeholder</code>, <code>aria-label</code> or <code>title</code>. In these cases you need the <code>useTranslateToString()</code> hook, which resolves the same translation but returns a primitive string. These attributes are not visible as on-screen text: to see them translated, inspect the element with F12."

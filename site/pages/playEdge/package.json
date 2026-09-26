@@ -2,7 +2,7 @@
   "name": "vitetranslate-site-edge",
   "private": true,
   "version": "0.0.0",
-  "vitetranslateSite": { "slug": "edge" },
+  "vitetranslateSite": { "slug": "edge", "theme": true },
   "type": "module",
   "scripts": {
     "dev": "vite",

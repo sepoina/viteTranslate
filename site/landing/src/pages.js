@@ -5,7 +5,6 @@ export const PAGES = [
   {
     slug: "playground",
     preview: "previews/playground.webp",
-    icon: "🎮",
     title: "_%_Playground_%_",
     text: "_%_Il giro completo, dal vivo: variabili e markup, plurali e date ICU, autoWrap, fino alla traduzione con un LLM._%_",
     source: "site/pages/playground",
@@ -13,7 +12,6 @@ export const PAGES = [
   {
     slug: "edge",
     preview: "previews/edge.webp",
-    icon: "🧪",
     title: "_%_Edge case_%_",
     text: "_%_Ogni forma di chiamata e ogni diagnostica, accanto a ciò che dovrebbe rendere._%_",
     source: "site/pages/playEdge",
@@ -21,7 +19,6 @@ export const PAGES = [
   {
     slug: "llmrestaurant",
     preview: "previews/llmrestaurant.webp",
-    icon: "⚓",
     title: "_%_Il ristorante tradotto da un LLM_%_",
     text: "_%_Una landing intera, 228 frasi, quattro lingue riempite da <code>vitetranslate --llm-translate</code>._%_",
     source: "site/pages/llmRestaurant",

@@ -11,7 +11,7 @@ const reducedMotion = () => window.matchMedia?.("(prefers-reduced-motion: reduce
 export function scrollToSection(name) {
   const el = document.querySelector(`[data-section="${name}"]`);
   if (!el) return;
-  if (lenis) lenis.scrollTo(el, { offset: -72, duration: 1.2 });
+  if (lenis) lenis.scrollTo(el, { offset: -64, duration: 1.2 });
   else el.scrollIntoView({ behavior: reducedMotion() ? "auto" : "smooth", block: "start" });
 }
 
@@ -37,25 +37,25 @@ export function initMotion(root) {
 
   const ctx = gsap.context(() => {
     // Entrata dell'hero, all'apertura.
-    gsap.from("[data-hero]", { y: 36, opacity: 0, duration: 1, ease: "power3.out", stagger: 0.09, delay: 0.1 });
+    gsap.from("[data-hero]", { y: 12, opacity: 0, duration: 0.6, ease: "power4.out", stagger: 0.08, delay: 0.1 });
 
     // Ogni [data-reveal] entra quando arriva in vista; [data-stagger] fa entrare i figli uno dopo l'altro.
     gsap.utils.toArray("[data-reveal]").forEach((el) => {
       gsap.from(el, {
-        y: 44,
+        y: 16,
         opacity: 0,
-        duration: 0.9,
-        ease: "power3.out",
+        duration: 0.6,
+        ease: "power4.out",
         scrollTrigger: { trigger: el, start: "top 90%", once: true },
       });
     });
     gsap.utils.toArray("[data-stagger]").forEach((group) => {
       gsap.from(group.children, {
-        y: 40,
+        y: 16,
         opacity: 0,
-        duration: 0.8,
-        ease: "power3.out",
-        stagger: 0.08,
+        duration: 0.5,
+        ease: "power4.out",
+        stagger: 0.06,
         scrollTrigger: { trigger: group, start: "top 86%", once: true },
       });
     });
@@ -75,13 +75,6 @@ export function initMotion(root) {
         onUpdate: () => (node.nodeValue = String(Math.round(state.v))),
         scrollTrigger: { trigger: el, start: "top 92%", once: true },
       });
-    });
-
-    // Parallasse lieve dell'aurora dietro l'hero.
-    gsap.to("[data-parallax]", {
-      y: 220,
-      ease: "none",
-      scrollTrigger: { trigger: root, start: "top top", end: "+=900", scrub: true },
     });
   }, root);
 

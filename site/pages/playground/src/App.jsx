@@ -40,24 +40,24 @@ function App() {
       <TopBar />
 
       <main className="wrap">
-        <section className="hero">
-          <p className="eyebrow">
+        <section className="page-hero grid-backdrop">
+          <p className="eyebrow rise" style={{ "--i": 0 }}>
             <Translate t={"_%_Playground · v%s_%_"} a={version} />
           </p>
-          <h1>
+          <h1 className="rise" style={{ "--i": 1 }}>
             <Translate t={"_%_Tutto viteTranslate, <em>dal vivo</em>_%_"} />
           </h1>
-          <p className="lead">
+          <p className="lead rise" style={{ "--i": 2 }}>
             <Translate>
               _%_Ogni esempio gira in questa pagina: cambia lingua in alto e guardalo tradursi.
               Accanto a ciascuno, il codice che lo produce._%_
             </Translate>
           </p>
-          <a className="lead-more" href="#note">
+          <a className="lead-more rise" style={{ "--i": 3 }} href="#note">
             <Translate>_%_Cos’è viteTranslate, in breve ↓_%_</Translate>
           </a>
 
-          <nav className="toc">
+          <nav className="toc rise" style={{ "--i": 4 }}>
             <div className="toc-group">
               <span className="toc-label">
                 <Translate>_%_Esempi_%_</Translate>

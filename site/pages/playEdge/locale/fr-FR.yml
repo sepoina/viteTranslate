@@ -2,18 +2,16 @@
 #      français (France)
 #       |    code: fr-FR
 #       |    missing key: 0
-#       |    processed: 2026-09-26 16:54
+#       |    processed: 2026-09-26 21:43
 #       |    TableVersion: 260905
 #  -------------------------------------------------
 #
 App_17k0c41: "La colonne <b>attendu</b> vaut en <b>développement</b>, avec la langue source active et les fichiers de langue déjà synchronisés."
-App_1ekphjo: "Changer de thème"
 App_1ombhjz: "Chaque catégorie a sa propre adresse (<code>#icu</code>, <code>#html</code>, <code>#not-text</code>…) : le <code>#</code> à côté du titre est le lien à partager."
 App_1wc6kj8: "<b>Optimal</b> : rend exactement ce qui est écrit, sans diagnostic. <b>Avertissement</b> : rend, mais quelque chose se perd ou surprend (un <code>⁇</code>, une balise écartée, un avertissement de build). <b>Erreur</b> : une marque <code>‼️</code> ou <code>🚫</code>, ou une erreur en console : à corriger."
 App_20ci9k: "Survolez <code>&lt;/&gt;</code> à côté du nom d’un cas pour voir le code qui l’a produit."
 App_4ibyhz: "Cas limites · v%s"
 App_4j76hr: "Comment lire le tableau"
-App_4lj7z0: "Langue de la page"
 App_a9vbkj: "Dans une vraie app, les marques de diagnostic disparaissent au build — là où vous lisez ici <code>🚫[type]</code>, plus rien n’est rendu — tandis que <code>⁇</code> reste : ce n’est pas un diagnostic, c’est un rendu normal. Cette page les garde actives en build aussi, exprès."
 App_aj0s62: "Comment lire le tableau ↓"
 App_iy34f8: "<code>🔸</code> (non traduit ici) et <code>🔹</code> (non traduit ailleurs) ne sont pas indiqués : ils dépendent de l’état des fichiers de langue, pas de la ligne. <code>‼️</code>, <code>🚫</code> et <code>⁇</code> font en revanche partie du résultat attendu."
@@ -40,6 +38,7 @@ autoWrapCases_twlewm: "6. Attribut sur un composant"
 autoWrapCases_ukn802: "autoWrap : marqueurs sans &lt;Translate&gt;"
 autoWrapCases_xfi6mi: "7. La key n'est jamais traduite"
 autoWrapCases_y19l6w: "3. Enfant nu, composant NON reconnu"
+LanguageSwitch_gzrcyx: "Langue de la page"
 ShowAllRowTests_12hjh7n: "Lien vers cette section"
 ShowAllRowTests_1gizqwy: "attendu dans la source (IT)"
 ShowAllRowTests_1lotodh: "résultat"
@@ -264,3 +263,4 @@ testCases_ynn7m: "{0}"
 testCases_yv0w7z: "%s + %s"
 testCases_zmrpz5: "a tableau vide"
 testCases_zzrrzd: "%s chaîne vide"
+ThemeToggle_1i35buc: "Changer de thème"

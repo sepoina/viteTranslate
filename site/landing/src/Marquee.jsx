@@ -25,13 +25,15 @@ export default function Marquee() {
 
   return (
     <section className="marquee-sec" data-reveal>
-      <p className="marquee-cap">
-        <Translate>_%_Una sola sorgente. Tutte le lingue che vuoi._%_</Translate>
-      </p>
-      <div className="marquee" aria-hidden="true">
-        <div className="marquee-track">
-          <div className="marquee-row">{row}</div>
-          <div className="marquee-row">{row}</div>
+      <div className="wrap marquee-in">
+        <p className="marquee-cap">
+          <Translate>_%_Una sola sorgente. Tutte le lingue che vuoi._%_</Translate>
+        </p>
+        <div className="marquee" aria-hidden="true">
+          <div className="marquee-track">
+            <div className="marquee-row">{row}</div>
+            <div className="marquee-row">{row}</div>
+          </div>
         </div>
       </div>
     </section>

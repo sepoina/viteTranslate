@@ -1,0 +1,620 @@
+/* Il tema del sito viteTranslate (landing, playground, edge): base, tipografia e componenti
+   condivisi. Solo token: i colori stanno in tokens.css.
+   SORGENTE in site/theme/. Le cartelle src/theme/ dei progetti sono copie generate da
+   `npm run site:theme`: si modifica qui e si rilancia, mai la copia. */
+@import url("https://fonts.googleapis.com/css2?family=Geist:wght@300..800&family=Geist+Mono:wght@400..600&display=swap");
+@import "./tokens.css";
+
+/* ---------- Base ---------- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 1rem;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: clip;
+}
+
+h1,
+h2,
+h3,
+h4,
+p {
+  margin: 0;
+}
+
+a {
+  color: inherit;
+  text-decoration-color: var(--line-strong);
+  text-underline-offset: 0.2em;
+}
+
+a:hover {
+  text-decoration-color: var(--accent);
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+}
+
+input,
+select {
+  font: inherit;
+  color: inherit;
+}
+
+img {
+  display: block;
+}
+
+code {
+  font-family: var(--mono);
+  font-size: 0.88em;
+}
+
+p code,
+li code {
+  padding: 0.05em 0.35em;
+  border-radius: var(--r-sm);
+  background: var(--surface-3);
+}
+
+:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+  border-radius: var(--r-sm);
+}
+
+::selection {
+  background: var(--accent-fill);
+  color: var(--accent-ink);
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.wrap {
+  width: 100%;
+  max-width: 1120px;
+  margin-inline: auto;
+  padding-inline: 16px;
+}
+
+@media (min-width: 640px) {
+  .wrap {
+    padding-inline: 28px;
+  }
+}
+
+/* ---------- Tipografia ---------- */
+/* L'enfasi nei titoli è il verde dell'accento: niente corsivo, vale uguale in cinese e giapponese. */
+:is(h1, h2) em {
+  font-style: normal;
+  color: var(--accent);
+}
+
+.eyebrow {
+  margin: 0 0 0.75rem;
+  color: var(--accent);
+  font-family: var(--mono);
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.lead {
+  max-width: 36rem;
+  color: var(--muted);
+  font-size: clamp(1rem, 1.6vw, 1.125rem);
+  line-height: 1.65;
+  text-wrap: pretty;
+}
+
+/* L'apertura delle pagine (playground, edge). La landing ha la sua. */
+.page-hero {
+  padding-block: clamp(2.5rem, 6vw, 4.5rem) 1rem;
+}
+
+.page-hero h1 {
+  max-width: 50rem;
+  font-size: clamp(2.1rem, 5vw, 3.5rem);
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+  text-wrap: balance;
+}
+
+.page-hero .lead {
+  margin-top: 1rem;
+}
+
+/* ---------- Sfondo a griglia con un alone ---------- */
+.grid-backdrop {
+  position: relative;
+  isolation: isolate;
+}
+
+.grid-backdrop::before,
+.grid-backdrop::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+}
+
+.grid-backdrop::before {
+  background-image: linear-gradient(var(--grid) 1px, transparent 1px), linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size: 44px 44px;
+  -webkit-mask-image: radial-gradient(ellipse 80% 70% at 30% 20%, black 30%, transparent 80%);
+  mask-image: radial-gradient(ellipse 80% 70% at 30% 20%, black 30%, transparent 80%);
+}
+
+.grid-backdrop::after {
+  background: radial-gradient(600px 340px at 30% 25%, var(--glow), transparent 70%);
+}
+
+/* ---------- Riga di terminale che si scrive da sola ---------- */
+/* --n è il numero di caratteri del comando: lo scrive il JSX. Lo stato di riposo è il testo
+   intero, quindi senza animazioni (movimento ridotto) si legge tutto. */
+.term {
+  display: flex;
+  align-items: center;
+  gap: 1ch;
+  min-height: 1.2em;
+  color: var(--accent);
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.term-text {
+  display: inline-block;
+  max-width: calc(var(--n, 40) * 1ch);
+  overflow: hidden;
+  white-space: nowrap;
+  animation: vt-type 1.9s steps(var(--n, 40), end) both;
+}
+
+.term-cursor {
+  display: inline-block;
+  width: 7px;
+  height: 13px;
+  margin-left: -0.6ch;
+  background: var(--accent);
+  animation: vt-blink 1s steps(2, start) infinite;
+}
+
+@keyframes vt-type {
+  from {
+    max-width: 0;
+  }
+}
+
+@keyframes vt-blink {
+  to {
+    visibility: hidden;
+  }
+}
+
+/* ---------- Statistiche: un numero, cosa conta, perché crederci ---------- */
+.stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem 3rem;
+}
+
+.stat {
+  max-width: 17rem;
+}
+
+.stat-n {
+  font-family: var(--mono);
+  font-size: 1.875rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  font-variant-numeric: tabular-nums;
+}
+
+.stat-l {
+  margin-top: 0.15rem;
+  color: var(--accent);
+  font-family: var(--mono);
+  font-size: 0.6875rem;
+  font-weight: 500;
+}
+
+.stat-d {
+  margin-top: 0.6rem;
+  color: var(--muted);
+  font-size: 0.8125rem;
+  line-height: 1.6;
+}
+
+/* ---------- Bottoni ---------- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  height: 44px;
+  padding-inline: 1.25rem;
+  border-radius: var(--r-md);
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: filter 150ms var(--ease), border-color 150ms var(--ease), transform 150ms var(--ease);
+}
+
+.btn:active {
+  transform: scale(0.98);
+}
+
+.btn-primary {
+  background: var(--accent-fill);
+  color: var(--accent-ink);
+}
+
+.btn-primary:hover {
+  filter: brightness(1.08);
+}
+
+.btn-ghost {
+  border: 1px solid var(--line);
+  background: var(--surface-2);
+  color: var(--text);
+}
+
+.btn-ghost:hover {
+  border-color: var(--line-strong);
+}
+
+.icon-btn {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  background: var(--surface-2);
+  color: var(--muted);
+  text-decoration: none;
+  transition: color 150ms var(--ease), border-color 150ms var(--ease);
+}
+
+.icon-btn:hover {
+  color: var(--text);
+  border-color: var(--line-strong);
+}
+
+/* ---------- Segmented control (lingue, tab) ---------- */
+.seg {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 3px;
+  padding: 3px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--bg-deep);
+}
+
+.seg button {
+  min-width: 2rem;
+  height: 26px;
+  padding-inline: 0.6rem;
+  border-radius: 6px;
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: 0.6875rem;
+  font-weight: 500;
+  transition: background-color 150ms var(--ease), color 150ms var(--ease);
+}
+
+.seg button:hover {
+  color: var(--text);
+}
+
+.seg button[aria-pressed="true"] {
+  background: var(--surface-3);
+  color: var(--text);
+  cursor: default;
+}
+
+/* ---------- Barra in alto (SiteBar.jsx) ---------- */
+.bar {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  border-bottom: 1px solid var(--line);
+  background: color-mix(in srgb, var(--bg) 90%, transparent);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.bar-in {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  min-height: var(--bar-h);
+}
+
+.bar-brand {
+  display: flex;
+  flex: none;
+  align-items: center;
+}
+
+.bar-brand img {
+  width: auto;
+  height: 20px;
+}
+
+.bar-nav {
+  display: flex;
+  gap: 1rem;
+}
+
+.bar-nav :is(a, button),
+.bar-back {
+  color: var(--muted);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: color 150ms var(--ease);
+}
+
+.bar-nav :is(a, button):hover,
+.bar-back:hover {
+  color: var(--text);
+}
+
+.bar-tools {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-left: auto;
+}
+
+@media (max-width: 980px) {
+  .bar-nav {
+    display: none;
+  }
+}
+
+@media (max-width: 720px) {
+  .bar-in {
+    flex-wrap: wrap;
+    padding-block: 0.5rem;
+  }
+}
+
+/* ---------- Tag e card ---------- */
+.tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 8px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-sm);
+  background: var(--surface);
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: 0.625rem;
+  font-weight: 500;
+  line-height: 1.4;
+  text-decoration: none;
+}
+
+.tag-accent {
+  border-color: transparent;
+  background: var(--accent-fill);
+  color: var(--accent-ink);
+}
+
+.card {
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  background: var(--surface-2);
+  transition: border-color 250ms var(--ease);
+}
+
+/* ---------- Blocchi di codice (Code.jsx) ---------- */
+.code {
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid var(--line-soft);
+  border-radius: 10px;
+  background: var(--code-bg);
+}
+
+.code-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.9rem;
+  border-bottom: 1px solid var(--line-soft);
+  color: var(--faint);
+  font-family: var(--mono);
+  font-size: 0.6875rem;
+}
+
+.code-bar::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 1.5px;
+  background: var(--accent);
+}
+
+.code pre {
+  margin: 0;
+  padding: 0.9rem 1rem;
+  overflow-x: auto;
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  line-height: 1.75;
+  text-align: left;
+  tab-size: 2;
+}
+
+.code code {
+  padding: 0;
+  background: none;
+  color: var(--text);
+  font-size: inherit;
+}
+
+.tk-c,
+.tk-p {
+  color: var(--tk-c);
+}
+
+.tk-s {
+  color: var(--tk-s);
+}
+
+.tk-t {
+  color: var(--tk-t);
+}
+
+.tk-k {
+  color: var(--tk-k);
+}
+
+.tk-n {
+  color: var(--tk-n);
+}
+
+.tk-o {
+  color: var(--ok);
+}
+
+.tk-m {
+  color: var(--tk-m);
+  background: color-mix(in srgb, var(--tk-m) 14%, transparent);
+  border-radius: var(--r-sm);
+  padding: 0.05em 0.25em;
+}
+
+/* ---------- Ancore, indice, note in fondo (playground, edge) ---------- */
+.anchor {
+  margin-right: 0.45em;
+  color: var(--accent);
+  font-family: var(--mono);
+  font-weight: 400;
+  text-decoration: none;
+  opacity: 0.55;
+  transition: opacity 150ms var(--ease);
+}
+
+:is(h2, h3):hover .anchor,
+.anchor:focus-visible {
+  opacity: 1;
+}
+
+.toc {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 2rem;
+  padding-top: 1.4rem;
+  border-top: 1px solid var(--line);
+}
+
+.toc a {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.45rem;
+  padding: 0.3rem 0.7rem;
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  background: var(--surface-2);
+  color: var(--muted);
+  font-size: 0.8125rem;
+  text-decoration: none;
+  transition: color 150ms var(--ease), border-color 150ms var(--ease);
+}
+
+.toc a:hover {
+  color: var(--text);
+  border-color: var(--line-strong);
+}
+
+.notes {
+  margin-top: clamp(3rem, 8vw, 5rem);
+  padding-block: 2rem 4rem;
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.notes h2 {
+  margin: 0 0 1rem;
+  color: var(--text);
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.notes ul {
+  max-width: 52rem;
+  margin: 0;
+  padding-left: 1.1rem;
+}
+
+.notes li + li {
+  margin-top: 0.5rem;
+}
+
+.notes b {
+  color: var(--text);
+  font-weight: 600;
+}
+
+/* ---------- Movimento ---------- */
+/* Entrata in cascata: --i è la posizione dell'elemento (0, 1, 2…), la scrive il JSX. */
+.rise {
+  animation: vt-rise 500ms var(--ease) both;
+  animation-delay: calc(var(--i, 0) * 80ms);
+}
+
+@keyframes vt-rise {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}

@@ -1,5 +1,5 @@
 import { Translate } from "@sepoina/vitetranslate/react";
-import { Code, M } from "./Code.jsx";
+import { Code, M } from "./theme/Code.jsx";
 import SectionHead from "./SectionHead.jsx";
 
 const MARK = `<Translate>
@@ -36,7 +36,7 @@ export default function Steps() {
             <p>
               <Translate>_%_Dove la scrivi, nel JSX. Nessun file di chiavi da aprire, nessun nome da trovare._%_</Translate>
             </p>
-            <Code src={MARK} lang="jsx" className="step-code" />
+            <Code code={MARK} lang="jsx" className="step-code" />
           </li>
 
           <li className="step">
@@ -47,7 +47,7 @@ export default function Steps() {
             <p>
               <Translate>_%_Un comando, oppure il server di sviluppo: le tabelle YAML restano allineate al codice._%_</Translate>
             </p>
-            <Code src={SYNC} lang="sh" className="step-code" />
+            <Code code={SYNC} lang="sh" className="step-code" />
           </li>
 
           <li className="step">
@@ -58,7 +58,7 @@ export default function Steps() {
             <p>
               <Translate>_%_A mano, da un traduttore, o con un LLM che rispetta segnaposto e tag. Poi pubblichi._%_</Translate>
             </p>
-            <Code src={TRANSLATE} lang="sh" className="step-code" />
+            <Code code={TRANSLATE} lang="sh" className="step-code" />
           </li>
         </ol>
       </div>

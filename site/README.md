@@ -28,6 +28,22 @@ lead to the published site.
 Each folder stays a project that installs and builds on its own; what changes between the
 two situations is the `base` and where the links to the other pages point.
 
+## Theme
+
+`site/theme/` is the theme: tokens, CSS, the top bar, language and theme switches, code blocks, the logo.
+Each project gets a copy in `src/theme/` (`npm run site:theme`; `site:build` and `estimateSize` do it too).
+Never edit a copy.
+
+Why a copy: a page must build on its own (StackBlitz zip, a folder downloaded from GitHub).
+
+`tokens.css` is the only file with colors. The site test fails on a color written elsewhere, on a copy that
+differs, or on a text/background pair below 4.5:1 — so a rebrand is one file and a test run.
+
+Working on the theme with a dev server open: `node site/syncTheme.mjs --watch` in a second terminal.
+
+Need something dark on a light page (like the source panel of the edge page)? Put `data-theme="dark"` on it: its whole
+subtree keeps the dark tokens.
+
 ## StackBlitz zips
 
 `site:build` also writes one zip per page to `site/dist/zip/<slug>.zip` (published at `/viteTranslate/zip/<slug>.zip`),
@@ -38,19 +54,32 @@ a `.env` (only `.env.example`). Written by [`zip.mjs`](zip.mjs), with no depende
 ## Add a page
 
 1. Create `site/pages/<folder>/` with a Vite project, and put in its `package.json`
-   `"vitetranslateSite": { "slug": "<slug>" }` (`a-z`, `0-9`, `-`). That field is what makes it a page.
+   `"vitetranslateSite": { "slug": "<slug>", "theme": true }` (`slug`: `a-z`, `0-9`, `-`; `theme` only if the page
+   uses the site theme). That field is what makes it a page.
 2. Add its card to [`landing/src/pages.js`](landing/src/pages.js) and translate the two new sentences.
 3. Copy [`landing/src/siteLinks.js`](landing/src/siteLinks.js) into the page's `src/` if it links back to the site.
+4. If it uses the theme: `import "./theme/theme.css"` in `main.jsx`, and `<SiteBar>` for the top bar.
 
 `test/list/site.test.mjs` checks that the slugs and the cards are the same set and that the copies of
 `siteLinks.js` are identical. `npm run sync:demos` keeps every `@sepoina/vitetranslate` range aligned.
 
+## Card previews
+
+The landing's demo cards show a screenshot of each page, dark theme, captured with headless Chrome:
+
+```bash
+google-chrome-stable --headless=new --disable-gpu --no-sandbox --hide-scrollbars \
+  --blink-settings=preferredColorScheme=0 --window-size=1280,800 --virtual-time-budget=4000 \
+  --screenshot=playground.png http://localhost:4173/viteTranslate/playground/
+magick playground.png -resize 960x600 -quality 82 landing/public/previews/playground.webp
+```
+
 ## Why `VITE_SITE_ROOT`
 
-A page must work when downloaded alone, so it can't import anything from outside its folder. Its links to the
-rest of the site go through `src/siteLinks.js`: `site/build.mjs` sets `VITE_SITE_ROOT` (`/viteTranslate/`, or
-`--root=/name/` for a fork), and without it the links point at the published site. So in `npm run dev` they
-lead to the live site; `npm run site:preview` shows the whole thing locally.
+A page must work when downloaded alone, so it can't import anything from outside its folder — `test/list/site.test.mjs`
+checks it. Its links to the rest of the site go through `src/siteLinks.js`: `site/build.mjs` sets `VITE_SITE_ROOT`
+(`/viteTranslate/`, or `--root=/name/` for a fork), and without it the links point at the published site. So in
+`npm run dev` they lead to the live site; `npm run site:preview` shows the whole thing locally.
 
 Landing and pages are separate builds because two `vitetranslate()` configurations can't share one build
 (the virtual language module has a single id).

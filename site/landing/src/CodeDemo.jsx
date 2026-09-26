@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Translate } from "@sepoina/vitetranslate/react";
-import { Code, M } from "./Code.jsx";
+import { Code, M } from "./theme/Code.jsx";
 import SectionHead from "./SectionHead.jsx";
 
 // Dati della demo: sono esempi mostrati, non frasi della pagina, quindi niente <Translate>.
@@ -40,18 +40,17 @@ function DemoWindow() {
 
   return (
     <div className="demo" data-reveal>
-      <div className="demo-glow" aria-hidden="true" />
       <div className="demo-grid">
-        <Code src={SOURCE} lang="jsx" title="App.jsx" />
+        <Code code={SOURCE} lang="jsx" title="App.jsx" />
         <div className="demo-side">
-          <Code src={table} lang="yaml" title={`${tag}.yml`} className="demo-yaml" />
+          <Code code={table} lang="yaml" title={`${tag}.yml`} className="demo-yaml" />
           <div className="demo-out" aria-live="polite">
             <span className="demo-chip">{label}</span>
             <p key={tag}>{text}</p>
           </div>
         </div>
       </div>
-      <div className="demo-tabs" role="group" aria-label="demo">
+      <div className="seg demo-tabs">
         {DEMO.map((d, n) => (
           <button
             key={d.tag}

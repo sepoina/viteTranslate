@@ -1,80 +1,18 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
-import {
-  Translate,
-  useTranslateLanguage,
-  useTranslateToString,
-  version,
-} from '@sepoina/vitetranslate/react';
+import { useEffect, useState } from 'react';
+import { Translate, version } from '@sepoina/vitetranslate/react';
 import testCases from './testCases.jsx';
 import autoWrapCases from './autoWrapCases.jsx';
-import CaseSection, { groupCases, STATUSES, StatusLabel } from './ShowAllRowTests.jsx';
+import CaseSection, { groupCases, SourceDock, STATUSES, StatusLabel } from './ShowAllRowTests.jsx';
 import { siteUrl } from './siteLinks.js';
+import SiteBar from './theme/SiteBar.jsx';
 
 const groups = groupCases(testCases, autoWrapCases);
 
-// Il selettore di lingua della landing: una pillola, un bottone per lingua.
-function LanguageSwitch() {
-  const { id, languages, proposeNewLanguage } = useTranslateLanguage();
-  const ts = useTranslateToString();
-  return (
-    <div className="lang-switch" role="group" aria-label={ts('_%_Lingua della pagina_%_')}>
-      {languages.map(({ tag, languageName }) => (
-        <button
-          key={tag}
-          type="button"
-          title={languageName}
-          aria-pressed={id === tag}
-          onClick={() => id !== tag && proposeNewLanguage({ lang: tag })}
-        >
-          {tag.split('-')[0].toUpperCase()}
-        </button>
-      ))}
-    </div>
-  );
-}
-
-// Stessa chiave della landing ("vt-theme"): il tema scelto là vale anche qui, e viceversa.
-function ThemeToggle() {
-  const ts = useTranslateToString();
-  const [theme, setTheme] = useState(
-    () =>
-      document.documentElement.dataset.theme ??
-      (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark')
-  );
-  const flip = () => {
-    const next = theme === 'dark' ? 'light' : 'dark';
-    document.documentElement.dataset.theme = next;
-    try {
-      localStorage.setItem('vt-theme', next);
-    } catch {
-      /* navigazione privata o storage bloccato: il tema vale per questa visita */
-    }
-    setTheme(next);
-  };
-  return (
-    <button type="button" className="icon-btn" onClick={flip} aria-label={ts('_%_Cambia tema_%_')}>
-      {theme === 'dark' ? '☀' : '☾'}
-    </button>
-  );
-}
-
 export default function App() {
   //
-  // il sorgente da mostrare nel riquadro, o null se non si sta puntando niente
-  const [src, setSrc] = useState(null);
-  //
-  // l'ultimo sorgente mostrato resta disponibile durante la dissolvenza in
-  // uscita: senza, il riquadro si svuoterebbe di scatto mentre sfuma
-  const lastSrc = useRef('');
-  if (src) lastSrc.current = src;
-  //
-  const html = useMemo(() => {
-    const code = src ?? lastSrc.current;
-    if (!code) return '';
-    const hljs = window.hljs;
-    if (!hljs) return escapeHtml(code);
-    return hljs.highlight(code, { language: 'javascript' }).value;
-  }, [src]);
+  // la riga il cui sorgente sta nella sezione in fondo: l'ultima puntata, finché non se ne punta
+  // un'altra (null prima del primo passaggio)
+  const [shown, setShown] = useState(null);
   //
   // Le ancore (…/edge/#icu) arrivano prima delle tabelle: al caricamento il browser cerca
   // l'id quando React non ha ancora reso niente, e non lo trova. Si riprova qui, una volta,
@@ -86,33 +24,27 @@ export default function App() {
   //
   return (
     <>
-      <header className="top">
-        <div className="wrap top-in">
-          <a className="back" href={siteUrl()}>
-            <Translate>_%_← viteTranslate: tutte le demo_%_</Translate>
-          </a>
-          <div className="top-tools">
-            <LanguageSwitch />
-            <ThemeToggle />
-          </div>
-        </div>
-      </header>
+      <SiteBar home={siteUrl()}>
+        <a className="bar-back" href={siteUrl()}>
+          <Translate>_%_← viteTranslate: tutte le demo_%_</Translate>
+        </a>
+      </SiteBar>
 
       <main className="wrap">
-        <section className="hero">
-          <p className="eyebrow">
+        <section className="page-hero grid-backdrop">
+          <p className="eyebrow rise" style={{ '--i': 0 }}>
             <Translate t={'_%_Casi limite · v%s_%_'} a={version} />
           </p>
-          <h1>
+          <h1 className="rise" style={{ '--i': 1 }}>
             <Translate t={'_%_Ogni caso limite, <em>dal vivo</em>_%_'} />
           </h1>
-          <p className="lead">
+          <p className="lead rise" style={{ '--i': 2 }}>
             <Translate>
               _%_Una riga per caso: cosa scrivi, cosa rende davvero viteTranslate, cosa ti
               aspetti. In ogni categoria prima le forme consigliate, in fondo gli errori._%_
             </Translate>
           </p>
-          <div className="legend">
+          <div className="legend rise" style={{ '--i': 3 }}>
             {STATUSES.map((s) => (
               <span key={s} className={`chip st-${s}`}>
                 <StatusLabel status={s} />
@@ -122,7 +54,7 @@ export default function App() {
               <Translate>_%_Come leggere la tabella ↓_%_</Translate>
             </a>
           </div>
-          <nav className="toc">
+          <nav className="toc rise" style={{ '--i': 4 }}>
             {groups.map((g) => (
               <a key={g.id} href={`#${g.id}`}>
                 <Translate t={g.title} a={['%s']} />
@@ -133,7 +65,7 @@ export default function App() {
         </section>
 
         {groups.map((g) => (
-          <CaseSection key={g.id} group={g} onShow={setSrc} onHide={() => setSrc(null)} />
+          <CaseSection key={g.id} group={g} active={shown} onShow={setShown} />
         ))}
 
         <footer id="note" className="notes">
@@ -165,15 +97,8 @@ export default function App() {
         </footer>
       </main>
 
-      <pre className={`src-pop${src ? ' is-open' : ''}`} aria-hidden={!src}>
-        <code className="hljs language-javascript" dangerouslySetInnerHTML={{ __html: html }} />
-      </pre>
+      {/* Lo stesso testo della nota qui sopra: stessa frase, stessa chiave. */}
+      <SourceDock row={shown} hint={<Translate t={'_%_Passa sopra <code>&lt;/&gt;</code> accanto al nome di un caso per vedere il codice che l’ha prodotto._%_'} />} />
     </>
   );
-}
-
-// usato solo se hljs non è ancora disponibile: evita che il sorgente
-// finisca interpretato come markup
-function escapeHtml(s) {
-  return s.replace(/[&<>]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
 }

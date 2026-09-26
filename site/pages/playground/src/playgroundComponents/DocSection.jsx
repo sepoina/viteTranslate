@@ -1,5 +1,5 @@
 import { Translate, useTranslateToString } from "@sepoina/vitetranslate/react";
-import Code from "./Code.jsx";
+import { Code } from "../theme/Code.jsx";
 
 /** Il titolo di una sezione con l'ancora da condividere: `#` porta a `…/playground/#id`. */
 export function AnchorTitle({ id, children }) {

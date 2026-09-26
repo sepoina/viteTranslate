@@ -5,6 +5,7 @@ import { useEffect, useRef } from "react";
 import { useTranslateLanguage } from "@sepoina/vitetranslate/react";
 import Compare from "./Compare.jsx";
 import CodeDemo from "./CodeDemo.jsx";
+import Demos from "./Demos.jsx";
 import Features from "./Features.jsx";
 import Hero from "./Hero.jsx";
 import Marquee from "./Marquee.jsx";
@@ -29,6 +30,7 @@ export default function App() {
       <Nav />
       <main>
         <Hero />
+        <Demos />
         <CodeDemo />
         <Marquee />
         <Features />

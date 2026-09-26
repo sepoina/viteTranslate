@@ -4,6 +4,8 @@ import { TranslateContainer, useTranslateLanguage } from "@sepoina/vitetranslate
 import App from "./App.jsx";
 import { siteUrl } from "./siteLinks.js";
 import { pickLanguage, RememberLanguage } from "./siteLanguage.js";
+import { applySavedTheme } from "./theme/boot.js";
+import "./theme/theme.css";
 import "./landing.css";
 
 // L'inglese è la lingua d'avvio precaricata; l'ultima scelta sul sito, se c'è tra le tabelle, ha la precedenza.
@@ -28,13 +30,8 @@ if (new URLSearchParams(search).has("edge")) {
 } else if (hash) {
   location.replace(siteUrl("playground") + hash);
 } else {
-  // Il tema scelto in una visita precedente, applicato prima del primo rendering (senza, il chiaro lampeggia).
-  try {
-    const theme = localStorage.getItem("vt-theme");
-    if (theme === "light" || theme === "dark") document.documentElement.dataset.theme = theme;
-  } catch {
-    /* storage non disponibile: si segue il sistema */
-  }
+  // Il tema scelto in una visita precedente, prima del primo rendering.
+  applySavedTheme();
   createRoot(document.getElementById("root")).render(
     <StrictMode>
       <Root />

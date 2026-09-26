@@ -2,7 +2,7 @@
   "name": "vitetranslate-site-playground",
   "private": true,
   "version": "0.0.0",
-  "vitetranslateSite": { "slug": "playground" },
+  "vitetranslateSite": { "slug": "playground", "theme": true },
   "type": "module",
   "scripts": {
     "dev": "vite",

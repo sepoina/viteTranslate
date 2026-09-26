@@ -1,265 +1,22 @@
-/* La pagina dei casi limite, vestita come la landing (site/landing/src/landing.css): stessi token,
-   stessi font, scura di partenza e chiara se il sistema o la scelta fatta sulla landing lo chiedono.
-   I token sono copiati e non importati: una pagina del sito deve restare autonoma. */
+/* I casi limite: solo ciò che è di questa pagina. Base, token, barra, indice e note arrivano da ./theme/theme.css. */
 
 /* ---------- Token ---------- */
 :root {
-  color-scheme: dark;
-  --bg: #06060b;
-  --surface: rgba(255, 255, 255, 0.04);
-  --surface-2: rgba(255, 255, 255, 0.08);
-  --line: rgba(255, 255, 255, 0.09);
-  --line-2: rgba(255, 255, 255, 0.18);
-  --text: #f5f5fa;
-  --muted: #9c9cb4;
-  --accent: #646cff;
-  --cyan: #22d3ee;
-  --grad: linear-gradient(100deg, #9aa1ff 0%, #4fd8f2 55%, #7cf5c4 100%);
-  /* i tre stati di una riga */
-  --ok: #6ee7b7;
-  --warn: #ffd479;
-  --error: #ff7a8a;
-  --tint: 7%;
-
-  --font: "Geist", "Inter", system-ui, -apple-system, "Segoe UI", "PingFang SC", "Noto Sans CJK SC", "Microsoft YaHei", sans-serif;
-  --mono: "Geist Mono", ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
-  --serif: "Instrument Serif", "Iowan Old Style", Georgia, serif;
-}
-
-@media (prefers-color-scheme: light) {
-  :root:not([data-theme="dark"]) {
-    color-scheme: light;
-    --bg: #fafaff;
-    --surface: rgba(20, 20, 70, 0.04);
-    --surface-2: rgba(20, 20, 70, 0.07);
-    --line: rgba(20, 20, 70, 0.1);
-    --line-2: rgba(20, 20, 70, 0.2);
-    --text: #12121f;
-    --muted: #5d5d78;
-    --grad: linear-gradient(100deg, #4b54f0 0%, #0aa5c4 55%, #0f9f74 100%);
-    --ok: #0f9f74;
-    --warn: #c07a00;
-    --error: #d6364f;
-    --tint: 8%;
-  }
-}
-
-:root[data-theme="light"] {
-  color-scheme: light;
-  --bg: #fafaff;
-  --surface: rgba(20, 20, 70, 0.04);
-  --surface-2: rgba(20, 20, 70, 0.07);
-  --line: rgba(20, 20, 70, 0.1);
-  --line-2: rgba(20, 20, 70, 0.2);
-  --text: #12121f;
-  --muted: #5d5d78;
-  --grad: linear-gradient(100deg, #4b54f0 0%, #0aa5c4 55%, #0f9f74 100%);
-  --ok: #0f9f74;
-  --warn: #c07a00;
-  --error: #d6364f;
   --tint: 8%;
+  /* L'altezza della sezione del sorgente in fondo: un quarto dello schermo, mai meno di 9.5rem. */
+  --dock-h: max(9.5rem, 25dvh);
 }
 
-/* ---------- Base ---------- */
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
+/* La pagina finisce sopra la sezione del sorgente, e ci si ferma sopra anche arrivando con Tab. */
+html {
+  scroll-padding-bottom: var(--dock-h);
 }
 
 body {
-  margin: 0;
-  background: var(--bg);
-  color: var(--text);
-  font-family: var(--font);
-  font-size: 1rem;
-  line-height: 1.6;
-  -webkit-font-smoothing: antialiased;
-  overflow-x: clip;
-}
-
-a {
-  color: inherit;
-}
-
-button {
-  font: inherit;
-  color: inherit;
-  background: none;
-  border: 0;
-  padding: 0;
-  cursor: pointer;
-}
-
-code {
-  font-family: var(--mono);
-  font-size: 0.88em;
-}
-
-:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 3px;
-  border-radius: 6px;
-}
-
-::selection {
-  background: var(--accent);
-  color: #fff;
-}
-
-.wrap {
-  width: 100%;
-  max-width: 1180px;
-  margin-inline: auto;
-  padding-inline: 20px;
-}
-
-.sr-only {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-  clip-path: inset(50%);
-  white-space: nowrap;
-}
-
-/* ---------- Barra in alto ---------- */
-.top {
-  position: sticky;
-  top: 0;
-  z-index: 40;
-  background: color-mix(in srgb, var(--bg) 88%, transparent);
-  backdrop-filter: blur(16px) saturate(1.4);
-  -webkit-backdrop-filter: blur(16px) saturate(1.4);
-  border-bottom: 1px solid var(--line);
-}
-
-.top-in {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  min-height: 60px;
-}
-
-.back {
-  color: var(--muted);
-  font-size: 0.93rem;
-  text-decoration: none;
-  transition: color 0.2s;
-}
-
-.back:hover {
-  color: var(--text);
-}
-
-.top-tools {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.lang-switch {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 2px;
-  padding: 3px;
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  background: var(--surface);
-}
-
-.lang-switch button {
-  padding: 0.3rem 0.6rem;
-  border-radius: 999px;
-  font-family: var(--mono);
-  font-size: 0.74rem;
-  font-weight: 500;
-  color: var(--muted);
-  transition: background 0.2s, color 0.2s;
-}
-
-.lang-switch button:hover {
-  color: var(--text);
-}
-
-.lang-switch button[aria-pressed="true"] {
-  background: var(--text);
-  color: var(--bg);
-  cursor: default;
-}
-
-.icon-btn {
-  display: grid;
-  place-items: center;
-  flex: none;
-  width: 36px;
-  height: 36px;
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  background: var(--surface);
-  color: var(--muted);
-  transition: color 0.2s, border-color 0.2s;
-}
-
-.icon-btn:hover {
-  color: var(--text);
-  border-color: var(--line-2);
+  padding-bottom: var(--dock-h);
 }
 
 /* ---------- Apertura ---------- */
-.hero {
-  padding-block: clamp(3rem, 8vw, 5.5rem) 1rem;
-}
-
-.eyebrow {
-  margin: 0 0 1rem;
-  color: var(--cyan);
-  font-family: var(--mono);
-  font-size: 0.78rem;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-}
-
-.hero h1 {
-  margin: 0;
-  font-size: clamp(2.2rem, 6vw, 4rem);
-  font-weight: 600;
-  letter-spacing: -0.04em;
-  line-height: 1.06;
-  text-wrap: balance;
-}
-
-/* Il corsivo serif con il gradiente: la firma tipografica dei titoli della landing. */
-.hero h1 em {
-  font-family: var(--serif);
-  font-style: italic;
-  font-weight: 400;
-  font-size: 1.1em;
-  letter-spacing: -0.01em;
-  background: var(--grad);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  padding-right: 0.08em;
-}
-
-:lang(zh) .hero h1 em,
-:lang(ja) .hero h1 em {
-  font-family: var(--font);
-  font-style: normal;
-  font-weight: 700;
-  font-size: 1em;
-}
-
-.lead {
-  max-width: 44rem;
-  margin: 1.2rem 0 0;
-  color: var(--muted);
-  font-size: clamp(1rem, 1.8vw, 1.15rem);
-  text-wrap: pretty;
-}
-
 .legend {
   display: flex;
   flex-wrap: wrap;
@@ -275,7 +32,7 @@ code {
   gap: 0.45rem;
   padding: 0.25rem 0.75rem;
   border: 1px solid color-mix(in srgb, var(--st) 35%, transparent);
-  border-radius: 999px;
+  border-radius: var(--r-md);
   background: color-mix(in srgb, var(--st) var(--tint), transparent);
   font-size: 0.85rem;
 }
@@ -294,34 +51,6 @@ code {
   font-size: 0.85rem;
 }
 
-.toc {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.4rem;
-  margin-top: 2rem;
-  padding-top: 1.4rem;
-  border-top: 1px solid var(--line);
-}
-
-.toc a {
-  display: inline-flex;
-  align-items: baseline;
-  gap: 0.45rem;
-  padding: 0.35rem 0.8rem;
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  background: var(--surface);
-  color: var(--muted);
-  font-size: 0.85rem;
-  text-decoration: none;
-  transition: color 0.2s, border-color 0.2s;
-}
-
-.toc a:hover {
-  color: var(--text);
-  border-color: var(--line-2);
-}
-
 .toc-count {
   font-family: var(--mono);
   font-size: 0.72rem;
@@ -331,32 +60,16 @@ code {
 /* ---------- Categorie ---------- */
 .cases {
   padding-top: clamp(2.5rem, 6vw, 4rem);
-  scroll-margin-top: 60px;
+  scroll-margin-top: 64px;
 }
 
-.cases h2,
-.notes h2 {
+.cases h2 {
   position: relative;
   margin: 0 0 1rem;
   font-size: clamp(1.4rem, 3vw, 1.9rem);
   font-weight: 600;
   letter-spacing: -0.03em;
   line-height: 1.2;
-}
-
-.anchor {
-  margin-right: 0.45em;
-  color: var(--accent);
-  font-family: var(--mono);
-  font-weight: 400;
-  text-decoration: none;
-  opacity: 0.55;
-  transition: opacity 0.2s;
-}
-
-.cases h2:hover .anchor,
-.anchor:focus-visible {
-  opacity: 1;
 }
 
 .cases table {
@@ -369,7 +82,7 @@ code {
 
 .cases thead th {
   padding: 0 0.9rem 0.6rem;
-  border-bottom: 1px solid var(--line-2);
+  border-bottom: 1px solid var(--line-strong);
   color: var(--muted);
   font-family: var(--mono);
   font-size: 0.7rem;
@@ -392,13 +105,15 @@ code {
 }
 
 .cases tbody tr.st-warn,
-.chip.st-warn {
+.chip.st-warn,
+.src-dock.st-warn {
   --st: var(--warn);
   --row-tint: var(--tint);
 }
 
 .cases tbody tr.st-error,
-.chip.st-error {
+.chip.st-error,
+.src-dock.st-error {
   --st: var(--error);
   --row-tint: var(--tint);
 }
@@ -406,7 +121,12 @@ code {
 /* Il primo stato di un gruppo stacca dal precedente: ok | warn | error, a colpo d'occhio. */
 .cases tbody tr.st-ok + tr:not(.st-ok),
 .cases tbody tr.st-warn + tr.st-error {
-  border-top: 1px solid var(--line-2);
+  border-top: 1px solid var(--line-strong);
+}
+
+/* La riga di cui il riquadro mostra il sorgente: la stessa tinta, tre volte più forte. */
+.cases tbody tr.is-showing {
+  --row-tint: calc(var(--tint) * 3);
 }
 
 .cases tbody th,
@@ -426,7 +146,7 @@ code {
   margin-right: 0.5rem;
   padding: 0.05rem 0.35rem;
   border: 1px solid var(--line);
-  border-radius: 6px;
+  border-radius: var(--r-sm);
   color: var(--muted);
   font-family: var(--mono);
   font-size: 0.72rem;
@@ -434,10 +154,11 @@ code {
   transition: color 0.2s, border-color 0.2s;
 }
 
+/* Il colore dello stato della riga, come il </> nel riquadro del sorgente. */
 .src-btn:hover,
 .src-btn:focus-visible {
-  color: var(--accent);
-  border-color: var(--accent);
+  color: var(--st);
+  border-color: var(--st);
 }
 
 /* Il bordo tratteggiato fa vedere dove comincia e finisce la resa: conta quando è vuota,
@@ -447,8 +168,8 @@ code {
   min-width: 1.4rem;
   min-height: 1.5em;
   padding: 0.05rem 0.4rem;
-  border: 1px dashed var(--line-2);
-  border-radius: 6px;
+  border: 1px dashed var(--line-strong);
+  border-radius: var(--r-sm);
 }
 
 .out p,
@@ -462,17 +183,17 @@ code {
 .out input {
   font: inherit;
   padding: 0.2rem 0.4rem;
-  border: 1px solid var(--line-2);
-  border-radius: 6px;
-  background: var(--surface);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-sm);
+  background: var(--surface-2);
   color: var(--text);
 }
 
 .av-badge {
   padding: 0.05rem 0.5rem;
-  border-radius: 999px;
-  background: var(--accent);
-  color: #fff;
+  border-radius: var(--r-md);
+  background: var(--accent-fill);
+  color: var(--accent-ink);
   font-size: 0.8em;
 }
 
@@ -482,88 +203,102 @@ code {
 
 /* ---------- Note in fondo ---------- */
 .notes {
-  margin-top: clamp(3rem, 8vw, 5rem);
-  padding-block: 2rem 4rem;
-  border-top: 1px solid var(--line);
-  scroll-margin-top: 60px;
-  color: var(--muted);
-  font-size: 0.9rem;
+  scroll-margin-top: 64px;
 }
 
-.notes h2 {
-  color: var(--text);
-  font-size: 1.1rem;
-}
-
-.notes ul {
-  max-width: 52rem;
-  margin: 0;
-  padding-left: 1.1rem;
-}
-
-.notes li + li {
-  margin-top: 0.5rem;
-}
-
-.notes b {
-  color: var(--text);
-  font-weight: 600;
-}
-
-/* ---------- Il sorgente di una riga ---------- */
-/* Sempre montato: se lo si smontasse il browser non avrebbe nulla da animare. Non ruba mai
-   l'hover al bottone che lo ha aperto (pointer-events), o si chiuderebbe e riaprirebbe a scatti. */
-.src-pop {
+/* ---------- La sezione del sorgente (SourceDock in ShowAllRowTests.jsx) ---------- */
+/* Fissa in fondo, larga quanto lo schermo, con il contenuto allineato alla tabella (.wrap). Scura
+   in tutti e due i temi (data-theme="dark"); la linea in cima ha il colore dello stato della riga. */
+.src-dock {
+  --st: var(--ok);
   position: fixed;
-  right: 1.5rem;
-  bottom: 1.5rem;
-  z-index: 50;
-  max-width: min(46rem, calc(100vw - 3rem));
-  max-height: 40vh;
-  margin: 0;
-  padding: 1.4rem 1.6rem;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+  height: var(--dock-h);
+  border-top: 2px solid var(--st);
+  background: var(--surface-2);
+  color: var(--text);
+  box-shadow: 0 -12px 32px -16px color-mix(in srgb, black 50%, transparent);
+}
+
+.dock-bar {
+  flex: none;
+  border-bottom: 1px solid var(--line);
+  background: var(--surface);
+}
+
+.dock-head {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-height: 2.5rem;
+  font-size: 0.8125rem;
+}
+
+.dock-tag {
+  flex: none;
+  color: var(--st);
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.dock-title {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dock-head .chip {
+  flex: none;
+  padding-block: 0.1rem;
+  font-size: 0.75rem;
+}
+
+/* Il palco del codice: un container, così il carattere si misura su di lui (cqw, cqh). */
+.dock-body {
+  display: flex;
+  flex: 1;
+  align-items: safe center;
+  min-height: 0;
+  padding-block: 0.6rem;
   overflow: auto;
-  background: #0d1117;
-  color: #e6edf3;
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  border-radius: 14px;
-  box-shadow: 0 30px 80px -30px rgba(80, 90, 255, 0.45);
-  font: clamp(12px, 1.6vw, 15px) / 1.55 var(--mono);
+  container-type: size;
+}
+
+/* La dimensione che fa stare il sorgente nel palco: la larghezza divisa per i caratteri della riga
+   più lunga (un carattere di Geist Mono è largo 0.6em), l'altezza divisa per le righe. Mai sotto
+   i 14 px (le righe lunghe vanno a capo), mai sopra i 32. --cols e --rows li scrive SourceDock. */
+.dock-body pre {
+  margin: 0;
+  font-family: var(--mono);
+  font-size: clamp(0.875rem, min(100cqw / (var(--cols) * 0.6), 100cqh / (var(--rows) * 1.4)), 2rem);
+  line-height: 1.4;
   white-space: pre-wrap;
-  pointer-events: none;
-  opacity: 0;
-  transform: translateY(8px) scale(0.98);
-  visibility: hidden;
-  /* L'uscita è più lenta dell'entrata, e visibility scatta secca a dissolvenza finita. */
-  transition:
-    opacity 300ms ease-in,
-    transform 300ms ease-in,
-    visibility 0ms linear 1000ms;
+  overflow-wrap: anywhere;
+  animation: vt-rise 250ms var(--ease);
 }
 
-.src-pop.is-open {
-  opacity: 1;
-  transform: none;
-  visibility: visible;
-  transition:
-    opacity 50ms ease-out,
-    transform 50ms cubic-bezier(0.16, 1, 0.3, 1),
-    visibility 0ms;
-}
-
-.src-pop code {
+.dock-body code {
   padding: 0;
   background: none;
   font: inherit;
 }
 
+.dock-hint {
+  color: var(--muted);
+  font-size: 0.9375rem;
+}
+
 /* ---------- Telefono: ogni riga diventa una scheda ---------- */
 @media (max-width: 720px) {
-  .top-in {
-    flex-wrap: wrap;
-    padding-block: 0.6rem;
-  }
-
   /* la barra va su due righe: l'ancora deve atterrare sotto */
   .cases,
   .notes {
@@ -608,12 +343,5 @@ code {
     font-size: 0.66rem;
     letter-spacing: 0.12em;
     text-transform: uppercase;
-  }
-
-  .src-pop {
-    right: 0.75rem;
-    left: 0.75rem;
-    bottom: 0.75rem;
-    max-width: none;
   }
 }

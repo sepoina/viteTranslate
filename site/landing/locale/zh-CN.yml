@@ -2,7 +2,7 @@
 #      中文（中国）
 #       |    code: zh-CN
 #       |    missing key: 0
-#       |    processed: 2026-09-24 21:44
+#       |    processed: 2026-09-26 21:43
 #       |    TableVersion: 260905
 #  -------------------------------------------------
 #
@@ -29,34 +29,33 @@ Demos_18mcebe: "StackBlitz 压缩包"
 Demos_1hcfygl: "打开"
 Demos_1oisf1o: "源码"
 Demos_1pkl1tq: "该页面的项目，可直接导入 stackblitz.com"
-Features_15p5cow: "字节运行时（gzip）"
 Features_17y2azt: "只有在你选择时才通过 import() 加载。用意大利语阅读的人永远不会下载中文。"
 Features_1ag9tjh: "一条命令同步所有语言：新增键被添加，过期键被移除。移动过的句子会带着它的译文一起走。"
-Features_1fzn835: "个运行时依赖"
 Features_1lai6qf: "每种语言都是独立文件"
 Features_1lrhwkl: "为什么选择 viteTranslate"
 Features_1p2da2r: "表在构建时就变成现成的值。浏览器中没有 HTML 解析器，因此译文在服务器端同样可以渲染。"
-Features_1r9ol0a: "%s，由测试套件实测——不是空口承诺。"
 Features_1sxsslu: "把句子写在需要的地方，放在分隔符之间。键由插件生成：你不用发明它，也不用盯着它。"
 Features_1v0k6xn: "该有的都有，<em>没有</em>多余的负担。"
 Features_1v3v7dn: "始终保持一致的 YAML 表"
 Features_1wdg17l: "带降落伞的 LLM"
-Features_d10dz7: "Babel、Vite 和 React 是对等依赖：它们在你的机器上运行，永远不会进入包中。"
 Features_elxbj2: "这一类的每个库解决的都是同一个问题。区别在于你要运行多少机器，以及有多少会交付给你的用户。"
 Features_nsh4rn: "构建时编译，运行时无需解析器"
 Features_qlydjr: "<code>--llm-translate</code> 通过你配置的模型填充缺失的键。验证器会拒绝任何会在运行时出错的内容。"
 Features_u5mby: "无需发明键"
+Hero_10s6wdy: "个运行时依赖"
 Hero_150etoz: "试用 Playground"
+Hero_1d3n0h: "%s，由测试套件实测——不是空口承诺。"
 Hero_1dtjxm2: "直接从 JSX 中提取需要翻译的文本。无需维护键，没有单独的提取流程，没有运行时依赖。"
+Hero_1eptjs7: "字节运行时（gzip）"
 Hero_1gdm8ga: "新功能：LLM 自动翻译"
+Hero_1qebjnk: "Babel、Vite 和 React 是对等依赖：它们在你的机器上运行，永远不会进入包中。"
 Hero_mbzf93: "文本只写<em>一次</em>。<br>其余交给 Vite。"
+LanguageSwitch_gzrcyx: "页面语言"
 Marquee_aimam1: "一份源码，想要多少语言都行。"
 Nav_1c4ck8: "对比"
 Nav_1d2o49w: "功能"
-Nav_1i4dmri: "切换主题"
 Nav_4py963: "演示"
 Nav_ec11j8: "工作原理"
-Nav_hrypg6: "页面语言"
 Outro_16gmyec: "阅读文档"
 Outro_1e9h002: "一个包，一个插件，vite.config 里加一行。剩下的你会亲眼看到发生。"
 Outro_8zu2qs: "<em>一分钟</em>内翻译你的第一句话。"
@@ -75,3 +74,4 @@ Steps_1r4qs32: "一条命令，或者开发服务器：YAML 表始终与代码�
 Steps_c656xa: "工作原理"
 Steps_k6r36e: "标记句子"
 Steps_q96bco: "三步搞定，<em>零</em>繁琐。"
+ThemeToggle_1i35buc: "切换主题"

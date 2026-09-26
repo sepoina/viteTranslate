@@ -1,8 +1,7 @@
 import { Translate } from "@sepoina/vitetranslate/react";
-import { Code, M } from "./Code.jsx";
+import { Code, M } from "./theme/Code.jsx";
 import { Icon } from "./icons.jsx";
 import SectionHead from "./SectionHead.jsx";
-import SIZE from "../../runtimeSize.json";
 
 const KEYLESS = `<Translate t={["${M}Ciao %s, come stai?${M}", nome]} />
 
@@ -16,15 +15,6 @@ Cta_8wea0s: "Installer"
 Nav_1t0ndv: "Fonctions"`;
 
 const CHUNKS = ["it-IT", "en-US", "fr-FR", "de-DE", "pt-BR", "zh-CN", "ja-JP"];
-
-// La luce che segue il cursore dentro ogni tessera: si scrive solo la posizione, il resto è CSS.
-function follow(e) {
-  const tile = e.target.closest?.(".tile");
-  if (!tile) return;
-  const r = tile.getBoundingClientRect();
-  tile.style.setProperty("--mx", `${e.clientX - r.left}px`);
-  tile.style.setProperty("--my", `${e.clientY - r.top}px`);
-}
 
 export default function Features() {
   return (
@@ -41,7 +31,7 @@ export default function Features() {
           }
         />
 
-        <div className="bento" onPointerMove={follow} data-stagger>
+        <div className="bento" data-stagger>
           <article className="tile t-keyless">
             <div className="tile-copy">
               <span className="tile-ico">
@@ -57,7 +47,7 @@ export default function Features() {
                 </Translate>
               </p>
             </div>
-            <Code src={KEYLESS} lang="jsx" className="tile-code" />
+            <Code code={KEYLESS} lang="jsx" className="tile-code" />
           </article>
 
           <article className="tile t-yaml">
@@ -75,22 +65,7 @@ export default function Features() {
                 </Translate>
               </p>
             </div>
-            <Code src={TABLE} lang="yaml" className="tile-code" />
-          </article>
-
-          <article className="tile t-size">
-            <span className="tile-ico">
-              <Icon name="gauge" />
-            </span>
-            <p className="big">
-              <span data-count={SIZE.gzipBytes}>{SIZE.gzipBytes}</span>
-            </p>
-            <h3>
-              <Translate>_%_byte di runtime, in gzip_%_</Translate>
-            </h3>
-            <p>
-              <Translate t={["_%_%s, misurati dalla suite di test: non una promessa a parole._%_", SIZE.real]} />
-            </p>
+            <Code code={TABLE} lang="yaml" className="tile-code" />
           </article>
 
           <article className="tile t-llm">
@@ -141,19 +116,6 @@ export default function Features() {
               <i />
               <span className="flow-end">.js</span>
             </div>
-          </article>
-
-          <article className="tile t-zero">
-            <span className="tile-ico">
-              <Icon name="box" />
-            </span>
-            <p className="big">0</p>
-            <h3>
-              <Translate>_%_dipendenze a runtime_%_</Translate>
-            </h3>
-            <p>
-              <Translate>_%_Babel, Vite e React sono peer: girano sulla tua macchina e non entrano mai nel bundle._%_</Translate>
-            </p>
           </article>
 
           <article className="tile t-lazy">

@@ -1,7 +1,7 @@
 import { Translate } from "@sepoina/vitetranslate/react";
 import { Icon } from "./icons.jsx";
 import SectionHead from "./SectionHead.jsx";
-import SIZE from "../../runtimeSize.json";
+import SIZE from "./theme/runtimeSize.json";
 
 const COLUMNS = ["viteTranslate", "i18next", "Lingui", "FormatJS"];
 

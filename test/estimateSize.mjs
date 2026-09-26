@@ -12,6 +12,7 @@ import { readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { measureRuntime, sizeLabels, expectedReadme } from "./measureReactBundle.mjs";
+import { syncTheme } from "../site/syncTheme.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const KB = 1024;
@@ -45,6 +46,10 @@ if (prevJson !== nextJson) {
 } else {
   console.log("site/runtimeSize.json: unchanged");
 }
+
+// Le pagine leggono la loro copia (src/theme/runtimeSize.json): si riallineano subito.
+syncTheme();
+console.log("site/theme: copies updated");
 
 const readmePath = join(ROOT, "README.md");
 const readme = readFileSync(readmePath, "utf8");

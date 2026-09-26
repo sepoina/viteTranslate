@@ -2,18 +2,16 @@
 #      中文（中国）
 #       |    code: zh-CN
 #       |    missing key: 0
-#       |    processed: 2026-09-26 16:55
+#       |    processed: 2026-09-26 21:43
 #       |    TableVersion: 260905
 #  -------------------------------------------------
 #
 App_17k0c41: "<b>预期</b>一列适用于<b>开发</b>环境：源语言处于激活状态，且语言文件已同步。"
-App_1ekphjo: "切换主题"
 App_1ombhjz: "每个类别都有自己的地址（<code>#icu</code>、<code>#html</code>、<code>#not-text</code>…）：标题旁的 <code>#</code> 就是可分享的链接。"
 App_1wc6kj8: "<b>最佳</b>：按原样渲染，没有任何诊断。<b>警告</b>：能渲染，但有内容丢失或出乎意料（一个 <code>⁇</code>、一个被丢弃的标签、一条构建警告）。<b>错误</b>：出现 <code>‼️</code> 或 <code>🚫</code> 标记，或控制台报错：需要修复。"
 App_20ci9k: "将鼠标悬停在案例名称旁的 <code>&lt;/&gt;</code> 上，即可查看生成它的代码。"
 App_4ibyhz: "边界情况 · v%s"
 App_4j76hr: "如何阅读表格"
-App_4lj7z0: "页面语言"
 App_a9vbkj: "在真实应用中，诊断标记会在构建后消失——这里显示 <code>🚫[类型]</code> 的地方将不再渲染任何内容——而 <code>⁇</code> 会保留：它不是诊断，而是正常输出。本页面特意在构建中也保留了它们。"
 App_aj0s62: "如何阅读表格 ↓"
 App_iy34f8: "<code>🔸</code>（此处未翻译）和 <code>🔹</code>（其他语言未翻译）不在表中列出：它们取决于语言文件的状态，而非某一行。<code>‼️</code>、<code>🚫</code> 和 <code>⁇</code> 则属于预期结果的一部分。"
@@ -40,6 +38,7 @@ autoWrapCases_twlewm: "6. 组件上的属性"
 autoWrapCases_ukn802: "autoWrap：没有 &lt;Translate&gt; 的标记"
 autoWrapCases_xfi6mi: "7. key 永远不会被翻译"
 autoWrapCases_y19l6w: "3. 裸露的子节点，组件未被识别"
+LanguageSwitch_gzrcyx: "页面语言"
 ShowAllRowTests_12hjh7n: "链接到本节"
 ShowAllRowTests_1gizqwy: "原始预期值（IT）"
 ShowAllRowTests_1lotodh: "结果"
@@ -264,3 +263,4 @@ testCases_ynn7m: "{0}"
 testCases_yv0w7z: "%s + %s"
 testCases_zmrpz5: "a 空数组"
 testCases_zzrrzd: "%s 空字符串"
+ThemeToggle_1i35buc: "切换主题"

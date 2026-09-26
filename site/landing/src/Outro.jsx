@@ -9,10 +9,6 @@ export default function Outro() {
       <section className="section outro-sec">
         <div className="wrap">
           <div className="outro" data-reveal>
-            <div className="aurora aurora-small" aria-hidden="true">
-              <i className="blob b1" />
-              <i className="blob b2" />
-            </div>
             <h2>
               <Translate t="_%_Traduci la tua prima frase <em>in un minuto</em>._%_" />
             </h2>
@@ -21,7 +17,7 @@ export default function Outro() {
             </p>
             <div className="cta-row">
               <CopyCommand />
-              <a className="btn btn-light" href={DOCS}>
+              <a className="btn btn-ghost" href={DOCS}>
                 <Translate>_%_Leggi la documentazione_%_</Translate>
                 <Icon name="arrow" size={18} />
               </a>

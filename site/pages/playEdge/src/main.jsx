@@ -3,6 +3,8 @@ import { createRoot } from 'react-dom/client';
 import { TranslateContainer, useTranslateLanguage } from '@sepoina/vitetranslate/react';
 import App from './App';
 import { pickLanguage, RememberLanguage } from './siteLanguage';
+import { applySavedTheme } from './theme/boot.js';
+import './theme/theme.css';
 import './edge.css';
 
 // Lingua iniziale: l'ultima scelta sul sito, se c'è tra queste tabelle; altrimenti la sorgente.
@@ -19,14 +21,8 @@ function Root() {
   );
 }
 
-// Il tema scelto sulla landing (stessa origine, stessa chiave), applicato prima del primo
-// rendering: senza, il tema del sistema lampeggia per un attimo.
-try {
-  const theme = localStorage.getItem('vt-theme');
-  if (theme === 'light' || theme === 'dark') document.documentElement.dataset.theme = theme;
-} catch {
-  /* storage bloccato: vale il tema del sistema */
-}
+// Il tema scelto sul sito (src/theme/boot.js), prima del primo rendering.
+applySavedTheme();
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>

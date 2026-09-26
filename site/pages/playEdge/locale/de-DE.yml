@@ -2,18 +2,16 @@
 #      Deutsch (Deutschland)
 #       |    code: de-DE
 #       |    missing key: 0
-#       |    processed: 2026-09-26 16:54
+#       |    processed: 2026-09-26 21:43
 #       |    TableVersion: 260905
 #  -------------------------------------------------
 #
 App_17k0c41: "Die Spalte <b>erwartet</b> gilt in der <b>Entwicklung</b>, mit aktiver Quellsprache und bereits synchronisierten Sprachdateien."
-App_1ekphjo: "Design wechseln"
 App_1ombhjz: "Jede Kategorie hat ihre eigene Adresse (<code>#icu</code>, <code>#html</code>, <code>#not-text</code>…): Das <code>#</code> neben dem Titel ist der Link zum Teilen."
 App_1wc6kj8: "<b>Optimal</b>: rendert genau das, was geschrieben steht, ohne Diagnose. <b>Warnung</b>: rendert, aber etwas geht verloren oder überrascht (ein <code>⁇</code>, ein verworfenes Tag, eine Build-Warnung). <b>Fehler</b>: eine Markierung <code>‼️</code> oder <code>🚫</code> oder ein Konsolenfehler: zu beheben."
 App_20ci9k: "Fahren Sie über <code>&lt;/&gt;</code> neben dem Namen eines Falls, um den Code zu sehen, der ihn erzeugt hat."
 App_4ibyhz: "Grenzfälle · v%s"
 App_4j76hr: "So lesen Sie die Tabelle"
-App_4lj7z0: "Sprache der Seite"
 App_a9vbkj: "In einer echten App verschwinden die Diagnose-Markierungen im Build — wo hier <code>🚫[Typ]</code> steht, wird nichts mehr gerendert —, während <code>⁇</code> bleibt: Das ist keine Diagnose, sondern eine normale Ausgabe. Diese Seite lässt sie absichtlich auch im Build an."
 App_aj0s62: "So lesen Sie die Tabelle ↓"
 App_iy34f8: "<code>🔸</code> (hier nicht übersetzt) und <code>🔹</code> (anderswo nicht übersetzt) sind nicht aufgeführt: Sie hängen vom Zustand der Sprachdateien ab, nicht von der Zeile. <code>‼️</code>, <code>🚫</code> und <code>⁇</code> gehören dagegen zum erwarteten Ergebnis."
@@ -40,6 +38,7 @@ autoWrapCases_twlewm: "6. Attribut auf einer Komponente"
 autoWrapCases_ukn802: "autoWrap: Marker ohne &lt;Translate&gt;"
 autoWrapCases_xfi6mi: "7. Der key wird nie übersetzt"
 autoWrapCases_y19l6w: "3. Nackter Kindknoten, Komponente NICHT erkannt"
+LanguageSwitch_gzrcyx: "Sprache der Seite"
 ShowAllRowTests_12hjh7n: "Link zu diesem Abschnitt"
 ShowAllRowTests_1gizqwy: "erwartet in Quelle (IT)"
 ShowAllRowTests_1lotodh: "Ergebnis"
@@ -264,3 +263,4 @@ testCases_ynn7m: "{0}"
 testCases_yv0w7z: "%s + %s"
 testCases_zmrpz5: "a leeres Array"
 testCases_zzrrzd: "%s leere Zeichenkette"
+ThemeToggle_1i35buc: "Design wechseln"

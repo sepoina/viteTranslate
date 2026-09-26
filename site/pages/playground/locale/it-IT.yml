@@ -2,7 +2,7 @@
 #      italiano (Italia) (sourceLanguage)
 #       |    code: it-IT
 #       |    missing key: 0
-#       |    processed: 2026-09-24 21:38
+#       |    processed: 2026-09-26 21:43
 #       |    TableVersion: 260905
 #  -------------------------------------------------
 #
@@ -57,6 +57,7 @@ installSubsections_4vmyzb: "Build linguistico"
 installSubsections_dxj27y: "Traduzione con un LLM"
 installSubsections_nfxr02: "Esecuzione dev"
 installSubsections_p7mj0v: "Config del plugin"
+LanguageSwitch_gzrcyx: "Lingua della pagina"
 LanguageSwitchExample_lbdkn8: "<b>Scegli la tua lingua </b> (%s)"
 MarkupExample_10fzz05: "Accesso eseguito come <b>%s</b>"
 MarkupExample_l1xgjf: "Testo in <b>grassetto</b>, in <i>corsivo</i> e <code>codice</code>: una frase sola da tradurre."
@@ -86,9 +87,8 @@ StrengthsSection_1y1sghw: "<strong>Nessuna dipendenza a runtime.</strong> Babel,
 StrengthsSection_7t8nu9: "<strong>Le traduzioni sopravvivono ai rename.</strong> Se lo stesso testo cambia solo id, la sincronizzazione eredita la traduzione già fatta invece di farla ripartire da zero."
 StrengthsSection_qebam7: "<strong>Da Vite 5 a Vite 8, stesso codice.</strong> Rollup ed esbuild fino a Vite 7, Rolldown e Oxc su Vite 8: nessuna configurazione diversa."
 StrengthsSection_wv4ype: "<strong>Sincronizzazione automatica delle tabelle.</strong> Un solo comando aggiorna tutte le lingue e segnala cosa resta da tradurre."
-TopBar_17cwgp7: "Lingua della pagina"
+ThemeToggle_1i35buc: "Cambia tema"
 TopBar_1dz7foh: "Tutte le demo"
-TopBar_1h6d3kr: "Cambia tema"
 ZZZsnippetList_1cpi6bi: "autoWrap: marcatori senza componente"
 ZZZsnippetList_1f899uf: "Con ICU il plurale lo decide la lingua: <code>&#123;0, plural, …}</code> sceglie il ramo giusto per ogni numero, e <code>#</code> è il numero stesso, già formattato. Ogni lingua ha le sue categorie: gli ordinali italiani distinguono “l’8º” da “il 7º”, l’inglese ne vuole quattro (1st, 2nd, 3rd, 4th)."
 ZZZsnippetList_1itbzsw: "<code>&lt;Translate&gt;</code> restituisce nodi React: non può essere usato in attributi HTML che richiedono una stringa semplice, come <code>placeholder</code>, <code>aria-label</code> o <code>title</code>. In questi casi serve l'hook <code>useTranslateToString()</code>, che risolve la stessa traduzione ma restituisce una stringa primitiva. Questi attributi non sono visibili come testo a schermo: per vederli tradotti ispeziona l'elemento con F12."

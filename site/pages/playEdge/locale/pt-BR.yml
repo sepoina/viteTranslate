@@ -2,18 +2,16 @@
 #      português (Brasil)
 #       |    code: pt-BR
 #       |    missing key: 0
-#       |    processed: 2026-09-26 16:54
+#       |    processed: 2026-09-26 21:43
 #       |    TableVersion: 260905
 #  -------------------------------------------------
 #
 App_17k0c41: "A coluna <b>esperado</b> vale em <b>desenvolvimento</b>, com o idioma de origem ativo e os arquivos de idioma já sincronizados."
-App_1ekphjo: "Alternar tema"
 App_1ombhjz: "Cada categoria tem seu próprio endereço (<code>#icu</code>, <code>#html</code>, <code>#not-text</code>…): o <code>#</code> ao lado do título é o link para compartilhar."
 App_1wc6kj8: "<b>Ideal</b>: renderiza exatamente o que está escrito, sem diagnóstico. <b>Aviso</b>: renderiza, mas algo se perde ou surpreende (um <code>⁇</code>, uma tag descartada, um aviso de build). <b>Erro</b>: uma marca <code>‼️</code> ou <code>🚫</code>, ou um erro no console: a corrigir."
 App_20ci9k: "Passe o mouse sobre <code>&lt;/&gt;</code> ao lado do nome de um caso para ver o código que o produziu."
 App_4ibyhz: "Casos-limite · v%s"
 App_4j76hr: "Como ler a tabela"
-App_4lj7z0: "Idioma da página"
 App_a9vbkj: "Num app real, as marcas de diagnóstico somem no build — onde aqui se lê <code>🚫[tipo]</code>, nada mais é renderizado — enquanto <code>⁇</code> permanece: não é um diagnóstico, é uma saída normal. Esta página as mantém ativas também no build, de propósito."
 App_aj0s62: "Como ler a tabela ↓"
 App_iy34f8: "<code>🔸</code> (não traduzido aqui) e <code>🔹</code> (não traduzido em outro idioma) não aparecem: dependem do estado dos arquivos de idioma, não da linha. <code>‼️</code>, <code>🚫</code> e <code>⁇</code>, por outro lado, fazem parte do resultado esperado."
@@ -40,6 +38,7 @@ autoWrapCases_twlewm: "6. Atributo em um componente"
 autoWrapCases_ukn802: "autoWrap: marcadores sem &lt;Translate&gt;"
 autoWrapCases_xfi6mi: "7. A key nunca é traduzida"
 autoWrapCases_y19l6w: "3. Filho puro, componente NÃO reconhecido"
+LanguageSwitch_gzrcyx: "Idioma da página"
 ShowAllRowTests_12hjh7n: "Link para esta seção"
 ShowAllRowTests_1gizqwy: "esperado na origem (IT)"
 ShowAllRowTests_1lotodh: "resultado"
@@ -264,3 +263,4 @@ testCases_ynn7m: "{0}"
 testCases_yv0w7z: "%s + %s"
 testCases_zmrpz5: "a array vazio"
 testCases_zzrrzd: "%s string vazia"
+ThemeToggle_1i35buc: "Alternar tema"

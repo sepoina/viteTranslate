@@ -1,5 +1,5 @@
 import { Translate } from "@sepoina/vitetranslate/react";
-import SIZE from "../../../../runtimeSize.json";
+import SIZE from "../theme/runtimeSize.json";
 
 // Una card per punto di forza: icona, poi un testo che si apre con il titolo in <strong>.
 // Il titolo sta nella stessa frase marcata del testo, così chi traduce li vede insieme.
