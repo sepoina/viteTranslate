@@ -5,7 +5,7 @@
 import { readFileSync } from "node:fs";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { dirname, join } from "node:path";
-import { isIcuCandidate, normalizePlaceholders, parseIcu } from "../../lib/icu/parse.js";
+import { isIcuCandidate, normalizePlaceholders, parseIcu, TYPE } from "../../lib/icu/parse.js";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(HERE, "..", "..");
@@ -47,29 +47,42 @@ console.log("\n== normalizePlaceholders ==");
   eq("count", 1, r.count);
 }
 {
-  // La citazione MF1 si apre solo prima di "{ } # |" (vedi il commento di normalizePlaceholders
-  // in lib/icu/parse.js): un apostrofo seguito da "%" resta un apostrofo qualunque, quindi il
-  // suo "%s" SI normalizza — a differenza di un "%s" dentro un argomento o un ramo, che è
-  // l'errore icu-placeholder-in-branch (vedi sotto), qui il "%s" è fuori da ogni graffa.
+  // Gli apostrofi sono testo (4.6.3, toParserText in lib/icu/parse.js): il "%s" fra apostrofi
+  // si normalizza come ogni altro.
   const r = normalizePlaceholders("'%s' {0}");
   eq("l'apostrofo isolato non apre una citazione", "'{0}' {0}", r.text);
   eq("il primo %s È stato numerato ({0})", 1, r.count);
 }
 {
-  // Qui invece l'apostrofo precede "{": apre una citazione MF1, e il "%s" al suo interno resta
-  // testo letterale.
+  // Nessuna citazione MF1: "'{%s}'" è un "%s" dentro graffe, come senza apostrofi.
   const r = normalizePlaceholders("'{%s}'");
-  eq("%s dentro una citazione MF1 resta invariato", "'{%s}'", r.text);
-  eq("nessun %s normalizzato dentro la citazione", 0, r.count);
+  eq("'{%s}': gli apostrofi non proteggono", true, r.inBranch);
 }
 {
   const r = normalizePlaceholders("{0, select, a {%s} other {x}}");
   ok_("inBranch è true", r.inBranch === true);
 }
 
+console.log("\n== l'apostrofo è testo, mai sintassi (4.6.3) ==");
+{
+  // Un riassunto dell'AST: il testo letterale così com'è, gli argomenti come <nome>.
+  const flat = (text) => {
+    const r = parseIcu(text, "it-IT");
+    if (!r.ok) return r.code;
+    const walk = (ast) => ast.map((n) => n.type === TYPE.literal ? n.value : n.type === TYPE.pound ? "#"
+      : n.type === TYPE.plural ? Object.values(n.options).map((o) => walk(o.value)).join("|") : `<${n.value}>`).join("");
+    return walk(r.ast);
+  };
+  eq("dell'{0}: l'elisione funziona", "dell'<0>", flat("dell'{0}"));
+  eq("'{nome}': virgolette intorno al valore", "'<nome>'", flat("'{nome}'"));
+  eq("’{0}’ e '{0}' hanno gli stessi argomenti", flat("'{0}'").replaceAll("'", "’"), flat("’{0}’"));
+  eq("'' sono due apostrofi", "dell''<0>", flat("dell''{0}"));
+  eq("l'# in un plurale", "l'#|gli #", flat("{0, plural, one {l'#} other {gli #}}"));
+  eq("dopo un carattere cinese", "按'<0>'", flat("按'{0}'"));
+}
+
 console.log("\n== errori bloccanti ==");
-eq("apostrofo prima di {0}", "icu-apostrophe", parseIcu("dell'{0}", "it-IT").code);
-eq("apostrofo prima di {nome}", "icu-apostrophe", parseIcu("dell'{nome}", "it-IT").code);
+
 {
   const r = parseIcu("{0} {1a}", "it-IT");
   ok_('{0} {1a} -> icu-argument-name o icu-syntax', r.code === "icu-argument-name" || r.code === "icu-syntax");

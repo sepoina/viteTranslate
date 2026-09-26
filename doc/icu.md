@@ -6,7 +6,7 @@
 
 🎮 **Playground, live:** [plurals & ordinals](https://sepoina.github.io/viteTranslate/playground/#icu-plural), [select & named arguments](https://sepoina.github.io/viteTranslate/playground/#icu-select), [numbers, currencies & dates](https://sepoina.github.io/viteTranslate/playground/#icu-format): change the language and watch them adapt.
 
-🧪 **[ICU edge cases, live](https://sepoina.github.io/viteTranslate/edge/#icu)** — positions, names, literal braces and the apostrophe trap, each next to what it should render.
+🧪 **[ICU edge cases, live](https://sepoina.github.io/viteTranslate/edge/#icu)** — positions, names, literal braces and apostrophes, each next to what it should render.
 
 ## When a string becomes ICU
 
@@ -16,7 +16,7 @@ A text is an ICU message only if it contains an ICU **argument**: `{0}`, `{name}
 <Translate t="_%_{0, plural, one {# file} other {# files}}_%_" a={[count]} />
 ```
 
-A literal `{` isn't enough on its own — `{ t: null }` stays plain text — but a real argument always triggers ICU parsing, so a curly brace you mean literally needs an apostrophe or an entity: `'{name}'` or `&#123;name}`. That includes `Press {Enter}`: it reads as an argument now, and without a value it renders `⁇`.
+A literal `{` isn't enough on its own — `{ t: null }` stays plain text — but a real argument always triggers ICU parsing, so a curly brace you mean literally needs an entity: `&#123;name}` or `&lbrace;name&rbrace;`. That includes `Press {Enter}`: it reads as an argument now, and without a value it renders `⁇`.
 
 ## One example per construct
 
@@ -73,9 +73,19 @@ Time zone, in order of precedence: a calendar date is always UTC; then the `time
 > [!IMPORTANT]
 > Doing SSR with dates? Set the time zone explicitly (prop or plugin option). Left to "whatever the runtime is in", the server and the browser can disagree, and React flags a hydration mismatch.
 
-## The apostrophe trap
+## Apostrophes are just apostrophes
 
-`dell'{0}` doesn't do what it looks like: in ICU syntax an apostrophe right before `{` opens a quote, and the argument disappears into it as literal text. It's a build-time error (`icu-apostrophe`) precisely because it's easy to miss — Italian and French write this way constantly. Use `’` (U+2019) or double the apostrophe: `dell''{0}`.
+Standard ICU uses `'` as an escape character: `dell'{0}` hides the argument, `'{0}'` turns it into text. Not here. An apostrophe is always an apostrophe:
+
+| You write | You get |
+| :- | :- |
+| `dell'{0}` | `dell'albero` |
+| `Press '{0}'` | `Press 'Enter'` |
+| `dell''{0}` | `dell''albero` — two stay two |
+
+For the characters ICU does care about, use entities: `&#123;` or `&lbrace;` for `{`, `&rbrace;` for `}`, and `&num;` for a literal `#` inside a plural branch (`&#35;` won't do there: its `#` is the number).
+
+Why bother? Because every translator — human or LLM — "prettifies" `'` into `’` or `「」` now and then, and with ICU quoting that would silently add or remove an argument.
 
 ## What checks it
 

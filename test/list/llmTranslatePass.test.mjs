@@ -156,12 +156,35 @@ console.log("\n== T68 chiave già fallita due volte ==");
   const result1 = await translatePass({ config, noAsk: true });
   const frReport = result1.perLanguage.find((l) => l.tag === "fr-FR");
   eq("saltata senza --llm-auto", 1, frReport?.skipped ?? 0);
+  eq("elencata nel risultato col motivo", [{ tag: "fr-FR", keys: 1, reasons: { "placeholder-count": 1 } }], result1.skipped);
   eq("nessuna chiamata al driver per fr-FR (nulla da tradurre lì)", true, frReport.filled === 0);
 
   const result2 = await translatePass({ config, auto: true, noAsk: true });
   const frReport2 = result2.perLanguage.find((l) => l.tag === "fr-FR");
   eq("con --llm-auto ritentata e riempita", 1, frReport2.filled);
   void calls;
+}
+
+// --------------------------------------------------------------- T68b: solo chiavi saltate -> nothing-to-do con l'elenco
+console.log("\n== T68b niente da mandare, ma chiavi saltate ==");
+{
+  const baseDir = progetto(`export default function App() {
+  return <div>{"_%_Stuck_%_"}</div>;
+}
+`);
+  await translatePass({ config: baseConfig(baseDir, async () => ({ translations: {} })), noAsk: true });
+  const realKey = keyOf(baseDir);
+  updateLedger(baseDir, (l) => {
+    for (const tag of ["fr-FR", "de-DE"]) {
+      recordFailure(l, tag, realKey, "icu-args");
+      recordFailure(l, tag, realKey, "icu-args");
+    }
+  });
+  let calls = 0;
+  const result = await translatePass({ config: baseConfig(baseDir, async () => { calls++; return { translations: {} }; }), noAsk: true });
+  eq("mode nothing-to-do", "nothing-to-do", result.mode);
+  eq("le due lingue elencate come saltate", ["de-DE", "fr-FR"], result.skipped.map((l) => l.tag).sort());
+  eq("nessuna chiamata al driver", 0, calls);
 }
 
 // --------------------------------------------------------------- T69: un solo giro di riparazione
@@ -839,6 +862,30 @@ console.log("\n== piano 4.6.3: le regole ICU nel prompt, solo quando servono =="
   await translatePass({ config: baseConfig(baseDir, driver), noAsk: true, tags: ["fr-FR"] });
   eq("tabella con ICU: le regole ICU sono nel prompt", true, seen.includes("ICU MessageFormat"));
   eq("le categorie plurali di fr-FR sono nel prompt", true, seen.includes("Plural branches for fr-FR:"));
+}
+
+console.log("\n== la riparazione porta codice e messaggio (trace 2026-09-25) ==");
+{
+  const baseDir = progetto(`export default function App() {
+  return <div>{"_%_{0} senza argomenti_%_"}</div>;
+}
+`);
+  const payloads = [];
+  let prompt = "";
+  const driver = async ({ userPayload, systemPrompt }) => {
+    prompt = systemPrompt;
+    payloads.push(userPayload);
+    const { items } = JSON.parse(userPayload);
+    const translations = {};
+    // Primo giro: argomento rinominato. Riparazione: quello giusto.
+    for (const item of items) translations[item.k] = item.previousAttemptRejectedBecause ? "{0} sans arguments" : "{zero} sans arguments";
+    return { translations };
+  };
+  const result = await translatePass({ config: baseConfig(baseDir, driver), noAsk: true, tags: ["fr-FR"] });
+  eq("il prompt non parla più di apostrofi", false, /apostrophe/i.test(prompt));
+  const repair = JSON.parse(payloads[1]).items[0].previousAttemptRejectedBecause;
+  eq("la riparazione porta codice e messaggio", true, repair.startsWith("icu-args: ") && repair.includes("{zero}"));
+  eq("riparata e scritta", 1, result.perLanguage[0].filled);
 }
 
 for (const dir of temporanee) rmSync(dir, { recursive: true, force: true });

@@ -301,9 +301,9 @@ For an [ICU message](icu.md), the last three are replaced by the same check comp
 - covers every plural/ordinal category this target language requires, and every `select` key the source had — `icu-plural-categories` / `icu-select-keys`, rejections here too, not just warnings;
 - isn't wildly longer than the source (at most `source.length * 8 + 20` — plural branches grow with the language).
 
-Unlike `%s`, an ICU translation **can** reorder its arguments (`{1} {0}` for a source `{0} {1}`) — the prompt tells the model so only for languages whose batch actually contains an ICU string, keeping the extra rules off every other prompt's token count.
+Unlike `%s`, an ICU translation **can** reorder its arguments (`{1} {0}` for a source `{0} {1}`) — the prompt tells the model so only for languages whose batch actually contains an ICU string, keeping the extra rules off every other prompt's token count. Apostrophes need no rule at all: they're plain text to the ICU compiler, so a model turning `'{0}'` into `’{0}’` or `「{0}」` changes the punctuation, never the arguments.
 
-A rejected value stays `null`, is counted by reason in the report, and gets **one** repair attempt with the rejection reason sent back to the model. A key that fails twice for the same language is skipped on later runs; `--llm-auto` retries it.
+A rejected value stays `null`, is counted by reason in the report, and gets **one** repair attempt with the rejection reason — code and message — sent back to the model. A key that fails twice for the same language is skipped on later runs, and the report lists those keys by language and reason, so "nothing sent" never passes for "all done". `--llm-auto` retries them.
 
 ## Debugging a run
 

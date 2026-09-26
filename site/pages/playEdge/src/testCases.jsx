@@ -268,30 +268,30 @@ const testCases = [
   // ============================================================
   //
   // Gli stessi casi di "Interpolazione %s", scritti con {0}, {1}, … più quello che
-  // solo ICU sa fare (ordine libero, nomi). Nei titoli le graffe sono fra apostrofi:
-  // senza, {0} sarebbe un argomento vero e il titolo mostrerebbe "%s".
+  // solo ICU sa fare (ordine libero, nomi). Nei titoli la graffa è l'entità &#123;:
+  // senza, {0} sarebbe un argomento vero e il titolo mostrerebbe "⁇".
   //
   [
-    "_%_Solo '{0}'_%_",
+    "_%_Solo &#123;0}_%_",
     <Translate t={['_%_{0}_%_', 'solo']} />,
     'solo',
     "<Translate t={['_%_{0}_%_', 'solo']} />",
   ],
   [
-    "_%_'{0}' multipli (spread)_%_",
+    "_%_&#123;0} multipli (spread)_%_",
     <Translate t={['_%_{0} più {1} fa {2}_%_', 1, 2, 3]} />,
     '1 più 2 fa 3',
     "<Translate t={['_%_{0} più {1} fa {2}_%_', 1, 2, 3]} />",
   ],
   [
-    "_%_'{0}' multipli (array annidato)_%_",
+    "_%_&#123;0} multipli (array annidato)_%_",
     <Translate t={['_%_{0} più {1} fa {2}_%_', [1, 2, 3]]} />,
     '123 più ⁇ fa ⁇ (l’array è UN argomento solo)',
     "<Translate t={['_%_{0} più {1} fa {2}_%_', [1, 2, 3]]} />",
     'warn',
   ],
   [
-    "_%_'{0}' multipli (via a)_%_",
+    "_%_&#123;0} multipli (via a)_%_",
     <Translate t={'_%_{0} più {1} fa {2}_%_'} a={[1, 2, 3]} />,
     '1 più 2 fa 3',
     "<Translate t={'_%_{0} più {1} fa {2}_%_'} a={[1, 2, 3]} />",
@@ -315,52 +315,52 @@ const testCases = [
     "<Translate t={['_%_{0} e {2}_%_', 'a', 'b', 'c']} />",
   ],
   [
-    "_%_'{0}' consecutivi_%_",
+    "_%_&#123;0} consecutivi_%_",
     <Translate t={['_%_{0}{1}{2}_%_', 'a', 'b', 'c']} />,
     'abc',
     "<Translate t={['_%_{0}{1}{2}_%_', 'a', 'b', 'c']} />",
   ],
   [
-    "_%_'{0}' null in mezzo_%_",
+    "_%_&#123;0} null in mezzo_%_",
     <Translate t={['_%_{0}-{1}-{2}_%_', 'a', null, 'c']} />,
     'a-⁇-c',
     "<Translate t={['_%_{0}-{1}-{2}_%_', 'a', null, 'c']} />",
     'warn',
   ],
   [
-    "_%_'{0}' extra ignorati_%_",
+    "_%_&#123;0} extra ignorati_%_",
     <Translate t={['_%_solo {0}_%_', 'uno', 'due', 'tre']} />,
     'solo uno',
     "<Translate t={['_%_solo {0}_%_', 'uno', 'due', 'tre']} />",
   ],
   [
-    "_%_'{0}' in meno_%_",
+    "_%_&#123;0} in meno_%_",
     <Translate t={['_%_{0} e {1}_%_', 'uno']} />,
     'uno e ⁇',
     "<Translate t={['_%_{0} e {1}_%_', 'uno']} />",
     'warn',
   ],
   [
-    "_%_'{0}' zero_%_",
+    "_%_&#123;0} zero_%_",
     <Translate t={['_%_Zero: {0}_%_', 0]} />,
     'Zero: 0',
     "<Translate t={['_%_Zero: {0}_%_', 0]} />",
   ],
   [
-    "_%_'{0}' stringa vuota_%_",
+    "_%_&#123;0} stringa vuota_%_",
     <Translate t={['_%_tra parentesi: ({0})_%_', '']} />,
     'tra parentesi: ()',
     "<Translate t={['_%_tra parentesi: ({0})_%_', '']} />",
   ],
   [
-    "_%_'{0}' null_%_",
+    "_%_&#123;0} null_%_",
     <Translate t={['_%_null: {0}_%_', null]} />,
     'null: ⁇',
     "<Translate t={['_%_null: {0}_%_', null]} />",
     'warn',
   ],
   [
-    "_%_'{0}' senza argomenti_%_",
+    "_%_&#123;0} senza argomenti_%_",
     <Translate t={'_%_niente: {0}_%_'} />,
     'niente: ⁇',
     "<Translate t={'_%_niente: {0}_%_'} />",
@@ -388,13 +388,13 @@ const testCases = [
     'warn',
   ],
   [
-    "_%_%s e '{1}' insieme_%_",
+    "_%_%s e &#123;1} insieme_%_",
     <Translate t={['_%_%s e {1}_%_', 'a', 'b']} />,
     'a e b (il primo %s è {0})',
     "<Translate t={['_%_%s e {1}_%_', 'a', 'b']} />",
   ],
   [
-    "_%_'{0}' e %s insieme_%_",
+    "_%_&#123;0} e %s insieme_%_",
     <Translate t={['_%_{0} e %s_%_', 'a', 'b']} />,
     'a e a (anche questo %s è {0}: warning di build)',
     "<Translate t={['_%_{0} e %s_%_', 'a', 'b']} />",
@@ -420,14 +420,14 @@ const testCases = [
     'warn',
   ],
   [
-    "_%_Oggetto al posto di '{0}'_%_",
+    "_%_Oggetto al posto di &#123;0}_%_",
     <Translate t={'_%_Ciao {0}_%_'} a={{ name: 'Mario' }} />,
     'Ciao ⁇ (l’oggetto contiene i nomi, non è {0})',
     "<Translate t={'_%_Ciao {0}_%_'} a={{ name: 'Mario' }} />",
     'warn',
   ],
   [
-    "_%_Elemento come '{0}'_%_",
+    "_%_Elemento come &#123;0}_%_",
     <Translate t={['_%_Ciao {0}_%_', <b>Mario</b>]} />,
     <>
       Ciao <b>Mario</b>
@@ -435,16 +435,16 @@ const testCases = [
     "<Translate t={['_%_Ciao {0}_%_', <b>Mario</b>]} />",
   ],
   [
-    "_%_'{0}' dentro &lt;b&gt;_%_",
+    "_%_&#123;0} dentro &lt;b&gt;_%_",
     <Translate t={['_%_<b>{0}</b>_%_', 'bold']} />,
     <b>bold</b>,
     "<Translate t={['_%_<b>{0}</b>_%_', 'bold']} />",
   ],
   [
-    '_%_Graffa letterale con apostrofi_%_',
-    <Translate t={"_%_Premi '{Invio}'_%_"} />,
-    'Premi {Invio}',
-    `<Translate t={"_%_Premi '{Invio}'_%_"} />`,
+    '_%_Apostrofi intorno a un argomento_%_',
+    <Translate t={["_%_Premi '{0}'_%_", 'Invio']} />,
+    "Premi 'Invio' (l’apostrofo è testo, non cita)",
+    `<Translate t={["_%_Premi '{0}'_%_", 'Invio']} />`,
   ],
   [
     '_%_Graffa letterale con entità_%_',
@@ -460,11 +460,10 @@ const testCases = [
     'warn',
   ],
   [
-    '_%_La trappola dell’apostrofo_%_',
+    '_%_Apostrofo dritto_%_',
     <Translate t={["_%_dell'{0}_%_", 'albero']} />,
-    "dell'{0} (l’apostrofo apre una citazione: testo semplice + warning di build)",
+    "dell'albero",
     `<Translate t={["_%_dell'{0}_%_", 'albero']} />`,
-    'warn',
   ],
   [
     '_%_Apostrofo tipografico_%_',
@@ -475,8 +474,14 @@ const testCases = [
   [
     '_%_Apostrofo raddoppiato_%_',
     <Translate t={["_%_dell''{0}_%_", 'albero']} />,
-    "dell'albero",
+    "dell''albero (nessun escape: due apostrofi restano due)",
     `<Translate t={["_%_dell''{0}_%_", 'albero']} />`,
+  ],
+  [
+    '_%_&num; letterale in un plurale_%_',
+    <Translate t={['_%_{0, plural, one {# voto, il &num;1} other {# voti}}_%_', 1]} />,
+    '1 voto, il #1',
+    "<Translate t={['_%_{0, plural, one {# voto, il &num;1} other {# voti}}_%_', 1]} />",
   ],
 
   // ============================================================

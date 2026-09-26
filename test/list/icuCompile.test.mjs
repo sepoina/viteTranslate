@@ -120,12 +120,24 @@ console.log("\n== solo se un nome è usato, _key entra nel modulo ==");
   ok_("_key assente quando nessun nome è usato", !codeSenzaNome.includes("function _key("));
 }
 
-console.log("\n== citazione MF1: nessun import, stringa statica ==");
+console.log("\n== graffa letterale con entità: nessun import, stringa statica ==");
 {
-  const { table: T, code } = await load({ letterale: "'{0}' letterale" });
+  const { table: T, code } = await load({ letterale: "&#123;0} letterale" });
   eq("valore statico", "string", typeof T.letterale);
   eq("testo", "{0} letterale", T.letterale);
   ok_("nessun import da virtual:vitetranslate/icu", !code.includes("vitetranslate/icu"));
+}
+
+console.log("\n== apostrofi e entità ICU (4.6.3) ==");
+{
+  const { table: T } = await load({
+    elisione: "dell'{0}",
+    citato: "Premi '{0}'",
+    plurale: "{0, plural, one {l'# &num; &lbrace;x&rbrace;} other {gli #}}",
+  });
+  eq("dell'{0}", "dell'albero", show(T.elisione(["albero"])));
+  eq("'{0}' mostra il valore fra apostrofi", "Premi 'Invio'", show(T.citato(["Invio"])));
+  eq("&num; e &lbrace; letterali in un plurale", "l'1 # {x}", show(T.plurale([1])));
 }
 
 console.log("\n== un modulo senza ICU non importa il runtime ICU ==");

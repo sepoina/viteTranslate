@@ -74,6 +74,13 @@ eq(
 eq("sorgente non ICU, candidato ICU", "icu-introduced", reason("K", "ciao %s", "ciao {0}"));
 eq("sorgente ICU, candidato %s", "icu-missing", reason("K", "ciao {0}", "ciao %s"));
 
+// La trace del 2026-09-25: il modello "abbelliva" '{0}' in ’{0}’ e, con la citazione MF1, gli
+// argomenti cambiavano. Dalla 4.6.3 l'apostrofo è testo: le virgolette sono affari del traduttore.
+console.log("\n== ICU: gli apostrofi non cambiano gli argomenti ==");
+eq("'{0}' -> ’{0}’", true, ok("K", "'{0}' senza argomenti", "’{0}’ 无参数"));
+eq("'{0}' -> 「{0}」", true, ok("K", "Premi '{Invio}'", "按「{Invio}」"));
+eq("dell'{0} -> de l'{0}", true, ok("K", "dell'{0}", "de l'{0}"));
+
 console.log("\n== ICU: rami extra e lunghezza fino a 8x sono ammessi ==");
 eq(
   "<b> in 3 rami contro 2 nel sorgente -> ok",
