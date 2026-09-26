@@ -221,8 +221,10 @@ console.log("\n== il modulo virtuale generato dal plugin ==");
   };
   try {
     mkdirSync(locale, { recursive: true });
-    scrivi("it-IT", { App_a: "uno", App_b: "due", App_c: "tre" });
-    scrivi("en-US", { App_a: "one", App_b: null });
+    // App_d: tradotta, ma con un argomento ICU diverso dal sorgente: il compilatore la scarta
+    // e mostra la sorgente, quindi per 🔹 è non tradotta. App_e: ICU tradotta bene.
+    scrivi("it-IT", { App_a: "uno", App_b: "due", App_c: "tre", App_d: "Ciao {nome}", App_e: "Ciao {nome}" });
+    scrivi("en-US", { App_a: "one", App_b: null, App_d: "Hi {name}", App_e: "Hi {nome}" });
 
     const genera = async (errorSolve, isProduction) => {
       const [, plugin] = vitetranslate({ baseDir: dir, localeDir: "locale", sourceLanguage: "it-IT", preloadedLanguages: ["en-US"], errorSolve });
@@ -232,9 +234,9 @@ console.log("\n== il modulo virtuale generato dal plugin ==");
 
     const inDev = await genera(undefined, false);
     eq("dev: il manifest porta errorSolve", true, inDev.includes('"malformed":"‼️"'));
-    // App_b è a null in en-US, App_c manca del tutto: entrambe non tradotte "da qualche parte".
-    // App_a è tradotta ovunque e non deve comparire.
-    eq("dev: partiallyTranslated elenca le due incomplete", true, inDev.includes('export const partiallyTranslated = {"App_b":1,"App_c":1};'));
+    // App_b è a null in en-US, App_c manca del tutto, App_d ha argomenti ICU diversi: tutte e
+    // tre non tradotte "da qualche parte". App_a e App_e sono a posto e non devono comparire.
+    eq("dev: partiallyTranslated elenca le tre incomplete", true, inDev.includes('export const partiallyTranslated = {"App_b":1,"App_c":1,"App_d":1};'));
 
     // I nomi nel manifest sono quelli scritti in vite.config.js dentro `mark`, in quell'ordine.
     eq("dev: il manifest usa i nomi di mark", true, inDev.includes('"badData":"🚫","malformed":"‼️","untranslated":"🔸","notFullyTranslated":"🔹","absentDataInArray":"⁇"'));

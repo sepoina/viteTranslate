@@ -85,5 +85,15 @@ console.log("\n== manifest: export icu / icuDev ==");
   ok_("senza opzione icu: export const icu = null", dev.code.includes("export const icu = null;"));
 }
 
+console.log("\n== config(): i moduli virtuali raggiungibili anche in SSR ==");
+{
+  // Sync spento: config() non deve scrivere nelle tabelle del playground.
+  const plugin = makePlugin({ autoSyncDev: false, autoSyncBuild: false });
+  const out = await plugin.config({}, { command: "serve", mode: "development" });
+  eq("optimizeDeps.exclude", JSON.stringify(["@sepoina/vitetranslate"]), JSON.stringify(out.optimizeDeps?.exclude));
+  // Senza, Vite esternalizza il pacchetto in SSR e Node muore su "virtual:" (ERR_UNSUPPORTED_ESM_URL_SCHEME).
+  eq("ssr.noExternal", JSON.stringify(["@sepoina/vitetranslate"]), JSON.stringify(out.ssr?.noExternal));
+}
+
 console.log(fail === 0 ? "\nTUTTI OK" : `\n${fail} FALLITI`);
 process.exitCode = fail === 0 ? 0 : 1;

@@ -15,6 +15,7 @@ import { spawnSync } from "node:child_process";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import updateLanguage from "../../lib/dev/vite/updateLanguage.js";
+import { printSyncSummary } from "../../lib/dev/vite/uty/syncReport.js";
 import guardMassErase from "../../lib/dev/vite/uty/guardMassErase.js";
 import readLanguageFile from "../../lib/dev/vite/uty/readLanguageFile.js";
 import { languageFileName } from "../../lib/dev/vite/uty/languageFileFormat.js";
@@ -403,6 +404,23 @@ console.log("\n== testi che il round-trip su file non deve alterare ==");
   eq("e la sorgente lo conserva intatto", `finto ${SEPARATORE}------`, (await p2.tabella("it-IT")).App_a);
 }
 
+// ------------------------------------------------ ICU che non combacia col sorgente
+console.log("\n== ICU: traduzione con argomenti diversi dal sorgente ==");
+{
+  const p = progetto();
+  const sorgente = { App_a: "Ciao {nome}", App_b: "Hai {0, plural, one {# file} other {# file}}" };
+  await p.sync(sorgente);
+  p.scrivi("en-US", 'App_a: "Hi {name}"\nApp_b: "You have {0, plural, one {# file} other {# files}}"\n');
+  const { esito } = await p.sync(sorgente);
+  const en = esito.languages.find((l) => l.tag === "en-US");
+  // Nessuna chiave manca, ma App_a verrebbe scartata dal compilatore (invariante 21).
+  eq("esito: nessuna chiave mancante", 0, en?.missing);
+  eq("esito: una ICU che non combacia", 1, en?.icuMismatch);
+  const riepilogo = await zitto(async () => printSyncSummary(esito, "it-IT"));
+  eq("riepilogo: niente 'all ok!'", false, riepilogo.includes("all ok"));
+  eq("riepilogo: la segnala", true, riepilogo.includes("1 ICU key(s) not matching the source"));
+}
+
 // ------------------------------------------------- il comando, dalla riga di comando
 console.log("\n== vtranslate-cli: trovare la config ==");
 {
@@ -452,6 +470,16 @@ export default { plugins: [vitetranslate({ localeDir, sourceLanguage: "it-IT" })
     const { status } = lancia(radice);
     eq(`${nome}: il comando gira`, 0, status);
     eq(`${nome}: la tabella è stata scritta`, true, tradotta(radice));
+  }
+
+  // --add su una cartella locale che non esiste ancora: l'intestazione conta anche la sorgente,
+  // che il sync scrive subito dopo (prima diceva "only source language" sopra due lingue).
+  {
+    const radice = progettoCompleto("vite.config.js", CONFIG_JS);
+    const esito = spawnSync(process.execPath, [CLI, "--add", "en-US"], { cwd: radice, encoding: "utf8" });
+    const uscita = ((esito.stdout ?? "") + (esito.stderr ?? "")).replace(/\x1b\[[0-9;]*m/g, "");
+    eq("--add da zero: il comando gira", 0, esito.status);
+    eq("--add da zero: intestazione con 2 lingue", true, /translations: "locale" \(2 languages\)/.test(uscita));
   }
 
   // TypeScript: i tipi li toglie Node stesso, dalla 23.6 senza flag. Su un Node più vecchio il
