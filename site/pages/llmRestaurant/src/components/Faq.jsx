@@ -32,14 +32,14 @@ export default function Faq() {
     <section className="section">
       <div className="wrap faq">
         <header className="reveal">
-          <p className="eyebrow"><Translate>_%_Domande frequenti_%_</Translate></p>
+          <p className="eyebrow"><Translate>Domande frequenti</Translate></p>
           <h2 className="title">
-            <Translate t="_%_Prima di <i>sedervi a tavola</i>_%_" />
+            <Translate>Prima di <i>sedervi a tavola</i></Translate>
           </h2>
           <p>
             <Translate>
-              _%_Non trovate la risposta che cercate? Scriveteci o chiamateci: in sala c'è sempre
-              qualcuno felice di raccontarvi il ristorante._%_
+              Non trovate la risposta che cercate? Scriveteci o chiamateci: in sala c'è sempre
+              qualcuno felice di raccontarvi il ristorante.
             </Translate>
           </p>
         </header>

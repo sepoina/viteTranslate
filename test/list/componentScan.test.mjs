@@ -6,7 +6,9 @@
 import { createRequire } from "node:module";
 import { scanComponents } from "../../lib/dev/babel/componentScan.js";
 
-const { parseSync } = createRequire(import.meta.url)("@babel/core");
+const babel = createRequire(import.meta.url)("@babel/core");
+const { parseSync } = babel;
+const VISITOR_KEYS = babel.types?.VISITOR_KEYS ?? null;
 
 let fail = 0;
 const eq = (nome, atteso, ottenuto) => {
@@ -166,6 +168,33 @@ console.log("\n== casi limite aggiuntivi ==");
   const { green } = scanComponents(ast);
   const fn = ast.program.body[0].declaration;
   eq("verde: esportata con un solo parametro 'props'", true, green.has(fn));
+}
+
+console.log("\n== La stessa mappa green, con e senza VISITOR_KEYS (4.6.4) ==");
+{
+  const casi = [
+    "export default function App() { return (<p/>); }",
+    "export const Card = () => { return (<p/>); };",
+    "const Card = () => (<p/>);",
+    "class C extends React.Component { render() { return (<p/>); } }",
+    "export function C() { const h = useThing(); return (<div>{items.map(i => <li key={i}>{i}</li>)}</div>); }",
+    "function C() { return (<p/>); } C();",
+    "export function RenderIcon({ name }) { return (<i className={name}/>); }",
+    "export function Card(props) { return (<div>{props.title}</div>); }",
+  ];
+  for (const code of casi) {
+    const ast = parse(code);
+    const { green: senza } = scanComponents(ast);
+    const { green: con } = scanComponents(ast, VISITOR_KEYS);
+    const chiaviSenza = [...senza.keys()];
+    const chiaviCon = [...con.keys()];
+    const stessiNodi = chiaviSenza.length === chiaviCon.length && chiaviSenza.every((n) => con.has(n));
+    eq(`stessi nodi verdi: ${code.slice(0, 40)}…`, true, stessiNodi);
+    if (stessiNodi) {
+      const stessiOffset = chiaviSenza.every((n) => senza.get(n) === con.get(n));
+      eq(`stessi offset di iniezione: ${code.slice(0, 40)}…`, true, stessiOffset);
+    }
+  }
 }
 
 console.log(fail === 0 ? "\nTUTTI OK" : `\n${fail} FALLITI`);

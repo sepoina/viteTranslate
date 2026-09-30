@@ -80,6 +80,7 @@ export interface TranslateProps {
  * Rende una stringa marcata con `_%_..._%_`, risolvendola nella lingua corrente.
  *
  * ```tsx
+ * <Translate>Ciao <b>{nome}</b>, leggi la <a href="/d">guida</a></Translate>
  * <Translate>_%_Benvenuto_%_</Translate>
  * <Translate t={['_%_Ciao %s_%_', nome]} />
  * <Translate t="_%_Ciao %s_%_" a={[nome]} />
@@ -205,6 +206,12 @@ export declare function useTranslateToString(): (
  * **già compilato** (`t={...}` di `<Translate>`, non un `_%_...._%_` sorgente).
  */
 export declare function useTranslateNode(): (t: string, a?: TranslateArgs) => ReactNode;
+
+/**
+ * Un valore JSX reso come lo renderebbe React: `null`, `undefined` e i booleani diventano `""`.
+ * Lo inietta la macro attorno a ogni valore che sposta negli argomenti; scritto a mano serve di rado.
+ */
+export declare function jsxArg<T>(value: T): T extends null | undefined | boolean ? "" : T;
 
 /**
  * Converte una stringa con HTML elementare in nodi React, senza `dangerouslySetInnerHTML`.

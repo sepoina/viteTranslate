@@ -110,5 +110,20 @@ console.log("\n== T32 where ricavato dalla chiave ==");
   eq("where con underscore nel nome componente", "My_Component", batch[0].where);
 }
 
+// T33 — hints (4.6.4) sopravvive alla ricostruzione dell'item del lotto
+console.log("\n== T33 hints conservato dentro buildBatches ==");
+{
+  const entries = [
+    { key: "A_1", text: "Ciao <1>qui</1>", hints: { "<1>": "<a href>" } },
+    { key: "B_2", text: "Ciao" }, // nessuna indicazione: niente hints nel lotto
+  ];
+  const [batch] = buildBatches(entries, params());
+  const a = batch.find((it) => it.key === "A_1");
+  const b = batch.find((it) => it.key === "B_2");
+  eq("hints presente per la voce che ce l'ha", { "<1>": "<a href>" }, a.hints);
+  eq("nessun hints per l'altra", undefined, b.hints);
+  eq("where resta calcolato come sempre", "A", a.where);
+}
+
 console.log(fail ? `\n${fail} asserzioni fallite` : "\ntutto ok");
 process.exit(fail ? 1 : 0);

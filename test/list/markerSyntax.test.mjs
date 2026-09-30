@@ -6,6 +6,7 @@
 //   node test/list/markerSyntax.test.mjs
 import {
   compiledMarker, isCompiledMarker, SOURCE_OPEN, SOURCE_CLOSE, UNTRANSLATED_KEY,
+  mayHaveMarkers, SLOT_TAG_RE, RUNTIME_IMPORT,
 } from "../../lib/markerSyntax.js";
 import { markerKey, markerFallback, stripSourceMarker } from "../../lib/react/parseCompiledMarker.js";
 import { markedTextOf, registerMarker } from "../../lib/dev/babel/markerCore.js";
@@ -62,6 +63,32 @@ console.log("\n== UNTRANSLATED_KEY non può collidere con una chiave generata ==
     const id = registerMarker(testo, "src/App.jsx", table, "/repo", silenzio);
     eq(`id per ${JSON.stringify(testo).slice(0, 20)} non è UNTRANSLATED_KEY`, false, id === UNTRANSLATED_KEY);
   }
+}
+
+console.log("\n== mayHaveMarkers (4.6.4): pre-filtro dei file, _%_ oppure import della macro ==");
+{
+  const casi = [
+    ["un marcatore sorgente da solo", `const x = "${SOURCE_OPEN}ciao${SOURCE_CLOSE}";`, true],
+    ["import di Translate, niente _%_", `import { Translate } from "${RUNTIME_IMPORT}";\nexport default () => <Translate>Ciao</Translate>;`, true],
+    ["import di useTranslateToString, niente _%_", `import { useTranslateToString } from "${RUNTIME_IMPORT}";`, true],
+    ["import con alias", `import { Translate as T } from "${RUNTIME_IMPORT}";`, true],
+    ["nessun marcatore, nessun import del runtime", `export default () => <div>ciao</div>;`, false],
+    ["il pacchetto importato ma non Translate/useTranslateToString", `import { useTranslateNode } from "${RUNTIME_IMPORT}";`, false],
+    ["TranslateContainer non e' Translate (nessun confine di parola)", `import { TranslateContainer } from "${RUNTIME_IMPORT}";`, false],
+  ];
+  for (const [nome, code, atteso] of casi) eq(nome, atteso, mayHaveMarkers(code));
+}
+
+console.log("\n== SLOT_TAG_RE: matchAll su piu' slot ==");
+{
+  const matches = [..."<0>a</0> <12>b</12>".matchAll(SLOT_TAG_RE)];
+  eq("quattro token", 4, matches.length);
+  eq("apertura 0", "0", matches[0][2]);
+  eq("apertura 0 non e' chiusura", "", matches[0][1]);
+  eq("chiusura 0", "0", matches[1][2]);
+  eq("chiusura 0 e' chiusura", "/", matches[1][1]);
+  eq("apertura 12", "12", matches[2][2]);
+  eq("chiusura 12", "12", matches[3][2]);
 }
 
 console.log(fail === 0 ? "\nTUTTI OK" : `\n${fail} FALLITI`);

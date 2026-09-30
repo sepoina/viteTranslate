@@ -71,11 +71,14 @@ console.log("\n== manifest: export icu / icuDev ==");
   const dev = await plugin.load(VIRTUAL_LANG);
   ok_('dev: contiene export const icu = {"timeZone":"Europe/Rome"}', dev.code.includes('export const icu = {"timeZone":"Europe/Rome"};'));
   ok_("dev: icuDev riesporta interpretIcu da lib/icu/devInterpret.js", /export \{ interpretIcu as icuDev \} from ".*\/lib\/icu\/devInterpret\.js";/.test(dev.code));
+  // 4.6.4: stesso trattamento di icuDev per devRender, il fallback di sviluppo senza DOM.
+  ok_("dev: devRender riesportato da lib/markup/devRender.js", /export \{ devRender \} from ".*\/lib\/markup\/devRender\.js";/.test(dev.code));
 
   const pluginBuild = makePlugin({ icu: { timeZone: "Europe/Rome" } });
   pluginBuild.configResolved({ isProduction: true, build: {} });
   const build = await pluginBuild.load(VIRTUAL_LANG);
   ok_("build: icuDev = null", build.code.includes("export const icuDev = null;"));
+  ok_("build: devRender = null", build.code.includes("export const devRender = null;"));
   ok_('build: icu = {"timeZone":"Europe/Rome"} comunque presente', build.code.includes('export const icu = {"timeZone":"Europe/Rome"};'));
 }
 {

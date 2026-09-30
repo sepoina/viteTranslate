@@ -20,6 +20,7 @@ const STUB = `
 const Fragment = "#frag";
 const jsx = (type, props) => ({ type, children: props.children });
 const jsxs = jsx;
+const cloneElement = (el, _props, ...children) => ({ ...el, children: children.length === 1 ? children[0] : children });
 `;
 function show(v) {
   if (v === null || v === undefined) return String(v);
@@ -53,7 +54,9 @@ for (const file of files) {
     icuModule: ICU_RUNTIME_URL,
     sourceTag: "it-IT",
     warn: (msg, kind) => warns.push({ msg, kind }),
-  }).replace(/import \{[^}]*\} from "react\/jsx-runtime";/, STUB);
+  })
+    .replace(/import \{[^}]*\} from "react\/jsx-runtime";/, STUB)
+    .replace(/import \{ cloneElement \} from "react";\n?/, "");
   const mod = await import("data:text/javascript," + encodeURIComponent(code));
   const T = mod.default;
 

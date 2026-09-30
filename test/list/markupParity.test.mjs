@@ -1,6 +1,6 @@
 // I due parser di markup devono concordare.
 //
-// Il dialetto ne ha due: `lib/dev/compile/parseMarkup.js` compila le tabelle a build time,
+// Il dialetto ne ha due: `lib/markup/parseMarkup.js` compila le tabelle a build time,
 // `lib/react/basicHtmlToNodes.js` interpreta a runtime (fallback di sviluppo e API pubblica).
 // Condividono le liste di tag via htmlDialect.js, ma NON l'algoritmo: regex e stack da una
 // parte, il parser HTML del browser dall'altra. Una divergenza non fa fallire niente — fa
@@ -17,8 +17,8 @@
 //
 //   node test/list/markupParity.test.mjs
 import { decodeHTML, decodeHTMLStrict } from "entities";
-import parseMarkup from "../../lib/dev/compile/parseMarkup.js";
-import { NAMED_ENTITIES } from "../../lib/dev/compile/decodeEntities.js";
+import parseMarkup from "../../lib/markup/parseMarkup.js";
+import { NAMED_ENTITIES } from "../../lib/markup/decodeEntities.js";
 import { VOID_TAGS, HAS_HTML_RE } from "../../lib/htmlDialect.js";
 import { CORPUS, CORPUS_ENTITA, ENTITA_DIVERGENTI } from "./markupCorpus.mjs";
 import { ATTESO_BROWSER } from "./markupExpected.mjs";

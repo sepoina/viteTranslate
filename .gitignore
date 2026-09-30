@@ -25,6 +25,7 @@ pnpm-debug.log*
 
 # Pacchetti generati localmente
 *.tgz
+*.vsix
 
 # Editor / OS
 .vscode/*

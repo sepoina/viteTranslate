@@ -2,7 +2,7 @@
 #      American English
 #       |    code: en-US
 #       |    missing key: 0
-#       |    processed: 2026-09-23 13:50
+#       |    processed: 2026-09-29 02:33
 #       |    TableVersion: 260905
 #  -------------------------------------------------
 #
@@ -77,7 +77,6 @@ Footer_18jlbfy: "All rights reserved"
 Footer_18m87i4: "At the end of the pier, <i>where the road ends</i>"
 Footer_19f7dz9: "icons"
 Footer_1aiix8y: "Tasting menu"
-Footer_1busaa2: "<b>%s is an imaginary restaurant</b>, and the name is no accident: it's the library that translates this page (version %s). Names, addresses, reviews and prices are invented. Photos come from Unsplash, under the %s license: free to use, including commercially."
 Footer_1d5fsap: "distribution of CSS and icons"
 Footer_1fwevhj: "Private events"
 Footer_1ibiage: "The seasonal menu"
@@ -96,11 +95,12 @@ Footer_lkx3so: "More viteTranslate demos"
 Footer_pfx7cz: "Placeholder map"
 Footer_psyoz5: "typefaces, from Google Fonts"
 Footer_riaj14: "Our story"
+Footer_rstbyt: "<b>{1} is an imaginary restaurant</b>, and the name is no accident: it is the library that translates this page (version {version}). Names, addresses, reviews and prices are invented. The photos come from Unsplash, under the <2>Unsplash License</2>: free to use, including commercially."
 Footer_t8ngcu: "Sources and credits"
 Footer_upqfdw: "CSS framework, modules and drawers"
 Footer_vcb2t6: "Every Thursday, an email with the weekend's off-menu dishes."
-Gallery_13qjwor: "An evening <i>at %s</i>"
 Gallery_1wrj3ra: "Atmosphere"
+Gallery_48qlpv: "An evening <i>at {0}</i>"
 Gallery_oravel: "Two dining rooms, a terrace and an open kitchen where the fire never goes out before midnight. Come early: the sunset, from here, lasts longer."
 Header_1g0u7om: "Events"
 Header_1gdmmk3: "Tasting"

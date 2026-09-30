@@ -2,7 +2,7 @@
 #      Deutsch (Deutschland)
 #       |    code: de-DE
 #       |    missing key: 0
-#       |    processed: 2026-09-18 22:21
+#       |    processed: 2026-09-29 02:36
 #       |    TableVersion: 260905
 #  -------------------------------------------------
 #
@@ -10,7 +10,7 @@ App_19xh4q: "- doc/llm.md, die Seite, die alles Weitere erklärt"
 App_1ff9ley: "Der API-Schlüssel kommt nie in <b>vite.config.js</b>: dort steht nur der Name der Umgebungsvariable."
 App_1h2ew8b: "Die Synchronisierung erstellt die Tabellen und setzt neue Strings auf null."
 App_1tmvrrb: "Der Validator vergleicht Platzhalter und Tags mit der Quelle: Was nicht durchkommt, bleibt leer."
+App_2oq162: "{1} Sprachen · Version&nbsp;<b>{version}</b>"
 App_7dfaq2: "Diese Seite spricht mehrere Sprachen, aber nur eine hat ein Mensch geschrieben: die anderen sind Tabellen mit lauter leeren Zellen. So bleibt es nicht — das Modell füllt sie in einem Durchgang, wenn du vitetranslate --llm-translate startest, und bevor du irgendetwas ausgibst, zeigt es dir die Schätzung und fragt dich, ob du fortfahren willst."
-App_kbgmge: "Der Text wird dort geschrieben, wo er gebraucht wird, zwischen zwei Markern: kein Schlüssel, den man erfinden müsste."
+App_h9n9tx: "Der Text wird dort geschrieben, wo er gebraucht wird, im JSX: kein Schlüssel zu erfinden."
 App_prwil0: "Die CLI schätzt die Kosten, fragt nach Bestätigung und füllt die leeren Zellen."
-App_snjsof: "%s Sprachen · Version&nbsp;<b>%s</b>"

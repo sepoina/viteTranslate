@@ -2,7 +2,7 @@
 #      italiano (Italia) (sourceLanguage)
 #       |    code: it-IT
 #       |    missing key: 0
-#       |    processed: 2026-09-23 13:50
+#       |    processed: 2026-09-29 02:33
 #       |    TableVersion: 260905
 #  -------------------------------------------------
 #
@@ -77,7 +77,6 @@ Footer_18jlbfy: "Tutti i diritti riservati"
 Footer_18m87i4: "In fondo al molo, <i>dove finisce la strada</i>"
 Footer_19f7dz9: "icone"
 Footer_1aiix8y: "Menù degustazione"
-Footer_1busaa2: "<b>%s è un ristorante immaginario</b>, e il nome non è un caso: è la libreria che traduce questa pagina (versione %s). Nomi, indirizzi, recensioni e prezzi sono inventati. Le foto vengono da Unsplash, con licenza %s: uso libero, anche commerciale."
 Footer_1d5fsap: "distribuzione di CSS e icone"
 Footer_1fwevhj: "Eventi privati"
 Footer_1ibiage: "Il menù di stagione"
@@ -96,11 +95,12 @@ Footer_lkx3so: "Le altre demo di viteTranslate"
 Footer_pfx7cz: "Mappa segnaposto"
 Footer_psyoz5: "caratteri tipografici, da Google Fonts"
 Footer_riaj14: "La storia"
+Footer_rstbyt: "<b>{1} è un ristorante immaginario</b>, e il nome non è un caso: è la libreria che traduce questa pagina (versione {version}). Nomi, indirizzi, recensioni e prezzi sono inventati. Le foto vengono da Unsplash, con licenza <2>Unsplash License</2>: uso libero, anche commerciale."
 Footer_t8ngcu: "Fonti e crediti"
 Footer_upqfdw: "framework CSS, moduli e tendine"
 Footer_vcb2t6: "Ogni giovedì, una mail con i piatti fuori carta del fine settimana."
-Gallery_13qjwor: "Una sera <i>da %s</i>"
 Gallery_1wrj3ra: "Atmosfera"
+Gallery_48qlpv: "Una sera <i>da {0}</i>"
 Gallery_oravel: "Due sale, una terrazza e una cucina a vista dove il fuoco non si spegne mai prima di mezzanotte. Venite presto: il tramonto, da qui, dura più a lungo."
 Header_1g0u7om: "Eventi"
 Header_1gdmmk3: "Degustazione"

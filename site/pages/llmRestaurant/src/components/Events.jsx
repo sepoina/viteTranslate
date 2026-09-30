@@ -28,15 +28,15 @@ export default function Events() {
           <Photo photo={PHOTOS.events} w={1100} className="wide" />
         </div>
         <div className="prose reveal">
-          <p className="eyebrow"><Translate>_%_Eventi privati_%_</Translate></p>
+          <p className="eyebrow"><Translate>Eventi privati</Translate></p>
           <h2 className="title">
-            <Translate t="_%_Una tavola lunga <i>per i giorni importanti</i>_%_" />
+            <Translate>Una tavola lunga <i>per i giorni importanti</i></Translate>
           </h2>
           <p>
             <Translate>
-              _%_Compleanni, cene aziendali, matrimoni intimi: costruiamo il menù insieme a voi,
+              Compleanni, cene aziendali, matrimoni intimi: costruiamo il menù insieme a voi,
               partendo dal pescato della settimana e da quello che vi piace. Pensiamo noi anche ai
-              fiori, alla musica e alla torta._%_
+              fiori, alla musica e alla torta.
             </Translate>
           </p>
           <ul className="rooms">
@@ -51,7 +51,7 @@ export default function Events() {
             ))}
           </ul>
           <a href="mailto:eventi@vitetranslate.example" role="button" className="outline">
-            <i className="ph ph-envelope-simple" aria-hidden="true" /> <Translate>_%_Richiedi un preventivo_%_</Translate>
+            <i className="ph ph-envelope-simple" aria-hidden="true" /> <Translate>Richiedi un preventivo</Translate>
           </a>
         </div>
       </div>

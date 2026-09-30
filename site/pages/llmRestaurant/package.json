@@ -11,7 +11,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@sepoina/vitetranslate": "^4.6.3-rc.1",
+    "@sepoina/vitetranslate": "^4.6.4-rc.2",
     "react": "^19.2.8",
     "react-dom": "^19.2.8"
   },

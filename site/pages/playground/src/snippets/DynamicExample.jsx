@@ -7,7 +7,7 @@ export default function DynamicExample() {
   return (
     <>
       <p>
-        <Translate t={["_%_Ciao %s, come stai?_%_", username]} />
+        <Translate>Ciao {username}, come stai?</Translate>
       </p>
       <input type="text" value={username} onChange={(e) => setUsername(e.target.value)} />
     </>

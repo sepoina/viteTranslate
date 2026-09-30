@@ -24,9 +24,9 @@ export default function Reviews() {
     <section className="section section--sand">
       <div className="wrap">
         <header className="section-head section-head--center reveal">
-          <p className="eyebrow"><Translate>_%_Dicono di noi_%_</Translate></p>
+          <p className="eyebrow"><Translate>Dicono di noi</Translate></p>
           <h2 className="title">
-            <Translate t="_%_Le parole <i>dei nostri ospiti</i>_%_" />
+            <Translate>Le parole <i>dei nostri ospiti</i></Translate>
           </h2>
         </header>
         <div className="reviews">

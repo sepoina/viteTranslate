@@ -19,6 +19,7 @@ import { printSyncSummary } from "../../lib/dev/vite/uty/syncReport.js";
 import guardMassErase from "../../lib/dev/vite/uty/guardMassErase.js";
 import readLanguageFile from "../../lib/dev/vite/uty/readLanguageFile.js";
 import { languageFileName } from "../../lib/dev/vite/uty/languageFileFormat.js";
+import { placeholderShape, convertPlaceholders } from "../../lib/dev/vite/uty/placeholderShape.js";
 
 let fail = 0;
 const eq = (nome, atteso, ottenuto) => {
@@ -521,6 +522,57 @@ export default { plugins: [vitetranslate({ localeDir, sourceLanguage: "it-IT" })
     eq("senza il plugin: esce in errore", 1, status);
     eq("senza il plugin: nomina il file letto", true, uscita.includes("vite.config.mjs"));
   }
+}
+
+console.log("\n== placeholderShape / convertPlaceholders (piano 4.6.4), i 5 casi verificati nel piano ==");
+{
+  const casi = [
+    ["Ciao <b>%s</b>", "Ciao <b>{username}</b>", "Hi <b>%s</b>", "Hi <b>{username}</b>"],
+    ["%s lingue · versione&nbsp;<b>%s</b>", "{1} lingue · versione&nbsp;<b>{version}</b>",
+      "%s languages · version&nbsp;<b>%s</b>", "{1} languages · version&nbsp;<b>{version}</b>"],
+    ["Ciao {0}, hai {1} file", "Ciao {name}, hai {1} file", "{1}件のファイル、{0}さん", "{1}件のファイル、{name}さん"],
+    ["Hai {0} file", "Hai {count} file", "{0, plural, one {# file} other {# files}}", "{count, plural, one {# file} other {# files}}"],
+    ["Ciao %s", "Ciao {name}", "Hi %s and %s", null],
+  ];
+  for (const [vecchioSorgente, nuovoSorgente, traduzione, atteso] of casi) {
+    const { shape: shapeV, tokens: from } = placeholderShape(vecchioSorgente);
+    const { shape: shapeN, tokens: to } = placeholderShape(nuovoSorgente);
+    eq(`stessa forma: ${vecchioSorgente} <-> ${nuovoSorgente}`, shapeV, shapeN);
+    eq(`conversione: ${JSON.stringify(traduzione)}`, atteso, convertPlaceholders(traduzione, { from, to }));
+  }
+}
+
+console.log("\n== rename con conversione dei segnaposto: la traduzione segue la chiave (4.6.4) ==");
+{
+  const p = progetto();
+  await p.sync({ App_a: "Ciao %s" });
+  p.scrivi("en-US", "");
+  await p.sync({ App_a: "Ciao %s" });
+  p.scrivi("en-US", p.testo("en-US").replace("App_a: null", 'App_a: "Hi %s"'));
+  // Il sorgente e' passato alla macro: stesso testo a meno della FORMA del segnaposto — "%s"
+  // diventato "{name}". Chiave diversa (un'altra conversione a monte l'avrebbe cambiata comunque).
+  await p.sync({ App_b: "Ciao {name}" });
+
+  const t = p.tabella("en-US");
+  eq("la chiave nuova eredita la traduzione CONVERTITA", "Hi {name}", t.App_b);
+  eq("la vecchia chiave non resta in giro", undefined, t.App_a);
+  eq("e non risulta da tradurre", false, p.testo("en-US").includes(SEPARATORE));
+}
+
+console.log("\n== rename con conversione: conteggio sbagliato -> null, mai un valore inventato ==");
+{
+  const p = progetto();
+  await p.sync({ App_a: "Ciao %s" });
+  p.scrivi("en-US", "");
+  await p.sync({ App_a: "Ciao %s" });
+  // Due "%s" nella traduzione contro un solo segnaposto nel sorgente vecchio: la conversione
+  // non è sicura, e una voce a null è meglio di una che mostra l'argomento sbagliato.
+  p.scrivi("en-US", p.testo("en-US").replace("App_a: null", 'App_a: "Hi %s %s"'));
+  await p.sync({ App_b: "Ciao {name}" });
+
+  const t = p.tabella("en-US");
+  eq("la conversione non sicura non si eredita: resta null", null, t.App_b);
+  eq("e la chiave torna da tradurre", true, p.testo("en-US").includes(SEPARATORE));
 }
 
 for (const dir of temporanee) rmSync(dir, { recursive: true, force: true });

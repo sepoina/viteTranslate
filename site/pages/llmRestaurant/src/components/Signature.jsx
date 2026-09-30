@@ -16,7 +16,7 @@ const DISHES = [
   {
     photo: PHOTOS.bream,
     name: "_%_Orata all'acqua pazza_%_",
-    text: "_%_La ricetta di nonna Ada, rimasta identica dal 1987: pomodorini, capperi, un filo d'olio e l'acqua di mare che dà il nome al piatto._%_",
+    text: "_%_La ricetta sdi nonna Ada, rimasta identica dal 1987: pomodorini, capperi, un filo d'olio e l'acqua di mare che dà il nome al piatto._%_",
   },
 ];
 
@@ -26,15 +26,15 @@ export default function Signature() {
       <div className="wrap">
         <header className="section-head section-head--row reveal">
           <div>
-            <p className="eyebrow eyebrow--light"><Translate>_%_I piatti firma_%_</Translate></p>
+            <p className="eyebrow eyebrow--light"><Translate>I piatti firma</Translate></p>
             <h2 className="title">
-              <Translate t="_%_Tre piatti che <i>non togliamo mai</i> dalla carta_%_" />
+              <Translate>Tre piatti che <i>non togliamo mai</i> dalla carta</Translate>
             </h2>
           </div>
           <p>
             <Translate>
-              _%_Li abbiamo provati a togliere, una volta. Per tre settimane gli ospiti li hanno
-              chiesti lo stesso, e sono tornati al loro posto._%_
+              Li abbiamo provati a togliere, una volta. Per tre settimane gli ospiti li hanno
+              chiesti lo stesso, e sono tornati al loro posto.
             </Translate>
           </p>
         </header>

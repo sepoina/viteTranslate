@@ -2,7 +2,7 @@
 #      American English
 #       |    code: en-US
 #       |    missing key: 0
-#       |    processed: 2026-09-27 01:06
+#       |    processed: 2026-09-29 02:35
 #       |    TableVersion: 260905
 #  -------------------------------------------------
 #
@@ -71,10 +71,10 @@ pages_jmgmfq: "The full tour, live: variables and markup, ICU plurals and dates,
 pages_vv62gb: "The restaurant translated by an LLM"
 Steps_13v2590: "Translate"
 Steps_196we9t: "By hand, by a translator, or with an LLM that respects placeholders and tags. Then you publish."
-Steps_1bx37id: "Where you write it, in the JSX. No key file to open, no name to come up with."
 Steps_1ocrzwe: "Sync"
 Steps_1r4qs32: "One command, or the dev server: the YAML tables stay aligned with the code."
 Steps_c656xa: "How it works"
-Steps_k6r36e: "Mark the sentence"
+Steps_frrvbq: "In the JSX, wherever it belongs: variables and tags included. No key file, no name to invent."
+Steps_nrgj8g: "Write the sentence"
 Steps_q96bco: "Three steps, <em>zero</em> bureaucracy."
 ThemeToggle_1i35buc: "Toggle theme"

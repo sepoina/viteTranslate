@@ -1,18 +1,16 @@
 #  -------------------------------------------------
 #      日本語 (日本)
 #       |    code: ja-JP
-#       |    missing key: 8
-#       |    processed: 2026-09-18 23:01
+#       |    missing key: 0
+#       |    processed: 2026-09-29 02:36
 #       |    TableVersion: 260905
 #  -------------------------------------------------
 #
-
-#  ----to be translated------------------------------------------
-App_19xh4q: null
-App_1ff9ley: null
-App_1h2ew8b: null
-App_1tmvrrb: null
-App_7dfaq2: null
-App_kbgmge: null
-App_prwil0: null
-App_snjsof: null
+App_19xh4q: "- doc/llm.md、残りすべてを説明しているページ"
+App_1ff9ley: "APIキーが<b>vite.config.js</b>に入ることはありません。そこにあるのは環境変数の名前だけです。"
+App_1h2ew8b: "同期はテーブルを作成し、新しい文字列をnullにします。"
+App_1tmvrrb: "バリデーターはプレースホルダーとタグをソースと照合します。通らなかったものは空のままです。"
+App_2oq162: "{1} 言語 · バージョン&nbsp;<b>{version}</b>"
+App_7dfaq2: "このページは複数の言語を話しますが、人が書いたのはそのうち1つだけ。ほかはすべてのセルが空のテーブルです。でもそのままにはなりません — vitetranslate --llm-translate を実行すると、モデルが一気に埋めてくれます。しかも何かを消費する前に、見積もりを見せて進めるかどうかを尋ねてきます。"
+App_h9n9tx: "テキストは必要な場所、つまりJSXに書きます。考案すべきキーはありません。"
+App_prwil0: "CLIはコストを見積もり、確認を求め、空のセルを埋めます。"

@@ -48,6 +48,19 @@ suite:
   against. It needs Chrome, which is why the recording is frozen in `list/markupExpected.mjs`
   instead of being measured on every run.
 
+## Editor extension (experimental)
+
+`idePlugin/` is a VS Code extension (VSCodium too): a panel of its own in the Activity Bar that sums up the viteTranslate
+setup of the project you are working on. It is not part of the npm package, and `npm run build` ignores it.
+
+```bash
+npm run ide:dev       # opens this repo in an Extension Development Host window
+npm run ide:package   # builds idePlugin/vitetranslate-ide-<version>.vsix
+npm run ide:install   # …and installs it (VT_CODE_CLI=codium for VSCodium)
+```
+
+Its tests are `test/list/idePlugin*.test.mjs`, part of `npm test`.
+
 ## Pull requests
 
 Keep PRs focused on a single change, and describe the *why* behind it — the diff already

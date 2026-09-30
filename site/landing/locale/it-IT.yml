@@ -2,7 +2,7 @@
 #      italiano (Italia) (sourceLanguage)
 #       |    code: it-IT
 #       |    missing key: 0
-#       |    processed: 2026-09-27 01:06
+#       |    processed: 2026-09-29 02:35
 #       |    TableVersion: 260905
 #  -------------------------------------------------
 #
@@ -71,10 +71,10 @@ pages_jmgmfq: "Il giro completo, dal vivo: variabili e markup, plurali e date IC
 pages_vv62gb: "Il ristorante tradotto da un LLM"
 Steps_13v2590: "Traduci"
 Steps_196we9t: "A mano, da un traduttore, o con un LLM che rispetta segnaposto e tag. Poi pubblichi."
-Steps_1bx37id: "Dove la scrivi, nel JSX. Nessun file di chiavi da aprire, nessun nome da trovare."
 Steps_1ocrzwe: "Sincronizza"
 Steps_1r4qs32: "Un comando, oppure il server di sviluppo: le tabelle YAML restano allineate al codice."
 Steps_c656xa: "Come funziona"
-Steps_k6r36e: "Marca la frase"
+Steps_frrvbq: "Nel JSX, dove serve: variabili e tag compresi. Nessun file di chiavi, nessun nome da inventare."
+Steps_nrgj8g: "Scrivi la frase"
 Steps_q96bco: "Tre passi, <em>zero</em> burocrazia."
 ThemeToggle_1i35buc: "Cambia tema"

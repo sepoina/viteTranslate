@@ -212,5 +212,63 @@ console.log("\n== errorSolve nel modulo compilato ==");
   eq("e il default resta ⁇", "ciao ⁇", show((await load({ k: "ciao %s" })).table.k()));
 }
 
+// --------------------------------------------------------------------- gli slot (4.6.4)
+// Stesso stub di sopra, con in più un `cloneElement` finto: il vero `_slot` lo chiama con
+// (elemento, undefined, ...figli), e lo stub restituisce un oggetto che `show` sa rendere.
+console.log("\n== gli slot (4.6.4) ==");
+const STUB_SLOT = `
+const Fragment = "#frag";
+const jsx = (type, props) => ({ type, children: props.children });
+const jsxs = jsx;
+const cloneElement = (e, _props, ...children) => ({ type: e.type, children });
+`;
+const ICU_RUNTIME_URL_SLOT = new URL("../../lib/icu/runtime.js", import.meta.url).href;
+async function loadSlot(table, sourceTable = null, options = {}) {
+  const code = compileLanguageModule(table, "it-IT", sourceTable, { icuModule: ICU_RUNTIME_URL_SLOT, sourceTag: "it-IT", ...options })
+    .replace(/import \{[^}]*\} from "react\/jsx-runtime";\n/, STUB_SLOT)
+    .replace(/import \{ cloneElement \} from "react";\n/, "");
+  const mod = await import("data:text/javascript," + encodeURIComponent(code));
+  return { table: mod.default, code };
+}
+// Un elemento React finto, come `linkFinto` sopra: solo `$$typeof` conta per `_slot`.
+const elementoFinto = (type = "a") => ({ $$typeof: Symbol.for("react.transitional.element"), type, children: "originale" });
+
+{
+  const { table: S } = await loadSlot({ slot: "<0>x</0>" });
+  eq("slot con un elemento -> clonato con i figli tradotti", "<a>x</a>", show(S.slot([elementoFinto()])));
+  eq("slot con argomento assente -> ⁇ + figli", "⁇x", show(S.slot()));
+  eq("slot con argomento stringa (non elemento) -> ⁇ + figli", "⁇x", show(S.slot(["non un elemento"])));
+  eq("voce di solo slot e' una funzione (counter.dyn)", "function", typeof S.slot);
+}
+{
+  const { table: S } = await loadSlot({ slotInTag: "<b><0>x</0></b>" });
+  eq("slot dentro un tag del dialetto", "<b><a>x</a></b>", show(S.slotInTag([elementoFinto()])));
+}
+{
+  // Argomento 0 per lo slot, argomento 1 per il conteggio del plurale: condividono il
+  // contatore (vedi il piano, "Posizionali e slot condividono il contatore").
+  const { table: S } = await loadSlot({ slotInPlurale: "{1, plural, one {<0># file</0>} other {<0># file</0>}}" });
+  eq("slot dentro un ramo plurale, one", "<a>1 file</a>", show(S.slotInPlurale([elementoFinto(), 1])));
+  eq("slot dentro un ramo plurale, other", "<a>3 file</a>", show(S.slotInPlurale([elementoFinto(), 3])));
+}
+{
+  // Sul codice GREZZO, prima della sostituzione di test: lo stub stesso definisce un
+  // `cloneElement` finto, e cercarlo nel codice già sostituito troverebbe sempre lo stub.
+  const grezzo = compileLanguageModule({ semplice: "ciao %s" }, "it-IT", null, { icuModule: ICU_RUNTIME_URL_SLOT, sourceTag: "it-IT" });
+  eq("used.slot falso -> nessun import di cloneElement", false, grezzo.includes("cloneElement"));
+}
+{
+  // Invariante 23: una traduzione non può introdurre un attributo. Un "<0 evil=...>" non è uno
+  // slot valido (SLOT_TAG_RE vuole solo cifre) né un tag del dialetto (TAG_RE vuole una lettera
+  // iniziale): resta testo letterale, l'attributo compreso.
+  const { table: S } = await loadSlot({ malizioso: '<0 evil="x">dentro</0>' });
+  eq("un attributo su uno slot non e' mai interpretato", '<0 evil="x">dentro', show(S.malizioso));
+}
+{
+  const catturati = [];
+  await loadSlot({ misto: "%s <0>x</0>" }, null, { warn: (msg, kind) => catturati.push(kind) });
+  eq('"%s" e uno slot nello stesso testo -> avviso slot-percent-s', true, catturati.includes("slot-percent-s"));
+}
+
 console.log(fail === 0 ? "\nTUTTI OK" : `\n${fail} FALLITI`);
 process.exit(fail === 0 ? 0 : 1);

@@ -10,6 +10,9 @@ import extractMarkers from "../../lib/dev/babel/extractMarkers.js";
 import parserOptionsFor from "../../lib/dev/babel/parserOptionsFor.js";
 import { compileEntry } from "../../lib/dev/compile/compileTable.js";
 import { printWarnings } from "../../lib/dev/vite/uty/languageStatus.js";
+import { readFileSync, readdirSync, statSync } from "node:fs";
+import { join, resolve, dirname } from "node:path";
+import { fileURLToPath } from "node:url";
 
 let fail = 0;
 const eq = (nome, atteso, ottenuto) => {
@@ -636,18 +639,24 @@ eq("T16: coperta dal loop CASI sopra, nessuna KO", true, fail === 0 || true); //
 
 console.log("\n== Strato 3: diagnostica (T17-T20) ==");
 {
-  console.log("-- T17: un solo avviso marker-split, nomina <b> --");
-  const { catturati } = conAvvisi(`const x = <p>_%_hi <b>x</b>_%_</p>;`, {});
-  const split = catturati.filter((c) => c.kind === "marker-split");
-  eq("T17: un solo avviso", 1, split.length);
-  eq("T17: nomina <b>", true, split[0]?.msg.includes("<b>"));
+  // 4.6.4: questo caso è ora preso dalla macro (forma 2, "_%_..._%_" spezzata da un tag), che
+  // registra la chiave comunque e — senza autoWrap — avvisa che serve autoWrap invece del vecchio
+  // marker-split (vedi la tabella "Cambi di comportamento voluti" del piano).
+  console.log("-- T17: senza autoWrap, macro-needs-autowrap; la chiave si estrae comunque --");
+  const table = {};
+  const { catturati } = conAvvisi(`const x = <p>_%_hi <b>x</b>_%_</p>;`, { table });
+  eq("T17: nessun marker-split (preso dalla macro)", false, catturati.some((c) => c.kind === "marker-split"));
+  const needsWrap = catturati.filter((c) => c.kind === "macro-needs-autowrap");
+  eq("T17: un solo avviso macro-needs-autowrap", 1, needsWrap.length);
+  eq("T17: la chiave e' comunque in tabella", "hi <b>x</b>", Object.values(table)[0]);
 }
 {
-  console.log("-- T17b: con un fratello prima, vince comunque il pezzo che apre --");
-  const { catturati } = conAvvisi(`const x = <p><i/>_%_hi <b>x</b>_%_</p>;`, {});
-  const split = catturati.filter((c) => c.kind === "marker-split");
-  eq("T17b: un solo avviso", 1, split.length);
-  eq("T17b: nomina <b>", true, split[0]?.msg.includes("<b>"));
+  console.log("-- T17b: con un fratello prima, stesso comportamento --");
+  const table = {};
+  const { catturati } = conAvvisi(`const x = <p><i/>_%_hi <b>x</b>_%_</p>;`, { table });
+  const needsWrap = catturati.filter((c) => c.kind === "macro-needs-autowrap");
+  eq("T17b: un solo avviso macro-needs-autowrap", 1, needsWrap.length);
+  eq("T17b: la chiave e' comunque in tabella", "hi <b>x</b>", Object.values(table)[0]);
 }
 {
   console.log("-- T17c: un malformato dopo un elemento non viene zittito --");
@@ -656,11 +665,15 @@ console.log("\n== Strato 3: diagnostica (T17-T20) ==");
   eq("T17c: nessun marker-split (non c'e' un tag DENTRO il marcatore)", false, catturati.some((c) => c.kind === "marker-split"));
 }
 {
-  console.log("-- T18: marker-split nomina {...} per un'espressione --");
-  const { catturati } = conAvvisi(`const x = <p>_%_hi {name}_%_</p>;`, {});
-  const split = catturati.filter((c) => c.kind === "marker-split");
-  eq("T18: un solo avviso", 1, split.length);
-  eq("T18: nomina {…}", true, split[0]?.msg.includes("{…}"));
+  // Stessa forma 2 della macro, con un nome al posto di un tag: {name} e' un argomento, non
+  // uno slot, ma la frase resta spezzata su piu' figli allo stesso modo.
+  console.log("-- T18: _%_ spezzato da un'espressione, stesso comportamento della macro --");
+  const table = {};
+  const { catturati } = conAvvisi(`const x = <p>_%_hi {name}_%_</p>;`, { table });
+  eq("T18: nessun marker-split (preso dalla macro)", false, catturati.some((c) => c.kind === "marker-split"));
+  const needsWrap = catturati.filter((c) => c.kind === "macro-needs-autowrap");
+  eq("T18: un solo avviso macro-needs-autowrap", 1, needsWrap.length);
+  eq("T18: la chiave e' comunque in tabella", "hi {name}", Object.values(table)[0]);
 }
 {
   console.log("-- T19: malformato senza tag, invariato --");
@@ -865,6 +878,98 @@ console.log("\n== Posizioni e sourcemap con iniezione (T33-T36) ==");
 }
 console.log("-- T36: round trip di parse sul fallback -> gia' coperto dal blocco 't={...} e non t=\"...\"' sopra --");
 
+console.log("\n== La macro (piano 4.6.4) ==");
+const RUNTIME_IMPORT_LINE = `import { Translate, useTranslateToString } from "@sepoina/vitetranslate/react";\n`;
+
+{
+  console.log("-- (a) con e senza _%_ espliciti dentro <Translate>: stessa chiave --");
+  const src = `${RUNTIME_IMPORT_LINE}const a = <Translate>Ciao</Translate>;\nconst b = <Translate>_%_Ciao_%_</Translate>;\n`;
+  const table = {};
+  extractMarkers(src, { filename: "/p/src/App.jsx", table });
+  eq("(a) una sola chiave per le due forme", 1, Object.keys(table).length);
+  eq("(a) il testo e' quello atteso", "Ciao", Object.values(table)[0]);
+}
+
+{
+  console.log("-- (b) righe: out.split('\\n').length - in.split('\\n').length in {0, 1} --");
+  const righeVere = (code) => (code.endsWith("\n") ? code.slice(0, -1).split("\n") : code.split("\n"));
+  const conTs = (corpo) => `${RUNTIME_IMPORT_LINE}export default function C() {\n const ts = useTranslateToString();\n ${corpo}\n}\n`;
+  const forme = [
+    ["<Translate> figli", `${RUNTIME_IMPORT_LINE}${inComponent("<Translate>Ciao <b>{nome}</b></Translate>")}`, { autoWrap: true }],
+    ["_%_ spezzata, con autoWrap", inComponent("<p>_%_hi <b>x</b>_%_</p>"), { autoWrap: true }],
+    ["template marcato in ts()", conTs("return <input title={ts(`_%_Ciao ${nome}_%_`)} />;"), {}],
+    ["ts`…` taggato", conTs("return <input title={ts`Ciao ${nome}`} />;"), {}],
+  ];
+  for (const [nome, src, opz] of forme) {
+    const out = extractMarkers(src, { filename: "/p/src/App.jsx", table: {}, ...opz });
+    const delta = out === null ? 0 : righeVere(out.code).length - righeVere(src).length;
+    eq(`(b) ${nome}: delta righe in {0,1}`, true, delta === 0 || delta === 1);
+  }
+}
+
+{
+  console.log("-- (c) le chiavi non dipendono da autoWrap ne' dalla riscrittura (invariante 25) --");
+  const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
+  const files = [];
+  const scan = (dir) => {
+    for (const n of readdirSync(dir)) {
+      if (n === "node_modules" || n === "dist" || n.startsWith(".")) continue;
+      const p = join(dir, n);
+      if (statSync(p).isDirectory()) scan(p);
+      else if (/\.[jt]sx?$/.test(n)) files.push(p);
+    }
+  };
+  scan(join(ROOT, "site"));
+  scan(join(ROOT, "demo"));
+
+  let controllati = 0, divergenti = 0;
+  for (const f of files) {
+    const code = readFileSync(f, "utf8");
+    if (!code.includes("_%_") && !code.includes("@sepoina/vitetranslate/react")) continue;
+    const tabOf = (opz) => {
+      const table = {};
+      try { extractMarkers(code, { filename: f, table, baseDir: ROOT, warn: () => {}, ...opz }); }
+      catch { return null; }
+      return table;
+    };
+    const senza = tabOf({ autoWrap: false });
+    const con = tabOf({ autoWrap: true });
+    const soloScan = tabOf({ rewrite: false });
+    if (senza === null || con === null || soloScan === null) continue;
+    controllati++;
+    const uguali = JSON.stringify(senza) === JSON.stringify(con) && JSON.stringify(senza) === JSON.stringify(soloScan);
+    if (!uguali) { divergenti++; console.log("  divergente:", f.replace(ROOT, "")); }
+  }
+  eq("(c) nessun file con chiavi diverse fra autoWrap e rewrite:false", 0, divergenti);
+  console.log(`       (${controllati} file controllati)`);
+}
+
+{
+  console.log("-- (d) avvisi: macro-needs-autowrap, macro-unsupported, e riga:colonna --");
+  {
+    const { catturati } = conAvvisi(`const x = <p>_%_hi <b>x</b>_%_</p>;`, {});
+    const w = catturati.find((c) => c.kind === "macro-needs-autowrap");
+    eq("(d) macro-needs-autowrap presente", true, !!w);
+    eq("(d) macro-needs-autowrap porta :riga:colonna", true, /:\d+:\d+/.test(w?.msg ?? ""));
+  }
+  {
+    const src = `${RUNTIME_IMPORT_LINE}const xs = [1];\nconst a = <Translate>Voci {...xs}</Translate>;\n`;
+    const { catturati } = conAvvisi(src, {});
+    const w = catturati.find((c) => c.kind === "macro-unsupported");
+    eq("(d) macro-unsupported su un figlio spread", true, !!w);
+    eq("(d) macro-unsupported porta :riga:colonna", true, /:\d+:\d+/.test(w?.msg ?? ""));
+  }
+}
+
+{
+  console.log("-- (e) hints: {\"{0}\": \"user.name\"} per Ciao {user.name} --");
+  const hints = {};
+  const table = {};
+  const src = `${RUNTIME_IMPORT_LINE}const a = <Translate>Ciao {user.name}</Translate>;\n`;
+  extractMarkers(src, { filename: "/p/src/App.jsx", table, hints });
+  const id = Object.keys(table)[0];
+  eq("(e) hints per la chiave", "user.name", hints[id]?.["{0}"]);
+}
 
 console.log(fail === 0 ? "\nTUTTI OK" : `\n${fail} FALLITI`);
 process.exit(fail === 0 ? 0 : 1);

@@ -2,7 +2,7 @@
 #      Deutsch (Deutschland)
 #       |    code: de-DE
 #       |    missing key: 0
-#       |    processed: 2026-09-23 13:50
+#       |    processed: 2026-09-29 02:33
 #       |    TableVersion: 260905
 #  -------------------------------------------------
 #
@@ -77,7 +77,6 @@ Footer_18jlbfy: "Alle Rechte vorbehalten"
 Footer_18m87i4: "Am Ende des Molo, <i>wo die Straße endet</i>"
 Footer_19f7dz9: "Icons"
 Footer_1aiix8y: "Degustationsmenü"
-Footer_1busaa2: "<b>%s ist ein imaginäres Restaurant</b>, und der Name ist kein Zufall: Es ist die Bibliothek, die diese Seite übersetzt (Version %s). Namen, Adressen, Bewertungen und Preise sind erfunden. Die Fotos stammen von Unsplash, unter der Lizenz %s: freie Nutzung, auch kommerziell."
 Footer_1d5fsap: "Verteilung von CSS und Icons"
 Footer_1fwevhj: "Private Veranstaltungen"
 Footer_1ibiage: "Das Saisonmenü"
@@ -96,11 +95,12 @@ Footer_lkx3so: "Die anderen viteTranslate-Demos"
 Footer_pfx7cz: "Platzhalter-Karte"
 Footer_psyoz5: "Schriftarten, von Google Fonts"
 Footer_riaj14: "Die Geschichte"
+Footer_rstbyt: "<b>{1} ist ein imaginäres Restaurant</b>, und der Name ist kein Zufall: Es ist die Bibliothek, die diese Seite übersetzt (Version {version}). Namen, Adressen, Bewertungen und Preise sind erfunden. Die Fotos stammen von Unsplash, unter der <2>Unsplash License</2>: freie Nutzung, auch kommerziell."
 Footer_t8ngcu: "Quellen und Credits"
 Footer_upqfdw: "CSS-Framework, Formulare und Akkordeons"
 Footer_vcb2t6: "Jeden Donnerstag eine E-Mail mit den Gerichten außerhalb der Karte für das Wochenende."
-Gallery_13qjwor: "Ein Abend <i>bei %s</i>"
 Gallery_1wrj3ra: "Atmosphäre"
+Gallery_48qlpv: "Ein Abend <i>bei {0}</i>"
 Gallery_oravel: "Zwei Gasträume, eine Terrasse und eine offene Küche, in der das Feuer nie vor Mitternacht erlischt. Kommen Sie bald: Der Sonnenuntergang dauert von hier aus länger."
 Header_1g0u7om: "Veranstaltungen"
 Header_1gdmmk3: "Degustation"

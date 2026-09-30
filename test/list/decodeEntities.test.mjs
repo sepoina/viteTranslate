@@ -17,8 +17,8 @@
 //
 //   node test/list/decodeEntities.test.mjs
 import { decodeHTML, decodeHTMLStrict } from "entities";
-import decodeEntities, { NAMED_ENTITIES } from "../../lib/dev/compile/decodeEntities.js";
-import parseMarkup from "../../lib/dev/compile/parseMarkup.js";
+import decodeEntities, { NAMED_ENTITIES } from "../../lib/markup/decodeEntities.js";
+import parseMarkup from "../../lib/markup/parseMarkup.js";
 
 let fail = 0;
 const eq = (nome, atteso, ottenuto) => {

@@ -17,7 +17,7 @@ const ROWS = [
   { label: "_%_Sintassi senza chiavi_%_", v: ["y", "p", "y", "p"] },
   { label: "_%_Runtime %s gzip_%_", a: [SIZE.compare], v: ["y", "n", "y", "n"] },
   { label: "_%_ICU MessageFormat (plurali, select, date)_%_", v: ["y", "p", "y", "y"] },
-  { label: "_%_Nessun parser dei messaggi a runtime_%_", v: ["y", "n", "y", "p"] },
+  { label: "_%_Nessun parser dei messaggi a runtime_%_", v: ["y", "n", "p", "p"] },
   { label: "_%_Lingue caricate a richiesta_%_", v: ["y", "y", "y", "y"] },
 ];
 

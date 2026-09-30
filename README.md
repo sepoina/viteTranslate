@@ -21,37 +21,30 @@ No translation keys to maintain. No separate extraction workflow. No runtime dep
 [**Showcase**](https://sepoina.github.io/viteTranslate/llmrestaurant/)  <br/>
 [Quick start](#-quick-start) · [CLI](#-cli) · [LLM](#-llm-auto-translation) · [Guides](#-guides) · [React](doc/react-api.md) · [Notes](#-notes)
 
-<br />
-<br />
-<br />
-
 <a href="https://youtu.be/pNM9ybG0uO4">
   <img src="doc/youplay.png" alt="Watch viteTranslate in action" width="60%" />
 </a>
 
 </div>
 
-<br />
-<br />
-
 ---
 
 ## ⏱️ 30-second intro
 
-Mark a string where you write it:
+Write the sentence where it belongs — values and tags included:
 
 ```jsx
-<Translate>_%_Welcome to our site_%_</Translate>
+<Translate>Welcome back, <b>{name}</b>!</Translate>
 ```
 
 Get a table to hand to a translator, kept in sync for you:
 
 ```yaml
 # locale/fr-FR.yml
-App_pxxhl0: "Bienvenue sur notre site"
+App_pxxhl0: "Bon retour, <b>{name}</b> !"
 ```
 
-The key is generated for you, the sync is a single command, and the runtime that ships to your users weighs 5 kB gzip.
+The key is generated for you, the sync runs itself inside Vite, and the runtime that ships to your users weighs 5 kB gzip.
 
 ---
 
@@ -68,11 +61,11 @@ Every library in this table solves the same problem. They differ in how much mac
 | **Keyless / Natural text syntax** ³ | ✅ | 🟡 | ✅ | 🟡 |
 | **Tiny runtime (<6 kB gzip)** ⁴ | ✅ | ❌ | ✅ | ❌ |
 | **ICU MessageFormat (plural, select, dates)** | ✅ | 🟡 | ✅ | ✅ |
-| **No message parsing at runtime** ⁵ | ✅ | ❌ | ✅ | 🟡 |
+| **No message parsing at runtime** ⁵ | ✅ | ❌ | 🟡 | 🟡 |
 | **Lazy-loaded locales** | ✅ | ✅ | ✅ | ✅ |
 | **License** | Apache-2.0 | MIT | MIT | BSD-3-Clause |
 
- <small>✅ out of the box · 🟡 official add-on or extra setup · ❌ not offered. As of September 2026: i18next 26 + react-i18next 17, Lingui 6, FormatJS (react-intl 12).</small>
+ <small>✅ out of the box · 🟡 official add-on or extra setup · ❌ not offered. <br />As of September 2026: i18next 26 + react-i18next 17, Lingui 6, FormatJS (react-intl 12).</small>
 
 <details>
 <summary><b>🔍 Notes on the comparison, and what each feature buys you</b></summary>
@@ -84,10 +77,10 @@ Every library in this table solves the same problem. They differ in how much mac
 - **² Extraction inside the Vite lifecycle:** the plugin extracts the markers and syncs one YAML table per language by itself — a quick check when `vite dev` starts, a full scan before every build. Missing keys added, stale ones removed, the rest reported; a string that moved keeps its translation. 🎮 [Live](https://sepoina.github.io/viteTranslate/playground/#install-sync). The others extract with a separate command: `i18next-cli extract` and `lingui extract` (both with a `--watch` mode) sync every language file; `formatjs extract` writes the source language only, the rest comes from your TMS.
 - **Zero runtime dependencies:** none declared, and not on trust: the test suite asserts that the browser runtime imports nothing beyond React and the virtual module. `@babel/core` and Vite are _peer_ dependencies: they run the plugin on your machine and never enter the bundle. React is the one your app already ships. For comparison, `react-i18next` depends on three packages (i18next core on none), `@lingui/react` on `use-sync-external-store` plus Lingui's own packages, `react-intl` on three FormatJS packages.
 - **Official Vite plugin:** viteTranslate's does the whole job — extraction, sync, compilation, one chunk per language — with the same code from Vite 5 to 8. Lingui's `@lingui/vite-plugin` compiles catalogs (its macros still need a Babel or SWC plugin); FormatJS's `@formatjs/unplugin` generates IDs and pre-parses messages. i18next has none, and needs none: there is nothing to compile.
-- **³ Keyless syntax:** the marked sentence is the source; its key is generated at build time and resolved against the current table at runtime — no key to invent, nothing to keep in sync by hand. 🎮 [Live](https://sepoina.github.io/viteTranslate/playground/#static-text). Lingui does the same with its macros; FormatJS generates IDs through its Babel/SWC plugins or `@formatjs/unplugin`. i18next can use the sentence as the key (`keySeparator: false`, `nsSeparator: false`): possible, say its docs, but not recommended.
+- **³ Keyless syntax:** the sentence you write in JSX is the source — values, tags and links included — and its key is generated at build time and resolved against the current table at runtime: no key to invent, nothing to keep in sync by hand. 🎮 [Live](https://sepoina.github.io/viteTranslate/playground/#static-text). Lingui does the same with its macros; FormatJS generates IDs through its Babel/SWC plugins or `@formatjs/unplugin`. i18next can use the sentence as the key (`keySeparator: false`, `nsSeparator: false`): possible, say its docs, but not recommended.
 - **ICU MessageFormat:** plurals, `select`, numbers and dates — compiled at build time, same as everything else. One deliberate deviation: an apostrophe is always an apostrophe, never ICU quoting. i18next has its own plural and context syntax built in; ICU needs the official `i18next-icu` plugin. See [the ICU guide](doc/icu.md) — 🎮 [plurals](https://sepoina.github.io/viteTranslate/playground/#icu-plural), [select](https://sepoina.github.io/viteTranslate/playground/#icu-select), [dates](https://sepoina.github.io/viteTranslate/playground/#icu-format), 🧪 [edge cases](https://sepoina.github.io/viteTranslate/edge/#icu).
-- **⁴ Runtime size:** viteTranslate's browser runtime weighs 5 kB gzip — `5603 bytes` exactly: 4516 B for the React runtime plus 1087 B for the ICU helpers, which ship only when a table uses ICU. Measured by `npm run estimateSize`, the source of truth for this number, on the whole API. The others, with the same tools (rolldown, minified, gzip, React left out) on what a basic app imports — provider, component, hook — in September 2026: Lingui 3 kB (smaller, yes), react-intl 13 kB (6 kB with its `no-parser` alias), i18next + react-i18next 19 kB. Imports, plugins and polyfills move every figure: read them as orders of magnitude.
-- **⁵ No message parsing at runtime:** tables are compiled at build time into ready-made values. In a production build `<Translate>` parses nothing, neither ICU nor HTML — which is also why it renders server-side. Lingui does the same by default, through its CLI or Vite plugin. FormatJS pre-parses with `formatjs compile --ast`, and drops the parser only if you alias it to its `no-parser` build. i18next interpolates at runtime, and `i18next-icu` parses there too.
+- **⁴ Runtime size:** viteTranslate's browser runtime weighs 5 kB gzip — `5818 bytes` exactly: 4731 B for the React runtime plus 1087 B for the ICU helpers, which ship only when a table uses ICU. Measured by `npm run estimateSize`, the source of truth for this number, on the whole API. The others, with the same tools (rolldown, minified, gzip, React left out) on what a basic app imports — provider, component, hook — in September 2026: Lingui 3 kB (smaller, yes), react-intl 13 kB (6 kB with its `no-parser` alias), i18next + react-i18next 19 kB. Imports, plugins and polyfills move every figure: read them as orders of magnitude.
+- **⁵ No message parsing at runtime:** tables are compiled at build time into ready-made values. In a production build `<Translate>` parses nothing, neither ICU nor HTML — which is also why it renders server-side. Lingui precompiles ICU, but splits the `<0>…</0>` component tags of the translated string with a regular expression at every render (`formatElements`). FormatJS pre-parses with `formatjs compile --ast`, and drops the parser only if you alias it to its `no-parser` build. i18next interpolates at runtime, and `i18next-icu` parses there too.
 - **Lazy-loaded locales:** each language is its own chunk, `import()`-ed only when selected — no loader to write. 🎮 [Live](https://sepoina.github.io/viteTranslate/playground/#language-switch). The others load catalogs through their API, from an `import()` you write, or a backend plugin for i18next.
 - **Dev fallback, always visible:** until a translation exists you get the original text. Never a blank, never a crash — and a [mark](doc/diagnostics.md) says so, in development only.
 - **Small, safe HTML subset:** `<b> <strong> <i> <em> <u> <small> <code> <br> <hr> <wbr>` and nothing else. Everything outside it is unwrapped to plain text, and no attribute is ever forwarded. 🎮 [Live](https://sepoina.github.io/viteTranslate/playground/#markup), 🧪 [broken markup included](https://sepoina.github.io/viteTranslate/edge/#html).
@@ -98,13 +91,13 @@ Every library in this table solves the same problem. They differ in how much mac
 
 ## 🚀 Quick start
 
-Install the package with [npm](https://www.npmjs.com/package/@sepoina/vitetranslate):
+Install the package with [npm](https://www.npmjs.com/package/@sepoina/vitetranslate) (React 18/19, Node 18+):
 
 ```sh
 npm install @sepoina/vitetranslate
 ```
 
-Register the plugin. Two options are required: where the tables live, and the language you write your sources in.
+Register the plugin, with its two required options:
 
 ```js
 // vite.config.js
@@ -114,13 +107,11 @@ import { vitetranslate } from "@sepoina/vitetranslate";
 
 export default defineConfig({
   plugins: [
-    vitetranslate({
-      // directory holding the .yml tables
-      localeDir: "locale",
-      // the language you write your source strings in
-      sourceLanguage: "it-IT",
-    }),
     react(),
+    vitetranslate({
+      localeDir: "locale", // where holding .yml tables
+      sourceLanguage: "en-US", // the language of source strings
+    }),
   ],
 });
 ```
@@ -134,54 +125,62 @@ import { TranslateContainer } from "@sepoina/vitetranslate/react";
 import App from "./App.jsx";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
-  <TranslateContainer initialLanguage="it-IT">
+  <TranslateContainer initialLanguage="en-US">
     <App />
   </TranslateContainer>,
 );
 ```
 
-Then mark your strings, one at a time, with `_%_..._%_`, and render them through `<Translate>` — the [playground](https://sepoina.github.io/viteTranslate/playground/) runs every form live, from [dynamic variables](https://sepoina.github.io/viteTranslate/playground/#dynamic-text) to [placeholders & attributes](https://sepoina.github.io/viteTranslate/playground/#attributes):
+Write sentences inside `<Translate>` — values, tags and links included — and plain strings with `` ts`…` ``. Live in the [playground](https://sepoina.github.io/viteTranslate/playground/):
 
 ```jsx
 // App.jsx
-import { Translate } from "@sepoina/vitetranslate/react";
+import { Translate, useTranslateToString } from "@sepoina/vitetranslate/react";
 
 function App({ name }) {
+  const ts = useTranslateToString();
   return (
     <>
-      <Translate>_%_Welcome to our site_%_</Translate>
-      <Translate t={["_%_Nice to meet you, %s_%_", name]} />
+      <Translate>Welcome to our site</Translate>
+      <Translate>Nice to meet you, <b>{name}</b></Translate>
+      <input placeholder={ts`Write to ${name}`} />
     </>
   );
 }
 ```
 
-Plurals, dates and other ICU MessageFormat arguments work the same way — one extra line of syntax, no extra step: `ts("_%_{0, plural, one {# file} other {# files}}_%_", count)`. Details: **[doc/icu.md](doc/icu.md)**, live in the [playground](https://sepoina.github.io/viteTranslate/playground/#icu-plural).
+Plurals, dates and other ICU arguments aren't JSX, so they go in a string marked `_%_…_%_`: `ts("_%_{0, plural, one {# file} other {# files}}_%_", count)`. Details: **[doc/icu.md](doc/icu.md)**, live in the [playground](https://sepoina.github.io/viteTranslate/playground/#icu-plural).
 
 That is the whole authoring workflow. Now build the tables and add a language:
 
 ```sh
-npx vitetranslate              # creates locale/it-IT.yml with every marked string
+npx vitetranslate              # creates locale/en-US.yml with every marked string
 npx vitetranslate --add fr-FR  # a new table: every key, null where each translation goes
 ```
 
-From then on the tables sync themselves when `vite dev` starts and before every build ([plugin options](doc/plugin-options.md)). Fill in the `null`s ([file format](doc/translations.md)) or let an [LLM](#-llm-auto-translation) do it; everything else the command does is in the [CLI](#-cli).
+From then on the tables sync themselves when `vite dev` starts and before every build ([plugin options](doc/plugin-options.md)). Fill in the `null`s ([file format](doc/translations.md)) or let an [LLM](#-llm-auto-translation) do it; more in the [CLI](#-cli).
+
+Let users switch; each language loads as its own chunk ([React API](doc/react-api.md#usetranslatelanguage)):
+
+```jsx
+const { proposeNewLanguage } = useTranslateLanguage();
+<button onClick={() => proposeNewLanguage({ lang: "fr-FR" })}>Français</button>
+```
 
 ---
 
 ## 💻 CLI
 
-Run it from the project root as `npx vitetranslate`, or install it once and drop the `npx` everywhere:
+Run it from the project root as `npx vitetranslate`, or install the tiny [launcher](launcher#readme) once, which runs each project's own version, and drop the `npx`:
 
 ```sh
 npm i -g vitetranslate
 ```
 
-The examples below use the short form. Full reference: **[doc/cli.md](doc/cli.md)**.
+Full reference: **[doc/cli.md](doc/cli.md)**.
 
 | Command | Does |
 | :- | :- |
-| `vitetranslate --help` | Usage and flags, from any directory |
 | `vitetranslate` | Full sync: new keys in, stale ones out, renamed strings keep their translation |
 | `vitetranslate --add fr-FR de-DE` | Adds languages, each file listing every key with `null` to fill |
 | `vitetranslate --status` | Reports every table and writes nothing. Exits `1` on errors only, so it works as a CI check |
@@ -234,6 +233,5 @@ Everything past "hello world" lives in `doc/`, one topic per page:
 
 - 🎮 **[Live site](https://sepoina.github.io/viteTranslate/)** — playground, edge cases and an LLM-translated restaurant; source in [`site/`](site).
 - 💬 **[Discussions](https://github.com/sepoina/viteTranslate/discussions)** — questions, ideas, feedback. An actual bug goes to [Issues](https://github.com/sepoina/viteTranslate/issues) instead.
-- ☕ **[Buy me a coffee](https://www.paypal.com/paypalme/giancarloghigi)** — if viteTranslate saved you some time. Optional, never expected.
 - 🔐 **[Provenance](https://docs.npmjs.com/trusted-publishers/)** — every release ships via npm trusted publishing (OIDC).
 - 📄 **[License](LICENSE)** — Apache License 2.0.

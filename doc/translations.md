@@ -52,7 +52,7 @@ BasicExample_1nke42v: "Welcome to viteTranslate"
 DynamicExample_1wltsn1: "Hello %s, how are you?"
 ```
 
-Replace each `null` with the translated text, keeping `%s` placeholders intact, then sync once more so the file settles into its final shape:
+Replace each `null` with the translated text, keeping `%s` placeholders and numbered tags (`<0>…</0>`) intact, then sync once more so the file settles into its final shape:
 
 ```bash
 npx vitetranslate
@@ -72,6 +72,10 @@ DynamicExample_1wltsn1: "Hello %s, how are you?"
 ```
 
 No further registration needed: every `.yml` file in `localeDir` is automatically available — `useTranslateLanguage()` lists it and `TranslateContainer` loads it lazily on request.
+
+### Numbered tags in the table
+
+A value like `App_1jztuw0: "Bon retour, <b>{name}</b> !"` came from writing JSX inside `<Translate>` ([React API](react-api.md#write-jsx-inside-translate)): `<b>` here has no attributes, so it's text — move it wherever the sentence needs it, the way any other tag moves. A `<1>…</1>` is different: it's a **slot**, standing in for a link or a component the source code provides — a `<a href>`, a `<Link to>`. Keep every numbered tag, opening and closing, with its number, around the words that belong inside it; you can move a tag together with its words, but never renumber one, drop one, or turn one into a different tag — the number is how the compiled table finds the right element, not a stylistic choice.
 
 ## File format
 

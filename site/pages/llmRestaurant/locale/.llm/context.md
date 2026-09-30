@@ -1,4 +1,4 @@
-<!-- vitetranslate:generated 2026-09-19 · 229 keys · deepseek-flash -->
+<!-- vitetranslate:generated 2026-09-29 · 228 keys · deepseek-flash -->
 ## Domain
 Website of viteTranslate, a seaside seafood restaurant at Cala dei Gabbiani: menu, wine cellar, tasting menus, private events, gallery, story, FAQs and a booking form.
 The footer states the restaurant is imaginary and the page is a demo of the viteTranslate library.

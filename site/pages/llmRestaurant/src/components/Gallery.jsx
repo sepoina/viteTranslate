@@ -18,15 +18,15 @@ export default function Gallery() {
       <div className="wrap">
         <header className="section-head section-head--row reveal">
           <div>
-            <p className="eyebrow"><Translate>_%_Atmosfera_%_</Translate></p>
+            <p className="eyebrow"><Translate>Atmosfera</Translate></p>
             <h2 className="title">
-              <Translate t="_%_Una sera <i>da %s</i>_%_" a={[<RestaurantName key="name" />]} />
+              <Translate>Una sera <i>da <RestaurantName /></i></Translate>
             </h2>
           </div>
           <p>
             <Translate>
-              _%_Due sale, una terrazza e una cucina a vista dove il fuoco non si spegne mai prima
-              di mezzanotte. Venite presto: il tramonto, da qui, dura più a lungo._%_
+              Due sale, una terrazza e una cucina a vista dove il fuoco non si spegne mai prima
+              di mezzanotte. Venite presto: il tramonto, da qui, dura più a lungo.
             </Translate>
           </p>
         </header>

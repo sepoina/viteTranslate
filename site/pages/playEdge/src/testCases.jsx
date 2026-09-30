@@ -1,10 +1,19 @@
-import { Translate } from '@sepoina/vitetranslate/react';
+import { Translate, useTranslateToString } from '@sepoina/vitetranslate/react';
 
 //
-// Valore che al momento del build non esiste: serve a provare il template literal
-// interpolato, che è il caso in cui il marcatore NON viene estratto.
+// Un valore qualunque, usato nei template marcati e nella sezione "preprocessore" qui sotto. Fino alla
+// 4.6.3 un template interpolato con ${} non veniva estratto affatto (vedi "Template con ${}"
+// più in basso): dalla 4.6.4 il preprocessore lo estrae dove c'è chi lo riceve — questa costante è
+// proprio quel "chi lo riceve" per gli esempi che seguono.
 //
 const nome = 'Mario';
+
+// Un componente vero, per mostrare ts`…` chiamato come si scrive davvero: il tag riconosce `ts`
+// solo quando viene da useTranslateToString() nello stesso file.
+function TsRiga() {
+  const ts = useTranslateToString();
+  return ts`Ciao ${nome}`;
+}
 
 // Il formato delle righe (e dello stato 'warn' / 'error' in quinta posizione) è descritto in
 // ShowAllRowTests.jsx.
@@ -92,6 +101,85 @@ const testCases = [
   ],
 
   // ============================================================
+  { id: 'macro', title: '_%_Il preprocessore: il JSX diventa il messaggio_%_' },
+  // ============================================================
+  [
+    '_%_Il preprocessore: testo senza marcatori_%_',
+    <Translate>Frase senza marcatori, estratta comunque</Translate>,
+    'Frase senza marcatori, estratta comunque',
+    '<Translate>Frase senza marcatori, estratta comunque</Translate>',
+  ],
+  [
+    '_%_Il preprocessore: variabile con nome_%_',
+    <Translate>Ciao {nome}, benvenuto</Translate>,
+    'Ciao Mario, benvenuto',
+    '<Translate>Ciao {nome}, benvenuto</Translate>',
+  ],
+  [
+    '_%_Il preprocessore: tag del dialetto, resta testo_%_',
+    <Translate>
+      Testo in <b>grassetto</b>
+    </Translate>,
+    <>
+      Testo in <b>grassetto</b>
+    </>,
+    '<Translate>Testo in <b>grassetto</b></Translate>',
+  ],
+  [
+    '_%_Il preprocessore: espressione non semplice, {n}_%_',
+    <Translate>Hai {nome.length} lettere nel nome</Translate>,
+    'Hai 5 lettere nel nome',
+    '<Translate>Hai {nome.length} lettere nel nome</Translate>',
+  ],
+  [
+    '_%_Il preprocessore: un link diventa uno slot_%_',
+    <Translate>
+      Leggi la <a href="/d">guida</a>
+    </Translate>,
+    <>
+      Leggi la <a href="/d">guida</a>
+    </>,
+    '<Translate>Leggi la <a href="/d">guida</a></Translate>',
+  ],
+  [
+    '_%_Il preprocessore: null e false non rendono niente_%_',
+    <Translate>Stato: {false && <b>VIP</b>}, fine</Translate>,
+    'Stato: , fine',
+    '<Translate>Stato: {false && <b>VIP</b>}, fine</Translate>',
+  ],
+  [
+    '_%_Il preprocessore: spazi e a-capo come in ogni JSX_%_',
+    <Translate>
+      Vedi
+      <b>qui</b> per i dettagli
+    </Translate>,
+    <>
+      Vedi
+      <b>qui</b> per i dettagli
+    </>,
+    '<Translate>\n  Vedi\n  <b>qui</b> per i dettagli\n</Translate>',
+  ],
+  [
+    '_%_Il preprocessore: marcatori espliciti, stessa chiave_%_',
+    <Translate>_%_Stessa chiave, con o senza_%_</Translate>,
+    'Stessa chiave, con o senza',
+    '<Translate>_%_Stessa chiave, con o senza_%_</Translate>',
+  ],
+  [
+    '_%_Il preprocessore: %s nel testo, rifiutato_%_',
+    <Translate>Non scrivere %s qui dentro</Translate>,
+    '‼️Non scrivere %s qui dentro (percent-s: usa {valore})',
+    '<Translate>Non scrivere %s qui dentro</Translate>',
+    'warn',
+  ],
+  [
+    '_%_Il preprocessore: ts`…` in un componente_%_',
+    <TsRiga />,
+    'Ciao Mario',
+    'function TsRiga() {\n  const ts = useTranslateToString();\n  return ts`Ciao ${nome}`;\n}',
+  ],
+
+  // ============================================================
   { id: 'markers', title: '_%_Cosa diventa un marcatore, e cosa no_%_' },
   // ============================================================
   [
@@ -135,11 +223,10 @@ const testCases = [
     'error',
   ],
   [
-    '_%_Template con ${}_%_',
+    '_%_Template con ${}: un argomento_%_',
     <Translate t={`_%_ciao ${nome}_%_`} />,
-    '‼️ciao Mario (limite noto: usare %s)',
+    'ciao Mario',
     '<Translate t={`_%_ciao ${nome}_%_`} />',
-    'error',
   ],
   [
     '_%_Marcatore in mezzo_%_',
@@ -413,6 +500,50 @@ const testCases = [
     "<Translate t={['_%_{name} ha {1} anni_%_', { name: 'Mario' }, 42]} />",
   ],
   [
+    '_%_Plurale: uno_%_',
+    <Translate t={['_%_{0, plural, one {# messaggio} other {# messaggi}}_%_', 1]} />,
+    '1 messaggio',
+    "<Translate t={['_%_{0, plural, one {# messaggio} other {# messaggi}}_%_', 1]} />",
+  ],
+  [
+    '_%_Plurale: altri_%_',
+    <Translate t={['_%_{0, plural, one {# messaggio} other {# messaggi}}_%_', 5]} />,
+    '5 messaggi',
+    "<Translate t={['_%_{0, plural, one {# messaggio} other {# messaggi}}_%_', 5]} />",
+  ],
+  [
+    '_%_Plurale: =0 ha la sua frase_%_',
+    <Translate t={['_%_{0, plural, =0 {nessun messaggio} one {# messaggio} other {# messaggi}}_%_', 0]} />,
+    'nessun messaggio',
+    "<Translate t={['_%_{0, plural, =0 {nessun messaggio} one {# messaggio} other {# messaggi}}_%_', 0]} />",
+  ],
+  [
+    '_%_Plurale con nome e tag nel ramo_%_',
+    <Translate t={['_%_{n, plural, one {<b>#</b> nuovo file} other {<b>#</b> nuovi file}}_%_', { n: 3 }]} />,
+    <>
+      <b>3</b> nuovi file
+    </>,
+    "<Translate t={['_%_{n, plural, one {<b>#</b> nuovo file} other {<b>#</b> nuovi file}}_%_', { n: 3 }]} />",
+  ],
+  [
+    '_%_select: scelta per parola_%_',
+    <Translate t={['_%_{genere, select, f {Benvenuta} m {Benvenuto} other {Benvenut*}}, {nome}_%_', { genere: 'f', nome: 'Anna' }]} />,
+    'Benvenuta, Anna',
+    "<Translate t={['_%_{genere, select, f {Benvenuta} m {Benvenuto} other {Benvenut*}}, {nome}_%_', { genere: 'f', nome: 'Anna' }]} />",
+  ],
+  [
+    '_%_Numero formattato_%_',
+    <Translate t={['_%_Totale: {0, number}_%_', 12345.6]} />,
+    'Totale: 12.345,6 (separatori della lingua attiva)',
+    "<Translate t={['_%_Totale: {0, number}_%_', 12345.6]} />",
+  ],
+  [
+    '_%_Percentuale_%_',
+    <Translate t={['_%_Completato al {0, number, percent}_%_', 0.256]} />,
+    'Completato al 26%',
+    "<Translate t={['_%_Completato al {0, number, percent}_%_', 0.256]} />",
+  ],
+  [
     '_%_Nome che non c’è_%_',
     <Translate t={'_%_Ciao {nome}_%_'} a={{ name: 'Mario' }} />,
     'Ciao ⁇',
@@ -623,13 +754,12 @@ const testCases = [
     'warn',
   ],
   [
-    '_%_Markup come JSX (rotto)_%_',
+    '_%_Markup come JSX: uno slot_%_',
     <Translate>
-      _%_<marquee>boom</marquee>_%_
+      <span className="hl">boom</span>
     </Translate>,
-    '‼️_%_ — i "_%_" sono due JSXText separati: niente chiave, e marquee viene buttato',
-    '<Translate>_%_<marquee>boom</marquee>_%_</Translate>',
-    'error',
+    <span className="hl">boom</span>,
+    '<Translate><span className="hl">boom</span></Translate>',
   ],
 
   // ============================================================
@@ -637,16 +767,16 @@ const testCases = [
   // ============================================================
   [
     '_%_Non marcato_%_',
-    <Translate>Questa stringa è senza marcatori</Translate>,
+    <Translate t={'Questa stringa è senza marcatori'} />,
     '‼️Questa stringa è senza marcatori',
-    '<Translate>Questa stringa è senza marcatori</Translate>',
+    "<Translate t={'Questa stringa è senza marcatori'} />",
     'error',
   ],
   [
     '_%_Non marcato con accenti_%_',
-    <Translate>è già tutto pronto, è un'occasione</Translate>,
+    <Translate t={"è già tutto pronto, è un'occasione"} />,
     "‼️è già tutto pronto, è un'occasione",
-    "<Translate>è già tutto pronto, è un'occasione</Translate>",
+    '<Translate t={"è già tutto pronto, è un\'occasione"} />',
     'error',
   ],
   [
@@ -675,11 +805,10 @@ const testCases = [
     "<Translate t={'_%_skipMark qui non fa niente_%_'} skipMark />",
   ],
   [
-    '_%_children misti_%_',
+    '_%_children misti: un preprocessore_%_',
     <Translate>testo {'ed espressione'}</Translate>,
-    '‼️testo  (i children sono una tupla: il secondo diventa un argomento e sparisce)',
+    'testo ed espressione',
     "<Translate>testo {'ed espressione'}</Translate>",
-    'error',
   ],
 
   // ============================================================

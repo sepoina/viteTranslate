@@ -29,17 +29,17 @@ export default function Footer() {
           <span className="map__sea" />
           <span className="map__pier" />
           <span className="map__pin"><i className="ph-fill ph-map-pin" aria-hidden="true" /> <RestaurantName /></span>
-          <small className="map__note"><Translate>_%_Mappa segnaposto_%_</Translate></small>
+          <small className="map__note"><Translate>Mappa segnaposto</Translate></small>
         </div>
         <div>
-          <p className="eyebrow eyebrow--light"><Translate>_%_Come arrivare_%_</Translate></p>
-          <h2 className="title"><Translate t="_%_In fondo al molo, <i>dove finisce la strada</i>_%_" /></h2>
+          <p className="eyebrow eyebrow--light"><Translate>Come arrivare</Translate></p>
+          <h2 className="title"><Translate>In fondo al molo, <i>dove finisce la strada</i></Translate></h2>
           <p>
             <Translate>
-              _%_Siamo a cinque minuti a piedi dalla stazione, seguendo il lungomare verso il faro.
+              Siamo a cinque minuti a piedi dalla stazione, seguendo il lungomare verso il faro.
               In auto, il parcheggio convenzionato di Piazza del Mercato è gratuito per tre ore
               ai nostri ospiti. D'estate si arriva anche dal mare: abbiamo due posti barca
-              riservati sul pontile._%_
+              riservati sul pontile.
             </Translate>
           </p>
         </div>
@@ -51,7 +51,7 @@ export default function Footer() {
             <i className="ph ph-wind" aria-hidden="true" />
             <RestaurantName className="brand__name" />
           </div>
-          <p><Translate>_%_Cucina di mare sul porto di Cala dei Gabbiani, dal 1987. Tre generazioni, una regola sola._%_</Translate></p>
+          <p><Translate>Cucina di mare sul porto di Cala dei Gabbiani, dal 1987. Tre generazioni, una regola sola.</Translate></p>
           <ul className="social">
             {SOCIAL.map((s) => (
               <li key={s.icon}><a href="#top" aria-label={s.label}><i className={`ph ${s.icon}`} aria-hidden="true" /></a></li>
@@ -59,29 +59,29 @@ export default function Footer() {
           </ul>
         </div>
         <div>
-          <h3><Translate>_%_Esplora_%_</Translate></h3>
+          <h3><Translate>Esplora</Translate></h3>
           <ul className="footer__links">
-            <li><a href="#storia"><Translate>_%_La storia_%_</Translate></a></li>
-            <li><a href="#menu"><Translate>_%_Il menù di stagione_%_</Translate></a></li>
-            <li><a href="#degustazione"><Translate>_%_Menù degustazione_%_</Translate></a></li>
-            <li><a href="#eventi"><Translate>_%_Eventi privati_%_</Translate></a></li>
+            <li><a href="#storia"><Translate>La storia</Translate></a></li>
+            <li><a href="#menu"><Translate>Il menù di stagione</Translate></a></li>
+            <li><a href="#degustazione"><Translate>Menù degustazione</Translate></a></li>
+            <li><a href="#eventi"><Translate>Eventi privati</Translate></a></li>
           </ul>
         </div>
         <div>
-          <h3><Translate>_%_Contatti_%_</Translate></h3>
+          <h3><Translate>Contatti</Translate></h3>
           <ul className="footer__links">
-            <li><Translate>_%_Via del Molo Vecchio 14, Cala dei Gabbiani_%_</Translate></li>
+            <li><Translate>Via del Molo Vecchio 14, Cala dei Gabbiani</Translate></li>
             <li><a href="tel:+390100000000">+39 010 000 0000</a></li>
             <li><a href="mailto:tavoli@vitetranslate.example">tavoli@vitetranslate.example</a></li>
           </ul>
         </div>
         <div>
-          <h3><Translate>_%_Il pescato della settimana_%_</Translate></h3>
+          <h3><Translate>Il pescato della settimana</Translate></h3>
           {subscribed ? (
-            <p><Translate>_%_Fatto! Ogni giovedì vi scriviamo cosa è arrivato dal mare._%_</Translate></p>
+            <p><Translate>Fatto! Ogni giovedì vi scriviamo cosa è arrivato dal mare.</Translate></p>
           ) : (
             <form className="newsletter" onSubmit={(e) => { e.preventDefault(); setSubscribed(true); }}>
-              <p><Translate>_%_Ogni giovedì, una mail con i piatti fuori carta del fine settimana._%_</Translate></p>
+              <p><Translate>Ogni giovedì, una mail con i piatti fuori carta del fine settimana.</Translate></p>
               <fieldset role="group">
                 <input type="email" required placeholder={ts('_%_La vostra email_%_')} aria-label={ts('_%_La vostra email_%_')} />
                 <button type="submit" aria-label={ts('_%_Iscriviti_%_')}><i className="ph ph-arrow-right" aria-hidden="true" /></button>
@@ -92,12 +92,14 @@ export default function Footer() {
       </div>
 
       <div className="wrap credits">
-        <h3><Translate>_%_Fonti e crediti_%_</Translate></h3>
+        <h3><Translate>Fonti e crediti</Translate></h3>
         <p>
-          <Translate
-            t="_%_<b>%s è un ristorante immaginario</b>, e il nome non è un caso: è la libreria che traduce questa pagina (versione %s). Nomi, indirizzi, recensioni e prezzi sono inventati. Le foto vengono da Unsplash, con licenza %s: uso libero, anche commerciale._%_"
-            a={[<RestaurantName key="name" />, version, <a key="lic" href={UNSPLASH_LICENSE} target="_blank" rel="noreferrer">Unsplash License</a>]}
-          />
+          <Translate>
+            <b><RestaurantName /> è un ristorante immaginario</b>, e il nome non è un caso: è la libreria che traduce
+            questa pagina (versione {version}). Nomi, indirizzi, recensioni e prezzi sono inventati. Le foto vengono da
+            Unsplash, con licenza{' '}
+            <a href={UNSPLASH_LICENSE} target="_blank" rel="noreferrer">Unsplash License</a>: uso libero, anche commerciale.
+          </Translate>
         </p>
         <div className="credits__cols">
           <ul>
@@ -117,7 +119,7 @@ export default function Footer() {
             ))}
           </ul>
         </div>
-        <p className="credits__copy">© 2026 <RestaurantName /> · <Translate>_%_Tutti i diritti riservati_%_</Translate> · <a href={siteUrl()}><Translate>_%_Le altre demo di viteTranslate_%_</Translate></a></p>
+        <p className="credits__copy">© 2026 <RestaurantName /> · <Translate>Tutti i diritti riservati</Translate> · <a href={siteUrl()}><Translate>Le altre demo di viteTranslate</Translate></a></p>
       </div>
     </footer>
   );

@@ -1,9 +1,9 @@
 import { Translate } from "@sepoina/vitetranslate/react";
-import { Code, M } from "./theme/Code.jsx";
+import { Code } from "./theme/Code.jsx";
 import SectionHead from "./SectionHead.jsx";
 
 const MARK = `<Translate>
-  ${M}Benvenuto in viteTranslate${M}
+  Benvenuto in viteTranslate
 </Translate>`;
 
 const SYNC = `$ npx vitetranslate
@@ -31,10 +31,10 @@ export default function Steps() {
           <li className="step">
             <span className="step-n">01</span>
             <h3>
-              <Translate>_%_Marca la frase_%_</Translate>
+              <Translate>Scrivi la frase</Translate>
             </h3>
             <p>
-              <Translate>_%_Dove la scrivi, nel JSX. Nessun file di chiavi da aprire, nessun nome da trovare._%_</Translate>
+              <Translate>Nel JSX, dove serve: variabili e tag compresi. Nessun file di chiavi, nessun nome da inventare.</Translate>
             </p>
             <Code code={MARK} lang="jsx" className="step-code" />
           </li>

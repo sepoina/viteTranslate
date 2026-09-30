@@ -36,12 +36,8 @@ const snippetList = [
   {
     id: "static-text",
     title: "_%_Traduzione statica_%_",
-    // { t, a } invece di stringa semplice: l'esempio letterale del marcatore vive
-    // nell'argomento, così l'intera frase resta un unico blocco traducibile.
-    description: {
-      t: "_%_Il componente <code>&lt;Translate&gt;</code> avvolge il testo statico marcato con %s, sostituito in build-time con l'id di traduzione e il relativo fallback._%_",
-      a: [MARKER_EXAMPLE],
-    },
+    description:
+      "_%_Il testo si scrive dove serve, dentro <code>&lt;Translate&gt;</code>: l'id di traduzione e il testo di riserva li genera il build, senza nessun marcatore da scrivere a mano._%_",
     file: "BasicExample.jsx",
     code: basicCode,
     Example: BasicExample,
@@ -49,7 +45,7 @@ const snippetList = [
   {
     id: "dynamic-text",
     title: "_%_Traduzione dinamica_%_",
-    description: "_%_Formato t={[testo, arg1, arg2, ...]} per interpolare variabili nel testo tradotto._%_",
+    description: "_%_Le variabili si scrivono come JSX, <code>&#123;nome}</code>, dentro <code>&lt;Translate&gt;</code>: la stessa sintassi di sempre._%_",
     file: "DynamicExample.jsx",
     code: dynamicCode,
     Example: DynamicExample,
@@ -58,7 +54,7 @@ const snippetList = [
     id: "markup",
     title: "_%_Markup e nodi React_%_",
     description:
-      "_%_Dentro il marcatore vale un piccolo dialetto HTML (<code>&lt;b&gt;</code>, <code>&lt;i&gt;</code>, <code>&lt;code&gt;</code>, <code>&lt;br&gt;</code>…), compilato in build: nessun parser nel browser, nessun attributo che passi. Un argomento può essere un nodo React, per esempio un link: React lo rende come qualunque altro figlio, mai come HTML._%_",
+      "_%_Un tag del dialetto senza attributi (<code>&lt;b&gt;</code>, <code>&lt;i&gt;</code>, <code>&lt;code&gt;</code>, <code>&lt;br&gt;</code>…) resta testo, e chi traduce lo sposta dove serve. Un link o un componente diventano invece uno slot numerato: l'attributo resta nel codice, mai nella traduzione._%_",
     file: "MarkupExample.jsx",
     code: markupCode,
     Example: MarkupExample,
@@ -67,7 +63,7 @@ const snippetList = [
     id: "attributes",
     title: "_%_Placeholder e attributi_%_",
     description:
-      "_%_<code>&lt;Translate&gt;</code> restituisce nodi React: non può essere usato in attributi HTML che richiedono una stringa semplice, come <code>placeholder</code>, <code>aria-label</code> o <code>title</code>. In questi casi serve l'hook <code>useTranslateToString()</code>, che risolve la stessa traduzione ma restituisce una stringa primitiva. Questi attributi non sono visibili come testo a schermo: per vederli tradotti ispeziona l'elemento con F12._%_",
+      "_%_<code>&lt;Translate&gt;</code> restituisce nodi React: non può essere usato in attributi HTML che richiedono una stringa semplice, come <code>placeholder</code>, <code>aria-label</code> o <code>title</code>. In questi casi serve l'hook <code>useTranslateToString()</code>, chiamato come template — <code>ts&#96;Scrivi a $&#123;nome}&#96;</code> — che risolve la stessa traduzione ma restituisce una stringa primitiva. Questi attributi non sono visibili come testo a schermo: per vederli tradotti ispeziona l'elemento con F12._%_",
     file: "PlaceholderExample.jsx",
     code: placeholderCode,
     Example: PlaceholderExample,
@@ -112,7 +108,7 @@ const snippetList = [
     id: "autowrap",
     title: "_%_autoWrap: marcatori senza componente_%_",
     description:
-      "_%_Con l’opzione <code>autoWrap</code> accesa basta marcare il testo JSX o l’attributo di un tag HTML: la chiamata di traduzione la aggiunge il plugin, niente <code>&lt;Translate&gt;</code> e niente <code>ts()</code>. I casi che non copre sono nella pagina dei casi limite._%_",
+      "_%_Con l’opzione <code>autoWrap</code> accesa non serve nemmeno <code>&lt;Translate&gt;</code>: un testo marcato — anche con un tag o un valore in mezzo — diventa da solo la chiamata giusta, niente <code>ts()</code> a mano. I casi che non copre sono nella pagina dei casi limite._%_",
     file: "AutoWrapExample.jsx",
     code: autoWrapCode,
     Example: AutoWrapExample,

@@ -30,7 +30,7 @@ export default function Header() {
             <div className="brand">
               <i className="ph ph-wind" aria-hidden="true" />
               <RestaurantName className="brand__name" />
-              <span className="brand__since"><Translate>_%_dal 1987_%_</Translate></span>
+              <span className="brand__since"><Translate>dal 1987</Translate></span>
             </div>
           </li>
         </ul>
@@ -44,7 +44,7 @@ export default function Header() {
         <ul className="site-actions">
           <li>
             <a href="#prenota" role="button" className="btn-small">
-              <Translate>_%_Prenota_%_</Translate>
+              <Translate>Prenota</Translate>
             </a>
           </li>
           <li>

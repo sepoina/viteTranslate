@@ -15,24 +15,24 @@ export default function Hero() {
       <div className="hero__shade" aria-hidden="true" />
       <div className="wrap hero__content">
         <p className="eyebrow eyebrow--light">
-          <Translate>_%_Cucina di mare · Cala dei Gabbiani_%_</Translate>
+          <Translate>Cucina di mare · Cala dei Gabbiani</Translate>
         </p>
         <h1 className="hero__title">
-          <Translate t="_%_Il mare arriva in tavola<br><i>prima del tramonto</i>_%_" />
+          <Translate>Il mare arriva in tavola<br /><i>prima del tramonto</i></Translate>
         </h1>
         <p className="hero__lead">
           <Translate>
-            _%_Ogni mattina alle sei le barche di Cala dei Gabbiani rientrano in porto. Alle sette
+            Ogni mattina alle sei le barche di Cala dei Gabbiani rientrano in porto. Alle sette
             il nostro chef è già sul molo a scegliere il pescato: quello che trovate nel piatto la
-            sera, la notte prima nuotava ancora a due miglia dalla costa._%_
+            sera, la notte prima nuotava ancora a due miglia dalla costa.
           </Translate>
         </p>
         <div className="hero__cta">
           <a href="#prenota" role="button">
-            <Translate>_%_Prenota un tavolo_%_</Translate> <i className="ph ph-arrow-right" aria-hidden="true" />
+            <Translate>Prenota un tavolo</Translate> <i className="ph ph-arrow-right" aria-hidden="true" />
           </a>
           <a href="#menu" role="button" className="outline contrast">
-            <Translate>_%_Sfoglia il menù_%_</Translate>
+            <Translate>Sfoglia il menù</Translate>
           </a>
         </div>
         <dl className="hero__facts">

@@ -66,15 +66,15 @@ export default function Menu() {
     <section className="section" id="menu">
       <div className="wrap">
         <header className="section-head section-head--center reveal">
-          <p className="eyebrow"><Translate>_%_Alla carta_%_</Translate></p>
+          <p className="eyebrow"><Translate>Alla carta</Translate></p>
           <h2 className="title">
-            <Translate t="_%_Il menù <i>di stagione</i>_%_" />
+            <Translate>Il menù <i>di stagione</i></Translate>
           </h2>
           <p className="lead">
             <Translate>
-              _%_La carta cambia con le stagioni e, qualche volta, con il meteo. Quella che leggete
+              La carta cambia con le stagioni e, qualche volta, con il meteo. Quella che leggete
               qui è la carta di settembre: chiedete sempre il pescato fuori menù, che arriva
-              scritto a mano sulla lavagna._%_
+              scritto a mano sulla lavagna.
             </Translate>
           </p>
         </header>

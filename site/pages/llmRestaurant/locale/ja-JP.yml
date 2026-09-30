@@ -2,7 +2,7 @@
 #      日本語 (日本)
 #       |    code: ja-JP
 #       |    missing key: 0
-#       |    processed: 2026-09-23 13:50
+#       |    processed: 2026-09-29 02:33
 #       |    TableVersion: 260905
 #  -------------------------------------------------
 #
@@ -77,7 +77,6 @@ Footer_18jlbfy: "無断転載を禁じます"
 Footer_18m87i4: "桟橋の突き当たり、<i>道が終わる場所</i>"
 Footer_19f7dz9: "アイコン"
 Footer_1aiix8y: "テイスティングメニュー"
-Footer_1busaa2: "<b>%sは架空のレストランです</b>。名前は偶然ではありません。このページを翻訳しているライブラリの名前です（バージョン%s）。名前、住所、レビュー、価格はすべて架空のものです。写真はUnsplashより、%sライセンスで使用しています。商用利用も含め、自由にお使いいただけます。"
 Footer_1d5fsap: "CSSとアイコンの配布"
 Footer_1fwevhj: "プライベートイベント"
 Footer_1ibiage: "季節のメニュー"
@@ -96,11 +95,12 @@ Footer_lkx3so: "viteTranslate の他のデモ"
 Footer_pfx7cz: "プレースホルダーマップ"
 Footer_psyoz5: "書体、Google Fonts より"
 Footer_riaj14: "私たちの物語"
+Footer_rstbyt: "<b>{1} は架空のレストランです</b>。その名前は偶然ではありません。このページを翻訳しているライブラリの名前でもあります（バージョン {version}）。名前、住所、レビュー、価格はすべて架空のものです。写真は Unsplash より <2>Unsplash License</2> の下で提供されています。商用利用を含め、自由にご利用いただけます。"
 Footer_t8ngcu: "出典とクレジット"
 Footer_upqfdw: "CSS フレームワーク、モジュールとアコーディオン"
 Footer_vcb2t6: "毎週木曜日、週末だけのメニュー外のお料理をメールでお届けします。"
-Gallery_13qjwor: "<i>%s</i>の夜"
 Gallery_1wrj3ra: "雰囲気"
+Gallery_48qlpv: "<i>{0}</i>の夜"
 Gallery_oravel: "二つのダイニング、一つのテラス、そして真夜中まで火の消えることのないオープンキッチン。どうぞ早めにいらしてください。ここから見る夕日は、より長く続くのです。"
 Header_1g0u7om: "イベント"
 Header_1gdmmk3: "テイスティング"

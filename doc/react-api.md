@@ -14,6 +14,7 @@
 | [`<Translate>`](#translate) | component | Translated text in JSX |
 | [`useTranslateToString()`](#usetranslatetostring) | hook | Translated plain strings — `placeholder`, `aria-label`, `title` |
 | [`useTranslateNode()`](#usetranslatenode) | hook | What the `autoWrap` option injects; rarely written by hand |
+| [`jsxArg()`](#jsxarg) | function | What the preprocessor injects around a value; rarely written by hand |
 | [`useTranslateLanguage()`](#usetranslatelanguage) | hook | A language switcher: current language, available ones, [`proposeNewLanguage()`](#proposenewlanguage) |
 | [`basicHtmlToNodes()`](#basichtmltonodes) | function | A string with basic HTML → React nodes, no `dangerouslySetInnerHTML` |
 | [`version`](#version) | string | The installed package version |
@@ -41,6 +42,32 @@ An eagerly bundled initial language renders synchronously; any other makes the c
 🎮 Live: [the setup](https://sepoina.github.io/viteTranslate/playground/#install-dev), and [`timeZone` at work](https://sepoina.github.io/viteTranslate/playground/#icu-format).
 
 ## `<Translate>`
+
+### Write JSX inside `<Translate>`
+
+Write the sentence where it belongs, values and tags included — the build-time preprocessor turns it into the message and its arguments, no key to invent:
+
+```jsx
+<Translate>Welcome back, <b>{name}</b>!</Translate>
+<Translate>Ciao <b>{name}</b>, leggi la <a href="/d">guida</a></Translate>
+```
+
+| Child in JSX | In the message | Why |
+| :- | :- | :- |
+| `<b>…</b>`, `<em>`, `<code>`… **without attributes**, `<br/>` | `<b>…</b>`, `<br>` | Formatting the translator sees and can move — compiled like the dialect below |
+| `<a href>…</a>`, `<Link to>…</Link>`, `<b className>…</b>` | `<n>…</n>` | Attributes are code: they stay in the source, a translation only touches the content |
+| `<Avatar />`, `<a href="/x"></a>` (no content) | `{n}` | A value, like a variable |
+
+- **Naming:** an identifier becomes `{name}`; any other expression, or an element with no content, becomes a positional `{n}` — placeholders and numbered tags share one counter, in the order they appear.
+- **A line break between text and a tag is no space** — same rule as any JSX. Write `{" "}` where you mean one.
+- **`null`, `undefined`, `true` and `false` render nothing**, exactly like JSX: `{vip && <b>VIP</b>}` with `vip` false renders nothing, not the word "false" ([`jsxArg()`](#jsxarg) is what makes that so).
+- **`key` is kept** on the element, so `<Translate key={i}>` inside a list keeps its identity.
+
+🎮 [Markup as JSX, live](https://sepoina.github.io/viteTranslate/playground/#markup) · 🧪 [the preprocessor, case by case](https://sepoina.github.io/viteTranslate/edge/#macro).
+
+### Other forms
+
+A marked string built at runtime, or handed down as a prop, still works the way it always has:
 
 ```jsx
 <Translate>_%_Welcome_%_</Translate>                                 // as a child
@@ -117,13 +144,15 @@ For places that need a plain string instead of JSX — `placeholder`, `aria-labe
 ```jsx
 import { useTranslateToString } from "@sepoina/vitetranslate/react";
 
-function SearchInput() {
+function SearchInput({ name }) {
   const ts = useTranslateToString();
-  return <input placeholder={ts("_%_Enter your name_%_")} />;
+  return <input placeholder={ts`Write to ${name}`} />;
 }
 ```
 
-`ts()` accepts the same forms as `<Translate>`, with the same [diagnostic prefixes](diagnostics.md) and the same [`⁇` rule](#markup-and-placeholders) for a missing `%s`:
+The tagged-template form, `` ts`…` ``, works only when `ts` comes from `useTranslateToString()` **in the same file** — the preprocessor looks for the call, not for the name. Passed as a prop, or wrapped in another hook, it reaches the runtime uncompiled and is treated as a plain, unmarked template.
+
+`ts()` also accepts the same call forms as `<Translate>`'s [other forms](#other-forms), with the same [diagnostic prefixes](diagnostics.md) and the same [`⁇` rule](#markup-and-placeholders) for a missing `%s`:
 
 ```js
 ts("_%_Hello %s_%_", name)
@@ -154,6 +183,20 @@ function Card({ compiled }) {
 - Given anything that isn't a compiled marker, it has no key to look up and returns the text itself, delimiters stripped — the same fallback `<Translate>` and `ts()` use for what the compiler never saw.
 
 🎮 What `autoWrap` makes of it: [live](https://sepoina.github.io/viteTranslate/playground/#autowrap) · 🧪 [ten edge cases](https://sepoina.github.io/viteTranslate/edge/#autowrap).
+
+## `jsxArg()`
+
+What the preprocessor wraps every value around when it moves it into `a`, so a JSX child renders exactly as JSX would: `null`, `undefined` and the two booleans become `""`, everything else passes through unchanged.
+
+```js
+import { jsxArg } from "@sepoina/vitetranslate/react";
+
+jsxArg(null);   // ""
+jsxArg(false);  // ""
+jsxArg(0);      // 0, a real value
+```
+
+Written by hand only when building a compiled marker's arguments yourself; inside `<Translate>…</Translate>` the preprocessor injects it around every value automatically.
 
 ## `useTranslateLanguage()`
 

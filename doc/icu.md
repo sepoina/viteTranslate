@@ -48,6 +48,8 @@ A literal `{` isn't enough on its own — `{ t: null }` stays plain text — but
 
 `{name}` reads a field of the **arguments object** — the object itself, or the first element when arguments come as an array or tuple. Only a **plain object** counts: a literal, `JSON.parse` output, a `Object.create(null)` — never a class instance, a `Date`, or a React element, which all render as themselves instead. A missing field shows `⁇` (`mark.absentDataInArray`, suppressible the same way as a missing `%s` — see [Diagnostics](diagnostics.md)), and it's never logged as a separate warning.
 
+This is also the rule the [macro](react-api.md#write-jsx-inside-translate) builds its own arguments by: `<Translate>Ciao {name}, hai {count} messaggi</Translate>` compiles `a` exactly as `a={{ name, count: 1 }}` would — an identifier becomes a name, anything else becomes a position, and a numbered tag (a slot) shares the same position counter as `{n}`.
+
 A translation can put the arguments in whatever order the target grammar needs — see the Japanese line in the showcase above — but a name is code, not text: `{name}` stays `{name}` in every language.
 
 🎮 [Named arguments, live](https://sepoina.github.io/viteTranslate/playground/#icu-select) · 🧪 every position and name case — skipped, repeated, missing — on [edge/#icu](https://sepoina.github.io/viteTranslate/edge/#icu).

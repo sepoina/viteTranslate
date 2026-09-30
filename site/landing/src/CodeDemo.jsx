@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Translate } from "@sepoina/vitetranslate/react";
-import { Code, M } from "./theme/Code.jsx";
+import { Code } from "./theme/Code.jsx";
 import SectionHead from "./SectionHead.jsx";
 
 // Dati della demo: sono esempi mostrati, non frasi della pagina, quindi niente <Translate>.
@@ -19,7 +19,7 @@ const SOURCE = `import { Translate } from "@sepoina/vitetranslate/react";
 export default function App() {
   return (
     <h1>
-      <Translate>${M}Benvenuto in viteTranslate${M}</Translate>
+      <Translate>Benvenuto in viteTranslate</Translate>
     </h1>
   );
 }`;

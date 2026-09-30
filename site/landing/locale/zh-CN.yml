@@ -2,7 +2,7 @@
 #      中文（中国）
 #       |    code: zh-CN
 #       |    missing key: 0
-#       |    processed: 2026-09-27 01:06
+#       |    processed: 2026-09-29 02:35
 #       |    TableVersion: 260905
 #  -------------------------------------------------
 #
@@ -71,10 +71,10 @@ pages_jmgmfq: "完整导览，实时呈现：变量与标记、ICU 复数与日�
 pages_vv62gb: "由 LLM 翻译的餐厅"
 Steps_13v2590: "翻译"
 Steps_196we9t: "手动翻译、交给译者，或使用会保留占位符和标签的 LLM。然后发布。"
-Steps_1bx37id: "就写在 JSX 里。无需打开键文件，也无需想名字。"
 Steps_1ocrzwe: "同步"
 Steps_1r4qs32: "一条命令，或者开发服务器：YAML 表始终与代码保持一致。"
 Steps_c656xa: "工作原理"
-Steps_k6r36e: "标记句子"
+Steps_frrvbq: "写在 JSX 里，需要的地方：变量和标签都包含在内。无需打开键文件，无需发明名字。"
+Steps_nrgj8g: "写下这句话"
 Steps_q96bco: "三步搞定，<em>零</em>繁琐。"
 ThemeToggle_1i35buc: "切换主题"

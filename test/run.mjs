@@ -33,6 +33,11 @@ const OPZIONALI = [
   { file: "translateContainer.test.mjs", richiede: ["react-dom/server", "react", "@babel/core"], come: "npm i -D react react-dom @babel/core @babel/preset-react" },
   { file: "languageList.test.mjs", richiede: ["react-dom/server", "react"], come: "npm i -D react react-dom" },
   { file: "reactBundleSize.test.mjs", richiede: ["rolldown", "@babel/core", "@babel/preset-react"], come: "npm i -D rolldown @babel/core @babel/preset-react" },
+  // piano 4.6.4: la macro passa dal preset React vero (macroForms.test.mjs) e devRender confronta
+  // il suo output con quello della tabella compilata, che gira su React vero (devRender.test.mjs).
+  { file: "macroForms.test.mjs", richiede: ["react-dom/server", "react", "@babel/core"], come: "npm i -D react react-dom @babel/core @babel/preset-react" },
+  { file: "devRender.test.mjs", richiede: ["react-dom/server", "react"], come: "npm i -D react react-dom" },
+  { file: "jsxMessage.test.mjs", richiede: ["@babel/core"], come: "npm i -D @babel/core" },
 ];
 
 const argomenti = process.argv.slice(2);

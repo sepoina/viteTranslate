@@ -2,7 +2,7 @@
 #      français (France)
 #       |    code: fr-FR
 #       |    missing key: 0
-#       |    processed: 2026-09-23 13:50
+#       |    processed: 2026-09-29 02:33
 #       |    TableVersion: 260905
 #  -------------------------------------------------
 #
@@ -77,7 +77,6 @@ Footer_18jlbfy: "Tous droits réservés"
 Footer_18m87i4: "Au bout du môle, <i>là où la route s'arrête</i>"
 Footer_19f7dz9: "icônes"
 Footer_1aiix8y: "Menu dégustation"
-Footer_1busaa2: "<b>%s est un restaurant imaginaire</b>, et le nom n'est pas un hasard : c'est la bibliothèque qui traduit cette page (version %s). Noms, adresses, avis et prix sont inventés. Les photos viennent d'Unsplash, sous licence %s : usage libre, même commercial."
 Footer_1d5fsap: "distribution de CSS et d'icônes"
 Footer_1fwevhj: "Événements privés"
 Footer_1ibiage: "Le menu de saison"
@@ -96,11 +95,12 @@ Footer_lkx3so: "Les autres démos de viteTranslate"
 Footer_pfx7cz: "Carte de substitution"
 Footer_psyoz5: "caractères typographiques, de Google Fonts"
 Footer_riaj14: "L'histoire"
+Footer_rstbyt: "<b>{1} est un restaurant imaginaire</b>, et son nom n'est pas un hasard : c'est la bibliothèque qui traduit cette page (version {version}). Noms, adresses, avis et prix sont inventés. Les photos proviennent d'Unsplash, sous licence <2>Unsplash License</2> : usage libre, y compris commercial."
 Footer_t8ngcu: "Sources et crédits"
 Footer_upqfdw: "framework CSS, modules et accordéons"
 Footer_vcb2t6: "Chaque jeudi, un e-mail avec les plats hors carte du week-end."
-Gallery_13qjwor: "Un soir <i>à %s</i>"
 Gallery_1wrj3ra: "Atmosphère"
+Gallery_48qlpv: "Un soir <i>à {0}</i>"
 Gallery_oravel: "Deux salles, une terrasse et une cuisine ouverte où le feu ne s'éteint jamais avant minuit. Venez tôt : le coucher de soleil, d'ici, dure plus longtemps."
 Header_1g0u7om: "Événements"
 Header_1gdmmk3: "Dégustation"

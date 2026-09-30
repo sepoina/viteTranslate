@@ -99,6 +99,7 @@ import tabella from "./__tabella-${stamp}.mjs";
 export const languages = { "it-IT": { name: "italiano", preloaded: true, table: tabella, load: () => Promise.resolve({ default: tabella }) } };
 export const sourceLanguage = "it-IT";
 export const fallbackTable = tabella;
+export const devRender = null;
 `;
 
 const { default: Translate } = await caricaConManifest("Translate.js", manifest);
@@ -398,6 +399,7 @@ export const sourceLanguage = "it-IT";
 export const fallbackTable = tabella;
 export const errorSolve = { malformed: "‼️", untranslated: "🔸", notFullyTranslated: "🔹", badData: "🚫", absentDataInArray: "«?»", warn: false };
 export const partiallyTranslated = { "App_markup": 1 };
+export const devRender = null;
 `;
   const { default: TranslateDiag } = await caricaConManifest("Translate.js", manifestDiag);
   const { useTranslateToString: usaTsDiag } = await caricaConManifest("useTranslateToString.js", manifestDiag);

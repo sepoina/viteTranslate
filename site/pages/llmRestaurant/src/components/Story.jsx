@@ -48,43 +48,43 @@ export default function Story() {
             <Photo photo={PHOTOS.knife} w={600} className="collage__side" />
             <span className="collage__badge">
               <strong>1987</strong>
-              <Translate>_%_il primo chiosco sul molo_%_</Translate>
+              <Translate>il primo chiosco sul molo</Translate>
             </span>
           </div>
           <div className="prose reveal">
-            <p className="eyebrow"><Translate>_%_La nostra storia_%_</Translate></p>
+            <p className="eyebrow"><Translate>La nostra storia</Translate></p>
             <h2 className="title">
-              <Translate t="_%_Da un chiosco di fritture a <i>una tavola sul mare</i>_%_" />
+              <Translate>Da un chiosco di fritture a <i>una tavola sul mare</i></Translate>
             </h2>
             <p className="lead">
               <Translate>
-                _%_Nel 1987 nonna Ada friggeva acciughe in un chiosco di legno a dieci metri
+                Nel 1987 nonna Ada friggeva acciughe in un chiosco di legno a dieci metri
                 dall'acqua. Aveva quattro tavoli, una lavagna scritta col gesso e una regola sola:
-                si cucina soltanto quello che il mare ha portato oggi._%_
+                si cucina soltanto quello che il mare ha portato oggi.
               </Translate>
             </p>
             <p>
               <Translate>
-                _%_Trentotto anni dopo i tavoli sono diventati sessantaquattro, la lavagna è ancora
+                Trentotto anni dopo i tavoli sono diventati sessantaquattro, la lavagna è ancora
                 appesa accanto alla porta della cucina e la regola non è cambiata di una virgola.
                 Ai fornelli c'è Tommaso, il nipote, tornato a casa dopo dieci anni tra Parigi,
-                San Sebastián e Tokyo con una valigia di tecniche e la stessa fame di semplicità._%_
+                San Sebastián e Tokyo con una valigia di tecniche e la stessa fame di semplicità.
               </Translate>
             </p>
             <p>
               <Translate>
-                _%_La nostra è una cucina di sottrazione: pochi ingredienti, cotture precise, sapori
+                La nostra è una cucina di sottrazione: pochi ingredienti, cotture precise, sapori
                 che si riconoscono a occhi chiusi. Un piatto è finito quando non c'è più niente da
-                togliere._%_
+                togliere.
               </Translate>
             </p>
             <blockquote className="signature">
               <Translate>
-                _%_«Il pesce buono non ha bisogno di essere convinto. Ha solo bisogno che nessuno
-                lo rovini.»_%_
+                «Il pesce buono non ha bisogno di essere convinto. Ha solo bisogno che nessuno
+                lo rovini.»
               </Translate>
               <footer>
-                <cite>Tommaso Ferrando</cite> · <Translate>_%_chef e patron_%_</Translate>
+                <cite>Tommaso Ferrando</cite> · <Translate>chef e patron</Translate>
               </footer>
             </blockquote>
           </div>
@@ -94,9 +94,9 @@ export default function Story() {
       <section className="section section--sand">
         <div className="wrap">
           <header className="section-head reveal">
-            <p className="eyebrow"><Translate>_%_Quello che non cambia_%_</Translate></p>
+            <p className="eyebrow"><Translate>Quello che non cambia</Translate></p>
             <h2 className="title">
-              <Translate t="_%_Tre promesse, <i>ogni sera</i>_%_" />
+              <Translate>Tre promesse, <i>ogni sera</i></Translate>
             </h2>
           </header>
           <div className="promises">

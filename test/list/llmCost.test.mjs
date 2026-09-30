@@ -22,6 +22,18 @@ console.log("\n== T23 charsIn = system*nBatch + item serializzati ==");
   eq("itemCharsIn", JSON.stringify({ k: "A_1", t: "hi", where: "A" }).length, itemCharsIn(item));
 }
 
+// 4.6.4 — itemCharsIn conta anche "p" quando la voce porta indicazioni per l'LLM
+console.log('\n== itemCharsIn conta anche "p" (piano 4.6.4) ==');
+{
+  const senzaHints = { key: "A_1", text: "Ciao <1>qui</1>", where: "A" };
+  const conHints = { ...senzaHints, hints: { "<1>": "<a href>" } };
+  eq("con hints pesa di piu'", true, itemCharsIn(conHints) > itemCharsIn(senzaHints));
+  eq("la differenza e' esattamente quella del payload con/senza p",
+    JSON.stringify({ k: "A_1", t: "Ciao <1>qui</1>", where: "A", p: { "<1>": "<a href>" } }).length
+      - JSON.stringify({ k: "A_1", t: "Ciao <1>qui</1>", where: "A" }).length,
+    itemCharsIn(conHints) - itemCharsIn(senzaHints));
+}
+
 // T23b — regressione: il contesto contato due volte
 console.log("\n== T23b regressione: il contesto non si conta due volte ==");
 {

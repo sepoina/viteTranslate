@@ -42,6 +42,29 @@ eq('"%s %s" contro ICU "{1} {0}" -> ok', [], codesOf(compareIcu("%s %s", "{1} {0
   eq("sorgente ICU rotta -> nessun errore qui", [], codesOf(compareIcu("{0, plural, one {x}}", "{0, plural, one {x} other {y}}")));
 }
 
+console.log("\n== compareIcu: gli slot (4.6.4) ==");
+eq("slot spostato, stesso indice -> ok", [], codesOf(compareIcu("Leggi <0>qui</0>", "Read <0>here</0>")));
+{
+  const r = compareIcu("Leggi <0>qui</0>", "Read here");
+  eq("<0> perso -> slot-args", ["slot-args"], codesOf(r));
+  ok_("il messaggio nomina il missing", /missing <0>/.test(r.errors[0].message));
+}
+{
+  const r = compareIcu("Leggi qui", "Read <1>here</1>");
+  eq("<1> inventato -> slot-args", ["slot-args"], codesOf(r));
+  ok_("il messaggio nomina l'unexpected", /unexpected <1>/.test(r.errors[0].message));
+}
+{
+  const r = compareIcu("Leggi <0>qui</0>", "Read <0>here");
+  eq("<0> senza </0> -> slot-unbalanced", ["slot-unbalanced"], codesOf(r));
+}
+eq("testi non ICU senza slot -> vuoto, come sempre", [], codesOf(compareIcu("ciao", "hello")));
+eq("slot dentro un ramo plurale, ripetuto -> ok",
+  [], codesOf(compareIcu(
+    "{n, plural, one {<0># file</0>} other {<0># file</0>}}",
+    "{n, plural, one {<0># file</0>} other {<0># file</0>}}",
+  )));
+
 console.log("\n== requiredPluralCategories ==");
 {
   const it = requiredPluralCategories("it-IT", false);

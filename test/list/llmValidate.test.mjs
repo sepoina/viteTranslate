@@ -93,5 +93,24 @@ eq(
   eq("lunghezza fino a 8x -> ok", true, ok("K", source, candidate));
 }
 
+// Gli slot (piano 4.6.4): TAG_RE non li vede (vogliono una cifra), passano dal confronto ICU.
+console.log("\n== slot: presenti, spostati, persi, sbilanciati ==");
+eq("slot spostato dove serve alla grammatica -> ok", true, ok("K", "Leggi la <0>guida</0>", "Read the <0>guide</0>"));
+eq("slot perso -> slot-args", "slot-args", reason("K", "Leggi la <0>guida</0>", "Leggi la guida"));
+eq("slot inventato -> slot-args", "slot-args", reason("K", "Leggi la guida", "Leggi la <0>guida</0>"));
+eq("slot aperto e mai chiuso -> slot-unbalanced", "slot-unbalanced", reason("K", "Leggi la <0>guida</0>", "Leggi la <0>guida"));
+
+console.log("\n== slot dentro un ramo plurale ==");
+eq(
+  "slot ripetuto in entrambi i rami -> ok",
+  true,
+  ok("K", "{0, plural, one {<0># file</0>} other {<0># files</0>}}", "{0, plural, one {<0># file</0>} other {<0># file</0>}}")
+);
+eq(
+  "slot perso da tutti i rami -> slot-args",
+  "slot-args",
+  reason("K", "{0, plural, one {<0># file</0>} other {<0># files</0>}}", "{0, plural, one {# file} other {# files}}")
+);
+
 console.log(fail ? `\n${fail} asserzioni fallite` : "\ntutto ok");
 process.exit(fail ? 1 : 0);

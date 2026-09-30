@@ -86,11 +86,11 @@ export function AutoWrapPlaceholderWarning() {
 }
 
 // ---------------------------------------------------------------- 9. marcatore spezzato da un tag
-// <b> spacca il testo in due pezzi JSX prima che l'estrazione ne veda uno intero: nessuno dei
-// due apre E chiude, quindi NIENTE viene estratto — autoWrap non ha materia su cui lavorare, e
-// i due frammenti restano testo letterale. Un avviso marker-split in console nomina <b> come
-// causa (vedi doc/diagnostics.md); la via che funziona è un literal solo, con il tag dentro
-// interpretato dal dialetto HTML a tempo di build: `t="_%_ciao <b>mondo</b>_%_"`.
+// Dalla 4.6.4 questo E' il secondo caso del preprocessore (jsxMessage.js): "_%_..._%_" spezzato dal
+// tag <b> in piu' figli JSX viene riconosciuto comunque, e con autoWrap acceso (p e b sono
+// entrambi nella RegExp di questa pagina, vedi vite.config.js) si riscrive da solo nella forma a
+// hook, nessun <Translate> a mano — prima del piano si fermava a un avviso marker-split e
+// restava testo letterale, ora e' esattamente il caso che il preprocessore esiste per coprire.
 export function AutoWrapMarkerSplit() {
   return <p>_%_Ciao <b>mondo</b>_%_</p>;
 }
@@ -101,6 +101,34 @@ export function AutoWrapMarkerSplit() {
 // prima di questo piano, e senza avviso: è stato chiesto così.
 export function AutoWrapOpaqueTag() {
   return <blockquote>_%_Questo tag non è nella RegExp del progetto: resta come prima, nessuna riscrittura._%_</blockquote>;
+}
+
+// ---------------------------------------------------------------- 11-15. autoWrap con valori
+// Dalla 4.6.4 il marcatore nudo può portare con sé variabili, tag e link: il preprocessore li legge dai
+// figli JSX e passa gli argomenti da sola. È il rovescio del caso 8: lì un %s non ha dove
+// arrivare, qui ogni {valore} ha il suo argomento — e nella tabella il traduttore lo vede col
+// nome (ICU), non come un %s anonimo.
+const nome = 'Mario';
+const messaggi = 3;
+
+export function AutoWrapNamedValues() {
+  return <p>_%_Ciao {nome}, hai {messaggi} messaggi_%_</p>;
+}
+
+export function AutoWrapSplitValue() {
+  return <p>_%_Ciao <b>{nome}</b>, benvenuto_%_</p>;
+}
+
+export function AutoWrapLinkSlot() {
+  return <p>_%_Leggi la <a href="/guida">guida</a> prima di partire_%_</p>;
+}
+
+export function AutoWrapAttrTemplate() {
+  return <input readOnly placeholder={`_%_Cerca fra ${messaggi} messaggi_%_`} />;
+}
+
+export function AutoWrapNested() {
+  return <p>_%_<b>{nome}</b>: <em>{messaggi}</em> nuovi_%_</p>;
 }
 
 // Titoli marcati come il resto, nella stessa lingua sorgente del file che estendono.
@@ -181,15 +209,68 @@ export function AutoWrapAttrOnComponent() {
     'warn',
   ],
   [
-    '_%_9. Un tag DENTRO il marcatore lo spezza_%_',
+    '_%_9. Un tag dentro il marcatore, riconosciuto dal preprocessore_%_',
     <AutoWrapMarkerSplit />,
-    'I delimitatori restano a schermo, letterali: <b> ha spezzato il marcatore prima che l’estrazione ne vedesse uno intero. Il fix è un literal solo, non due pezzi di JSX.',
+    <p>
+      Ciao <b>mondo</b>
+    </p>,
     `export function AutoWrapMarkerSplit() {
   return <p>_%_Ciao <b>mondo</b>_%_</p>;
 }
-// non funziona ne' con ne' senza autoWrap — usa invece:
-//   <Translate t="_%_Ciao <b>mondo</b>_%_" />`,
-    'error',
+// dalla 4.6.4: il preprocessore lo riconosce e, con autoWrap, lo riscrive da sola`,
+  ],
+  [
+    '_%_11. Valori con nome: &#123;nome}, &#123;messaggi}_%_',
+    <AutoWrapNamedValues />,
+    'Ciao Mario, hai 3 messaggi — senza un %s e senza un array di argomenti: li passa il preprocessore.',
+    `const nome = 'Mario';
+const messaggi = 3;
+export function AutoWrapNamedValues() {
+  return <p>_%_Ciao {nome}, hai {messaggi} messaggi_%_</p>;
+}
+// nel file di lingua: "Ciao {nome}, hai {messaggi} messaggi"`,
+  ],
+  [
+    '_%_12. Marcatore spezzato da un tag con un valore dentro_%_',
+    <AutoWrapSplitValue />,
+    <p>
+      Ciao <b>Mario</b>, benvenuto
+    </p>,
+    `export function AutoWrapSplitValue() {
+  return <p>_%_Ciao <b>{nome}</b>, benvenuto_%_</p>;
+}
+// nel file di lingua: "Ciao <b>{nome}</b>, benvenuto"`,
+  ],
+  [
+    '_%_13. Un link nel marcatore: diventa uno slot_%_',
+    <AutoWrapLinkSlot />,
+    <p>
+      Leggi la <a href="/guida">guida</a> prima di partire
+    </p>,
+    `export function AutoWrapLinkSlot() {
+  return <p>_%_Leggi la <a href="/guida">guida</a> prima di partire_%_</p>;
+}
+// nel file di lingua: "Leggi la <0>guida</0> prima di partire"
+// l'href resta nel codice: il traduttore non lo vede, e non può romperlo`,
+  ],
+  [
+    '_%_14. Attributo con un template literal_%_',
+    <AutoWrapAttrTemplate />,
+    'Il placeholder tradotto, col numero già dentro: visibile nel campo vuoto.',
+    `export function AutoWrapAttrTemplate() {
+  return <input readOnly placeholder={\`_%_Cerca fra \${messaggi} messaggi_%_\`} />;
+}`,
+  ],
+  [
+    '_%_15. Tag e valori in ogni posizione_%_',
+    <AutoWrapNested />,
+    <p>
+      <b>Mario</b>: <em>3</em> nuovi
+    </p>,
+    `export function AutoWrapNested() {
+  return <p>_%_<b>{nome}</b>: <em>{messaggi}</em> nuovi_%_</p>;
+}
+// un traduttore può riordinare: "{messaggi} nuovi per <b>{nome}</b>"`,
   ],
   [
     '_%_10. Tag escluso dalla RegExp del progetto_%_',

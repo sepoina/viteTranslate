@@ -20,7 +20,7 @@ import { createServer } from "node:http";
 import { readFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import parseMarkup from "../lib/dev/compile/parseMarkup.js";
+import parseMarkup from "../lib/markup/parseMarkup.js";
 import { VOID_TAGS } from "../lib/htmlDialect.js";
 import { CORPUS } from "./list/markupCorpus.mjs";
 

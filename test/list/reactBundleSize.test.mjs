@@ -37,6 +37,15 @@ eq('"react" resta un import esterno, non bundlato', true, code.includes(`from"re
 eq("nessuna traccia del parser ICU (MISSING_OTHER_CLAUSE)", false, code.includes("MISSING_OTHER_CLAUSE"));
 eq('nessuna traccia di "icu-messageformat"', false, code.includes("icu-messageformat"));
 
+// 4.6.4: il fallback di sviluppo (lib/markup/devRender.js, e con lui parseMarkup) arriva SOLO
+// dal manifest — mai importato qui — quindi in produzione `diag.devRender` resta una PROPRIETÀ
+// mai popolata, letta ma mai chiamata a vuoto. Il bundle non deve contenere né il parser né
+// una chiamata a un `devRender` importato direttamente (un bare "devRender(", non preceduto da
+// un punto: quello resta la lettura di proprietà di sempre, `diag.devRender(...)`).
+eq("nessuna traccia di parseMarkup (lib/markup/)", false, code.includes("parseMarkup"));
+eq("nessuna chiamata a un devRender importato direttamente (solo la proprietà)", false, /(?<!\.)\bdevRender\s*\(/.test(code));
+eq("jsxArg e' nel bundle (lo importa la macro)", true, code.includes("jsxArg"));
+
 // Il peso reale (React + helper ICU) confrontato con site/runtimeSize.json, che npm run
 // estimateSize riscrive: un salto di un kB fa fallire questo test finché le cifre non vengono
 // aggiornate — è la guardia contro le fughe silenziose, legata a ciò che i documenti dicono

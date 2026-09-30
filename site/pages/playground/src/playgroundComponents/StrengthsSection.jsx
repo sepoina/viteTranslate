@@ -5,7 +5,7 @@ import SIZE from "../theme/runtimeSize.json";
 // Il titolo sta nella stessa frase marcata del testo, così chi traduce li vede insieme.
 const STRENGTHS = [
   ["⚖️", ["_%_<strong>%s gzip nel bundle finale.</strong> Il runtime che arriva al browser (<code>&#60;Translate&#62;</code>, <code>TranslateContainer</code>, <code>useTranslateLanguage</code>) pesa %s gzip, helper ICU compresi, misurati dalla suite di test. Il payload delle traduzioni scala con i tuoi contenuti, non con la libreria._%_", SIZE.real, SIZE.real]],
-  ["🏷️", "_%_<strong>Marcatura diretta del testo nel sorgente.</strong> Nessuna chiave da creare o gestire a mano._%_"],
+  ["🏷️", "_%_<strong>Il testo resta nel JSX, variabili e tag compresi.</strong> Nessuna chiave da creare o gestire a mano._%_"],
   ["🧮", "_%_<strong>ICU MessageFormat, compilato in build.</strong> Plurali, select, numeri e date senza un parser nel browser: gli helper arrivano solo se una tabella li usa._%_"],
   ["🤖", "_%_<strong>Traduzione con un LLM, dalla CLI.</strong> Un comando riempie le chiavi mancanti con il modello che scegli: stima il costo prima, scarta ciò che romperebbe il runtime._%_"],
   ["🔄", "_%_<strong>Sincronizzazione automatica delle tabelle.</strong> Un solo comando aggiorna tutte le lingue e segnala cosa resta da tradurre._%_"],

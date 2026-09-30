@@ -294,6 +294,7 @@ A translation is written only if it passes **all** of these:
 - it's a non-empty string, and not the key echoed back;
 - it has as many `%s` placeholders as the source (their order can't be checked — see [limitations](limitations.md));
 - it has the same inline tags (`<b>`, `<i>`, …) as the source, not crossed;
+- it keeps every numbered tag the source has, opening and closing, and invents none (`slot-args` / `slot-unbalanced` — a numbered tag wraps a link or a component that lives in the code, so losing or inventing one loses or invents the element itself, not just text);
 - it isn't wildly longer than the source (at most `source.length * 4 + 20`).
 
 For an [ICU message](icu.md), the last three are replaced by the same check compilation and `--status` use: the reply
@@ -304,6 +305,8 @@ For an [ICU message](icu.md), the last three are replaced by the same check comp
 - isn't wildly longer than the source (at most `source.length * 8 + 20` — plural branches grow with the language).
 
 Unlike `%s`, an ICU translation **can** reorder its arguments (`{1} {0}` for a source `{0} {1}`) — the prompt tells the model so only for languages whose batch actually contains an ICU string, keeping the extra rules off every other prompt's token count. Apostrophes need no rule at all: they're plain text to the ICU compiler, so a model turning `'{0}'` into `’{0}’` or `「{0}」` changes the punctuation, never the arguments.
+
+The same "only when needed" rule applies to numbered tags: a language whose batch has at least one `<1>…</1>` gets the extra rule to keep every one, with its number, around the right words — moving a tag together with its words is fine, renumbering or nesting it differently isn't. Some items also carry a `p` field, a hint at what a placeholder stands for in the code — `{"<1>": "<a href>", "{0}": "user.name"}` — there to help pick the right words, and never written to the `.yml` table: it's computed fresh from the source on every run, not part of the translation.
 
 A rejected value stays `null`, is counted by reason in the report, and gets **one** repair attempt with the rejection reason — code and message — sent back to the model. A key that fails twice for the same language is skipped on later runs, and the report lists those keys by language and reason, so "nothing sent" never passes for "all done". `--llm-auto` retries them.
 

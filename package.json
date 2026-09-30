@@ -1,7 +1,7 @@
 {
   "name": "@sepoina/vitetranslate",
-  "version": "4.6.3",
-  "versionDescription": "ICU MessageFormat: plurals, select, numbers and dates compiled at build time, with configurable time zones.",
+  "version": "4.6.4-rc.2",
+  "versionDescription": "JSX inside <Translate> becomes the message: values, tags and links compiled at build time.",
   "description": "Extract translatable strings straight from your JSX — a Vite plugin that auto-generates and syncs your translation tables, with zero runtime dependencies.",
   "author": {
     "name": "Giancarlo Ghigi",
@@ -70,7 +70,11 @@
     "site": "node site/syncTheme.mjs && npm --prefix site/landing run dev",
     "site:build": "node site/build.mjs",
     "site:preview": "node site/build.mjs --preview",
-    "site:theme": "node site/syncTheme.mjs"
+    "site:theme": "node site/syncTheme.mjs",
+    "ide:build": "rolldown -c idePlugin/rolldown.config.mjs",
+    "ide:package": "npm run ide:build && node idePlugin/scripts/code.mjs package",
+    "ide:install": "npm run ide:package && node idePlugin/scripts/code.mjs install",
+    "ide:dev": "npm run ide:build && node idePlugin/scripts/code.mjs dev"
   },
   "files": [
     "lib"

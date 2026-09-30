@@ -101,6 +101,7 @@ export const control = { fallisce: ${fallisce}, caricamenti: 0 };
 // deve comunque funzionare, essendo un namespace e non un import nominato (piano 4.6.3).
 export const icu = ${JSON.stringify(icu)};
 export const icuDev = null;
+export const devRender = null;
 export const languages = {
   "it-IT": { name: "italiano", preloaded: true, table: tabellaIt, load: () => Promise.resolve({ default: tabellaIt }) },
   "fr-FR": { name: "français", preloaded: false, load: () => {

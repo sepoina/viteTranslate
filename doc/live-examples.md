@@ -34,6 +34,7 @@ Both switch language live, and the `#` next to every title is a link to share. E
 | Category | Covers | Explained in |
 | :- | :- | :- |
 | [Call forms](https://sepoina.github.io/viteTranslate/edge/#call-forms) | Children, `t`, tuple, `{ t, a }`, `o`, `a` | [`<Translate>`](react-api.md#translate) |
+| [The preprocessor: JSX becomes the message](https://sepoina.github.io/viteTranslate/edge/#macro) | Plain text, named values, a dialect tag staying text, a link becoming a slot, `null`/`false`, `` ts`…` `` in a component | [Write JSX inside `<Translate>`](react-api.md#write-jsx-inside-translate) |
 | [What becomes a marker](https://sepoina.github.io/viteTranslate/edge/#markers) | Empty, nested, built at runtime, mid-string, in a template | [Known limitations](limitations.md) |
 | [%s interpolation](https://sepoina.github.io/viteTranslate/edge/#percent-s) | Too many, too few, `null`, `0`, `""` | [Markup and placeholders](react-api.md#markup-and-placeholders) |
 | [Standard ICU interpolation](https://sepoina.github.io/viteTranslate/edge/#icu) | Positions, names, braces, apostrophes | [ICU messages](icu.md) |

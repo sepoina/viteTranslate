@@ -11,6 +11,7 @@ import fastVerify, { buildScanRecord } from "../../lib/dev/vite/uty/fastVerify.j
 import { writeScan, scanPath } from "../../lib/dev/vite/uty/scanRecord.js";
 import walkSource from "../../lib/dev/vite/uty/walkSource.js";
 import { hash } from "../../lib/dev/babel/markerCore.js";
+import { mayHaveMarkers } from "../../lib/markerSyntax.js";
 
 let fail = 0;
 const eq = (nome, atteso, ottenuto) => {
@@ -31,7 +32,10 @@ function registra(baseDir) {
   const marked = {};
   for (const e of entries) {
     const code = readFileSync(e.path, "utf8");
-    if (code.includes("_%_")) marked[e.rel] = hash(code);
+    // mayHaveMarkers (4.6.4): non solo "_%_", anche i file con la sola macro — stessa regola
+    // di scanSource.js, altrimenti questo aiutante di test marcherebbe meno di quanto fa
+    // davvero il comando di sync.
+    if (mayHaveMarkers(code)) marked[e.rel] = hash(code);
   }
   writeScan(baseDir, buildScanRecord({
     baseDir, srcDir: "src", localeDir: "locale", sourceLanguage: "it-IT", simpleLog: false,
@@ -185,6 +189,28 @@ console.log("\n== fastVerify non lancia mai ==");
   }
   eq("srcDir assente: nessuna eccezione", false, lanciato);
   eq("srcDir assente: fresh false", false, esito?.fresh);
+}
+
+console.log("\n== la macro senza _%_ (4.6.4) ==");
+{
+  const baseDir = mkdtempSync(join(tmpdir(), "vt-fastverify-macro-"));
+  temporanee.push(baseDir);
+  mkdirSync(join(baseDir, "node_modules"), { recursive: true });
+  writeFileSync(join(baseDir, "vite.config.js"), "export default {};\n", "utf8");
+  mkdirSync(join(baseDir, "src"), { recursive: true });
+  const MACRO_SOLO = (testo) =>
+    `import { Translate } from "@sepoina/vitetranslate/react";\nexport const A = () => <Translate>${testo}</Translate>;\n`;
+  writeFileSync(join(baseDir, "src", "Macro.jsx"), MACRO_SOLO("Ciao"), "utf8");
+  mkdirSync(join(baseDir, "locale"), { recursive: true });
+  writeFileSync(join(baseDir, "locale", "it-IT.yml"), "a: ciao\n", "utf8");
+  registra(baseDir);
+
+  eq("appena registrato: fresh", true, fastVerify({ baseDir }).fresh);
+
+  writeFileSync(join(baseDir, "src", "Macro.jsx"), MACRO_SOLO("Ciao a tutti"), "utf8");
+  const esito = fastVerify({ baseDir });
+  eq("modificato dopo il record: non fresh", false, esito.fresh);
+  eq("motivo: source-changed", "source-changed", esito.reason);
 }
 
 for (const dir of temporanee) rmSync(dir, { recursive: true, force: true });

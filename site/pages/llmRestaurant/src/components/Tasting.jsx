@@ -32,15 +32,15 @@ export default function Tasting() {
     <section className="section section--sand" id="degustazione">
       <div className="wrap">
         <header className="section-head section-head--center reveal">
-          <p className="eyebrow"><Translate>_%_Menù degustazione_%_</Translate></p>
+          <p className="eyebrow"><Translate>Menù degustazione</Translate></p>
           <h2 className="title">
-            <Translate t="_%_Lasciatevi <i>portare al largo</i>_%_" />
+            <Translate>Lasciatevi <i>portare al largo</i></Translate>
           </h2>
           <p className="lead">
             <Translate>
-              _%_Tre rotte diverse, un'unica regola: vi fidate di noi e noi non vi facciamo mai
+              Tre rotte diverse, un'unica regola: vi fidate di noi e noi non vi facciamo mai
               mangiare due volte la stessa cosa. Ogni percorso si chiude con la piccola
-              pasticceria e il caffè._%_
+              pasticceria e il caffè.
             </Translate>
           </p>
         </header>
@@ -48,28 +48,28 @@ export default function Tasting() {
           {MENUS.map((m) => (
             <article key={m.name} className={`tasting__card reveal${m.featured ? ' is-featured' : ''}`}>
               {m.featured && (
-                <span className="tasting__badge"><Translate>_%_Il più scelto_%_</Translate></span>
+                <span className="tasting__badge"><Translate>Il più scelto</Translate></span>
               )}
               <p className="tasting__courses"><Translate t="_%_%s portate_%_" a={[m.courses]} /></p>
               <h3><Translate t={m.name} /></h3>
               <p className="tasting__price">
                 {money(m.price)}
-                <small><Translate>_%_a persona_%_</Translate></small>
+                <small><Translate>a persona</Translate></small>
               </p>
               <p><Translate t={m.text} /></p>
               <p className="tasting__pairing">
                 <i className="ph ph-wine" aria-hidden="true" /> <Translate t="_%_Abbinamento vini: + {0, number, ::currency/EUR precision-integer}_%_" a={[m.pairing]} />
               </p>
               <a href="#prenota" role="button" className={m.featured ? '' : 'outline'}>
-                <Translate>_%_Prenota questo percorso_%_</Translate>
+                <Translate>Prenota questo percorso</Translate>
               </a>
             </article>
           ))}
         </div>
         <p className="fine-print">
           <Translate>
-            _%_I menù degustazione sono serviti all'intero tavolo e si possono ordinare fino alle
-            21:30. Varianti vegetariane su richiesta, con un giorno di preavviso._%_
+            I menù degustazione sono serviti all'intero tavolo e si possono ordinare fino alle
+            21:30. Varianti vegetariane su richiesta, con un giorno di preavviso.
           </Translate>
         </p>
       </div>
