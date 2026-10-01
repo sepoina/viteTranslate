@@ -7,6 +7,7 @@ const DISHES = [
     photo: PHOTOS.shrimp,
     name: '_%_Spaghettone ai gamberi rossi_%_',
     text: '_%_Il piatto con cui Tommaso si è presentato alla famiglia, al ritorno da Tokyo. La bisque cuoce sei ore; la pasta, undici minuti esatti._%_',
+    err: '_%_Il piantto con cui Tommaso si è presentato alla famiglia, al ritorno da Tokyo. La bisque cuoce sei ore; la pasta, undici minuti esatti._%_',
   },
   {
     photo: PHOTOS.amberjack,
@@ -16,7 +17,7 @@ const DISHES = [
   {
     photo: PHOTOS.bream,
     name: "_%_Orata all'acqua pazza_%_",
-    text: "_%_La ricetta sdi nonna Ada, rimasta identica dal 1987: pomodorini, capperi, un filo d'olio e l'acqua di mare che dà il nome al piatto._%_",
+    text: "_%_La ricetta di nonna Ada, rimasta identica dal 1987: pomodorini, capperi, un filo d'olio e l'acqua di mare che dà il nome al piatto._%_",
   },
 ];
 

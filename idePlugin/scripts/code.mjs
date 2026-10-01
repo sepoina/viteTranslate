@@ -1,13 +1,21 @@
-// I comandi di contorno dell'estensione, lanciati dagli script `ide:*` della radice:
+// I comandi di contorno dell'estensione, uno o più di fila, nell'ordine dato:
 //
+//   node idePlugin/scripts/code.mjs build     # src/ → dist/ (rolldown.config.mjs), più i codicons
 //   node idePlugin/scripts/code.mjs package   # dist/ → idePlugin/vitetranslate-ide-<versione>.vsix
 //   node idePlugin/scripts/code.mjs install   # installa quel .vsix nell'editor
 //   node idePlugin/scripts/code.mjs dev       # apre il repo in una finestra "Extension Development Host"
 //
+// Li lanciano gli script di idePlugin/package.json (un workspace del repo) e gli `ide:*` della
+// radice, con la stessa riga: `node … code.mjs build package`, mai `npm run` dentro `npm run`.
+// Sotto `npm run` il PATH comincia con i node_modules/.bin di tutte le cartelle sopra il repo, e
+// un npm vecchio lì dentro (6.x, trovato davvero) prende il posto di quello vero: non conosce `-w`
+// e rilancia la build della libreria, o si pianta. Qui si usa solo il `node` in uso, e il npx
+// accanto a lui.
+//
 // L'editor è `code`; per VSCodium: `VT_CODE_CLI=codium npm run ide:install`.
-// Presuppongono `npm run ide:build` già fatto: gli script della radice lo concatenano.
 import { spawnSync } from "node:child_process";
-import { existsSync, readFileSync } from "node:fs";
+import { copyFileSync, existsSync, readFileSync } from "node:fs";
+import { createRequire } from "node:module";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -19,7 +27,7 @@ const CLI = process.env.VT_CODE_CLI || "code";
 
 function esegui(comando, argomenti, cwd = REPO_DIR) {
   // shell su Windows: `code` e `npx` lì sono file .cmd, che spawn da solo non lancia.
-  const r = spawnSync(comando, argomenti, { cwd, stdio: "inherit", shell: process.platform === "win32" });
+  const r = spawnSync(comando, argomenti, { cwd, stdio: "inherit", shell: process.platform === "win32" && comando !== process.execPath });
   if (r.error) {
     console.error(`[idePlugin] could not run "${comando}": ${r.error.message}`);
     process.exit(1);
@@ -27,31 +35,51 @@ function esegui(comando, argomenti, cwd = REPO_DIR) {
   if (r.status !== 0) process.exit(r.status ?? 1);
 }
 
-const comando = process.argv[2];
-if (!existsSync(join(IDE_DIR, "dist", "extension.cjs"))) {
+const COMANDI = {
+  // rolldown è una devDependency di idePlugin: lo si risolve da qui (nel workspace sta nel
+  // node_modules della radice) e se ne lancia il bin col node in uso.
+  build() {
+    const require = createRequire(join(IDE_DIR, "package.json"));
+    const pkg = require.resolve("rolldown/package.json");
+    const { bin } = JSON.parse(readFileSync(pkg, "utf8"));
+    const cli = join(dirname(pkg), typeof bin === "string" ? bin : bin.rolldown);
+    esegui(process.execPath, [cli, "-c", join(IDE_DIR, "rolldown.config.mjs")], IDE_DIR);
+    // Le icone della webview (vscode-icon le cerca in un <link id="vscode-codicon-stylesheet">):
+    // il css e il font di @vscode/codicons, accanto a webview.js. Il css punta al font con un
+    // percorso relativo, quindi basta che stiano nella stessa cartella.
+    const codicons = dirname(require.resolve("@vscode/codicons/package.json"));
+    for (const file of ["codicon.css", "codicon.ttf"]) copyFileSync(join(codicons, "dist", file), join(IDE_DIR, "dist", file));
+  },
+  package() {
+    dist();
+    // --no-dependencies: il bundle non ha dipendenze a runtime, e così vsce non chiama npm (che in
+    // un workspace npm come questo repo risponderebbe per la radice, non per idePlugin/).
+    const npx = join(dirname(process.execPath), process.platform === "win32" ? "npx.cmd" : "npx");
+    esegui(existsSync(npx) ? npx : "npx", ["--yes", "@vscode/vsce@3", "package", "--no-dependencies", "--out", VSIX], IDE_DIR);
+  },
+  install() {
+    if (!existsSync(VSIX)) {
+      console.error(`[idePlugin] ${VSIX} is missing: run \`npm run ide:package\` first.`);
+      process.exit(1);
+    }
+    esegui(CLI, ["--install-extension", VSIX, "--force"]);
+    console.log("[idePlugin] installed. No viteTranslate icon in the Activity Bar yet? Run \"Developer: Reload Window\".");
+  },
+  dev() {
+    dist();
+    esegui(CLI, [`--extensionDevelopmentPath=${IDE_DIR}`, REPO_DIR]);
+  },
+};
+
+function dist() {
+  if (existsSync(join(IDE_DIR, "dist", "extension.cjs"))) return;
   console.error("[idePlugin] dist/extension.cjs is missing: run `npm run ide:build` first.");
   process.exit(1);
 }
 
-if (comando === "package") {
-  // --no-dependencies: il bundle non ha dipendenze a runtime, e così vsce non chiama npm (che in
-  // un workspace npm come questo repo risponderebbe per la radice, non per idePlugin/).
-  //
-  // Il npx è quello accanto al `node` in uso, non il primo nel PATH: sotto `npm run` il PATH
-  // comincia con i node_modules/.bin di tutte le cartelle sopra il repo, e un npx vecchio lì dentro
-  // nasconde quello vero (lo scambia per "comando non trovato: package").
-  const npx = join(dirname(process.execPath), process.platform === "win32" ? "npx.cmd" : "npx");
-  esegui(existsSync(npx) ? npx : "npx", ["--yes", "@vscode/vsce@3", "package", "--no-dependencies", "--out", VSIX], IDE_DIR);
-} else if (comando === "install") {
-  if (!existsSync(VSIX)) {
-    console.error(`[idePlugin] ${VSIX} is missing: run \`npm run ide:package\` first.`);
-    process.exit(1);
-  }
-  esegui(CLI, ["--install-extension", VSIX, "--force"]);
-  console.log("[idePlugin] installed. No viteTranslate icon in the Activity Bar yet? Run \"Developer: Reload Window\".");
-} else if (comando === "dev") {
-  esegui(CLI, [`--extensionDevelopmentPath=${IDE_DIR}`, REPO_DIR]);
-} else {
-  console.error("usage: node idePlugin/scripts/code.mjs <package|install|dev>");
+const comandi = process.argv.slice(2);
+if (!comandi.length || comandi.some((c) => !Object.hasOwn(COMANDI, c))) {
+  console.error("usage: node idePlugin/scripts/code.mjs <build|package|install|dev>...");
   process.exit(1);
 }
+for (const c of comandi) COMANDI[c]();

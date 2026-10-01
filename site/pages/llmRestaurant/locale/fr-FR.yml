@@ -1,8 +1,8 @@
 #  -------------------------------------------------
 #      français (France)
 #       |    code: fr-FR
-#       |    missing key: 0
-#       |    processed: 2026-09-29 02:33
+#       |    missing key: 1
+#       |    processed: 2026-10-01 01:11
 #       |    TableVersion: 260905
 #  -------------------------------------------------
 #
@@ -234,3 +234,6 @@ Tasting_r4v4s2: "Le parcours complet de la saison, avec deux plats hors carte in
 Tasting_vp2dyl: "par personne"
 Tasting_z3dj42: "Uniquement au comptoir du chef, six convives au maximum par soir. On cuisine devant vous ce que la mer a décidé ce jour-là, sans menu écrit."
 Tasting_z4ilij: "Laissez-vous <i>porter au large</i>"
+
+#  ----to be translated------------------------------------------
+Signature_18wzt8x: null

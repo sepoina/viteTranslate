@@ -2,7 +2,7 @@
   "name": "vitetranslate-ide",
   "displayName": "viteTranslate",
   "description": "Your viteTranslate setup at a glance, in its own panel of the Activity Bar.",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "preview": true,
   "publisher": "sepoina",
   "author": {
@@ -33,6 +33,17 @@
     "vscode": "^1.90.0"
   },
   "main": "./dist/extension.cjs",
+  "scripts": {
+    "build": "node scripts/code.mjs build",
+    "package": "node scripts/code.mjs build package",
+    "install:editor": "node scripts/code.mjs build package install",
+    "dev": "node scripts/code.mjs build dev"
+  },
+  "devDependencies": {
+    "@vscode-elements/elements": "^2.5.1",
+    "@vscode/codicons": "^0.0.45",
+    "rolldown": "^1.2.7"
+  },
   "activationEvents": [],
   "capabilities": {
     "untrustedWorkspaces": {
@@ -53,13 +64,13 @@
     "views": {
       "vitetranslate": [
         {
-          "id": "vitetranslate.project",
-          "name": "Configs",
-          "when": "!vitetranslate.singleProject"
+          "type": "webview",
+          "id": "vitetranslate.selector",
+          "name": "Selector"
         },
         {
-          "id": "vitetranslate.marked",
-          "name": "Marked"
+          "id": "vitetranslate.results",
+          "name": "Results"
         },
         {
           "id": "vitetranslate.details",
@@ -69,17 +80,13 @@
     },
     "viewsWelcome": [
       {
-        "view": "vitetranslate.project",
-        "contents": "No Vite project in this workspace: no vite.config.* was found.\n[Refresh](command:vitetranslate.refresh)"
-      },
-      {
-        "view": "vitetranslate.marked",
+        "view": "vitetranslate.results",
         "contents": "No Vite project in this workspace: no vite.config.* was found.\n[Refresh](command:vitetranslate.refresh)",
         "when": "!vitetranslate.hasProjects"
       },
       {
-        "view": "vitetranslate.marked",
-        "contents": "Select a project in Configs to see what it marks for translation.",
+        "view": "vitetranslate.results",
+        "contents": "Select a project in Selector to see what it marks for translation.",
         "when": "vitetranslate.hasProjects"
       },
       {
@@ -89,11 +96,36 @@
       },
       {
         "view": "vitetranslate.details",
-        "contents": "Select a project in Configs to see its setup.",
+        "contents": "Select a project in Selector to see its setup.",
         "when": "vitetranslate.hasProjects"
       }
     ],
+    "taskDefinitions": [
+      {
+        "type": "vitetranslate",
+        "required": [
+          "command",
+          "dir"
+        ],
+        "properties": {
+          "command": {
+            "type": "string",
+            "description": "What to run: sync"
+          },
+          "dir": {
+            "type": "string",
+            "description": "The project folder"
+          }
+        }
+      }
+    ],
     "commands": [
+      {
+        "command": "vitetranslate.sync",
+        "title": "Sync language files",
+        "category": "viteTranslate",
+        "icon": "$(sync)"
+      },
       {
         "command": "vitetranslate.refresh",
         "title": "Refresh",
@@ -105,7 +137,7 @@
       "view/title": [
         {
           "command": "vitetranslate.refresh",
-          "when": "view == vitetranslate.project || view == vitetranslate.marked || view == vitetranslate.details",
+          "when": "view == vitetranslate.results || view == vitetranslate.details",
           "group": "navigation"
         }
       ]

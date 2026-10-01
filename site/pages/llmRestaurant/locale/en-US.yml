@@ -1,8 +1,8 @@
 #  -------------------------------------------------
 #      American English
 #       |    code: en-US
-#       |    missing key: 0
-#       |    processed: 2026-09-29 02:33
+#       |    missing key: 1
+#       |    processed: 2026-10-01 01:11
 #       |    TableVersion: 260905
 #  -------------------------------------------------
 #
@@ -234,3 +234,6 @@ Tasting_r4v4s2: "The complete journey of the season, with two off-menu dishes in
 Tasting_vp2dyl: "per person"
 Tasting_z3dj42: "Only at the chef's counter, at most six guests per evening. What the sea decided that day is cooked in front of you, with no written menu."
 Tasting_z4ilij: "Let yourselves be <i>carried offshore</i>"
+
+#  ----to be translated------------------------------------------
+Signature_18wzt8x: null

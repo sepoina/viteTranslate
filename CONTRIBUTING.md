@@ -59,7 +59,7 @@ npm run ide:package   # builds idePlugin/vitetranslate-ide-<version>.vsix
 npm run ide:install   # …and installs it (VT_CODE_CLI=codium for VSCodium)
 ```
 
-Its tests are `test/list/idePlugin*.test.mjs`, part of `npm test`.
+It is an npm workspace with its own `devDependencies` and scripts (`npm run build|package|install:editor|dev -w idePlugin`), the same commands as the `ide:*` scripts above: both go through `idePlugin/scripts/code.mjs`. Its tests are `test/list/idePlugin*.test.mjs`, part of `npm test`.
 
 ## Pull requests
 

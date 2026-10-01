@@ -5,7 +5,7 @@
 import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
-import { dedupeConfigs, inNodeModules, CONFIG_GLOB } from "../../idePlugin/src/pickProject.mjs";
+import { dedupeConfigs, inNodeModules, CONFIG_GLOB, projectOf, pathKey } from "../../idePlugin/src/pickProject.mjs";
 
 let fail = 0;
 const eq = (nome, atteso, ottenuto) => {
@@ -54,6 +54,20 @@ eq(
   dedupeConfigs(tutti)
 );
 eq("glob per findFiles", "**/{vite.config.js,vite.config.mjs,vite.config.ts,vite.config.cjs,vite.config.mts,vite.config.cts}", CONFIG_GLOB);
+
+console.log("\n== il progetto del file attivo ==");
+{
+  const r = join("/", "ws");
+  const progetti = [{ dir: join(r, "app") }, { dir: join(r, "app", "packages", "ui") }, { dir: join(r, "application") }];
+  const di = (rel, caseless = false) => projectOf(progetti, join(r, rel), caseless)?.dir ?? null;
+  eq("il file sta nel suo progetto", join(r, "app"), di("app/src/App.jsx"));
+  eq("progetti annidati: vince il più profondo", join(r, "app", "packages", "ui"), di("app/packages/ui/src/Button.jsx"));
+  eq("una cartella col nome che comincia uguale non conta", join(r, "application"), di("application/src/x.js"));
+  eq("fuori da ogni progetto: null", null, di("README.md"));
+  eq("la cartella stessa non è un suo file", null, projectOf(progetti, join(r, "application"), false)?.dir ?? null);
+  eq("senza maiuscole, se richiesto (Windows)", join(r, "app"), di("APP/src/App.jsx", true));
+  eq("pathKey normalizza", pathKey(join(r, "app", "src"), false), pathKey(join(r, "app", "lib", "..", "src"), false));
+}
 
 rmSync(radice, { recursive: true, force: true });
 console.log(fail ? `\n${fail} KO` : "\ntutto ok");

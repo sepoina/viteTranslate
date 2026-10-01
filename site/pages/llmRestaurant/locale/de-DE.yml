@@ -1,8 +1,8 @@
 #  -------------------------------------------------
 #      Deutsch (Deutschland)
 #       |    code: de-DE
-#       |    missing key: 0
-#       |    processed: 2026-09-29 02:33
+#       |    missing key: 1
+#       |    processed: 2026-10-01 01:11
 #       |    TableVersion: 260905
 #  -------------------------------------------------
 #
@@ -234,3 +234,6 @@ Tasting_r4v4s2: "Der komplette Weg der Saison, mit zwei Gerichten außerhalb der
 Tasting_vp2dyl: "pro Person"
 Tasting_z3dj42: "Nur am Küchentresen, höchstens sechs Gäste pro Abend. Vor Ihnen wird gekocht, was das Meer an diesem Tag entschieden hat, ohne geschriebene Karte."
 Tasting_z4ilij: "Lassen Sie sich <i>auf die hohe See hinaus</i> tragen"
+
+#  ----to be translated------------------------------------------
+Signature_18wzt8x: null

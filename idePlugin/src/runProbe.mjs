@@ -9,7 +9,26 @@
 import { fork } from "node:child_process";
 
 // Quanto output del config si tiene, per il tooltip e per il canale di log.
-const MAX_OUTPUT = 4000;
+export const MAX_OUTPUT = 4000;
+
+/**
+ * Avvia una sonda: le stesse opzioni per la sonda che risponde una volta (runProbe) e per quella
+ * che resta viva (scanWorker.mjs).
+ *
+ * @param {string} probePath
+ * @param {string[]} args
+ * @param {string} dir - la cwd della sonda: la cartella del progetto
+ */
+export function forkProbe(probePath, args, dir) {
+  return fork(probePath, args, {
+    cwd: dir,
+    // Vuoto di proposito: l'extension host può avere --inspect fra i suoi argomenti, e un
+    // figlio che li eredita litiga per la stessa porta.
+    execArgv: [],
+    stdio: ["ignore", "pipe", "pipe", "ipc"],
+    env: { ...process.env, ELECTRON_RUN_AS_NODE: "1", VITETRANSLATE_NO_SYNC: "1" },
+  });
+}
 
 /**
  * @param {object} p
@@ -36,14 +55,7 @@ export default function runProbe({ dir, configFile, probePath, args = [configFil
       resolve({ ...risposta, ms: Date.now() - inizio, output: output.trim() });
     };
     try {
-      child = fork(probePath, args, {
-        cwd: dir,
-        // Vuoto di proposito: l'extension host può avere --inspect fra i suoi argomenti, e un
-        // figlio che li eredita litiga per la stessa porta.
-        execArgv: [],
-        stdio: ["ignore", "pipe", "pipe", "ipc"],
-        env: { ...process.env, ELECTRON_RUN_AS_NODE: "1", VITETRANSLATE_NO_SYNC: "1" },
-      });
+      child = forkProbe(probePath, args, dir);
     } catch (error) {
       fine({ ok: false, code: null, error: String(error?.message ?? error) });
       return;

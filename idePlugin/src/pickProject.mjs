@@ -1,5 +1,6 @@
 // Quali progetti elenca il pannello: tutti i vite.config.* del workspace, fuori da node_modules,
-// uno per cartella. Quale si guarda lo decide l'utente (extension.mjs), non il file attivo.
+// uno per cartella. Quale si guarda lo sceglie l'utente in Selector, o lo porta il file attivo
+// (projectOf): extension.mjs.
 //
 // Nessun import di `vscode`: i percorsi arrivano da fuori (extension.mjs), così tutto si prova in
 // Node puro.
@@ -32,4 +33,30 @@ export function dedupeConfigs(files) {
   return [...perCartella]
     .map(([dir, configFile]) => ({ dir, configFile }))
     .sort((a, b) => a.dir.localeCompare(b.dir));
+}
+
+/**
+ * La forma di un percorso per confrontarlo: normalizzato, e su Windows senza maiuscole (VS Code
+ * scrive `c:\`, Node spesso `C:\`).
+ */
+export const pathKey = (file, caseless = process.platform === "win32") => {
+  const p = path.resolve(file);
+  return caseless ? p.toLowerCase() : p;
+};
+
+/**
+ * Il progetto a cui appartiene un file: quello la cui cartella lo contiene, il più profondo se
+ * sono annidati. null se nessuno.
+ *
+ * @param {Array<{ dir: string }>} projects - l'elenco di dedupeConfigs
+ * @param {string} file - percorso assoluto
+ */
+export function projectOf(projects, file, caseless = process.platform === "win32") {
+  const f = pathKey(file, caseless);
+  let scelto = null;
+  for (const p of projects) {
+    const d = pathKey(p.dir, caseless);
+    if (f.startsWith(d.endsWith(path.sep) ? d : d + path.sep) && (!scelto || p.dir.length > scelto.dir.length)) scelto = p;
+  }
+  return scelto;
 }

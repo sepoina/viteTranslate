@@ -1,11 +1,18 @@
 // Dai dati letti (package.json, risposta della sonda) alle righe del pannello.
 //
 // Una riga è un oggetto semplice: { label, description?, tooltip?, icon?, iconColor?, open?,
-// choice?, mark?, children?, expanded? }. `icon` è il nome di una codicon e `iconColor` il suo
-// colore di tema; `open` il percorso assoluto di un file da aprire al clic; `choice` e `mark`
-// marcano le righe di un elenco a scelta singola (choiceList.mjs, che mette anche l'icona). Nessun import di `vscode`: extension.mjs traduce le
-// righe in TreeItem, e qui si prova tutto con dati finti.
+// badge?, children?, expanded? }. `icon` è il nome di una codicon e `iconColor` il suo colore di
+// tema; `open` il percorso assoluto di un file da aprire al clic; `badge` ({ text, tooltip }) il
+// segno breve a destra della riga, che extension.mjs disegna come una FileDecoration. Nessun import di `vscode`:
+// extension.mjs traduce le righe in TreeItem, e qui si prova tutto con dati finti.
+//
+// I file di lingua li elenca e li nomina la libreria stessa (listLanguageFiles, languageAutonym),
+// impacchettata qui al momento della build come configFiles.js: il pannello vede gli stessi file,
+// con gli stessi nomi, che vede il CLI.
 import path from "node:path";
+import listLanguageFiles from "../../lib/dev/vite/uty/listLanguageFiles.js";
+import { tagFromFileName } from "../../lib/dev/vite/uty/languageFileFormat.js";
+import languageAutonym from "../../lib/dev/vite/uty/languageAutonym.js";
 
 const onOff = (acceso) => (acceso ? "on" : "off");
 
@@ -16,9 +23,8 @@ export function relativeLabel(dir, roots) {
 }
 
 /**
- * La riga di un progetto nella sezione Configs: il nome e la cartella. Il segno della selezione lo
- * aggiunge il ChoiceList di ProjectTree (choiceList.mjs). Nessun figlio: il dettaglio del
- * selezionato sta nella sezione Details (projectChildren).
+ * La riga di un progetto in Config (la sezione Selector, selectorState.mjs): il nome e la
+ * cartella. Il dettaglio del selezionato sta nella sezione Details (projectChildren).
  *
  * @param {{ dir: string, configFile: string }} project
  * @param {object} p
@@ -34,9 +40,87 @@ export function projectRow(project, { roots, name }) {
   };
 }
 
-/** Le righe della sezione Details: la sintesi di vitetranslate, package.json, vite.config. */
-export function projectChildren({ project, pkg, probe }) {
-  return [vitetranslateRow(probe, project.dir), packageRow(pkg, project.dir), configRow(probe, project)];
+/**
+ * Le righe della sezione Details: i file di lingua, poi la sintesi di vitetranslate, package.json,
+ * vite.config. Al primo disegno è aperta solo la prima; dopo, VS Code ricorda cosa ha aperto l'utente.
+ * `stats` sono i conteggi dell'ultima scansione di Results (vedi tablesRow), se c'è.
+ */
+export function projectChildren({ project, pkg, probe, stats = null }) {
+  return [tablesRow(probe, project.dir, stats), vitetranslateRow(probe, project.dir), packageRow(pkg, project.dir), configRow(probe, project)];
+}
+
+// ------------------------------------------------------------------------------ yml tables
+
+// I colori dell'icona di un file di lingua: colori di tema, quelli che VS Code usa per i test
+// passati, gli errori e gli avvisi del pannello Problems.
+const COLORE = { source: "testing.iconPassed", error: "problemsErrorIcon.foreground", missing: "problemsWarningIcon.foreground" };
+
+// Il badge di una FileDecoration sta in due caratteri al massimo (VS Code rifiuta il resto): oltre
+// 99 si scrive 99, e il numero vero è nel tooltip.
+const badgeDi = (n) => (n > 99 ? "99" : String(n));
+
+/**
+ * I file di lingua di localeDir, uno per riga: il codice, e il nome della lingua nella lingua
+ * stessa. La sorgente prima, le altre in ordine. Il clic apre il file. Si rilegge la cartella a
+ * ogni disegno: costa una readdir, e una lingua aggiunta dalla sync si vede subito.
+ *
+ * L'icona dice com'è messo: verde la sorgente, rossa una tabella che non si legge, gialla una a cui
+ * manca qualche traduzione, del colore normale una completa. Accanto, un badge col numero delle
+ * voci mancanti (niente badge se è completa). I conteggi vengono dall'ultima scansione di Results
+ * (`languages.stats` in markedScan.mjs): finché non c'è, l'icona è neutra e non ci sono badge.
+ *
+ * @param {object} probe - la risposta di probe.mjs
+ * @param {string} dir - la cartella del progetto
+ * @param {Record<string, { keys?: number | null, missing?: number | null, error?: string }> | null} [stats]
+ */
+export function tablesRow(probe, dir, stats = null) {
+  const label = "yml tables";
+  if (probe.untrusted || !probe.ok) return { label, description: "unknown: vite.config not read", icon: "circle-slash" };
+  const c = probe.vitetranslate;
+  if (!c) return { label, description: "not registered in vite.config", icon: "warning" };
+  if (!c.localeDir) return { label, description: "localeDir not set in vite.config", icon: "warning" };
+  const localeDir = path.resolve(dir, c.baseDir ?? ".", c.localeDir);
+  const dove = `${path.relative(dir, localeDir) || "."}/`;
+  let nomi;
+  try {
+    nomi = listLanguageFiles(localeDir);
+  } catch {
+    return { label, description: `${dove} not found`, tooltip: `${localeDir}\n\nRun the sync: it creates the folder and the source language file.`, icon: "warning" };
+  }
+  if (!nomi.length) {
+    return { label, description: `none in ${dove}`, tooltip: "Run the sync: it writes the source language file.", icon: "warning" };
+  }
+  const sorgente = c.sourceLanguage;
+  const voci = nomi.map((nome) => ({ tag: tagFromFileName(nome), file: path.join(localeDir, nome) }));
+  voci.sort((a, b) => (b.tag === sorgente) - (a.tag === sorgente) || a.tag.localeCompare(b.tag));
+  const children = voci.map(({ tag, file }) => {
+    const nome = languageAutonym(tag);
+    const st = stats?.[tag];
+    const mancanti = st?.missing ?? 0;
+    const stato = st?.error ? "error" : tag === sorgente ? "source" : mancanti > 0 ? "missing" : null;
+    const nota = st?.error
+      ? `cannot be read: ${st.error}`
+      : tag === sorgente ? (st?.keys != null ? `source language · ${st.keys} entries` : "source language")
+      : mancanti > 0 ? `${mancanti} of ${st.keys} entries missing`
+      : st ? "complete" : null;
+    return {
+      label: tag,
+      description: [nome !== tag ? nome : null, tag === sorgente ? "source" : null].filter(Boolean).join(" · ") || undefined,
+      tooltip: [file, nota].filter(Boolean).join("\n\n"),
+      icon: "file",
+      iconColor: stato ? COLORE[stato] : undefined,
+      open: file,
+      badge: !st?.error && mancanti > 0 ? { text: badgeDi(mancanti), tooltip: `${mancanti} missing` } : undefined,
+    };
+  });
+  return {
+    label,
+    description: `${children.length} ${children.length === 1 ? "language" : "languages"}`,
+    tooltip: localeDir,
+    icon: "files",
+    expanded: true,
+    children,
+  };
 }
 
 // ------------------------------------------------------------------------------ vitetranslate
@@ -73,7 +157,7 @@ function vitetranslateRow(probe, dir) {
     opt("simpleLog", onOff(c.simpleLog === true), c.simpleLog !== true),
     llmRow(c.llm),
   ];
-  return { label, description: `${c.sourceLanguage} → ${c.localeDir}/`, icon: "globe", expanded: true, children };
+  return { label, description: `${c.sourceLanguage} → ${c.localeDir}/`, icon: "globe", children };
 }
 
 // Il blocco llm arriva già normalizzato dal plugin (lib/dev/llm/llmOptions.js). Si legge con
@@ -125,7 +209,6 @@ function packageRow(pkg, dir) {
     description: [pkg.name, pkg.version].filter(Boolean).join(" ") || undefined,
     icon: "package",
     open,
-    expanded: true,
     children: [...deps, scripts],
   };
 }

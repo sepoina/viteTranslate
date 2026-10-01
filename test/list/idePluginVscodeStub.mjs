@@ -7,6 +7,18 @@ export const __stato = {
   workspaceFolders: [],
   isTrusted: true,
   activeTextEditor: undefined,
+  editori: [], // gli ascoltatori di onDidChangeActiveTextEditor: il test li chiama cambiando editor
+  documenti: [], // gli ascoltatori di onDidChangeTextDocument: il test li chiama scrivendo
+  chiusi: [], // gli ascoltatori di onDidCloseTextDocument
+  textDocuments: [],
+  progressi: [], // le viewId delle barre di avanzamento chieste
+  webviews: new Map(), // id -> provider registrato con registerWebviewViewProvider
+  decorazioni: [], // i provider di registerFileDecorationProvider
+  eseguiti: [], // i comandi di VS Code eseguiti (non quelli registrati dall'estensione)
+  avvisi: [], // [tipo, testo] di showInformationMessage/showWarningMessage/showErrorMessage
+  taskEseguiti: [], // i task passati a tasks.executeTask
+  taskExecutions: [], // quelli "in corso": il test li mette a mano
+  fineTask: [], // gli ascoltatori di tasks.onDidEndTaskProcess
   treeView: null, // l'ultima creata
   treeViews: new Map(), // id -> TreeView
   comandi: new Map(),
@@ -64,7 +76,22 @@ export class Range {
   }
 }
 
-export const Uri = { file: (fsPath) => ({ scheme: "file", fsPath: path.resolve(fsPath) }) };
+const uri = (scheme, fsPath) => ({
+  scheme,
+  fsPath,
+  with: (cambi) => uri(cambi.scheme ?? scheme, fsPath),
+  toString: () => `${scheme}://${fsPath}`,
+});
+export const Uri = {
+  file: (fsPath) => uri("file", path.resolve(fsPath)),
+  joinPath: (base, ...parti) => Uri.file(path.join(base.fsPath, ...parti)),
+};
+
+export class FileDecoration {
+  constructor(badge, tooltip, color) {
+    Object.assign(this, { badge, tooltip, color });
+  }
+}
 
 const evento = () => () => ({ dispose() {} });
 
@@ -100,7 +127,13 @@ export const window = {
     __stato.treeViews.set(id, __stato.treeView);
     return __stato.treeView;
   },
-  onDidChangeActiveTextEditor: evento(),
+  onDidChangeActiveTextEditor: (f) => (__stato.editori.push(f), { dispose() {} }),
+  withProgress: (opzioni, f) => (__stato.progressi.push(opzioni.location?.viewId), f({ report() {} })),
+  registerWebviewViewProvider: (id, provider) => (__stato.webviews.set(id, provider), { dispose() {} }),
+  registerFileDecorationProvider: (provider) => (__stato.decorazioni.push(provider), { dispose() {} }),
+  showInformationMessage: async (testo) => void __stato.avvisi.push(["info", testo]),
+  showWarningMessage: async (testo) => void __stato.avvisi.push(["warning", testo]),
+  showErrorMessage: async (testo) => void __stato.avvisi.push(["error", testo]),
 };
 
 export const workspace = {
@@ -111,15 +144,45 @@ export const workspace = {
     return __stato.isTrusted;
   },
   findFiles: (...argomenti) => __stato.findFiles(...argomenti),
+  getWorkspaceFolder: (uri) => __stato.workspaceFolders.find((f) => uri.fsPath.startsWith(f.uri.fsPath)),
+  get textDocuments() {
+    return __stato.textDocuments;
+  },
+  onDidChangeTextDocument: (f) => (__stato.documenti.push(f), { dispose() {} }),
+  onDidCloseTextDocument: (f) => (__stato.chiusi.push(f), { dispose() {} }),
   createFileSystemWatcher: () => ({ onDidChange: evento(), onDidCreate: evento(), onDidDelete: evento(), dispose() {} }),
   onDidChangeWorkspaceFolders: evento(),
   onDidGrantWorkspaceTrust: evento(),
+};
+
+export const TaskScope = { Global: 1, Workspace: 2 };
+export const TaskRevealKind = { Always: 1, Silent: 2, Never: 3 };
+
+export class Task {
+  constructor(definition, scope, name, source, execution) {
+    Object.assign(this, { definition, scope, name, source, execution });
+  }
+}
+
+export class ProcessExecution {
+  constructor(process, args, options) {
+    Object.assign(this, { process, args, options });
+  }
+}
+
+export const tasks = {
+  get taskExecutions() {
+    return __stato.taskExecutions;
+  },
+  executeTask: async (task) => (__stato.taskEseguiti.push(task), { task }),
+  onDidEndTaskProcess: (f) => (__stato.fineTask.push(f), { dispose() {} }),
 };
 
 export const commands = {
   registerCommand: (id, f) => (__stato.comandi.set(id, f), { dispose() {} }),
   executeCommand: async (id, ...argomenti) => {
     if (id === "setContext") __stato.contesto[argomenti[0]] = argomenti[1];
-    else return __stato.comandi.get(id)?.(...argomenti);
+    else if (__stato.comandi.has(id)) return __stato.comandi.get(id)(...argomenti);
+    else __stato.eseguiti.push([id, ...argomenti]);
   },
 };

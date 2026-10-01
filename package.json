@@ -71,10 +71,10 @@
     "site:build": "node site/build.mjs",
     "site:preview": "node site/build.mjs --preview",
     "site:theme": "node site/syncTheme.mjs",
-    "ide:build": "rolldown -c idePlugin/rolldown.config.mjs",
-    "ide:package": "npm run ide:build && node idePlugin/scripts/code.mjs package",
-    "ide:install": "npm run ide:package && node idePlugin/scripts/code.mjs install",
-    "ide:dev": "npm run ide:build && node idePlugin/scripts/code.mjs dev"
+    "ide:build": "node idePlugin/scripts/code.mjs build",
+    "ide:package": "node idePlugin/scripts/code.mjs build package",
+    "ide:install": "node idePlugin/scripts/code.mjs build package install",
+    "ide:dev": "node idePlugin/scripts/code.mjs build dev"
   },
   "files": [
     "lib"
@@ -82,7 +82,8 @@
   "workspaces": [
     "site/landing",
     "site/pages/*",
-    "demo/Vite_8/*"
+    "demo/Vite_8/*",
+    "idePlugin"
   ],
   "devDependencies": {
     "@babel/core": "^7.29.7",
