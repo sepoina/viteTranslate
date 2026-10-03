@@ -70,11 +70,20 @@
         },
         {
           "id": "vitetranslate.results",
-          "name": "Results"
+          "name": "Results",
+          "when": "vitetranslate.ready && !vitetranslate.optional"
         },
         {
-          "id": "vitetranslate.details",
-          "name": "Details"
+          "type": "webview",
+          "id": "vitetranslate.optional",
+          "name": "Help",
+          "when": "vitetranslate.optional"
+        },
+        {
+          "type": "webview",
+          "id": "vitetranslate.project",
+          "name": "Project",
+          "when": "vitetranslate.ready"
         }
       ]
     },
@@ -87,16 +96,6 @@
       {
         "view": "vitetranslate.results",
         "contents": "Select a project in Selector to see what it marks for translation.",
-        "when": "vitetranslate.hasProjects"
-      },
-      {
-        "view": "vitetranslate.details",
-        "contents": "No Vite project in this workspace: no vite.config.* was found.\n[Refresh](command:vitetranslate.refresh)",
-        "when": "!vitetranslate.hasProjects"
-      },
-      {
-        "view": "vitetranslate.details",
-        "contents": "Select a project in Selector to see its setup.",
         "when": "vitetranslate.hasProjects"
       }
     ],
@@ -127,6 +126,18 @@
         "icon": "$(sync)"
       },
       {
+        "command": "vitetranslate.llm",
+        "title": "LLM",
+        "category": "viteTranslate",
+        "icon": "$(sparkle)"
+      },
+      {
+        "command": "vitetranslate.closeOptional",
+        "title": "Close",
+        "category": "viteTranslate",
+        "icon": "$(close)"
+      },
+      {
         "command": "vitetranslate.refresh",
         "title": "Refresh",
         "category": "viteTranslate",
@@ -137,8 +148,19 @@
       "view/title": [
         {
           "command": "vitetranslate.refresh",
-          "when": "view == vitetranslate.results || view == vitetranslate.details",
+          "when": "view == vitetranslate.results",
           "group": "navigation"
+        },
+        {
+          "command": "vitetranslate.closeOptional",
+          "when": "view == vitetranslate.optional",
+          "group": "navigation"
+        }
+      ],
+      "commandPalette": [
+        {
+          "command": "vitetranslate.closeOptional",
+          "when": "vitetranslate.optional"
         }
       ]
     }

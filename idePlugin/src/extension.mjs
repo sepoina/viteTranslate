@@ -4,17 +4,25 @@
 // Il pannello è un contenitore suo della Activity Bar (contributes.viewsContainers in
 // package.json) con tre sezioni, dall'alto:
 //
-//   - Selector (SelectorView): una webview coi componenti di @vscode-elements/elements. Config,
+//   - Selector (PageView): una webview coi componenti di @vscode-elements/elements. Config,
 //     l'elenco dei progetti Vite del workspace (solo se più di uno); Filter, le scelte del filtro di
-//     Results (solo se oltre ad All ce n'è qualcuna); i bottoni Sync, Refresh, Open vite.config.
+//     Results (solo se oltre ad All ce n'è qualcuna); Search.
 //     Lo stato lo tiene l'estensione (selectorState.mjs) e glielo manda; la webview rimanda i
 //     clic. La selezione del progetto e il filtro sopravvivono alla chiusura (workspaceState).
 //   - Results (MarkedTree): le voci marcate del selezionato, file per file, filtrate.
-//   - Details (DetailsTree): la sintesi di vite.config e package.json del selezionato.
+//   - la sezione facoltativa (OptionalView): al posto di Results, solo dopo un clic su LLM. Su un
+//     progetto senza `llm` è Help, come configurarlo (helpPage.mjs); con `llm` è il pannello LLM:
+//     dove sta la chiave, se le impostazioni bastano, se il modello risponde (un controllo in
+//     background, llmCheck.mjs), e le azioni --llm-* (llmPanel.mjs, llmPage.mjs). Close la toglie
+//     e Results torna.
+//   - Project (PageView, come Selector): in alto, e scorrono, i file di lingua (Languages) e la
+//     sintesi di vitetranslate, package.json e vite.config (Details, un vscode-tree); in fondo, ferma,
+//     la barra dei comandi: i bottoni Sync e LLM e le icone Refresh, vite.config, opzioni del
+//     plugin, impostazioni. Stato in projectState.mjs.
 //
-// Finché non c'è una selezione Results e Details sono vuote, e VS Code mostra al loro posto il
-// messaggio di viewsWelcome ("Select a project above"). Projects tiene l'elenco, la selezione e
-// le letture dei progetti (vite.config via sonda, package.json), che le sezioni chiedono a lui.
+// Finché non c'è una selezione Results e Project sono vuote: Results mostra il messaggio di
+// viewsWelcome ("Select a project…"), Project lo scrive da sé. Projects tiene l'elenco, la selezione
+// e le letture dei progetti (vite.config via sonda, package.json), che le sezioni chiedono a lui.
 //
 // L'elenco si ricalcola quando cambia un package.json o un vite.config.*, quando cambiano le
 // cartelle del workspace, quando il workspace diventa fidato, e a comando (il pulsante ↻); le
@@ -26,8 +34,9 @@
 // Il file attivo porta il pannello dove sta (seguiEditor in activate): se è di un altro progetto
 // lo seleziona, come un clic in Config; poi Results mostra la sua riga, aperta sulle voci
 // (MarkedTree.follow), con un reveal e senza ridisegnare niente. Stesso progetto, nessun ridisegno.
+// E il cursore, a ritroso (seguiCursore): su una riga che ha una voce, Results la seleziona.
 //
-// Results e Details non aspettano mai una sonda per disegnare: quello che mostrano o è giusto o si
+// Results e Project non aspettano mai una sonda per disegnare: quello che mostrano o è giusto o si
 // vede che non lo è. Un progetto mai letto mostra "Loading…" (mai i dati di un altro progetto);
 // un disegno superato resta, bloccato — il segno sulla riga del file salvato o modificato, un
 // messaggio in testa se sono cambiati i file di lingua o il vite.config — finché non arriva
@@ -39,16 +48,31 @@ import { randomBytes } from "node:crypto";
 import { CONFIG_GLOB, WATCH_GLOB, inNodeModules, dedupeConfigs, projectOf, pathKey } from "./pickProject.mjs";
 import readPackage from "./readPackage.mjs";
 import runProbe from "./runProbe.mjs";
-import { projectChildren } from "./summarize.mjs";
 import { markedInput, markedChildren, markedSummary, filterItems, FILTERS, loadingRow, frozenRows } from "./markedRows.mjs";
 import { ScanWorker } from "./scanWorker.mjs";
+import { entryAtCursor } from "./markerSpan.mjs";
 import { selectorHtml } from "./selectorPage.mjs";
+import { projectHtml } from "./projectPage.mjs";
+import { helpHtml } from "./helpPage.mjs";
+import { llmHtml } from "./llmPage.mjs";
+import { llmPanelState } from "./llmPanel.mjs";
+import { runLlmCheck } from "./llmCheck.mjs";
 import { selectorState } from "./selectorState.mjs";
-import { findCli } from "./syncCommand.mjs";
+import { projectState, keyPosition } from "./projectState.mjs";
+import { findCli, LLM_ACTIONS, pluginCallPosition } from "./syncCommand.mjs";
+import fs from "node:fs";
 
 const SELECTOR_VIEW_ID = "vitetranslate.selector";
 const MARKED_VIEW_ID = "vitetranslate.results";
-const DETAILS_VIEW_ID = "vitetranslate.details";
+const OPTIONAL_VIEW_ID = "vitetranslate.optional";
+// Vera mentre la sezione facoltativa sta al posto di Results (i `when` delle due in package.json).
+const OPTIONAL_CONTEXT = "vitetranslate.optional";
+// Vera quando la prima immagine del pannello è pronta: fino ad allora Results e Project non si
+// vedono (i loro `when` in package.json) e Selector dice cosa sta preparando. Poi resta vera.
+const READY_CONTEXT = "vitetranslate.ready";
+// Oltre questo tempo le sezioni si mostrano comunque: col loro "Loading…", ma si mostrano.
+const READY_TIMEOUT_MS = 30000;
+const PROJECT_VIEW_ID = "vitetranslate.project";
 // Le estensioni che legge walkSource (EXT_RE in lib/dev/vite/uty/walkSource.js), più i file di
 // lingua (LANG_EXT in lib/dev/vite/uty/languageFileFormat.js).
 const SOURCE_GLOB = "**/*.{js,jsx,ts,tsx,yml}";
@@ -69,54 +93,23 @@ const firma = (projects) => projects.map((p) => path.join(p.dir, p.configFile)).
 // L'id di ogni TreeItem è il percorso delle chiavi dal progetto in giù: VS Code lo usa per
 // ricordare cosa l'utente ha aperto e chiuso fra un ridisegno e l'altro. La chiave è l'etichetta,
 // se la riga non ne porta una sua (le voci di Results: due testi uguali nello stesso file). Una
-// riga che ha già il suo id passa com'è.
-const conId = (righe, padre) => righe.map((r) => (r.id ? r : { ...r, id: `${padre}/${r.key ?? r.label}` }));
-
-// Come conId, ma su tutto l'albero e una volta sola per disegno (Results). VS Code riconosce una
+// riga che ha già il suo id passa com'è. Su tutto l'albero e una volta sola per disegno: VS Code riconosce una
 // riga dall'oggetto — reveal la cerca fra quelle che getChildren gli ha dato — quindi fra un
 // ridisegno e l'altro getChildren deve restituire sempre gli stessi. Annota in `disegno` i padri
-// (per getParent) e le righe dei file, per percorso (per follow).
+// (per getParent), le righe dei file, per percorso (per follow), e le voci con una chiave, per id
+// (la voce selezionata è ancora nel disegno? vedi chiaveScelta in activate).
 function fissa(righe, padre, disegno, genitore) {
   return righe.map((r) => {
     const riga = r.id ? r : { ...r, id: `${padre}/${r.key ?? r.label}` };
     if (riga.children) riga.children = fissa(riga.children, riga.id, disegno, riga);
     if (genitore) disegno.parents.set(riga, genitore);
     if (riga.kind === "file" && riga.resource) disegno.files.set(pathKey(riga.resource), riga);
+    if (riga.keyId) disegno.keys.set(riga.id, riga);
     return riga;
   });
 }
 
-// I badge delle righe (`badge` in summarize.mjs): VS Code li disegna solo come FileDecoration, cioè
-// legati a un resourceUri. Uno schema tutto nostro, così il badge resta in questo pannello e non
-// finisce sullo stesso file nell'Explorer. Le righe lo registrano qui quando diventano TreeItem.
-const BADGE_SCHEME = "vitetranslate-badge";
-class Badges {
-  constructor() {
-    this.mappa = new Map(); // uri -> { firma, badge }
-    this.emitter = new vscode.EventEmitter();
-    this.onDidChangeFileDecorations = this.emitter.event;
-  }
-
-  /** L'uri della riga col badge: il suo file, nel nostro schema. */
-  set(file, badge) {
-    const uri = vscode.Uri.file(file).with({ scheme: BADGE_SCHEME });
-    const chiave = uri.toString();
-    const firma = JSON.stringify(badge);
-    if (this.mappa.get(chiave)?.firma !== firma) {
-      this.mappa.set(chiave, { firma, badge });
-      this.emitter.fire(uri);
-    }
-    return uri;
-  }
-
-  provideFileDecoration(uri) {
-    const b = this.mappa.get(uri.toString())?.badge;
-    return b ? new vscode.FileDecoration(b.text, b.tooltip) : undefined;
-  }
-}
-const badges = new Badges();
-
-// Da riga (summarize.mjs, markedRows.mjs) a TreeItem: uno solo per le tre sezioni.
+// Da riga (markedRows.mjs) a TreeItem, per Results.
 function treeItem(row) {
   const State = vscode.TreeItemCollapsibleState;
   const apribile = row.children?.length;
@@ -126,7 +119,6 @@ function treeItem(row) {
   if (row.tooltip) item.tooltip = row.tooltip;
   // Con `resourceUri` e l'icona generica di file o cartella, l'icona vera la sceglie il tema dei file.
   if (row.resource) item.resourceUri = vscode.Uri.file(row.resource);
-  else if (row.badge && row.open) item.resourceUri = badges.set(row.open, row.badge);
   if (row.icon) item.iconPath = new vscode.ThemeIcon(row.icon, row.iconColor ? new vscode.ThemeColor(row.iconColor) : undefined);
   else if (row.kind) item.iconPath = row.kind === "folder" ? vscode.ThemeIcon.Folder : vscode.ThemeIcon.File;
   if (row.open) {
@@ -141,7 +133,7 @@ function treeItem(row) {
 }
 
 // L'elenco dei progetti Vite del workspace, la selezione, e le letture di ciascuno (vite.config via
-// sonda, package.json). Non è una vista: lo mostra Selector, e Results e Details lo seguono
+// sonda, package.json). Non è una vista: lo mostra Selector, e Results e Project lo seguono
 // (onDidChange: elenco cambiato, selezione cambiata).
 export class Projects {
   /**
@@ -156,6 +148,9 @@ export class Projects {
     this.state = state;
     this.emitter = new vscode.EventEmitter();
     this.onDidChange = this.emitter.event;
+    // Una lettura (vite.config, package.json) arrivata: Selector accende LLM se c'è `llm`.
+    this.letto = new vscode.EventEmitter();
+    this.onDidRead = this.letto.event;
     this.list = null; // Promise dell'elenco mostrato
     this.listKey = null; // la sua firma
     this.seq = 0; // numera i ricalcoli: vince l'ultimo partito, non l'ultimo arrivato
@@ -202,7 +197,7 @@ export class Projects {
     this.emitter.fire(undefined);
   }
 
-  /** Il messaggio di Results e Details cambia fra "nessun progetto" e "selezionane uno". */
+  /** Il messaggio di Results cambia fra "nessun progetto" e "selezionane uno". */
   syncContext(progetti) {
     const contesto = { "vitetranslate.hasProjects": progetti.length > 0 };
     const chiave = JSON.stringify(contesto);
@@ -221,7 +216,7 @@ export class Projects {
 
   /**
    * Il progetto selezionato: l'unico, se ce n'è uno solo; altrimenti quello scelto dall'utente,
-   * se è ancora nell'elenco. Nessuna scelta automatica: senza selezione Results e Details
+   * se è ancora nell'elenco. Nessuna scelta automatica: senza selezione Results e Project
    * aspettano.
    *
    * @returns {Promise<{ dir: string, configFile: string } | null>}
@@ -268,7 +263,9 @@ export class Projects {
       dati = this.load(project);
       this.cache.set(project.dir, dati);
       dati.then((valore) => {
-        if (this.cache.get(project.dir) === dati) this.letti.set(project.dir, valore);
+        if (this.cache.get(project.dir) !== dati) return;
+        this.letti.set(project.dir, valore);
+        this.letto.fire(project.dir);
       });
     }
     return dati;
@@ -296,72 +293,6 @@ export class Projects {
         (probe.output ? `\n  output of vite.config:\n${probe.output}` : "")
     );
     return { pkg, probe };
-  }
-}
-
-// La sezione Details: la sintesi del progetto selezionato (vitetranslate, package.json,
-// vite.config). Il nome del progetto va nell'intestazione.
-// Finché la lettura del vite.config non è arrivata, una riga "Reading vite.config…": mai le righe
-// di un altro progetto, né quelle di un config cambiato nel frattempo.
-export class DetailsTree {
-  /** @param {{ configs: Projects }} p */
-  constructor({ configs }) {
-    this.configs = configs;
-    this.emitter = new vscode.EventEmitter();
-    this.onDidChangeTreeData = this.emitter.event;
-    /** @type {vscode.TreeView | null} impostato da activate(), per l'intestazione */
-    this.view = null;
-    /** @type {((p: Promise<any>) => void) | null} la barra di avanzamento, da activate() */
-    this.progress = null;
-    /** @type {((dir: string) => object | null) | null} i conteggi delle tabelle, da Results (activate) */
-    this.stats = null;
-    this.turno = 0; // numera i disegni: uno superato non tocca l'intestazione
-    this.attese = new WeakSet(); // le letture a cui è già appeso un ridisegno
-    this.pending = new Set(); // le letture in corso, per idle()
-    configs.onDidChange(() => this.emitter.fire(undefined));
-  }
-
-  refresh() {
-    this.emitter.fire(undefined);
-  }
-
-  /** Si risolve quando non c'è più niente in arrivo (per i test). */
-  async idle() {
-    while (this.pending.size) await Promise.allSettled([...this.pending]);
-  }
-
-  getTreeItem(row) {
-    return treeItem(row);
-  }
-
-  getChildren(row) {
-    if (!row) return this.rootRows();
-    return conId(row.children ?? [], row.id);
-  }
-
-  async rootRows() {
-    const turno = ++this.turno;
-    const project = await this.configs.selectedProject();
-    if (turno === this.turno && this.view) this.view.description = project ? this.configs.titleOf(project) : undefined;
-    if (!project) return [];
-    const dati = this.configs.ready(project.dir);
-    if (!dati) {
-      this.aspetta(this.configs.data(project));
-      return conId([loadingRow("Reading vite.config…")], `details:${project.dir}`);
-    }
-    return conId(projectChildren({ project, ...dati, stats: this.stats?.(project.dir) ?? null }), `details:${project.dir}`);
-  }
-
-  // Un ridisegno quando la lettura arriva, uno solo per lettura.
-  aspetta(promessa) {
-    if (this.attese.has(promessa)) return;
-    this.attese.add(promessa);
-    this.pending.add(promessa);
-    this.progress?.(promessa);
-    promessa.then(() => {
-      this.pending.delete(promessa);
-      this.emitter.fire(undefined);
-    });
   }
 }
 
@@ -398,6 +329,9 @@ export class MarkedTree {
     this.log = log;
     this.emitter = new vscode.EventEmitter();
     this.onDidChangeTreeData = this.emitter.event;
+    // Un disegno nuovo consegnato a VS Code (`rendered`): dopo, non prima come onDidChangeTreeData.
+    this.disegnato = new vscode.EventEmitter();
+    this.onDidRender = this.disegnato.event;
     /** @type {vscode.TreeView | null} impostato da activate(), per l'intestazione */
     this.view = null;
     /** @type {((p: Promise<any>) => void) | null} la barra di avanzamento, da activate() */
@@ -527,6 +461,16 @@ export class MarkedTree {
     return this.stati.get(dir)?.risultato?.marked ?? null;
   }
 
+  /**
+   * Il primo carico di `project` senza aspettare che Results lo disegni (l'avvio, con la sezione
+   * ancora nascosta). Si risolve quando c'è un risultato, buono o no.
+   */
+  async prepare(project) {
+    const s = this.statoDi(project.dir);
+    if (!s.risultato && !s.carico && !s.attesa) this.avvia(project, s);
+    if (s.carico) await s.carico;
+  }
+
   getTreeItem(row) {
     return treeItem(row);
   }
@@ -547,6 +491,19 @@ export class MarkedTree {
    * selezionato) o non è in vista, il file resta in attesa: ci pensa il prossimo disegno, o il
    * ritorno in vista.
    */
+  /**
+   * La voce del disegno corrente sotto il cursore in `file` (riga e colonna da 1): sulla riga, o
+   * risalendo fino a una voce su più righe che la contiene (entryAtCursor, col `testo` del
+   * documento). Solo voci cliccabili: quelle di un file bloccato (salvato e in riscansione, o con
+   * modifiche non salvate) hanno righe forse vecchie, e niente `open`.
+   */
+  entryAt(file, line, column, testo = null) {
+    const disegno = this.rendered;
+    if (!disegno || disegno.loading) return null;
+    const voci = (disegno.files.get(pathKey(file))?.children ?? []).filter((r) => r.open && r.line);
+    return entryAtCursor(voci, testo, line, column);
+  }
+
   follow(file, dir) {
     this.target = { file, dir };
     this.applyTarget();
@@ -583,7 +540,7 @@ export class MarkedTree {
     const superato = !s.risultato || s.gen !== s.genRisultato;
     if (superato && !s.carico && !s.attesa) this.avvia(project, s);
     const nome = this.configs.titleOf(project);
-    const disegno = { dir: project.dir, parents: new Map(), files: new Map(), loading: !s.risultato };
+    const disegno = { dir: project.dir, parents: new Map(), files: new Map(), keys: new Map(), loading: !s.risultato };
     let righe;
     if (!s.risultato) {
       righe = fissa([loadingRow(`Loading ${nome}…`)], `marked:${project.dir}`, disegno);
@@ -602,6 +559,7 @@ export class MarkedTree {
     }
     if (attuale) {
       this.rendered = disegno;
+      this.disegnato.fire(disegno);
       // Il file attivo in attesa: dopo che VS Code ha le righe.
       if (this.target) setTimeout(() => this.applyTarget(), 0);
     }
@@ -697,20 +655,25 @@ export class MarkedTree {
   }
 }
 
-// La sezione Selector: una webview (selectorPage.mjs, lo script in dist/webview.js). Non tiene
-// niente: `stato()` le dice cosa mostrare, e ogni clic arriva qui come messaggio `{ cmd, value }`,
+// Le sezioni Selector e Project: due webview (selectorPage.mjs e projectPage.mjs, gli script in
+// dist/). Non tengono niente: `stato()` dice cosa mostrare, e ogni clic arriva qui come messaggio `{ cmd, value }`,
 // che `run` esegue. La pagina si ricrea da zero ogni volta che torna in vista, e appena carica
 // chiede lo stato (`ready`); da lì in poi push() glielo rimanda solo quando cambia.
-export class SelectorView {
+export class PageView {
   /**
    * @param {object} p
    * @param {vscode.Uri} p.extensionUri
-   * @param {() => Promise<object>} p.stato - selectorState.mjs
+   * @param {(p: object) => string} p.html - la pagina: selectorHtml, projectHtml
+   * @param {string} p.script - il suo script, in dist/
+   * @param {() => Promise<object>} p.stato - selectorState.mjs, projectState.mjs
    * @param {(cmd: string, value?: string) => any} p.run
    * @param {() => void} [p.onVisible] - la sezione è tornata in vista
+   * @param {(stato: object) => string | undefined} [p.describe] - la descrizione nell'intestazione
+   * @param {(fase: "page" | "script" | "drawn") => void} [p.onStage] - le tappe di una pagina nuova:
+   *   creata, script caricato (`ready`), primo stato disegnato (`drawn`, se la pagina lo dice)
    */
-  constructor({ extensionUri, stato, run, onVisible }) {
-    Object.assign(this, { extensionUri, stato, run, onVisible });
+  constructor({ extensionUri, html, script, stato, run, onVisible, describe, onStage }) {
+    Object.assign(this, { extensionUri, html, script, stato, run, onVisible, describe, onStage });
     this.view = null;
     this.ultimo = null; // la firma dell'ultimo stato mandato
     this.turno = 0; // numera i push: uno superato non manda niente
@@ -726,19 +689,22 @@ export class SelectorView {
     const dist = vscode.Uri.joinPath(this.extensionUri, "dist");
     // Solo dist/: la pagina non vede nient'altro dell'estensione, né del workspace.
     view.webview.options = { enableScripts: true, localResourceRoots: [dist] };
-    view.webview.html = selectorHtml({
-      scriptUri: String(view.webview.asWebviewUri(vscode.Uri.joinPath(dist, "webview.js"))),
+    view.webview.html = this.html({
+      scriptUri: String(view.webview.asWebviewUri(vscode.Uri.joinPath(dist, this.script))),
       codiconsUri: String(view.webview.asWebviewUri(vscode.Uri.joinPath(dist, "codicon.css"))),
       cspSource: view.webview.cspSource,
       nonce: randomBytes(16).toString("hex"),
     });
+    this.onStage?.("page");
     const ascolti = [
       view.webview.onDidReceiveMessage((m) => {
         if (m?.cmd === "ready") {
+          this.onStage?.("script");
           // Una pagina nuova non ha niente: lo stato va rimandato anche se uguale.
           this.ultimo = null;
           return this.push();
         }
+        if (m?.cmd === "drawn") return this.onStage?.("drawn");
         return this.run(m?.cmd, m?.value);
       }),
       view.onDidChangeVisibility?.(() => view.visible && this.onVisible?.()),
@@ -755,6 +721,100 @@ export class SelectorView {
     const turno = ++this.turno;
     const stato = await this.stato();
     if (turno !== this.turno || !this.view) return;
+    if (this.describe) this.view.description = this.describe(stato);
+    const firma = JSON.stringify(stato);
+    if (firma === this.ultimo) return;
+    this.ultimo = firma;
+    return this.view.webview.postMessage({ type: "state", ...stato });
+  }
+}
+
+/**
+ * La sezione facoltativa: una webview che prende il posto di Results (una TreeView non può
+ * diventare una webview: sono due sezioni, e la context key OPTIONAL_CONTEXT decide quale si
+ * vede). Due pagine, `mode`:
+ *   - "help": come configurare `llm`, testo fisso (helpPage.mjs);
+ *   - "llm": il pannello LLM, che disegna lo stato di `stato()` (llmPanel.mjs) come fa PageView:
+ *     chiede lo stato al caricamento (`ready`), poi push() lo rimanda solo quando cambia.
+ * show() la mette e la porta in primo piano, setMode() cambia pagina senza spostare il focus,
+ * close() rimette Results. I clic finiscono in `run`.
+ */
+export class OptionalView {
+  /**
+   * @param {object} p
+   * @param {vscode.Uri} p.extensionUri
+   * @param {() => Promise<object | null>} p.stato - lo stato del pannello LLM, o null
+   * @param {(cmd: string, value?: string) => any} p.run
+   */
+  constructor({ extensionUri, stato, run }) {
+    Object.assign(this, { extensionUri, stato, run });
+    this.mode = null; // null: chiusa
+    this.view = null;
+    this.ultimo = null;
+    this.turno = 0;
+  }
+
+  resolveWebviewView(view) {
+    this.view = view;
+    const dist = vscode.Uri.joinPath(this.extensionUri, "dist");
+    view.webview.options = { enableScripts: true, localResourceRoots: [dist] };
+    this.render();
+    const ascolto = view.webview.onDidReceiveMessage((m) => {
+      if (m?.cmd === "ready") {
+        this.ultimo = null;
+        return this.push();
+      }
+      return this.run(m?.cmd, m?.value);
+    });
+    view.onDidDispose(() => {
+      ascolto.dispose();
+      if (this.view === view) this.view = null;
+    });
+  }
+
+  // La pagina del modo corrente, e il nome della sezione: "LLM" o "Help".
+  render() {
+    if (!this.view) return;
+    const dist = vscode.Uri.joinPath(this.extensionUri, "dist");
+    const llm = this.mode === "llm";
+    this.ultimo = null;
+    this.view.title = llm ? "LLM" : "Help";
+    this.view.description = undefined;
+    this.view.webview.html = (llm ? llmHtml : helpHtml)({
+      scriptUri: String(this.view.webview.asWebviewUri(vscode.Uri.joinPath(dist, "optionalWebview.js"))),
+      codiconsUri: String(this.view.webview.asWebviewUri(vscode.Uri.joinPath(dist, "codicon.css"))),
+      cspSource: this.view.webview.cspSource,
+      nonce: randomBytes(16).toString("hex"),
+    });
+  }
+
+  /** @param {"help" | "llm"} mode */
+  setMode(mode) {
+    if (mode === this.mode) return this.push();
+    this.mode = mode;
+    this.render();
+  }
+
+  /** @param {"help" | "llm"} mode */
+  async show(mode) {
+    this.setMode(mode);
+    await vscode.commands.executeCommand("setContext", OPTIONAL_CONTEXT, true);
+    return vscode.commands.executeCommand(`${OPTIONAL_VIEW_ID}.focus`);
+  }
+
+  async close() {
+    if (!this.mode) return;
+    this.mode = null;
+    return vscode.commands.executeCommand("setContext", OPTIONAL_CONTEXT, false);
+  }
+
+  /** Manda lo stato al pannello LLM, se è aperto ed è cambiato dall'ultima volta. */
+  async push() {
+    if (this.mode !== "llm" || !this.view) return;
+    const turno = ++this.turno;
+    const stato = await this.stato();
+    if (turno !== this.turno || this.mode !== "llm" || !this.view || !stato) return;
+    this.view.description = stato.title ?? undefined;
     const firma = JSON.stringify(stato);
     if (firma === this.ultimo) return;
     this.ultimo = firma;
@@ -769,32 +829,96 @@ export function activate(context) {
   const marked = new MarkedTree({ configs: tree, probePath: context.asAbsolutePath(path.join("dist", "markedProbe.mjs")), log, state: context.workspaceState });
   const markedView = vscode.window.createTreeView(MARKED_VIEW_ID, { treeDataProvider: marked, showCollapseAll: true });
   marked.view = markedView;
-  const details = new DetailsTree({ configs: tree });
-  const detailsView = vscode.window.createTreeView(DETAILS_VIEW_ID, { treeDataProvider: details, showCollapseAll: true });
-  details.view = detailsView;
-  // Il sync del progetto selezionato: il CLI della libreria installata lì (syncCommand.mjs), in un
-  // task — il pannello del terminale, coi colori del CLI e il suo codice d'uscita. Col binario
-  // dell'editor in modalità Node, come le sonde: nessun `node` né `npx` richiesto nel PATH. Il CLI
-  // esegue vite.config, quindi non in Restricted Mode; uno alla volta per progetto. Le tabelle che
-  // scrive le vede il watcher dei sorgenti, e Results si aggiorna da sé.
-  const sincronizza = async () => {
-    const progetto = await tree.selectedProject();
-    if (!progetto) return vscode.window.showInformationMessage("Select a project in Selector first.");
-    if (!vscode.workspace.isTrusted) return vscode.window.showWarningMessage("Trust the workspace to run the sync: it executes vite.config.");
+  // La voce selezionata adesso in Results, per Languages in Project: { dir, id }, o null. Vale solo
+  // se è una voce (con la chiave, non un file né una cartella), se sta nel disegno corrente (un
+  // filtro, una ricerca, un ridisegno possono averla tolta), se è del progetto selezionato, e se
+  // Results è in vista (non chiusa, non coperta dalla sezione facoltativa). Non si salva: si guarda.
+  const chiaveScelta = async () => {
+    if (!markedView.visible) return null;
+    const riga = markedView.selection?.[0];
+    const disegno = marked.rendered;
+    if (!riga?.keyId || !disegno?.keys.has(riga.id)) return null;
+    if ((await tree.selectedProject())?.dir !== disegno.dir) return null;
+    return { dir: disegno.dir, id: riga.keyId };
+  };
+  // La barra di avanzamento della sezione: VS Code la mostra da sé solo mentre getChildren
+  // aspetta, e qui getChildren non aspetta mai (né c'è un getChildren, in Project).
+  const barra = (viewId) => (promessa) => vscode.window.withProgress({ location: { viewId } }, () => promessa);
+  // Il CLI del progetto selezionato: quello della libreria installata lì (syncCommand.mjs), in un
+  // task — il pannello del terminale, coi colori del CLI, il suo codice d'uscita, e l'input (un
+  // --llm-translate chiede conferma, --llm-key-set la chiave). Col binario dell'editor in modalità
+  // Node, come le sonde: nessun `node` né `npx` richiesto nel PATH. Il CLI esegue vite.config,
+  // quindi non in Restricted Mode; un comando alla volta per progetto. Le tabelle che scrive le vede
+  // il watcher dei sorgenti, e Results si aggiorna da sé.
+  //   `nome` è il nome del task e del comando nei messaggi ("sync", "llm translate", …).
+  const lanciaCli = async (progetto, args, nome) => {
+    if (!vscode.workspace.isTrusted) return vscode.window.showWarningMessage(`Trust the workspace to run ${nome}: it executes vite.config.`);
     const trovato = findCli(progetto.dir);
     if (!trovato.ok) return vscode.window.showErrorMessage(`viteTranslate: ${trovato.error}`);
-    const inCorso = vscode.tasks.taskExecutions.some((e) => e.task.definition.type === "vitetranslate" && e.task.definition.dir === progetto.dir);
-    if (inCorso) return vscode.window.showInformationMessage("A sync is already running for this project.");
+    const inCorso = vscode.tasks.taskExecutions.find((e) => e.task.definition.type === "vitetranslate" && e.task.definition.dir === progetto.dir);
+    if (inCorso) return vscode.window.showInformationMessage(`A ${inCorso.task.definition.command} is already running for this project.`);
     const task = new vscode.Task(
-      { type: "vitetranslate", command: "sync", dir: progetto.dir },
+      { type: "vitetranslate", command: nome, dir: progetto.dir },
       vscode.workspace.getWorkspaceFolder(vscode.Uri.file(progetto.dir)) ?? vscode.TaskScope.Workspace,
-      `sync ${tree.titleOf(progetto)}`,
+      `${nome} ${tree.titleOf(progetto)}`,
       "viteTranslate",
-      new vscode.ProcessExecution(process.execPath, [trovato.cli], { cwd: progetto.dir, env: { ELECTRON_RUN_AS_NODE: "1" } })
+      new vscode.ProcessExecution(process.execPath, [trovato.cli, ...args], { cwd: progetto.dir, env: { ELECTRON_RUN_AS_NODE: "1" } })
     );
     task.presentationOptions = { reveal: vscode.TaskRevealKind.Always, clear: true };
-    log(`${progetto.dir}: sync started (${trovato.name} ${trovato.version})`);
+    log(`${progetto.dir}: ${nome} started (${trovato.name} ${trovato.version})`);
     return vscode.tasks.executeTask(task);
+  };
+  const progettoScelto = async () => {
+    const progetto = await tree.selectedProject();
+    if (!progetto) vscode.window.showInformationMessage("Select a project in Selector first.");
+    return progetto;
+  };
+  const sincronizza = async () => {
+    const progetto = await progettoScelto();
+    return progetto && lanciaCli(progetto, [], "sync");
+  };
+
+  // Il bottone LLM: la sezione facoltativa al posto di Results. Col blocco `llm` il pannello LLM
+  // (controlli e azioni), senza Help, che spiega come aggiungerlo. Si aspetta la lettura di
+  // vite.config, se non è ancora arrivata.
+  const llm = async () => {
+    const progetto = await progettoScelto();
+    if (!progetto) return;
+    const dati = await tree.data(progetto);
+    return optional.show(dati?.probe?.vitetranslate?.llm ? "llm" : "help");
+  };
+
+  // Un'azione del pannello LLM (LLM_ACTIONS): il CLI in un task. --llm-retranslate vuole le
+  // lingue: una scelta multipla fra quelle di destinazione.
+  const azioneLlm = async (id) => {
+    const azione = LLM_ACTIONS.find((a) => a.id === id);
+    if (!azione) return log(`LLM: unknown action ${JSON.stringify(id)}`);
+    const progetto = await progettoScelto();
+    if (!progetto) return;
+    let args = azione.args;
+    if (azione.languages) {
+      const lingue = marked.resultOf(progetto.dir)?.languages?.targets ?? [];
+      if (!lingue.length) return vscode.window.showInformationMessage("No target language to retranslate yet: run the sync first.");
+      const scelte = await vscode.window.showQuickPick(lingue, { title: `Retranslate · ${tree.titleOf(progetto)}`, placeHolder: "Which languages?", canPickMany: true });
+      if (!scelte?.length) return;
+      args = [...args, ...scelte];
+    }
+    return lanciaCli(progetto, args, `llm ${azione.args.map((a) => a.replace(/^--llm-/, "")).join(" ")}`);
+  };
+
+  // La chiave inglese: vite.config aperto sulla chiamata vitetranslate(…), le opzioni del plugin.
+  const apriOpzioni = async () => {
+    const progetto = await progettoScelto();
+    if (!progetto) return;
+    const file = path.join(progetto.dir, progetto.configFile);
+    let dove = null;
+    try {
+      dove = pluginCallPosition(fs.readFileSync(file, "utf8"));
+    } catch {
+      // non si legge: lo apre comunque l'editor, che dirà lui perché
+    }
+    const punto = new vscode.Position((dove?.line ?? 1) - 1, (dove?.column ?? 1) - 1);
+    return vscode.commands.executeCommand("vscode.open", vscode.Uri.file(file), { selection: new vscode.Range(punto, punto) });
   };
 
   // I clic di Selector: i due elenchi e i bottoni.
@@ -803,15 +927,133 @@ export function activate(context) {
     filter: (filtro) => marked.setFilter(filtro),
     search: (testo) => marked.setSearch(testo),
     sync: () => vscode.commands.executeCommand("vitetranslate.sync"),
+    llm: () => vscode.commands.executeCommand("vitetranslate.llm"),
     refresh: () => vscode.commands.executeCommand("vitetranslate.refresh"),
     openConfig: async () => {
-      const progetto = await tree.selectedProject();
-      if (!progetto) return vscode.window.showInformationMessage("Select a project in Selector first.");
-      return vscode.commands.executeCommand("vscode.open", vscode.Uri.file(path.join(progetto.dir, progetto.configFile)));
+      const progetto = await progettoScelto();
+      return progetto && vscode.commands.executeCommand("vscode.open", vscode.Uri.file(path.join(progetto.dir, progetto.configFile)));
     },
+    openPluginConfig: () => apriOpzioni(),
+    // Una riga di Project col suo file: package.json, vite.config.
+    open: (file) => file && vscode.commands.executeCommand("vscode.open", vscode.Uri.file(file)),
+    // Un file di lingua: sulla riga della voce selezionata in Results (chiaveScelta), se il file
+    // ce l'ha; il cursore all'inizio del valore, pronto per la traduzione. Senza voce, o con una
+    // chiave che il file non ha ancora (la sync non è passata), il file in cima.
+    openLanguage: async (file) => {
+      if (!file) return;
+      const chiave = await chiaveScelta();
+      if (chiave) {
+        let dove = null;
+        try {
+          dove = keyPosition(fs.readFileSync(file, "utf8"), chiave.id);
+        } catch {
+          // non si legge: lo apre comunque l'editor, che dirà lui perché
+        }
+        if (dove) {
+          const punto = new vscode.Position(dove.line - 1, dove.column - 1);
+          return vscode.commands.executeCommand("vscode.open", vscode.Uri.file(file), { selection: new vscode.Range(punto, punto) });
+        }
+        vscode.window.setStatusBarMessage(`viteTranslate: ${chiave.id} is not in ${path.basename(file)} yet. Run the sync.`, 5000);
+      }
+      return vscode.commands.executeCommand("vscode.open", vscode.Uri.file(file));
+    },
+    // L'ingranaggio: le impostazioni di VS Code filtrate su questa estensione.
+    settings: () => vscode.commands.executeCommand("workbench.action.openSettings", `@ext:${context.extension?.id ?? "sepoina.vitetranslate-ide"}`),
   };
-  const selector = new SelectorView({
+  // I controlli del pannello LLM (llmCheck.mjs), uno per progetto: partono la prima volta che il
+  // pannello si apre su un progetto, e valgono finché non cambia il suo vite.config, non si chiede
+  // "Check again" o non finisce un --llm-key-set|clear. Uno solo alla volta per progetto.
+  const controlli = new Map(); // dir -> { stato, running, cancel }
+  const dimenticaControllo = (dir) => {
+    const dirs = dir === undefined ? [...controlli.keys()] : [dir];
+    for (const d of dirs) {
+      controlli.get(d)?.cancel();
+      controlli.delete(d);
+    }
+  };
+  const controlla = (progetto) => {
+    let voce = controlli.get(progetto.dir);
+    if (voce) return voce;
+    if (!vscode.workspace.isTrusted) {
+      voce = { stato: { error: "Restricted Mode: trust the workspace to run the check." }, running: false, cancel() {} };
+    } else {
+      const trovato = findCli(progetto.dir);
+      if (!trovato.ok) voce = { stato: { error: trovato.error }, running: false, cancel() {} };
+      else {
+        voce = { stato: {}, running: true };
+        const giro = runLlmCheck({
+          cli: trovato.cli,
+          dir: progetto.dir,
+          onUpdate: (stato) => {
+            if (controlli.get(progetto.dir) !== voce) return;
+            voce.stato = stato;
+            optional.push();
+          },
+        });
+        voce.cancel = giro.cancel;
+        voce.done = giro.done.then((stato) => {
+          if (controlli.get(progetto.dir) !== voce) return;
+          Object.assign(voce, { stato, running: false });
+          log(`${progetto.dir}: llm check — key ${stato.key ?? "?"}, ping ${stato.ping ? (stato.ping.ok ? "ok" : stato.ping.skipped ? "skipped" : `failed: ${stato.ping.error}`) : "?"}${stato.error ? `, ${stato.error}` : ""}`);
+          optional.push();
+        });
+      }
+    }
+    controlli.set(progetto.dir, voce);
+    return voce;
+  };
+  const optional = new OptionalView({
     extensionUri: context.extensionUri,
+    stato: async () => {
+      const progetto = await tree.selectedProject();
+      const opzioni = progetto ? tree.ready(progetto.dir)?.probe?.vitetranslate : null;
+      if (!opzioni?.llm) return null;
+      return llmPanelState({
+        llm: opzioni.llm,
+        // Dove il CLI cerca .env.local e .env: il baseDir del plugin, di solito il progetto.
+        baseDir: opzioni.baseDir ? path.resolve(progetto.dir, opzioni.baseDir) : progetto.dir,
+        check: controlla(progetto).stato,
+        title: tree.titleOf(progetto),
+      });
+    },
+    run: async (cmd, value) => {
+      if (cmd === "close") return optional.close();
+      if (cmd === "openPluginConfig") return apriOpzioni();
+      if (cmd === "action") return azioneLlm(value);
+      if (cmd === "recheck") {
+        const progetto = await tree.selectedProject();
+        if (progetto && !controlli.get(progetto.dir)?.running) dimenticaControllo(progetto.dir);
+        return optional.push();
+      }
+      log(`Optional: unknown command ${JSON.stringify(cmd)}`);
+    },
+  });
+  // Aperta, la sezione facoltativa segue il progetto selezionato: Help o LLM secondo il suo vite.config.
+  const seguiOptional = async () => {
+    if (!optional.mode) return;
+    const progetto = await tree.selectedProject();
+    const dati = progetto ? tree.ready(progetto.dir) : null;
+    if (dati) optional.setMode(dati.probe?.vitetranslate?.llm ? "llm" : "help");
+  };
+  // Un clic in una pagina: il comando in `azioni`, o una riga nel canale.
+  const esegui = (sezione) => (cmd, value) => (Object.hasOwn(azioni, cmd) ? azioni[cmd](value) : log(`${sezione}: unknown command ${JSON.stringify(cmd)}`));
+  // L'avvio (vedi prepara, più sotto): finché non è pronto, Selector mostra solo `avvio`.
+  // I tempi, nel canale: quanto ci mette a essere pronto, e da lì quanto ci mette VS Code a
+  // mostrare Results e a creare, caricare e disegnare la pagina di Project. Una volta sola.
+  const t0 = Date.now();
+  let tPronto = null;
+  const tappe = new Set();
+  const tappa = (nome) => {
+    if (tPronto === null || tappe.has(nome)) return;
+    tappe.add(nome);
+    log(`startup: ${nome} +${Date.now() - tPronto} ms after ready`);
+  };
+  let pronto = false;
+  let avvio = "Looking for Vite projects…";
+  const selector = new PageView({
+    extensionUri: context.extensionUri,
+    html: selectorHtml,
+    script: "webview.js",
     stato: async () => {
       let progetti = [];
       try {
@@ -828,36 +1070,104 @@ export function activate(context) {
         marked: scelto ? marked.resultOf(scelto.dir) : null,
         filter: marked.filter,
         search: marked.search,
+        starting: pronto ? null : avvio,
       });
     },
-    run: (cmd, value) => (Object.hasOwn(azioni, cmd) ? azioni[cmd](value) : log(`Selector: unknown command ${JSON.stringify(cmd)}`)),
+    run: esegui("Selector"),
     onVisible: () => allaVista(),
   });
-  // Lo stato di Selector segue l'elenco, la selezione, i risultati e il filtro.
-  tree.onDidChange(() => selector.push());
-  marked.onDidChangeTreeData(() => selector.push());
-  // "yml tables" in Details colora i file di lingua coi conteggi dell'ultima scansione di Results:
-  // si ridisegna quando cambiano, non a ogni ridisegno di Results.
-  details.stats = (dir) => marked.resultOf(dir)?.languages?.stats ?? null;
-  let firmaStats;
-  marked.onDidChangeTreeData(async () => {
-    const progetto = await tree.selectedProject();
-    const firma = JSON.stringify(progetto ? details.stats(progetto.dir) : null);
-    if (firma === firmaStats) return;
-    firmaStats = firma;
-    details.refresh();
+  // Project: finché la lettura del vite.config non è arrivata la chiede (Projects.data la fa una
+  // volta sola), con la barra di avanzamento della sezione; all'arrivo onDidRead ridisegna. I file
+  // di lingua si colorano coi conteggi dell'ultima scansione di Results, e si rileggono dalla
+  // cartella a ogni stato (tablesRow): push() manda solo se qualcosa è cambiato.
+  const letture = new WeakSet();
+  const project = new PageView({
+    extensionUri: context.extensionUri,
+    html: projectHtml,
+    script: "projectWebview.js",
+    stato: async () => {
+      let progetti = [];
+      try {
+        progetti = await tree.currentList();
+      } catch {
+        // l'elenco non si legge: lo dice il canale, qui un elenco vuoto
+      }
+      const scelto = await tree.selectedProject();
+      const dati = scelto ? tree.ready(scelto.dir) : undefined;
+      if (scelto && !dati) {
+        const lettura = tree.data(scelto);
+        if (!letture.has(lettura)) {
+          letture.add(lettura);
+          barra(PROJECT_VIEW_ID)(lettura);
+        }
+      }
+      return projectState({
+        hasProjects: progetti.length > 0,
+        project: scelto ?? null,
+        title: scelto ? tree.titleOf(scelto) : null,
+        dati,
+        stats: scelto ? marked.resultOf(scelto.dir)?.languages?.stats ?? null : null,
+        llm: !!dati?.probe?.vitetranslate?.llm,
+        jumpKey: (await chiaveScelta())?.id ?? null,
+      });
+    },
+    run: esegui("Project"),
+    onVisible: () => allaVista(),
+    describe: (stato) => stato.title ?? undefined,
+    onStage: (fase) => tappa({ page: "Project page created", script: "Project script loaded", drawn: "Project drawn" }[fase]),
   });
+  // L'avvio. Finché la prima immagine non è pronta Results e Project restano nascoste e Selector
+  // scrive cosa si sta facendo (`avvio`). Pronta vuol dire: l'elenco dei progetti c'è e, se uno è
+  // selezionato, il suo vite.config è letto e la sua prima scansione è arrivata — così le sezioni
+  // compaiono già piene, invece di passare da "Loading…". La preparazione la fa questo giro, non
+  // le sezioni: nascoste, VS Code non chiede loro niente. Da lì la chiave resta vera: i ricalcoli
+  // successivi hanno già i loro segni (Loading…, ⏳). Un tetto di tempo, nel caso qualcosa si pianti.
+  const timerAvvio = setTimeout(() => accendi(), READY_TIMEOUT_MS);
+  const accendi = () => {
+    if (pronto) return;
+    pronto = true;
+    clearTimeout(timerAvvio);
+    tPronto = Date.now();
+    log(`startup: ready in ${tPronto - t0} ms`);
+    vscode.commands.executeCommand("setContext", READY_CONTEXT, true);
+    selector.push();
+  };
+  const passo = (testo) => {
+    avvio = testo;
+    selector.push();
+  };
+  const prepara = async () => {
+    if (pronto) return;
+    try {
+      await tree.currentList();
+    } catch {
+      return accendi();
+    }
+    const progetto = await tree.selectedProject();
+    if (!progetto) return accendi();
+    const nome = tree.titleOf(progetto);
+    passo(`Reading the vite.config of ${nome}…`);
+    await tree.data(progetto);
+    passo(`Scanning ${nome} for marked strings…`);
+    await marked.prepare(progetto);
+    // Nel frattempo è cambiata la selezione (il file attivo, un clic): si prepara quella.
+    if ((await tree.selectedProject())?.dir !== progetto.dir) return prepara();
+    accendi();
+  };
+  const preparato = prepara();
 
-  // La barra di avanzamento della sezione: VS Code la mostra da sé solo mentre getChildren
-  // aspetta, e qui getChildren non aspetta mai.
-  const barra = (viewId) => (promessa) => vscode.window.withProgress({ location: { viewId } }, () => promessa);
+  // Le due pagine seguono l'elenco, la selezione, le letture, i risultati e il filtro.
+  const pagine = () => (selector.push(), project.push(), seguiOptional());
+  tree.onDidChange(pagine);
+  tree.onDidRead(pagine);
+  marked.onDidChangeTreeData(pagine);
+
   marked.progress = barra(MARKED_VIEW_ID);
-  details.progress = barra(DETAILS_VIEW_ID);
 
   // Le notifiche arrivano a raffica (un salvataggio tocca più file, un git checkout molti): si
   // aspetta che si calmino. A pannello nascosto — tutte le sezioni chiuse o fuori vista — non si
   // ricalcola niente, lo si segna e basta: ci pensa il prossimo onDidChangeVisibility.
-  const visibile = () => selector.visible || markedView.visible || detailsView.visible;
+  const visibile = () => selector.visible || markedView.visible || project.visible;
   let timer;
   let forza = false;
   let sporco = false;
@@ -888,12 +1198,13 @@ export function activate(context) {
   };
 
   const watcher = vscode.workspace.createFileSystemWatcher(WATCH_GLOB);
-  // Subito, prima dell'attesa: Details si svuota ("Reading vite.config…") e Results si blocca.
+  // Subito, prima dell'attesa: Project si svuota ("Reading vite.config…") e Results si blocca.
   const cambiato = (uri) => {
     if (inNodeModules(uri.fsPath)) return;
     tree.forget(path.dirname(uri.fsPath));
     marked.forget(path.dirname(uri.fsPath));
-    details.refresh();
+    dimenticaControllo(path.dirname(uri.fsPath));
+    project.push();
     presto(true);
   };
   const sorgenti = vscode.workspace.createFileSystemWatcher(SOURCE_GLOB);
@@ -902,11 +1213,11 @@ export function activate(context) {
     if (inNodeModules(uri.fsPath)) return;
     if (marked.forgetFile(uri.fsPath)) prestoMarked();
   };
-  // Un file creato o cancellato: se è un file di lingua cambia anche l'elenco "yml tables" di
-  // Details, che rilegge la cartella a ogni disegno.
+  // Un file creato o cancellato: se è un file di lingua cambia anche Languages in Project, che
+  // rilegge la cartella a ogni stato.
   const sorgenteNuovoOVia = (uri) => {
     sorgenteCambiato(uri);
-    if (!inNodeModules(uri.fsPath) && uri.fsPath.endsWith(".yml")) details.refresh();
+    if (!inNodeModules(uri.fsPath) && uri.fsPath.endsWith(".yml")) project.push();
   };
   // Le modifiche non salvate: la riga del file si blocca finché il documento è sporco. L'evento
   // arriva a ogni tasto, ma setDirty fa qualcosa solo quando lo stato cambia.
@@ -914,6 +1225,27 @@ export function activate(context) {
     if (doc?.uri?.scheme === "file") marked.setDirty(doc.uri.fsPath, sporco);
   };
   for (const doc of vscode.workspace.textDocuments ?? []) if (doc.isDirty) documento(doc, true);
+
+  // La sonda inversa: il cursore nell'editor su una riga che ha una voce in Results, e Results la
+  // seleziona — solo con Filter su All e Search vuota (l'albero intero: niente voci nascoste che
+  // cambierebbero la scelta), Results in vista, il documento senza modifiche non salvate (le righe
+  // del disegno sarebbero vecchie). Nessun giro vizioso: reveal non esegue il comando della riga
+  // (lo fa solo un clic), quindi l'editor non si muove; un clic in Results che sposta il cursore
+  // ritrova la voce già scelta, e lì si ferma. Il focus resta nell'editor.
+  let timerCursore;
+  const seguiCursore = (e) => {
+    clearTimeout(timerCursore);
+    timerCursore = setTimeout(() => {
+      const doc = e.textEditor?.document;
+      if (!markedView.visible || marked.filter !== "all" || marked.search.trim()) return;
+      if (doc?.uri?.scheme !== "file" || doc.isDirty) return;
+      const pos = e.textEditor.selection?.active ?? e.selections?.[0]?.active;
+      if (!pos) return;
+      const riga = marked.entryAt(doc.uri.fsPath, pos.line + 1, pos.character + 1, doc.getText?.() ?? null);
+      if (!riga || markedView.selection?.[0]?.id === riga.id) return;
+      markedView.reveal(riga, { select: true, focus: false });
+    }, 150);
+  };
 
   // Il file attivo porta il pannello dove sta. Passando da un editor all'altro in fretta (Ctrl+Tab)
   // conta solo l'ultimo. Un progetto diverso si seleziona come da un clic in Config; lo stesso
@@ -953,9 +1285,9 @@ export function activate(context) {
   context.subscriptions.push(
     canale,
     markedView,
-    detailsView,
     vscode.window.registerWebviewViewProvider(SELECTOR_VIEW_ID, selector),
-    vscode.window.registerFileDecorationProvider(badges),
+    vscode.window.registerWebviewViewProvider(PROJECT_VIEW_ID, project),
+    vscode.window.registerWebviewViewProvider(OPTIONAL_VIEW_ID, optional),
     watcher,
     watcher.onDidChange(cambiato),
     watcher.onDidCreate(cambiato),
@@ -964,37 +1296,49 @@ export function activate(context) {
     sorgenti.onDidChange(sorgenteCambiato),
     sorgenti.onDidCreate(sorgenteNuovoOVia),
     sorgenti.onDidDelete(sorgenteNuovoOVia),
-    markedView.onDidChangeVisibility(allaVista),
-    detailsView.onDidChangeVisibility(allaVista),
+    markedView.onDidChangeVisibility(() => (markedView.visible && tappa("Results shown"), allaVista())),
+    // Il lampo accanto a Languages segue la selezione di Results, la sua visibilità e i suoi disegni.
+    markedView.onDidChangeSelection(() => project.push()),
+    markedView.onDidChangeVisibility(() => project.push()),
+    marked.onDidRender(() => project.push()),
     vscode.window.onDidChangeActiveTextEditor(seguiEditor),
+    vscode.window.onDidChangeTextEditorSelection(seguiCursore),
     vscode.workspace.onDidChangeTextDocument((e) => documento(e.document, e.document.isDirty)),
     vscode.workspace.onDidCloseTextDocument((doc) => documento(doc, false)),
     vscode.workspace.onDidChangeWorkspaceFolders(() => presto(true)),
     vscode.workspace.onDidGrantWorkspaceTrust(() => {
       tree.forget();
       marked.forget();
-      details.refresh();
+      project.push();
       presto(true);
     }),
     vscode.commands.registerCommand("vitetranslate.select", (dir) => tree.select(dir)),
     vscode.commands.registerCommand("vitetranslate.sync", sincronizza),
+    vscode.commands.registerCommand("vitetranslate.llm", llm),
+    vscode.commands.registerCommand("vitetranslate.closeOptional", () => optional.close()),
     vscode.tasks.onDidEndTaskProcess((e) => {
       const d = e.execution.task.definition;
       if (d.type !== "vitetranslate") return;
-      log(`${d.dir}: sync ended with exit code ${e.exitCode}`);
-      if (e.exitCode) vscode.window.showErrorMessage("viteTranslate: the sync failed. See the terminal for why.");
+      log(`${d.dir}: ${d.command} ended with exit code ${e.exitCode}`);
+      if (e.exitCode) vscode.window.showErrorMessage(`viteTranslate: ${d.command} failed. See the terminal for why.`);
+      // La chiave è cambiata nel keyring: il pannello LLM la cerca di nuovo.
+      if (d.command === "llm key-set" || d.command === "llm key-clear") {
+        dimenticaControllo(d.dir);
+        optional.push();
+      }
     }),
     vscode.commands.registerCommand("vitetranslate.refresh", () => {
       tree.forget();
       marked.forget();
-      details.refresh();
+      dimenticaControllo();
+      project.push();
       return tree.relist(true);
     }),
-    { dispose: () => (clearTimeout(timer), clearTimeout(timerMarked), clearTimeout(timerEditor), marked.dispose()) }
+    { dispose: () => (clearTimeout(timer), clearTimeout(timerMarked), clearTimeout(timerEditor), clearTimeout(timerAvvio), clearTimeout(timerCursore), marked.dispose(), dimenticaControllo()) }
   );
   // All'apertura, il file già attivo.
   seguiEditor(vscode.window.activeTextEditor);
-  return { tree, marked, details, selector };
+  return { tree, marked, project, selector, optional, controlli, preparato };
 }
 
 export function deactivate() {}

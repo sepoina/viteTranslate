@@ -4,11 +4,10 @@
 //
 // Non decide niente. Disegna lo stato che manda l'estensione (`{ type: "state" }`, vedi
 // selectorState.mjs) e rimanda i clic: `{ cmd: "select" | "filter" | "search", value }` dagli
-// elenchi e dalla ricerca, `{ cmd }` dai bottoni (il loro `data-cmd`). Al caricamento chiede lo stato (`ready`): la webview
-// si ricrea da zero ogni volta che la sezione torna in vista.
+// elenchi e dalla ricerca. Al caricamento chiede lo stato (`ready`): la webview si ricrea da zero
+// ogni volta che la sezione torna in vista. I bottoni stanno in Project (projectWebview.mjs).
 //
 // I testi arrivano dai package.json dei progetti: si scrivono con textContent, mai come HTML.
-import "@vscode-elements/elements/dist/vscode-button/index.js";
 import "@vscode-elements/elements/dist/vscode-tree/index.js";
 import "@vscode-elements/elements/dist/vscode-tree-item/index.js";
 import "@vscode-elements/elements/dist/vscode-textfield/index.js";
@@ -60,6 +59,13 @@ function segnaRicerca() {
 }
 
 function disegna(stato) {
+  // All'avvio solo la riga di cosa si sta preparando: le sezioni compaiono tutte insieme dopo.
+  $("starting").hidden = !stato.starting;
+  if (stato.starting) {
+    $("startingText").textContent = stato.starting;
+    for (const id of ["config", "filter", "search", "empty"]) $(id).hidden = true;
+    return;
+  }
   $("config").hidden = !stato.projects;
   if (stato.projects) riempi($("projects"), stato.projects, stato.selected);
   $("filter").hidden = !stato.filters;
@@ -115,11 +121,6 @@ $("clear").addEventListener("click", () => {
   if (!$("query").value) return;
   svuota();
   $("query").focus();
-});
-
-document.addEventListener("click", (e) => {
-  const bottone = e.target.closest?.("vscode-button[data-cmd]");
-  if (bottone && !bottone.disabled) vscode.postMessage({ cmd: bottone.dataset.cmd });
 });
 
 vscode.postMessage({ cmd: "ready" });

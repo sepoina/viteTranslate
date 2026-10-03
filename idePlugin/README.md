@@ -8,14 +8,15 @@ was on.
 
 ## What you see
 
-Three sections, open and close them like any sidebar.
+Three sections, open and close them like any sidebar. At startup only **Selector** shows, saying
+what it's reading; **Results** and **Project** join in when they have something true to say.
 
 ### Selector
 
 What you look at, and what to do with it. Top to bottom:
 
 - **Config**: every Vite project in the workspace, one row each: its `package.json` name and its
-  folder. Click one and it's *the* project, for **Results** and **Details**. Only one project?
+  folder. Click one and it's *the* project, for **Results** and **Project**. Only one project?
   Nothing to choose, so no list.
 - **Filter**: what **Results** shows. **All**, **Malformed** (‼️, unreadable files too), **Not
   synced** (🔄) or **Untranslated** (🔸 🔹), each with its count. Only the ones with something inside
@@ -23,8 +24,6 @@ What you look at, and what to do with it. Top to bottom:
 - **Search**: narrows **Results** to the entries whose text, or file path, contains what you type.
   No case, no accents: `citta` finds *Città*. It shows up once there's something to search, and
   stays while you type, even when nothing matches. <kbd>Esc</kbd>, or the × on its right, clears it.
-- **Sync** runs the project's own `vtranslate-cli` in a terminal; **Refresh** reads everything
-  again; **Open vite.config** does what it says.
 
 ### Results
 
@@ -53,24 +52,50 @@ All good is green, and the shade tells you how it's written:
 
 Hover an entry for the details: which languages are missing, what the extraction said.
 
-### Details
+### Project
 
-The selected project's setup. Only the first row is open the first time; after that, what you open
-stays open.
+The selected project, and what to do with it. The details scroll; the command bar stays put at the
+bottom.
 
-- **yml tables**: the language files in `localeDir`, with how many there are. Each row is a
-  language code and its name in that language (the source language first); click it to open the
-  file. The icon tells you how it's doing: green for the source, yellow when translations are
-  missing (the badge says how many), red when the file can't be read, plain when it's complete.
-- **vitetranslate**: the plugin options, as the plugin itself resolved them. Source language,
-  locale folder, preloaded languages, auto-sync, `autoWrap`, ICU time zone, the `llm` block (model,
-  endpoint, budget, and the *name* of the key variable, never the key). Whatever you did not set is
-  marked `default`.
-- **package.json**: the dependencies that matter (`@sepoina/vitetranslate`, `vite`, `react`,
-  `@babel/core`, …) as *declared → installed*, plus the scripts.
-- **vite.config**: the plugins in load order, the server port and host.
+- **Languages**: the language files in `localeDir`, one row each, listed like **Config**: the
+  language code and its name in that language, the source first. Click one to open it. An entry
+  selected in **Results**? It opens right on that key, cursor on the translation: fix it there. A ⚡
+  next to *Languages* says so; select a file or a folder, or hide Results, and it's gone.
+  The icon tells you how it's doing: green for the source, yellow when translations are missing
+  (the badge says how many), red when the file can't be read, plain when it's complete. No files
+  yet? One line says why.
+- **Details**: a tree you open as you like, and it stays as you left it.
+  - **vitetranslate**: the plugin options, as the plugin itself resolved them. Source language,
+    locale folder, preloaded languages, auto-sync, `autoWrap`, ICU time zone, the `llm` block
+    (model, endpoint, budget, and the *name* of the key variable, never the key). Whatever you did
+    not set is marked `default`.
+  - **package.json**: the dependencies that matter (`@sepoina/vitetranslate`, `vite`, `react`,
+    `@babel/core`, …) as *declared → installed*, plus the scripts. Click it to open it.
+  - **vite.config**: the plugins in load order, the server port and host. Click it to open it.
+- **The command bar**: **Sync** runs the project's own `vtranslate-cli` in a terminal, and **LLM**
+  swaps **Results** for the LLM panel (below). On the right: ↻ refresh, ⚡ open `vite.config`, 🔧
+  open it right on the `vitetranslate({…})` options, ⚙ the extension settings.
 
-Click `package.json` or `vite.config.*` to open it.
+Keep **Project** at least as tall as its command bar: VS Code lets you drag a section down to
+nothing, and the bar goes with it.
+
+### LLM
+
+Click **LLM ›** and it takes the place of **Results**. On top, three lines that answer "can I go?":
+
+- **API key**: *where* it is (an environment variable, `.env.local`, `.env`, the system keyring),
+  never what it is. Not found? It says where it looked.
+- **Settings**: which model, at which host, and whether prices are set (without them, costs and
+  budgets count tokens, not money).
+- **Ping**: does the model answer? Asked in the background, once per project, with one tiny
+  request. Skipped when there's no key: no point knocking without one.
+
+Below, the `--llm-*` actions: translate, estimate the cost, retranslate, regenerate the context,
+status, ping, set / check / clear the API key. Click one and it runs in a terminal, like Sync.
+*Check again* redoes the three lines; *Close*, or the × in the title, brings Results back.
+
+No `llm` block in the plugin options? The button reads **LLM ?** and the same spot shows **Help**:
+how to add one.
 
 ## Under the hood
 
@@ -88,10 +113,13 @@ After a save Babel stays warm for two minutes, then the process goes away.
 The one highlighted in **Config**, and it follows you around: switch to a file and its project
 takes the highlight, while **Results** jumps to that file with its entries open. Same project?
 Nothing redraws. Picked another one in **Config**? It stays until you switch editor, and across
-restarts. Until there is one, **Results** and **Details** wait for you.
+restarts. Until there is one, **Results** and **Project** wait for you.
+
+It works the other way too: put the cursor on a line with a marked string and **Results** selects
+that entry (with *Filter* on *All* and *Search* empty, and the file saved). Your cursor stays put.
 
 Everything refreshes by itself when a `package.json` or `vite.config.*` changes (and, for
-**Results**, a source or language file). **Refresh** (or the ↻ button) does it on demand.
+**Results**, a source or language file). ↻ does it on demand.
 
 While it catches up, the panel never passes off old news as fresh: a project still loading says
 *Loading…*, a file you just saved shows ⏳, one with unsaved edits shows ✎, and their entries

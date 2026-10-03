@@ -1,13 +1,13 @@
 // Estensione per l'editor (idePlugin): extension.mjs attivata davvero, con il modulo `vscode`
 // sostituito da uno stub (idePluginVscodeStub.mjs) tramite `module.registerHooks`. Si prova la
 // colla delle tre sezioni: Configs (elenco, selezione col clic, sparisce con un progetto solo),
-// Details (passiva finché non si seleziona), Marked (con la sonda delle voci che usa la libreria
+// Project (passivo finché non si seleziona), Marked (con la sonda delle voci che usa la libreria
 // di questo repo, un link in node_modules, e il suo filtro); id unici, refresh, Restricted Mode.
 // L'aspetto nel pannello vero resta una verifica a mano (piano idePlugin_0_0_0, Fase 4).
 //
 //   node test/list/idePluginExtension.test.mjs
 import module from "node:module";
-import { mkdtempSync, mkdirSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
+import { mkdtempSync, mkdirSync, rmSync, symlinkSync, writeFileSync, readFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
@@ -22,6 +22,7 @@ module.registerHooks({
 });
 const vscode = await import("vscode");
 const { activate } = await import("../../idePlugin/src/extension.mjs");
+const { READING, NO_SELECTION } = await import("../../idePlugin/src/projectState.mjs");
 const stato = vscode.__stato;
 
 let fail = 0;
@@ -66,11 +67,9 @@ const SONDE = { [join("dist", "probe.mjs")]: SRC("probe.mjs"), [join("dist", "ma
 const memoria = new Map();
 const workspaceState = { get: (k) => memoria.get(k), update: async (k, v) => void memoria.set(k, v) };
 const context = { subscriptions: [], asAbsolutePath: (rel) => SONDE[rel] ?? rel, workspaceState, extensionUri: vscode.Uri.file(join(ws, "ext")) };
-const { marked, tree } = activate(context);
+const { marked, tree, controlli, preparato } = activate(context);
 const markedView = stato.treeViews.get("vitetranslate.results");
-const detailsView = stato.treeViews.get("vitetranslate.details");
 const mprovider = markedView.treeDataProvider;
-const dprovider = detailsView.treeDataProvider;
 let cambi = 0; // quante volte Projects ha avvisato: elenco o selezione cambiati
 tree.onDidChange(() => cambi++);
 
@@ -97,6 +96,39 @@ selectorProvider.resolveWebviewView({
 const clic = (cmd, value) => pagina.ricevi({ cmd, value });
 const selettore = async () => (await selectorProvider.push(), pagina.stati.at(-1));
 
+// Project, allo stesso modo: la sua webview finta tiene gli stati e la descrizione nell'intestazione.
+const projectProvider = stato.webviews.get("vitetranslate.project");
+const progettoPagina = { stati: [], ricevi: null };
+const projectView = {
+  webview: {
+    ...webview,
+    options: {},
+    html: "",
+    onDidReceiveMessage: (f) => ((progettoPagina.ricevi = f), { dispose() {} }),
+    postMessage: async (m) => void progettoPagina.stati.push(m),
+  },
+  visible: true,
+  description: undefined,
+  onDidChangeVisibility: () => ({ dispose() {} }),
+  onDidDispose: () => ({ dispose() {} }),
+};
+projectProvider.resolveWebviewView(projectView);
+// Project come lo vede l'utente a lettura del vite.config arrivata.
+async function progetto() {
+  for (let giro = 0; giro < 20; giro++) {
+    await projectProvider.push();
+    const s = progettoPagina.stati.at(-1);
+    if (s?.message !== READING) return s;
+    await tree.data(await tree.selectedProject());
+  }
+  throw new Error("Project still reading after 20 tries");
+}
+// Tutti gli id dell'albero di Details.
+const idsDi = (nodi, fuori = []) => {
+  for (const n of nodi ?? []) fuori.push(n.id), idsDi(n.children, fuori);
+  return fuori;
+};
+
 // Results e Details non aspettano le sonde: il primo disegno è "Loading…", e quello vero arriva
 // con un ridisegno. Qui si fa quello che farebbe VS Code: si richiede finché niente è in arrivo.
 // Una lettura veloce può arrivare prima che si guardi `pending`: conta anche la riga "Loading".
@@ -120,9 +152,10 @@ async function tutto(riga, fuori = [], p = mprovider) {
 }
 
 console.log("\n== attivazione ==");
-eq("due TreeView, Results e Details", ["vitetranslate.results", "vitetranslate.details"], [...stato.treeViews.keys()]);
+eq("una TreeView, Results", ["vitetranslate.results"], [...stato.treeViews.keys()]);
+eq("tre webview: Selector, Project, la facoltativa", ["vitetranslate.selector", "vitetranslate.project", "vitetranslate.optional"], [...stato.webviews.keys()]);
 eq("Selector: una webview", "function", typeof selectorProvider?.resolveWebviewView);
-eq("comandi registrati", [true, true, true], ["refresh", "select", "sync"].map((c) => stato.comandi.has(`vitetranslate.${c}`)));
+eq("comandi registrati", [true, true, true, true, true], ["refresh", "select", "sync", "llm", "closeOptional"].map((c) => stato.comandi.has(`vitetranslate.${c}`)));
 eq("tutto sotto context.subscriptions", true, context.subscriptions.length >= 5);
 
 const seleziona = (dir) => stato.comandi.get("vitetranslate.select")(dir);
@@ -130,14 +163,21 @@ const seleziona = (dir) => stato.comandi.get("vitetranslate.select")(dir);
 console.log("\n== Selector: la pagina ==");
 {
   eq("script abilitati, e solo dist/ raggiungibile", [true, [join(ws, "ext/dist")]], [webview.options.enableScripts, webview.options.localResourceRoots.map((u) => u.fsPath)]);
-  eq("Config, Filter e Search, poi i tre bottoni", ["config", "filter", "search", "sync", "refresh", "openConfig"],
-    [...webview.html.matchAll(/<section id="(\w+)"|<vscode-button data-cmd="(\w+)"/g)].map((m) => m[1] ?? m[2]));
+  eq("Config, Filter e Search, nessun bottone", ["config", "filter", "search"],
+    [...webview.html.matchAll(/<section id="(\w+)"|<vscode-button [^>]*data-cmd="(\w+)"/g)].map((m) => m[1] ?? m[2]));
+  eq("Project: la sua pagina, la barra dei comandi in fondo", [true, true],
+    [projectView.webview.html.includes(`src="vscode-webview://x${join(ws, "ext/dist/projectWebview.js")}"`), /<\/main>\s*<footer class="actions">/.test(projectView.webview.html)]);
   eq("gli elenchi: due vscode-tree", ["projects", "filters"], [...webview.html.matchAll(/<vscode-tree id="(\w+)"/g)].map((m) => m[1]));
   const nonce = /script-src 'nonce-([0-9a-f]+)'/.exec(webview.html)?.[1];
   eq("CSP col nonce, e lo script lo porta", true, !!nonce && webview.html.includes(`<script type="module" nonce="${nonce}" src="vscode-webview://x${join(ws, "ext/dist/webview.js")}">`));
   eq("niente default aperto", true, webview.html.includes("default-src 'none'"));
   eq("i codicons da dist/", true, webview.html.includes(`href="vscode-webview://x${join(ws, "ext/dist/codicon.css")}"`));
   eq("prima di ready: niente stato mandato", 0, pagina.stati.length);
+  eq("all'avvio Selector dice cosa prepara, prima ancora dello stato", true,
+    /<p id="starting"><vscode-icon name="loading" spin><\/vscode-icon><span id="startingText">Looking for Vite projects…/.test(webview.html));
+  eq("…Results e Project ancora nascoste", undefined, stato.contesto["vitetranslate.ready"]);
+  await preparato;
+  eq("nessun progetto selezionato: pronto appena c'è l'elenco", true, stato.contesto["vitetranslate.ready"]);
 }
 
 console.log("\n== Selector: tutti i progetti, nessuno selezionato ==");
@@ -148,15 +188,16 @@ console.log("\n== Selector: tutti i progetti, nessuno selezionato ==");
   eq("Config: tutti e due, nome e cartella", [["my-app", "app"], ["other", "other"]], s0.projects.map((r) => [r.label, r.description]));
   eq("…col percorso del config nel tooltip", join(ws, "app/vite.config.js"), s0.projects[0].tooltip);
   eq("nessuno selezionato, Filter nascosto", [null, null, false], [s0.selected, s0.filters, s0.empty]);
-  eq("contesto: ci sono progetti", { "vitetranslate.hasProjects": true }, stato.contesto);
-  eq("Details passiva", [[], undefined], [await pieno(dprovider), detailsView.description]);
+  eq("contesto: ci sono progetti, e il pannello è pronto", { "vitetranslate.hasProjects": true, "vitetranslate.ready": true }, stato.contesto);
+  eq("…Selector non mostra più l'avvio", null, s0.starting);
+  eq("Project passivo: lo dice", [NO_SELECTION, null, undefined], ((s) => [s.message, s.details, projectView.description])(await progetto()));
   eq("Results passiva", [[], undefined], [await pieno(mprovider), markedView.description]);
   const n = pagina.stati.length;
   await selectorProvider.push();
   eq("stato invariato: non si rimanda", n, pagina.stati.length);
 }
 
-console.log("\n== clic su my-app: Details e Results si accendono ==");
+console.log("\n== clic su my-app: Project e Results si accendono ==");
 {
   const prima = cambi;
   await clic("select", join(ws, "app"));
@@ -166,17 +207,16 @@ console.log("\n== clic su my-app: Details e Results si accendono ==");
   await clic("select", join(ws, "app"));
   eq("riselezionarlo non cambia niente", prima + 1, cambi);
 
-  const figli = await pieno(dprovider);
-  eq("Details: le righe del progetto", ["yml tables", "vitetranslate", "package.json", "vite.config.js"], figli.map((r) => r.label));
-  eq("…yml tables: locale/ non c'è ancora (nessuna sync)", "locale/ not found", figli[0].description);
-  eq("Details: intestazione", "my-app", detailsView.description);
-  eq("vitetranslate", "it-IT → locale/", figli[1].description);
-  const pkgItem = dprovider.getTreeItem(figli[2]);
-  eq("clic su package.json lo apre", ["vscode.open", join(ws, "app/package.json")], [pkgItem.command.command, pkgItem.command.arguments[0].fsPath]);
+  const sp = await progetto();
+  eq("Project: Details, le righe del progetto", ["vitetranslate", "package.json", "vite.config.js"], sp.details.map((r) => r.label));
+  eq("…Languages: locale/ non c'è ancora (nessuna sync)", [null, "locale/ not found"], [sp.languages, sp.languagesNote?.text]);
+  eq("Project: intestazione", "my-app", projectView.description);
+  eq("vitetranslate", "it-IT → locale/", sp.details[0].description);
+  await progettoPagina.ricevi({ cmd: "open", value: sp.details[1].open });
+  eq("clic su package.json lo apre", ["vscode.open", join(ws, "app/package.json")], [stato.eseguiti.at(-1)[0], stato.eseguiti.at(-1)[1].fsPath]);
 
-  const righe = await tutto(undefined, [], dprovider);
-  const ids = righe.map((r) => dprovider.getTreeItem(r).id);
-  eq("id tutti presenti e unici", righe.length, new Set(ids.filter(Boolean)).size);
+  const ids = idsDi(sp.details);
+  eq("id tutti presenti e unici", ids.length, new Set(ids.filter(Boolean)).size);
   eq("sonda annotata nel canale", true, stato.log.some((r) => /vite\.config\.js: read in \d+ ms/.test(r)));
 }
 
@@ -331,19 +371,20 @@ console.log("\n== ricalcolo senza cambiamenti: nessun avviso ==");
   eq("stesso elenco: niente", prima, cambi);
 }
 
-console.log("\n== other dal comando: Details e Results lo seguono ==");
+console.log("\n== other dal comando: Project e Results lo seguono ==");
 {
   seleziona(join(ws, "other"));
-  eq("cambio progetto: Details subito vuota", ["Reading vite.config…"], (await dprovider.getChildren()).map((r) => r.label));
+  await projectProvider.push();
+  eq("cambio progetto: Project subito vuoto", [READING, null], ((s) => [s.message, s.details])(progettoPagina.stati.at(-1)));
   eq("…Results subito vuota, mai le righe di app", [["Loading other…"], "other"], [(await mprovider.getChildren()).map((r) => r.label), markedView.description]);
   const s2 = await selettore();
   eq("Selector: other selezionato, Filter nascosto", [join(ws, "other"), null], [s2.selected, s2.filters]);
   eq("selezione ricordata", join(ws, "other"), memoria.get("vitetranslate.selected"));
-  const figliOther = await pieno(dprovider);
-  eq("other: vitetranslate non registrato", "not registered in vite.config", figliOther[1].description);
-  eq("other: package.json assente", "no package.json next to vite.config", figliOther[2].description);
+  const figliOther = (await progetto()).details;
+  eq("other: vitetranslate non registrato", "not registered in vite.config", figliOther[0].description);
+  eq("other: package.json assente", "no package.json next to vite.config", figliOther[1].description);
   eq("Results: plugin assente", ["vitetranslate is not registered in vite.config"], (await pieno(mprovider)).map((r) => r.label));
-  eq("intestazioni col nome della cartella", ["other", "other"], [markedView.description, detailsView.description]);
+  eq("intestazioni col nome della cartella", ["other", "other"], [markedView.description, projectView.description]);
 }
 
 console.log("\n== il file attivo porta il pannello dove sta ==");
@@ -411,25 +452,26 @@ console.log("\n== il file attivo porta il pannello dove sta ==");
   eq("…lo fa quando torna in vista", appJsx, markedView.rivelate.at(-1).riga.resource);
 }
 
-console.log("\n== un progetto solo: Config sparisce, Details fisso ==");
+console.log("\n== un progetto solo: Config sparisce, Project fisso ==");
 stato.findFiles = async () => [vscode.Uri.file(join(ws, "app/vite.config.js"))];
 {
   await stato.comandi.get("vitetranslate.refresh")();
-  eq("Details: l'unico, anche se era selezionato other", "my-app", ((await pieno(dprovider)), detailsView.description));
+  eq("Project: l'unico, anche se era selezionato other", "my-app", ((await progetto()), projectView.description));
   await pieno(mprovider);
   const s3 = await selettore();
   eq("Selector: niente Config, e l'unico è il selezionato", [null, join(ws, "app")], [s3.projects, s3.selected]);
   eq("…Filter di app", ["all", "notSynced"], s3.filters?.map((v) => v.value));
 }
 
-console.log("\n== Selector: i bottoni ==");
+console.log("\n== Project: i bottoni ==");
 {
-  const messaggio = (m) => pagina.ricevi(m);
+  // I bottoni stanno nella barra di Project.
+  const messaggio = (m) => progettoPagina.ricevi(m);
   await messaggio({ cmd: "openConfig" });
   eq("Open vite.config: apre quello del progetto selezionato", ["vscode.open", join(ws, "app/vite.config.js")], [stato.eseguiti.at(-1)?.[0], stato.eseguiti.at(-1)?.[1].fsPath]);
   const scansioni = stato.log.filter((r) => /source scanned|vite\.config\.js: read/.test(r)).length;
   await messaggio({ cmd: "refresh" });
-  await pieno(dprovider);
+  await progetto();
   eq("Refresh: rilegge il vite.config", true, stato.log.filter((r) => /source scanned|vite\.config\.js: read/.test(r)).length > scansioni);
   // Sync: il CLI della libreria installata nel progetto, in un task, col binario dell'editor.
   await messaggio({ cmd: "sync" });
@@ -449,8 +491,103 @@ console.log("\n== Selector: i bottoni ==");
   for (const f of stato.fineTask) f({ execution: { task }, exitCode: 1 });
   eq("fine con errore: lo dice", "error", stato.avvisi.at(-1)[0]);
 
+  // LLM: app non ha `llm` nelle opzioni. Il bottone ha il ?, e il clic apre Help al posto di Results.
+  eq("LLM senza llm in vite.config: il ?", [false, "question"], ((s) => [s.llm, s.llmIcon])(await progetto()));
+  const { LLM_ACTIONS, pluginCallPosition } = await import("../../idePlugin/src/syncCommand.mjs");
+  const scelteFatte = stato.scelte.length;
+  await messaggio({ cmd: "llm" });
+  eq("…clic: la sezione facoltativa al posto di Results, in primo piano", [true, ["vitetranslate.optional.focus"], scelteFatte],
+    [stato.contesto["vitetranslate.optional"], stato.eseguiti.at(-1), stato.scelte.length]);
+  // La sezione facoltativa, come la aprirebbe VS Code: tiene gli stati, il titolo, la descrizione.
+  const optProvider = stato.webviews.get("vitetranslate.optional");
+  const optPagina = { stati: [], ricevi: null };
+  const optView = {
+    webview: {
+      ...webview,
+      options: {},
+      html: "",
+      onDidReceiveMessage: (f) => ((optPagina.ricevi = f), { dispose() {} }),
+      postMessage: async (m) => void optPagina.stati.push(m),
+    },
+    title: undefined,
+    description: undefined,
+    onDidDispose: () => ({ dispose() {} }),
+  };
+  optProvider.resolveWebviewView(optView);
+  eq("Help: si chiama Help, script della sezione, solo dist/", ["Help", true, true, [join(ws, "ext/dist")]],
+    [optView.title, optView.webview.html.includes("LLM translation is off"),
+      optView.webview.html.includes(`src="vscode-webview://x${join(ws, "ext/dist/optionalWebview.js")}"`), optView.webview.options.localResourceRoots.map((u) => u.fsPath)]);
+  await optPagina.ricevi({ cmd: "openPluginConfig" });
+  eq("…Open the options: vite.config del progetto", ["vscode.open", join(ws, "app/vite.config.js")], [stato.eseguiti.at(-1)[0], stato.eseguiti.at(-1)[1].fsPath]);
+  await optPagina.ricevi({ cmd: "close" });
+  eq("…Close: torna Results", false, stato.contesto["vitetranslate.optional"]);
+  await messaggio({ cmd: "llm" });
+  await stato.comandi.get("vitetranslate.closeOptional")();
+  eq("…anche la X nel titolo (vitetranslate.closeOptional)", false, stato.contesto["vitetranslate.optional"]);
+
+  // Con un blocco llm: la freccia, e il clic apre il pannello LLM. La chiave sta in .env.local, il
+  // modello è un indirizzo che non risponde: il controllo in background la trova, e il ping fallisce.
+  scrivi("app/vite.config.js", `import vitetranslate from ${JSON.stringify(PLUGIN)};\nexport default { plugins: [vitetranslate({ localeDir: "locale", sourceLanguage: "it-IT", llm: { connection: { baseURL: "http://127.0.0.1:1/v1", model: "m", apiKeyEnv: "VT_IDE_TEST_KEY_NOPE", maxRetries: 0, timeoutMs: 2000 } } })] };\n`);
+  scrivi("app/.env.local", "VT_IDE_TEST_KEY_NOPE=not-a-real-key\n");
+  await messaggio({ cmd: "refresh" });
+  await progetto();
+  eq("LLM con llm in vite.config: la freccia", [true, "chevron-right"], ((s) => [s.llm, s.llmIcon])(await progetto()));
+  await messaggio({ cmd: "llm" });
+  eq("…clic: il pannello LLM, nessuna Quick Pick", [true, "LLM", true, scelteFatte],
+    [stato.contesto["vitetranslate.optional"], optView.title, optView.webview.html.includes('<div id="checks">'), stato.scelte.length]);
+  await optPagina.ricevi({ cmd: "ready" });
+  eq("…subito: chiave e ping in corso, settings pronte", ["running", "ok", "running"], optPagina.stati.at(-1).checks.map((c) => c.state));
+  eq("…il progetto nella descrizione", "my-app", optView.description);
+  await controlli.get(join(ws, "app")).done;
+  await optProvider.push();
+  const pannello = optPagina.stati.at(-1);
+  eq("…a controllo finito: la chiave in .env.local, il ping fallito", [["ok", "API key: .env.local"], ["error", "Ping: no answer"], false],
+    [[pannello.checks[0].state, pannello.checks[0].text], [pannello.checks[2].state, pannello.checks[2].text], pannello.checking]);
+  eq("…annotato nel canale, senza la chiave", [true, false], [/llm check — key \.env\.local, ping failed/.test(stato.log.join("\n")), stato.log.join("\n").includes("not-a-real-key")]);
+  eq("…le azioni, tutte", LLM_ACTIONS.map((a) => a.id), pannello.actions.map((a) => a.id));
+
+  const lanciati = stato.taskEseguiti.length;
+  await optPagina.ricevi({ cmd: "action", value: "translate" });
+  const llmTask = stato.taskEseguiti.at(-1);
+  eq("Translate: il CLI con --llm-translate, in un task suo", [lanciati + 1, "llm translate", [join(REPO, "lib/dev/vite/cli.js"), "--llm-translate"]],
+    [stato.taskEseguiti.length, llmTask.definition.command, llmTask.execution.args]);
+  eq("…il pannello resta aperto", true, stato.contesto["vitetranslate.optional"]);
+  await optPagina.ricevi({ cmd: "action", value: "dryRun" });
+  eq("Estimate the cost: nome del task dai flag", "llm dry-run translate", stato.taskEseguiti.at(-1).definition.command);
+  await optPagina.ricevi({ cmd: "action", value: "retranslate" });
+  eq("Retranslate senza lingue di destinazione: lo dice, niente task", [lanciati + 2, "info"], [stato.taskEseguiti.length, stato.avvisi.at(-1)[0]]);
+  await optPagina.ricevi({ cmd: "action", value: "boom" });
+  eq("un'azione sconosciuta: annotata", true, /LLM: unknown action "boom"/.test(stato.log.at(-1)));
+
+  // Check again: un controllo nuovo. Lo stesso dopo un --llm-key-set finito.
+  const primo = controlli.get(join(ws, "app"));
+  await optPagina.ricevi({ cmd: "recheck" });
+  const secondo = controlli.get(join(ws, "app"));
+  eq("Check again: un controllo nuovo", true, !!secondo && secondo !== primo);
+  await secondo.done;
+  const keySet = { definition: { type: "vitetranslate", command: "llm key-set", dir: join(ws, "app") } };
+  for (const f of stato.fineTask) f({ execution: { task: keySet }, exitCode: 0 });
+  await optProvider.push();
+  eq("--llm-key-set finito: la chiave si cerca di nuovo", true, !!controlli.get(join(ws, "app")) && controlli.get(join(ws, "app")) !== secondo);
+  await controlli.get(join(ws, "app")).done;
+  await optPagina.ricevi({ cmd: "close" });
+  eq("Close: torna Results", false, stato.contesto["vitetranslate.optional"]);
+
+  // La chiave inglese: vite.config aperto sulla chiamata vitetranslate(…).
+  await messaggio({ cmd: "openPluginConfig" });
+  const [cmdOpen, uriOpen, opzOpen] = stato.eseguiti.at(-1);
+  const atteso = pluginCallPosition(readFileSync(join(ws, "app/vite.config.js"), "utf8"));
+  eq("chiave inglese: apre vite.config sulla chiamata del plugin", ["vscode.open", join(ws, "app/vite.config.js"), atteso.line - 1, atteso.column - 1],
+    [cmdOpen, uriOpen.fsPath, opzOpen.selection.start.line, opzOpen.selection.start.character]);
+  eq("pluginCallPosition: la chiamata, non l'import", { line: 2, column: 28 },
+    pluginCallPosition('import { vitetranslate } from "x";\nexport default { plugins: [vitetranslate({ a: 1 })] };\n'));
+  eq("…null se non c'è", null, pluginCallPosition("export default {};"));
+  // L'ingranaggio: le impostazioni filtrate su questa estensione.
+  await messaggio({ cmd: "settings" });
+  eq("ingranaggio: impostazioni dell'estensione", ["workbench.action.openSettings", "@ext:sepoina.vitetranslate-ide"], stato.eseguiti.at(-1));
+
   await messaggio({ cmd: "boom" });
-  eq("un comando sconosciuto: annotato, niente altro", true, /Selector: unknown command "boom"/.test(stato.log.at(-1)));
+  eq("un comando sconosciuto: annotato, niente altro", true, /Project: unknown command "boom"/.test(stato.log.at(-1)));
   const n = pagina.stati.length;
   await clic("ready");
   eq("una pagina ricreata (ready): lo stato si rimanda anche se uguale", n + 1, pagina.stati.length);
@@ -458,25 +595,113 @@ console.log("\n== Selector: i bottoni ==");
   eq("chiusa: dimenticata", null, selectorProvider.view);
 }
 
-console.log("\n== badge delle righe: FileDecoration nel nostro schema ==");
+console.log("\n== la voce selezionata in Results, e Languages ==");
 {
-  eq("un provider di decorazioni registrato", 1, stato.decorazioni.length);
-  const item = dprovider.getTreeItem({ label: "en-US", open: join(ws, "app/locale/en-US.yml"), badge: { text: "12", tooltip: "12 missing" }, icon: "file", iconColor: "problemsWarningIcon.foreground" });
-  eq("la riga col badge: resourceUri nel nostro schema, non file (niente badge nell'Explorer)", ["vitetranslate-badge", join(ws, "app/locale/en-US.yml")], [item.resourceUri?.scheme, item.resourceUri?.fsPath]);
-  eq("…l'icona colorata resta la sua", ["file", "problemsWarningIcon.foreground"], [item.iconPath.id, item.iconPath.color?.id]);
-  const dec = stato.decorazioni[0].provideFileDecoration(item.resourceUri);
-  eq("…e la decorazione porta il badge", ["12", "12 missing"], [dec?.badge, dec?.tooltip]);
-  eq("una riga senza badge: nessun resourceUri", undefined, dprovider.getTreeItem({ label: "it-IT", open: "/x/it-IT.yml" }).resourceUri);
-  eq("un file senza badge registrato: nessuna decorazione", undefined, stato.decorazioni[0].provideFileDecoration(vscode.Uri.file("/x/y.yml").with({ scheme: "vitetranslate-badge" })));
+  // Le voci di App.jsx, come le mostra Results.
+  const fileRow = (await tutto(undefined, [])).find((r) => r.label === "App.jsx");
+  const [voce, voce2] = await mprovider.getChildren(fileRow);
+  eq("una voce porta la sua chiave", true, /^App_\w+$/.test(voce.keyId ?? ""));
+  const yml = join(ws, "app/locale/en-US.yml");
+  scrivi("app/locale/en-US.yml", `# header\n#\n${voce2.keyId}: "Hello world"\n${voce.keyId}: "Welcome"\n`);
+  const lampo = async () => (await new Promise((r) => setTimeout(r, 0)), (await progetto()).jumpKey);
+  const apri = async (file = yml) => {
+    await progettoPagina.ricevi({ cmd: "openLanguage", value: file });
+    const [, uri, opz] = stato.eseguiti.at(-1);
+    return [uri.fsPath, opz?.selection.start.line ?? null];
+  };
+
+  markedView.selection = [];
+  eq("nessuna voce selezionata: niente lampo, il file in cima", [null, [yml, null]], [await lampo(), await apri()]);
+  markedView.clicca(voce);
+  eq("una voce: il lampo, e la lingua si apre sulla sua chiave", [voce.keyId, [yml, 3]], [await lampo(), await apri()]);
+  eq("…col cursore all'inizio del valore", voce.keyId.length + 2, stato.eseguiti.at(-1)[2].selection.start.character);
+  eq("…non si salva da nessuna parte", undefined, memoria.get("vitetranslate.lastKey"));
+
+  markedView.clicca(fileRow);
+  eq("selezionato il file (o una cartella): pulito", [null, [yml, null]], [await lampo(), await apri()]);
+
+  markedView.clicca(voce);
+  marked.setSearch("zzz-nessuno");
+  await mprovider.getChildren();
+  eq("una ricerca toglie la voce dal disegno: pulito", [null, [yml, null]], [await lampo(), await apri()]);
+  marked.setSearch("");
+  await mprovider.getChildren();
+  eq("…torna nel disegno (VS Code tiene la selezione per id): di nuovo il lampo", voce.keyId, await lampo());
+
+  markedView.visible = false;
+  eq("Results nascosta (chiusa, o coperta da LLM/Help): pulito", [null, [yml, null]], [await lampo(), await apri()]);
+  markedView.visible = true;
+
+  scrivi("app/locale/fr-FR.yml", "# header\n");
+  eq("una lingua che non ha ancora la chiave: in cima, e il perché nella barra di stato", [[join(ws, "app/locale/fr-FR.yml"), null], true],
+    [await apri(join(ws, "app/locale/fr-FR.yml")), new RegExp(`${voce.keyId} is not in fr-FR\\.yml yet`).test(stato.barra.at(-1))]);
+  markedView.selection = [];
+  rmSync(join(ws, "app/locale"), { recursive: true, force: true });
+}
+
+console.log("\n== la sonda inversa: il cursore nell'editor seleziona la voce ==");
+{
+  const app = join(ws, "app/src/App.jsx");
+  const fileRow = (await tutto(undefined, [])).find((r) => r.label === "App.jsx");
+  const [benvenuto, ciao] = fileRow.children;
+  // Il cursore (riga e colonna da 0, come in VS Code), e l'attesa della sonda.
+  const cursore = async (line, character, { file = app, dirty = false, text } = {}) => {
+    const document = { uri: vscode.Uri.file(file), isDirty: dirty, ...(text === undefined ? {} : { getText: () => text }) };
+    for (const f of stato.cursori) f({ textEditor: { document, selection: { active: { line, character } } } });
+    await new Promise((r) => setTimeout(r, 200));
+  };
+  markedView.selection = [];
+  const rivelate = markedView.rivelate.length;
+  const comandi = stato.eseguiti.length;
+  await cursore(benvenuto.line - 1, 20);
+  eq("il cursore su una riga con una voce: Results la seleziona", benvenuto.id, markedView.selection[0]?.id);
+  eq("…senza focus, e senza muovere l'editor (nessun comando: niente giro)", [false, comandi], [markedView.rivelate.at(-1).focus, stato.eseguiti.length]);
+  await cursore(benvenuto.line - 1, 25);
+  eq("…di nuovo sulla stessa voce: nessun altro reveal", rivelate + 1, markedView.rivelate.length);
+  await cursore(0, 0);
+  eq("una riga senza voci: niente cambia", [rivelate + 1, benvenuto.id], [markedView.rivelate.length, markedView.selection[0]?.id]);
+  // Il clic su una voce in Results apre l'editor lì: il cursore che arriva ritrova la voce scelta.
+  markedView.clicca(ciao);
+  await cursore(ciao.line - 1, ciao.column - 1);
+  eq("andata e ritorno (clic in Results → cursore): si ferma", [rivelate + 1, ciao.id], [markedView.rivelate.length, markedView.selection[0]?.id]);
+  await cursore(benvenuto.line - 1, 20, { dirty: true });
+  eq("documento con modifiche non salvate: niente (righe forse vecchie)", ciao.id, markedView.selection[0]?.id);
+  marked.setFilter("notSynced");
+  await mprovider.getChildren();
+  await cursore(benvenuto.line - 1, 20);
+  eq("Filter non su All: niente", ciao.id, markedView.selection[0]?.id);
+  marked.setFilter("all");
+  marked.setSearch("Ciao");
+  await mprovider.getChildren();
+  await cursore(benvenuto.line - 1, 20);
+  eq("Search usata: niente", ciao.id, markedView.selection[0]?.id);
+  marked.setSearch("");
+  await tutto(undefined, []);
+  markedView.visible = false;
+  await cursore(benvenuto.line - 1, 20);
+  eq("Results nascosta: niente (un reveal la aprirebbe)", ciao.id, markedView.selection[0]?.id);
+  markedView.visible = true;
+  await cursore(benvenuto.line - 1, 20, { file: join(ws, "app/src/lib/deep/util.js") });
+  eq("un altro file, riga senza voci: niente", ciao.id, markedView.selection[0]?.id);
+  // Una voce su più righe: il testo del documento dice dove finisce, e il cursore sotto risale fino
+  // a lei. (Lo stesso App.jsx, con "Ciao mondo" che va a capo dopo l'inizio della voce.)
+  const suPiùRighe = APP.replace("_%_Ciao mondo_%_", "_%_Ciao\n        mondo_%_");
+  markedView.clicca(benvenuto);
+  await cursore(ciao.line, 4, { text: suPiùRighe });
+  eq("la riga sotto l'inizio di una voce su più righe: risale fino a lei", ciao.id, markedView.selection[0]?.id);
+  markedView.clicca(benvenuto);
+  await cursore(ciao.line + 1, 2, { text: suPiùRighe });
+  eq("…ma non oltre la sua fine", benvenuto.id, markedView.selection[0]?.id);
+  markedView.selection = [];
 }
 
 console.log("\n== Restricted Mode ==");
 stato.isTrusted = false;
 {
   await stato.comandi.get("vitetranslate.refresh")();
-  const figli = await pieno(dprovider);
-  eq("config non eseguito", "not executed: Restricted Mode", figli[3].description);
-  eq("package.json letto lo stesso", "my-app 0.1.0", figli[2].description);
+  const figli = (await progetto()).details;
+  eq("config non eseguito", "not executed: Restricted Mode", figli[2].description);
+  eq("package.json letto lo stesso", "my-app 0.1.0", figli[1].description);
   const mradici = await pieno(mprovider);
   eq("Results: nessuna scansione", ["Restricted Mode"], mradici.map((r) => r.label));
   const lanciati = stato.taskEseguiti.length;

@@ -5,7 +5,7 @@
 //   node test/list/idePluginSelector.test.mjs
 import { join } from "node:path";
 import { selectorState } from "../../idePlugin/src/selectorState.mjs";
-import { selectorHtml, ACTIONS } from "../../idePlugin/src/selectorPage.mjs";
+import { selectorHtml } from "../../idePlugin/src/selectorPage.mjs";
 
 let fail = 0;
 const eq = (nome, atteso, ottenuto) => {
@@ -56,22 +56,28 @@ console.log("\n== Search ==");
   eq("col filtro scelto Results è vuoto: niente Search", false,
     selectorState({ ...base, selected: app, marked: { ok: true, files: [] } }).searchVisible);
   eq("…ma con un testo scritto resta (una ricerca a zero non lo nasconde)", [true, "zzz"],
-    Object.values(selectorState({ ...base, selected: app, marked: { ok: true, files: [] }, search: "zzz" })).slice(-2).reverse());
+    ((s) => [s.searchVisible, s.search])(selectorState({ ...base, selected: app, marked: { ok: true, files: [] }, search: "zzz" })));
   eq("nessun progetto selezionato: niente Search", false, selectorState({ ...base, marked: scansione }).searchVisible);
   eq("scansione fallita: niente Search", false, selectorState({ ...base, selected: app, marked: { ok: false } }).searchVisible);
+}
+
+console.log("\n== l'avvio ==");
+{
+  eq("di norma niente", null, selectorState(base).starting);
+  eq("all'avvio: il testo di cosa si prepara", "Reading…", selectorState({ ...base, starting: "Reading…" }).starting);
 }
 
 console.log("\n== la pagina ==");
 {
   const html = selectorHtml({ scriptUri: "vscode-webview://x/webview.js", codiconsUri: "vscode-webview://x/codicon.css", cspSource: "vscode-webview://x", nonce: "abc" });
   eq("sezioni nascoste finché lo stato non arriva", 3, (html.match(/<section id="\w+" hidden>/g) ?? []).length);
-  eq("i bottoni di ACTIONS, nell'ordine", ACTIONS.map((a) => a.cmd), [...html.matchAll(/data-cmd="(\w+)"/g)].map((m) => m[1]));
+  eq("l'avvio si vede da subito, le sezioni no", [true, 3], [/<p id="starting">(?![^>]*hidden)/.test(html), (html.match(/<section id="\w+" hidden>/g) ?? []).length]);
+  eq("niente barra dei comandi: sta in Project", [false, false], [html.includes("<footer"), html.includes("data-cmd=")]);
   eq("i codicons: il link che vscode-icon cerca, e il font ammesso dalla CSP", [true, true],
     [html.includes('<link id="vscode-codicon-stylesheet" rel="stylesheet" href="vscode-webview://x/codicon.css">'), html.includes("font-src vscode-webview://x;")]);
   eq("a destra del campo l'icona che lo svuota, nascosta all'inizio", true,
     /<vscode-textfield [^>]*id="query"[^>]*><\/vscode-textfield>\s*<vscode-icon id="clear" name="close" action-icon [^>]*aria-hidden="true"/.test(html));
   eq("Search: un vscode-textfield", true, /<section id="search" hidden>[\s\S]*<vscode-textfield [^>]*id="query"/.test(html));
-  eq("solo Sync è primario", ["sync"], ACTIONS.filter((a) => !a.secondary).map((a) => a.cmd));
 }
 
 console.log(fail ? `\n${fail} KO` : "\ntutto ok");

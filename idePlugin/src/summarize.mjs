@@ -3,8 +3,8 @@
 // Una riga è un oggetto semplice: { label, description?, tooltip?, icon?, iconColor?, open?,
 // badge?, children?, expanded? }. `icon` è il nome di una codicon e `iconColor` il suo colore di
 // tema; `open` il percorso assoluto di un file da aprire al clic; `badge` ({ text, tooltip }) il
-// segno breve a destra della riga, che extension.mjs disegna come una FileDecoration. Nessun import di `vscode`:
-// extension.mjs traduce le righe in TreeItem, e qui si prova tutto con dati finti.
+// segno breve a destra della riga, che la pagina di Project disegna come un vscode-badge. Nessun
+// import di `vscode`: projectState.mjs traduce le righe per la pagina, e qui si prova tutto con dati finti.
 //
 // I file di lingua li elenca e li nomina la libreria stessa (listLanguageFiles, languageAutonym),
 // impacchettata qui al momento della build come configFiles.js: il pannello vede gli stessi file,
@@ -24,7 +24,7 @@ export function relativeLabel(dir, roots) {
 
 /**
  * La riga di un progetto in Config (la sezione Selector, selectorState.mjs): il nome e la
- * cartella. Il dettaglio del selezionato sta nella sezione Details (projectChildren).
+ * cartella. Il dettaglio del selezionato sta nella sezione Project (projectChildren).
  *
  * @param {{ dir: string, configFile: string }} project
  * @param {object} p
@@ -41,8 +41,9 @@ export function projectRow(project, { roots, name }) {
 }
 
 /**
- * Le righe della sezione Details: i file di lingua, poi la sintesi di vitetranslate, package.json,
- * vite.config. Al primo disegno è aperta solo la prima; dopo, VS Code ricorda cosa ha aperto l'utente.
+ * Le righe della sezione Project: i file di lingua (Languages, projectState.mjs), poi la sintesi di
+ * vitetranslate, package.json, vite.config (Details). Una riga si apre la prima volta se ha
+ * `expanded`; dopo, la pagina ricorda cosa ha aperto l'utente.
  * `stats` sono i conteggi dell'ultima scansione di Results (vedi tablesRow), se c'è.
  */
 export function projectChildren({ project, pkg, probe, stats = null }) {
@@ -54,10 +55,6 @@ export function projectChildren({ project, pkg, probe, stats = null }) {
 // I colori dell'icona di un file di lingua: colori di tema, quelli che VS Code usa per i test
 // passati, gli errori e gli avvisi del pannello Problems.
 const COLORE = { source: "testing.iconPassed", error: "problemsErrorIcon.foreground", missing: "problemsWarningIcon.foreground" };
-
-// Il badge di una FileDecoration sta in due caratteri al massimo (VS Code rifiuta il resto): oltre
-// 99 si scrive 99, e il numero vero è nel tooltip.
-const badgeDi = (n) => (n > 99 ? "99" : String(n));
 
 /**
  * I file di lingua di localeDir, uno per riga: il codice, e il nome della lingua nella lingua
@@ -110,7 +107,7 @@ export function tablesRow(probe, dir, stats = null) {
       icon: "file",
       iconColor: stato ? COLORE[stato] : undefined,
       open: file,
-      badge: !st?.error && mancanti > 0 ? { text: badgeDi(mancanti), tooltip: `${mancanti} missing` } : undefined,
+      badge: !st?.error && mancanti > 0 ? { text: String(mancanti), tooltip: `${mancanti} missing` } : undefined,
     };
   });
   return {

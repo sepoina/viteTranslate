@@ -8,14 +8,17 @@ export const __stato = {
   isTrusted: true,
   activeTextEditor: undefined,
   editori: [], // gli ascoltatori di onDidChangeActiveTextEditor: il test li chiama cambiando editor
+  cursori: [], // gli ascoltatori di onDidChangeTextEditorSelection: il test li chiama spostando il cursore
   documenti: [], // gli ascoltatori di onDidChangeTextDocument: il test li chiama scrivendo
   chiusi: [], // gli ascoltatori di onDidCloseTextDocument
   textDocuments: [],
   progressi: [], // le viewId delle barre di avanzamento chieste
   webviews: new Map(), // id -> provider registrato con registerWebviewViewProvider
-  decorazioni: [], // i provider di registerFileDecorationProvider
+  scelte: [], // le Quick Pick mostrate: [items, opzioni]
+  scegli: null, // (items, opzioni) => cosa sceglie l'utente
   eseguiti: [], // i comandi di VS Code eseguiti (non quelli registrati dall'estensione)
   avvisi: [], // [tipo, testo] di showInformationMessage/showWarningMessage/showErrorMessage
+  barra: [], // i testi di setStatusBarMessage
   taskEseguiti: [], // i task passati a tasks.executeTask
   taskExecutions: [], // quelli "in corso": il test li mette a mano
   fineTask: [], // gli ascoltatori di tasks.onDidEndTaskProcess
@@ -87,12 +90,6 @@ export const Uri = {
   joinPath: (base, ...parti) => Uri.file(path.join(base.fsPath, ...parti)),
 };
 
-export class FileDecoration {
-  constructor(badge, tooltip, color) {
-    Object.assign(this, { badge, tooltip, color });
-  }
-}
-
 const evento = () => () => ({ dispose() {} });
 
 export const window = {
@@ -128,11 +125,14 @@ export const window = {
     return __stato.treeView;
   },
   onDidChangeActiveTextEditor: (f) => (__stato.editori.push(f), { dispose() {} }),
+  onDidChangeTextEditorSelection: (f) => (__stato.cursori.push(f), { dispose() {} }),
   withProgress: (opzioni, f) => (__stato.progressi.push(opzioni.location?.viewId), f({ report() {} })),
   registerWebviewViewProvider: (id, provider) => (__stato.webviews.set(id, provider), { dispose() {} }),
-  registerFileDecorationProvider: (provider) => (__stato.decorazioni.push(provider), { dispose() {} }),
   showInformationMessage: async (testo) => void __stato.avvisi.push(["info", testo]),
+  // La scelta la fa il test: __stato.scegli(items, opzioni) -> la voce (o le voci) scelte.
+  showQuickPick: async (items, opzioni) => (__stato.scelte.push([items, opzioni]), __stato.scegli?.(items, opzioni)),
   showWarningMessage: async (testo) => void __stato.avvisi.push(["warning", testo]),
+  setStatusBarMessage: (testo) => (__stato.barra.push(testo), { dispose() {} }),
   showErrorMessage: async (testo) => void __stato.avvisi.push(["error", testo]),
 };
 

@@ -306,6 +306,8 @@ function entryRow(e, i, file, glyphs) {
     open: file,
     line: e.line,
     column: e.column,
+    // La chiave della voce nei file di lingua: la ricorda l'estensione quando la si seleziona.
+    keyId: e.id ?? undefined,
   };
 }
 

@@ -97,7 +97,7 @@ console.log("\n== yml tables ==");
   eq("…e il tooltip dice di quante", true, /12 of 120 entries missing$/.test(en?.tooltip));
   eq("illeggibile: rossa, niente badge, il perché nel tooltip", ["problemsErrorIcon.foreground", undefined, true], [fr?.iconColor, fr?.badge, /cannot be read: bad indentation/.test(fr?.tooltip)]);
   eq("completa: colore normale, niente badge", [undefined, undefined, true], [zh?.iconColor, zh?.badge, /complete$/.test(zh?.tooltip)]);
-  eq("oltre 99 mancanti: il badge resta di due caratteri", "99", tablesRow(conLocale, dir, { ...stats, "en-US": { keys: 500, missing: 345 } }).children[1].badge.text);
+  eq("oltre 99 mancanti: il numero intero (vscode-badge, non FileDecoration)", "345", tablesRow(conLocale, dir, { ...stats, "en-US": { keys: 500, missing: 345 } }).children[1].badge.text);
 
   const conBase = { ...probe, vitetranslate: { ...probe.vitetranslate, baseDir: join(dir, ".."), localeDir: join(dir.split("/").at(-1), "locale") } };
   eq("baseDir assoluto: localeDir sotto di lui", "4 languages", tablesRow(conBase, dir).description);
