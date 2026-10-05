@@ -7,7 +7,7 @@
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import extractMarkers from "../../lib/dev/babel/extractMarkers.js";
-import { entryAtCursor, markerEnd } from "../../idePlugin/src/markerSpan.mjs";
+import { entryAtCursor, markerEnd } from "../../idePlugin/src/views/results/markerSpan.mjs";
 
 let fail = 0;
 const eq = (nome, atteso, ottenuto) => {

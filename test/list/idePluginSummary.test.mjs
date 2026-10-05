@@ -6,7 +6,7 @@
 import { join } from "node:path";
 import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { projectRow, projectChildren, tablesRow, relativeLabel, errorLine } from "../../idePlugin/src/summarize.mjs";
+import { projectRow, projectChildren, tablesRow, relativeLabel, errorLine } from "../../idePlugin/src/core/summarize.mjs";
 
 let fail = 0;
 const eq = (nome, atteso, ottenuto) => {

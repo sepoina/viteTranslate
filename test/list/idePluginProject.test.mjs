@@ -1,15 +1,18 @@
-// Estensione per l'editor (idePlugin): la sezione Project (projectState.mjs, projectPage.mjs) e la
-// pagina di Help (helpPage.mjs). Lo stato: un messaggio finché non c'è niente da mostrare, poi le
-// lingue (righe piatte, colore e badge) e l'albero di Details; il bottone LLM col sottomenu o col ?.
-// La pagina: le due zone, i dettagli che scorrono sopra e la barra dei comandi ferma sotto.
+// Estensione per l'editor (idePlugin): la sezione Project (projectState.mjs, projectPage.mjs) e le
+// pagine di Help (helpPage.mjs) e Inspector (inspectorState.mjs, inspectorPage.mjs). Lo stato: un
+// messaggio finché non c'è niente da mostrare, poi le lingue (righe piatte, colore e badge); il
+// bottone LLM col sottomenu o col ?. L'albero di vitetranslate, package.json e vite.config sta in
+// Inspector. La pagina: le due zone, le lingue che scorrono sopra e la barra dei comandi ferma sotto.
 //
 //   node test/list/idePluginProject.test.mjs
 import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { projectState, keyPosition, NO_PROJECTS, NO_SELECTION, READING } from "../../idePlugin/src/projectState.mjs";
-import { projectHtml, ACTIONS, ICONS, LLM_OFF, LLM_ICON } from "../../idePlugin/src/projectPage.mjs";
-import { helpHtml, LLM_DOC_URL } from "../../idePlugin/src/helpPage.mjs";
+import { projectState, keyPosition, NO_PROJECTS, NO_SELECTION, READING } from "../../idePlugin/src/webViews/project/projectState.mjs";
+import { projectHtml, ACTIONS, ICONS, LLM_OFF, LLM_ICON } from "../../idePlugin/src/webViews/project/projectPage.mjs";
+import { helpHtml, LLM_DOC_URL } from "../../idePlugin/src/webViews/optional/help/helpPage.mjs";
+import { inspectorState } from "../../idePlugin/src/webViews/optional/inspector/inspectorState.mjs";
+import { inspectorHtml } from "../../idePlugin/src/webViews/optional/inspector/inspectorPage.mjs";
 
 let fail = 0;
 const eq = (nome, atteso, ottenuto) => {
@@ -26,9 +29,9 @@ const dati = { pkg, probe };
 
 console.log("\n== i messaggi ==");
 {
-  eq("nessun progetto nel workspace", [NO_PROJECTS, null, null], ((s) => [s.message, s.languages, s.details])(projectState({ hasProjects: false, project: null })));
+  eq("nessun progetto nel workspace", [NO_PROJECTS, null], ((s) => [s.message, s.languages])(projectState({ hasProjects: false, project: null })));
   eq("nessuno selezionato", [NO_SELECTION, null], ((s) => [s.message, s.title])(projectState({ hasProjects: true, project: null, title: "x" })));
-  eq("lettura non arrivata: mai le righe di prima", [READING, "app", null], ((s) => [s.message, s.title, s.details])(projectState({ hasProjects: true, project, title: "app" })));
+  eq("lettura non arrivata: mai le righe di prima", [READING, "app", null], ((s) => [s.message, s.title, s.languages])(projectState({ hasProjects: true, project, title: "app" })));
 }
 
 console.log("\n== Languages ==");
@@ -50,14 +53,17 @@ console.log("\n== Languages ==");
   eq("una chiave scelta in Results: il lampo", ["App_1", null], [projectState({ hasProjects: true, project, dati, jumpKey: "App_1" }).jumpKey, s.jumpKey]);
 }
 
-console.log("\n== Details ==");
+console.log("\n== Inspector: lo stato ==");
 {
-  const s = projectState({ hasProjects: true, project, title: "app", dati });
+  eq("Project non ha più l'albero", false, "details" in projectState({ hasProjects: true, project, title: "app", dati }));
+  const s = inspectorState({ hasProjects: true, project, title: "app", dati });
   eq("l'albero: vitetranslate, package.json, vite.config", ["vitetranslate", "package.json", "vite.config.js"], s.details.map((n) => n.label));
   eq("id: il percorso delle etichette", `${dir}/vitetranslate/sourceLanguage`, s.details[0].children[0].id);
   eq("package.json: si apre col clic", join(dir, "package.json"), s.details[1].open);
   eq("una foglia non ha children", undefined, s.details[0].children[0].children);
-  eq("niente messaggio", null, s.message);
+  eq("niente messaggio, il titolo del progetto", [null, "app"], [s.message, s.title]);
+  eq("i messaggi di Project, senza albero", [[NO_PROJECTS, null], [NO_SELECTION, null], [READING, null]],
+    [inspectorState({ hasProjects: false, project: null }), inspectorState({ hasProjects: true, project: null }), inspectorState({ hasProjects: true, project, title: "app" })].map((x) => [x.message, x.details]));
 }
 
 console.log("\n== keyPosition: la chiave nel file di lingua ==");
@@ -86,12 +92,12 @@ console.log("\n== la pagina ==");
   eq("in alto <main> (scorre), poi la barra in <footer>", true, /<main>[\s\S]*<\/main>\s*<footer class="actions">[\s\S]*<\/footer>/.test(html));
   eq("…main scorre, la barra non si restringe", [true, true], [/main \{[^}]*overflow-y: auto/.test(html), /footer \{ flex: none;/.test(html)]);
   eq("il lampo accanto a Languages, nascosto e passivo", true, /<h2>Languages <vscode-icon id="jump" name="zap" size="12" hidden><\/vscode-icon><\/h2>/.test(html));
-  eq("Languages e Details nascosti finché lo stato non arriva", ["languages", "details"], [...html.matchAll(/<section id="(\w+)" hidden>/g)].map((m) => m[1]));
-  eq("…due vscode-tree: le lingue senza frecce, come Config", [["langs", " hide-arrows"], ["tree", ""]],
+  eq("Languages nascosta finché lo stato non arriva, e niente Details", ["languages"], [...html.matchAll(/<section id="(\w+)" hidden>/g)].map((m) => m[1]));
+  eq("…un vscode-tree: le lingue senza frecce, come Config", [["langs", " hide-arrows"]],
     [...html.matchAll(/<vscode-tree id="(\w+)"( hide-arrows)?/g)].map((m) => [m[1], m[2] ?? ""]));
-  eq("la barra: Sync e LLM, poi le icone refresh, vite, chiave inglese, ingranaggio", ["sync", "llm", "refresh", "openConfig", "openPluginConfig", "settings"],
+  eq("la barra: Sync e LLM, poi le icone refresh, Inspector, chiave inglese, ingranaggio", ["sync", "llm", "refresh", "inspector", "openPluginConfig", "settings"],
     [...html.matchAll(/data-cmd="(\w+)"/g)].map((m) => m[1]));
-  eq("…le icone sono codicon", ["refresh", "zap", "wrench", "settings-gear"], ICONS.map((i) => i.icon));
+  eq("…le icone sono codicon, la (i) al posto del lampo", ["refresh", "info", "wrench", "settings-gear"], ICONS.map((i) => i.icon));
   eq("…icone-bottone, dopo i bottoni", true, /<div class="bottoni">[\s\S]*<\/div>\s*<div class="icone">\s*<vscode-icon data-cmd="refresh" name="refresh" action-icon/.test(html));
   eq("LLM parte col ? e il perché nel tooltip, mai disabilitato", [true, true, false],
     [html.includes(`data-cmd="llm" title="${LLM_OFF}"`), /data-cmd="llm"[^>]* icon-after="question">LLM</.test(html), /data-cmd="llm"[^>]*disabled/.test(html)]);
@@ -105,6 +111,16 @@ console.log("\n== Help ==");
     [html.includes("script-src 'nonce-abc'"), html.includes('<script type="module" nonce="abc" src="vscode-webview://x/helpWebview.js">')]);
   eq("i bottoni: opzioni del plugin e Close", ["openPluginConfig", "close"], [...html.matchAll(/data-cmd="(\w+)"/g)].map((m) => m[1]));
   eq("il blocco llm da copiare, e il link alla doc", [true, true], [/llm: \{\s*connection: \{/.test(html), html.includes(`href="${LLM_DOC_URL}"`)]);
+}
+
+console.log("\n== Inspector: la pagina ==");
+{
+  const html = inspectorHtml({ scriptUri: "vscode-webview://x/optionalWebview.js", codiconsUri: "vscode-webview://x/codicon.css", cspSource: "vscode-webview://x", nonce: "abc" });
+  eq("CSP col nonce, e lo script della sezione", [true, true],
+    [html.includes("script-src 'nonce-abc'"), html.includes('<script type="module" nonce="abc" src="vscode-webview://x/optionalWebview.js">')]);
+  eq("l'albero (nascosto finché lo stato non arriva), poi Close in fondo", true,
+    /<main>[\s\S]*<vscode-tree id="tree" indent-guides="onHover" hidden>[\s\S]*<\/main>\s*<footer>[\s\S]*data-cmd="close"/.test(html));
+  eq("un solo bottone: Close", ["close"], [...html.matchAll(/data-cmd="(\w+)"/g)].map((m) => m[1]));
 }
 
 rmSync(dir, { recursive: true, force: true });

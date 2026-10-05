@@ -8,8 +8,8 @@
 import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { ScanWorker } from "../../idePlugin/src/scanWorker.mjs";
-import { forkProbe } from "../../idePlugin/src/runProbe.mjs";
+import { ScanWorker } from "../../idePlugin/src/probes/scanWorker.mjs";
+import { forkProbe } from "../../idePlugin/src/probes/runProbe.mjs";
 
 let fail = 0;
 const eq = (nome, atteso, ottenuto) => {

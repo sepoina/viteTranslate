@@ -14,8 +14,8 @@
 // trovano qualcosa, e il filtro intero solo se oltre ad All ce n'è almeno una. Qui le sue voci
 // (filterItems), e l'albero già filtrato (markedChildren).
 import path from "node:path";
-import { errorLine } from "./summarize.mjs";
-import { pathKey } from "./pickProject.mjs";
+import { errorLine } from "../../core/summarize.mjs";
+import { pathKey } from "../../core/pickProject.mjs";
 
 // Oltre, l'etichetta di una voce si tronca: il testo intero è nel tooltip.
 const MAX_LABEL = 80;

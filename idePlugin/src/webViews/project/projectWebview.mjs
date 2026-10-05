@@ -2,15 +2,11 @@
 // dist/projectWebview.js coi soli componenti che usa.
 //
 // Non decide niente, come webview.mjs: disegna lo stato che manda l'estensione (`{ type: "state" }`,
-// projectState.mjs) e rimanda i clic: `{ cmd: "open" | "openLanguage", value }` da una riga con un file,
+// projectState.mjs) e rimanda i clic: `{ cmd: "openLanguage", value }` da un file di lingua,
 // `{ cmd }` dai bottoni e dalle icone della barra (il loro `data-cmd`). Al caricamento chiede lo
 // stato (`ready`).
 //
-// Le righe aperte di Details si ricordano per id (il percorso delle etichette), anche quando la
-// pagina si ricrea: vscode.setState vive quanto la sezione. Una riga mai vista si apre se lo dice
-// lo stato (`expanded`).
-//
-// I testi arrivano da vite.config e dai package.json: si scrivono con textContent, mai come HTML.
+// I testi arrivano da vite.config: si scrivono con textContent, mai come HTML.
 import "@vscode-elements/elements/dist/vscode-button/index.js";
 import "@vscode-elements/elements/dist/vscode-tree/index.js";
 import "@vscode-elements/elements/dist/vscode-tree-item/index.js";
@@ -21,7 +17,6 @@ const vscode = acquireVsCodeApi();
 
 const $ = (id) => document.getElementById(id);
 
-const aperti = new Map(Object.entries(vscode.getState()?.aperti ?? {})); // id -> aperta
 const firme = new Map(); // albero -> firma delle righe disegnate: righe uguali non si ricostruiscono
 
 function icona(nome, colore, slot) {
@@ -43,7 +38,7 @@ function riga(v) {
     item.append(d);
   }
   if (v.tooltip) item.title = v.tooltip;
-  if (v.value ?? v.open) item.dataset.open = v.value ?? v.open;
+  if (v.value) item.dataset.open = v.value;
   return item;
 }
 
@@ -71,40 +66,6 @@ function lingue(voci) {
   );
 }
 
-// Le righe aperte adesso, nella mappa: prima di ricostruire, e dopo un clic.
-function ricorda() {
-  for (const item of $("tree").querySelectorAll("vscode-tree-item[data-id]")) {
-    if (item.querySelector(":scope > vscode-tree-item")) aperti.set(item.dataset.id, item.open);
-  }
-  vscode.setState({ aperti: Object.fromEntries(aperti) });
-}
-
-function nodo(n) {
-  const item = riga(n);
-  item.dataset.id = n.id;
-  if (n.children) {
-    if (n.icon) item.append(icona(n.icon, n.color, "icon-branch"), icona(n.icon, n.color, "icon-branch-opened"));
-    for (const figlio of n.children) {
-      const f = nodo(figlio);
-      f.slot = "children";
-      item.append(f);
-    }
-    item.open = aperti.has(n.id) ? aperti.get(n.id) : n.expanded;
-  } else if (n.icon) {
-    item.append(icona(n.icon, n.color, "icon-leaf"));
-  }
-  return item;
-}
-
-function dettagli(nodi) {
-  const tree = $("tree");
-  const firma = JSON.stringify(nodi);
-  if (firme.get(tree) === firma) return;
-  ricorda();
-  firme.set(tree, firma);
-  tree.replaceChildren(...nodi.map(nodo));
-}
-
 function disegna(stato) {
   $("message").hidden = !stato.message;
   $("message").textContent = stato.message ?? "";
@@ -124,9 +85,6 @@ function disegna(stato) {
     nota.title = n.tooltip ?? "";
   }
 
-  $("details").hidden = !stato.details;
-  if (stato.details) dettagli(stato.details);
-
   // LLM: sempre cliccabile. Col progetto che ha `llm` la freccia del sottomenu; senza, il `?` e
   // un tooltip che dice che il clic porta a Help.
   const llm = $("btn-llm");
@@ -145,17 +103,13 @@ window.addEventListener("message", (e) => {
   }
 });
 
-// Il clic (o Invio) su una riga col suo file: lo apre l'estensione. Un file di lingua ha il suo
-// comando: l'estensione lo apre sulla chiave scelta per ultima in Results, se c'è.
-for (const [id, cmd] of [["langs", "openLanguage"], ["tree", "open"]]) {
-  $(id).addEventListener("vsc-tree-select", (e) => {
-    const righe = Array.isArray(e.detail) ? e.detail : e.detail?.selectedItems ?? [];
-    const file = righe[0]?.dataset.open;
-    if (file) vscode.postMessage({ cmd, value: file });
-  });
-}
-// Una riga aperta o chiusa: la si ricorda quando l'albero ha finito di cambiare.
-for (const evento of ["click", "keyup"]) $("tree").addEventListener(evento, () => setTimeout(ricorda));
+// Il clic (o Invio) su un file di lingua: l'estensione lo apre sulla chiave scelta per ultima in
+// Results, se c'è.
+$("langs").addEventListener("vsc-tree-select", (e) => {
+  const righe = Array.isArray(e.detail) ? e.detail : e.detail?.selectedItems ?? [];
+  const file = righe[0]?.dataset.open;
+  if (file) vscode.postMessage({ cmd: "openLanguage", value: file });
+});
 
 // I bottoni e le icone-bottone della barra: il loro data-cmd.
 document.addEventListener("click", (e) => {

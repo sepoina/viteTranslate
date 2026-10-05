@@ -151,7 +151,7 @@ export function createScanner() {
       const destinazioni = [...tabelle.keys()].filter((tag) => tag !== sorgente);
 
       // Per ogni file di lingua: quante chiavi della sorgente gli mancano (assenti o `null`), o
-      // perché non si legge. Lo mostra "yml tables" in Details. Senza tabella sorgente leggibile
+      // perché non si legge. Lo mostra Languages in Project. Senza tabella sorgente leggibile
       // non c'è un metro: `missing` resta null.
       const chiaviSorgente = tabelle.has(sorgente) ? Object.keys(tabelle.get(sorgente)) : null;
       const stats = {};

@@ -9,6 +9,17 @@
 > - **Prova:** tutti gli import si risolvono (script in Node), `npm test -- idePlugin` verde, i bundle browser di `dist/` identici byte per byte a quelli di prima.
 > - **Rinviato:** l'estrazione di `MarkedTree`, `PageView`, `OptionalView` da `extension.mjs` (1344 righe), da fare in un piano a parte.
 
+> [!TIP]
+> **logDiary**
+> - **Fatto come da piano:** 23 file spostati con `git mv` (working tree pulito, committato prima), 28 import riscritti, 5 input di rolldown, 11 test, 15 link in `doc/structure.md` più due righe sulla disposizione.
+> - **Import:** 71 specificatori relativi (src + test) controllati in Node, 0 rotti.
+> - **Test:** `npm test -- idePlugin` 11/11, 485 asserzioni, come prima dello spostamento.
+> - **Bundle:** `webview.js`, `projectWebview.js`, `optionalWebview.js` identici byte per byte; `extension.cjs`, `probe.mjs`, `markedProbe.mjs` identici al netto dei commenti `//#region`.
+> - **Deviazione:** i file `necessarytest`/`necessarydoc` non creati: tutto in una sessione, gli elenchi stavano già nel piano.
+
+> [!CAUTION]
+> - **Non provato nell'editor** (`npm run ide:install`): a bundle identici il rischio è nullo, ma la prova a mano non c'è.
+
 ---
 
 ## Istruzioni per chi implementa
@@ -39,7 +50,7 @@ Regole di questo piano:
 
 ## La struttura di arrivo
 
-```
+```text
 idePlugin/src/
   extension.mjs                       (resta qui)
   core/

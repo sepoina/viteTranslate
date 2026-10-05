@@ -54,8 +54,8 @@ Hover an entry for the details: which languages are missing, what the extraction
 
 ### Project
 
-The selected project, and what to do with it. The details scroll; the command bar stays put at the
-bottom.
+The selected project, and what to do with it. The languages scroll; the command bar stays put at
+the bottom.
 
 - **Languages**: the language files in `localeDir`, one row each, listed like **Config**: the
   language code and its name in that language, the source first. Click one to open it. An entry
@@ -64,20 +64,27 @@ bottom.
   The icon tells you how it's doing: green for the source, yellow when translations are missing
   (the badge says how many), red when the file can't be read, plain when it's complete. No files
   yet? One line says why.
-- **Details**: a tree you open as you like, and it stays as you left it.
-  - **vitetranslate**: the plugin options, as the plugin itself resolved them. Source language,
-    locale folder, preloaded languages, auto-sync, `autoWrap`, ICU time zone, the `llm` block
-    (model, endpoint, budget, and the *name* of the key variable, never the key). Whatever you did
-    not set is marked `default`.
-  - **package.json**: the dependencies that matter (`@sepoina/vitetranslate`, `vite`, `react`,
-    `@babel/core`, …) as *declared → installed*, plus the scripts. Click it to open it.
-  - **vite.config**: the plugins in load order, the server port and host. Click it to open it.
 - **The command bar**: **Sync** runs the project's own `vtranslate-cli` in a terminal, and **LLM**
-  swaps **Results** for the LLM panel (below). On the right: ↻ refresh, ⚡ open `vite.config`, 🔧
-  open it right on the `vitetranslate({…})` options, ⚙ the extension settings.
+  swaps **Results** for the LLM panel (below). On the right: ↻ refresh, ⓘ **Inspector** (below), 🔧
+  open `vite.config` right on the `vitetranslate({…})` options, ⚙ the extension settings.
 
 Keep **Project** at least as tall as its command bar: VS Code lets you drag a section down to
 nothing, and the bar goes with it.
+
+### Inspector
+
+Click ⓘ and it takes the place of **Results**; click it again, or *Close*, and Results is back. A
+tree you open as you like, and it stays as you left it:
+
+- **vitetranslate**: the plugin options, as the plugin itself resolved them. Source language,
+  locale folder, preloaded languages, auto-sync, `autoWrap`, ICU time zone, the `llm` block
+  (model, endpoint, budget, and the *name* of the key variable, never the key). Whatever you did
+  not set is marked `default`.
+- **package.json**: the dependencies that matter (`@sepoina/vitetranslate`, `vite`, `react`,
+  `@babel/core`, …) as *declared → installed*, plus the scripts. Click it to open it.
+- **vite.config**: the plugins in load order, the server port and host. Click it to open it.
+
+Pick another project and the tree follows.
 
 ### LLM
 

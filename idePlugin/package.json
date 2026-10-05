@@ -132,6 +132,12 @@
         "icon": "$(sparkle)"
       },
       {
+        "command": "vitetranslate.inspector",
+        "title": "Inspector",
+        "category": "viteTranslate",
+        "icon": "$(info)"
+      },
+      {
         "command": "vitetranslate.closeOptional",
         "title": "Close",
         "category": "viteTranslate",

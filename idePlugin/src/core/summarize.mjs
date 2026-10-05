@@ -10,9 +10,9 @@
 // impacchettata qui al momento della build come configFiles.js: il pannello vede gli stessi file,
 // con gli stessi nomi, che vede il CLI.
 import path from "node:path";
-import listLanguageFiles from "../../lib/dev/vite/uty/listLanguageFiles.js";
-import { tagFromFileName } from "../../lib/dev/vite/uty/languageFileFormat.js";
-import languageAutonym from "../../lib/dev/vite/uty/languageAutonym.js";
+import listLanguageFiles from "../../../lib/dev/vite/uty/listLanguageFiles.js";
+import { tagFromFileName } from "../../../lib/dev/vite/uty/languageFileFormat.js";
+import languageAutonym from "../../../lib/dev/vite/uty/languageAutonym.js";
 
 const onOff = (acceso) => (acceso ? "on" : "off");
 
@@ -41,8 +41,8 @@ export function projectRow(project, { roots, name }) {
 }
 
 /**
- * Le righe della sezione Project: i file di lingua (Languages, projectState.mjs), poi la sintesi di
- * vitetranslate, package.json, vite.config (Details). Una riga si apre la prima volta se ha
+ * Le righe del progetto: i file di lingua (Languages in Project, projectState.mjs), poi la sintesi di
+ * vitetranslate, package.json, vite.config (Inspector, inspectorState.mjs). Una riga si apre la prima volta se ha
  * `expanded`; dopo, la pagina ricorda cosa ha aperto l'utente.
  * `stats` sono i conteggi dell'ultima scansione di Results (vedi tablesRow), se c'è.
  */

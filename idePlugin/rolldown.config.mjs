@@ -25,13 +25,13 @@ export default defineConfig([
     output: { file: qui("./dist/extension.cjs"), format: "cjs", sourcemap: true },
   },
   {
-    input: qui("./src/probe.mjs"),
+    input: qui("./src/probes/probe.mjs"),
     platform: "node",
     external: nodeBuiltins,
     output: { file: qui("./dist/probe.mjs"), format: "esm" },
   },
   {
-    input: qui("./src/markedProbe.mjs"),
+    input: qui("./src/probes/markedProbe.mjs"),
     platform: "node",
     external: nodeBuiltins,
     output: { file: qui("./dist/markedProbe.mjs"), format: "esm" },
@@ -39,19 +39,19 @@ export default defineConfig([
   // Lo script della sezione Selector: gira nella webview, cioè in un browser. Porta con sé i
   // componenti di @vscode-elements/elements (e Lit) che importa, niente altro.
   {
-    input: qui("./src/webview.mjs"),
+    input: qui("./src/webViews/selector/webview.mjs"),
     platform: "browser",
     output: { file: qui("./dist/webview.js"), format: "esm", minify: true },
   },
-  // Lo script della sezione Project: i dettagli del progetto e la barra dei comandi.
+  // Lo script della sezione Project: i file di lingua e la barra dei comandi.
   {
-    input: qui("./src/projectWebview.mjs"),
+    input: qui("./src/webViews/project/projectWebview.mjs"),
     platform: "browser",
     output: { file: qui("./dist/projectWebview.js"), format: "esm", minify: true },
   },
-  // Lo script della sezione facoltativa (Help e il pannello LLM, al posto di Results).
+  // Lo script della sezione facoltativa (Help, il pannello LLM e Inspector, al posto di Results).
   {
-    input: qui("./src/optionalWebview.mjs"),
+    input: qui("./src/webViews/optional/optionalWebview.mjs"),
     platform: "browser",
     output: { file: qui("./dist/optionalWebview.js"), format: "esm", minify: true },
   },

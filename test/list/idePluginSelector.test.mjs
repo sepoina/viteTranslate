@@ -4,8 +4,8 @@
 //
 //   node test/list/idePluginSelector.test.mjs
 import { join } from "node:path";
-import { selectorState } from "../../idePlugin/src/selectorState.mjs";
-import { selectorHtml } from "../../idePlugin/src/selectorPage.mjs";
+import { selectorState } from "../../idePlugin/src/webViews/selector/selectorState.mjs";
+import { selectorHtml } from "../../idePlugin/src/webViews/selector/selectorPage.mjs";
 
 let fail = 0;
 const eq = (nome, atteso, ottenuto) => {

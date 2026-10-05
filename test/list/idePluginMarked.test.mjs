@@ -9,9 +9,9 @@ import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { spawnSync } from "node:child_process";
-import runProbe from "../../idePlugin/src/runProbe.mjs";
-import { ScanWorker } from "../../idePlugin/src/scanWorker.mjs";
-import { markedInput, markedChildren, markedSummary, glyphsOf, filterItems, PASSED, loadingRow, frozenRows, searchFiles, shownCount } from "../../idePlugin/src/markedRows.mjs";
+import runProbe from "../../idePlugin/src/probes/runProbe.mjs";
+import { ScanWorker } from "../../idePlugin/src/probes/scanWorker.mjs";
+import { markedInput, markedChildren, markedSummary, glyphsOf, filterItems, PASSED, loadingRow, frozenRows, searchFiles, shownCount } from "../../idePlugin/src/views/results/markedRows.mjs";
 
 let fail = 0;
 const eq = (nome, atteso, ottenuto) => {
@@ -20,7 +20,7 @@ const eq = (nome, atteso, ottenuto) => {
   console.log(ok ? "  ok  " : "  KO  ", nome.padEnd(56), "->", JSON.stringify(ottenuto), ok ? "" : `(atteso ${JSON.stringify(atteso)})`);
 };
 
-const PROBE = fileURLToPath(new URL("../../idePlugin/src/markedProbe.mjs", import.meta.url));
+const PROBE = fileURLToPath(new URL("../../idePlugin/src/probes/markedProbe.mjs", import.meta.url));
 const REPO = fileURLToPath(new URL("../../", import.meta.url));
 const radice = mkdtempSync(join(tmpdir(), "vt-idemarked-"));
 const scrivi = (rel, testo) => {

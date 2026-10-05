@@ -1,14 +1,13 @@
 // Lo stato della sezione Project (una webview, projectPage.mjs): quello che l'estensione le manda
 // con postMessage. Nessun import di `vscode`: si prova in Node puro.
 //
-// Le righe sono quelle di summarize.mjs (projectChildren), tradotte per la pagina:
-//   - la prima, "yml tables", diventa Languages: un file di lingua per riga, nello stile di Config.
-//     Senza file (localeDir assente, vite.config non letto…) resta la sua frase, in una nota;
-//   - le altre (vitetranslate, package.json, vite.config) diventano l'albero di Details.
+// Le righe sono quelle di summarize.mjs (projectChildren), tradotte per la pagina: la prima, "yml
+// tables", diventa Languages, un file di lingua per riga, nello stile di Config. Senza file
+// (localeDir assente, vite.config non letto…) resta la sua frase, in una nota. Le altre
+// (vitetranslate, package.json, vite.config) le mostra Inspector (inspectorState.mjs).
 // I colori di tema delle icone (`iconColor`, un id come "testing.iconPassed") diventano la variabile
-// CSS che VS Code dà alla webview (--vscode-testing-iconPassed). Il clic su una riga con `open`
-// rimanda `{ cmd: "open", value }`: lo apre l'estensione.
-import { projectChildren } from "./summarize.mjs";
+// CSS che VS Code dà alla webview (--vscode-testing-iconPassed).
+import { projectChildren } from "../../core/summarize.mjs";
 import { LLM_OFF, LLM_ICON } from "./projectPage.mjs";
 
 export const NO_PROJECTS = "No Vite project in this workspace: no vite.config.* was found.";
@@ -32,24 +31,8 @@ export function keyPosition(testo, id) {
   return { line: i + 1, column: id.length + 2 + (dopo.length - dopo.trimStart().length) };
 }
 
-const colore = (id) => (id ? `var(--vscode-${id.replace(/\./g, "-")})` : undefined);
-
-// Una riga di Details, con i figli. L'id è il percorso delle etichette: la pagina lo usa per
-// ricordare cosa è aperto fra un disegno e l'altro.
-function nodo(riga, padre) {
-  const id = `${padre}/${riga.label}`;
-  return {
-    id,
-    label: riga.label,
-    description: riga.description,
-    tooltip: riga.tooltip,
-    icon: riga.icon,
-    color: colore(riga.iconColor),
-    open: riga.open,
-    expanded: !!riga.expanded,
-    children: riga.children?.length ? riga.children.map((f) => nodo(f, id)) : undefined,
-  };
-}
+/** Il colore di tema `id` ("testing.iconPassed") come lo vede la webview: una variabile CSS. */
+export const colore = (id) => (id ? `var(--vscode-${id.replace(/\./g, "-")})` : undefined);
 
 /**
  * @param {object} p
@@ -71,7 +54,6 @@ export function projectState({ hasProjects, project, title = null, dati, stats =
     languagesNote: null,
     languagesTooltip: null,
     jumpKey: null,
-    details: null,
     // Il bottone LLM: col sottomenu solo con un progetto selezionato che ha `llm`; altrimenti il
     // `?` e il tooltip che manda a Help.
     llm: acceso,
@@ -83,7 +65,7 @@ export function projectState({ hasProjects, project, title = null, dati, stats =
   // Finché la lettura non arriva, mai le righe di un altro progetto né di un config cambiato.
   if (!dati) return { ...stato, message: READING };
 
-  const [tabelle, ...resto] = projectChildren({ project, ...dati, stats });
+  const [tabelle] = projectChildren({ project, ...dati, stats });
   if (tabelle.children) {
     stato.languages = tabelle.children.map((r) => ({
       value: r.open,
@@ -100,6 +82,5 @@ export function projectState({ hasProjects, project, title = null, dati, stats =
   } else {
     stato.languagesNote = { text: tabelle.description, tooltip: tabelle.tooltip, icon: tabelle.icon };
   }
-  stato.details = resto.map((r) => nodo(r, project.dir));
   return stato;
 }

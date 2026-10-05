@@ -10,8 +10,8 @@
 //     scelto Results ha qualcosa da mostrare, e resta finché c'è un testo: una ricerca che non trova
 //     niente non deve far sparire il campo in cui la si sta scrivendo.
 // La webview non decide niente: disegna questo, e rimanda i clic.
-import { projectRow } from "./summarize.mjs";
-import { filterItems, shownCount } from "./markedRows.mjs";
+import { projectRow } from "../../core/summarize.mjs";
+import { filterItems, shownCount } from "../../views/results/markedRows.mjs";
 
 /**
  * @param {object} p

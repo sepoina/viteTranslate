@@ -2,7 +2,7 @@
 // controlli (chiave, impostazioni, ping), sotto le azioni --llm-*, in fondo, ferma, la barra con
 // "Check again" e Close. Qui lo scheletro: lo riempie optionalWebview.mjs dallo stato
 // (llmPanel.mjs). Nessun import di `vscode`.
-import { pageHead, COLUMN_CSS } from "./pageCommon.mjs";
+import { pageHead, COLUMN_CSS } from "../../pageCommon.mjs";
 
 /**
  * @param {object} p

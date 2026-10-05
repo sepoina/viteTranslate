@@ -7,7 +7,7 @@ import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
-import runProbe from "../../idePlugin/src/runProbe.mjs";
+import runProbe from "../../idePlugin/src/probes/runProbe.mjs";
 
 let fail = 0;
 const eq = (nome, atteso, ottenuto) => {
@@ -16,7 +16,7 @@ const eq = (nome, atteso, ottenuto) => {
   console.log(ok ? "  ok  " : "  KO  ", nome.padEnd(56), "->", JSON.stringify(ottenuto), ok ? "" : `(atteso ${JSON.stringify(atteso)})`);
 };
 
-const PROBE = fileURLToPath(new URL("../../idePlugin/src/probe.mjs", import.meta.url));
+const PROBE = fileURLToPath(new URL("../../idePlugin/src/probes/probe.mjs", import.meta.url));
 const PLUGIN = pathToFileURL(fileURLToPath(new URL("../../lib/dev/vite/vitetranslate.js", import.meta.url))).href;
 const radice = mkdtempSync(join(tmpdir(), "vt-ideprobe-"));
 const progetto = (nome, file, testo) => {

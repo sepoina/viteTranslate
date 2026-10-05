@@ -5,7 +5,7 @@
 // Nessun import di `vscode`: i percorsi arrivano da fuori (extension.mjs), così tutto si prova in
 // Node puro.
 import path from "node:path";
-import { CONFIG_FILES } from "../../lib/dev/vite/uty/configFiles.js";
+import { CONFIG_FILES } from "../../../lib/dev/vite/uty/configFiles.js";
 
 // Per `workspace.findFiles`: gli stessi nomi, nello stesso ordine, che cercano il CLI e Vite.
 export const CONFIG_GLOB = `**/{${CONFIG_FILES.join(",")}}`;

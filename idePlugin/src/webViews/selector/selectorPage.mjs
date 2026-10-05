@@ -3,7 +3,7 @@
 // stato che l'estensione manda (selectorState.mjs). I bottoni (Sync, LLM, le icone) stanno nella
 // sezione Project (projectPage.mjs). Nessun import di `vscode`: chi la usa (PageView in
 // extension.mjs) le passa l'indirizzo dello script e la sorgente ammessa dalla CSP.
-import { pageHead, COLUMN_CSS } from "./pageCommon.mjs";
+import { pageHead, COLUMN_CSS } from "../pageCommon.mjs";
 
 /**
  * @param {object} p

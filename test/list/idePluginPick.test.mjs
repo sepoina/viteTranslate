@@ -5,7 +5,7 @@
 import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
-import { dedupeConfigs, inNodeModules, CONFIG_GLOB, projectOf, pathKey } from "../../idePlugin/src/pickProject.mjs";
+import { dedupeConfigs, inNodeModules, CONFIG_GLOB, projectOf, pathKey } from "../../idePlugin/src/core/pickProject.mjs";
 
 let fail = 0;
 const eq = (nome, atteso, ottenuto) => {

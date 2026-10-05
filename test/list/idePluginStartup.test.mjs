@@ -46,7 +46,7 @@ const APP = join(ws, "app");
 stato.workspaceFolders = [{ uri: vscode.Uri.file(ws) }];
 stato.findFiles = async () => [vscode.Uri.file(join(APP, "vite.config.js"))];
 const SRC = (nome) => fileURLToPath(new URL(`../../idePlugin/src/${nome}`, import.meta.url));
-const SONDE = { [join("dist", "probe.mjs")]: SRC("probe.mjs"), [join("dist", "markedProbe.mjs")]: SRC("markedProbe.mjs") };
+const SONDE = { [join("dist", "probe.mjs")]: SRC("probes/probe.mjs"), [join("dist", "markedProbe.mjs")]: SRC("probes/markedProbe.mjs") };
 const memoria = new Map();
 const context = {
   subscriptions: [],
@@ -102,7 +102,7 @@ console.log("\n== Project compare: le tappe ==");
   stato.webviews.get("vitetranslate.project").resolveWebviewView(vista);
   eq("la pagina resta invisibile finché non disegna", true, vista.webview.html.includes("body:not([data-drawn]) { visibility: hidden; }"));
   await ricevi({ cmd: "ready" });
-  eq("al primo ready lo stato è già completo", [null, ["vitetranslate", "package.json", "vite.config.js"]], [pstati[0]?.message, pstati[0]?.details?.map((d) => d.label)]);
+  eq("al primo ready lo stato è già completo: Languages, non Reading", [null, true], [pstati[0]?.message, !!(pstati[0]?.languages ?? pstati[0]?.languagesNote)]);
   await ricevi({ cmd: "drawn" });
   await ricevi({ cmd: "drawn" });
   const tappe = stato.log.filter((r) => /startup: Project/.test(r)).map((r) => /startup: (.*) \+\d+ ms after ready/.exec(r)?.[1]);

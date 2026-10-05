@@ -7,7 +7,7 @@
 // Ogni controllo: { id, state: "ok" | "warning" | "error" | "running", text, description?, tooltip? }.
 // Nessun import di `vscode`.
 import path from "node:path";
-import { LLM_ACTIONS } from "./syncCommand.mjs";
+import { LLM_ACTIONS } from "../../../core/syncCommand.mjs";
 
 // La riga della chiave, da quello che stampa `--llm-status` (resolveApiKey in lib/dev/llm/apiKey.js).
 function keyCheck(check, { apiKeyEnv, baseDir }) {

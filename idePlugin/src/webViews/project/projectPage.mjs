@@ -1,11 +1,10 @@
 // La pagina della sezione Project (una webview), in due zone:
-//   - in alto i dettagli del progetto selezionato, che scorrono se la sezione è bassa: Languages,
-//     i file di lingua nello stile di Config in Selector, e Details, un vscode-tree con la sintesi
-//     di vitetranslate, package.json e vite.config;
+//   - in alto, e scorre se la sezione è bassa, Languages: i file di lingua del progetto selezionato
+//     nello stile di Config in Selector (il resto della sintesi sta in Inspector);
 //   - in fondo, ferma, la barra dei comandi: i bottoni Sync e LLM, le icone-bottone.
 // Qui solo lo scheletro: lo riempie projectWebview.mjs dallo stato (projectState.mjs). Nessun
 // import di `vscode`, come selectorPage.mjs.
-import { escape, pageHead, COLUMN_CSS } from "./pageCommon.mjs";
+import { escape, pageHead, COLUMN_CSS } from "../pageCommon.mjs";
 
 /**
  * La barra in fondo: a sinistra i bottoni, a destra le icone-bottone (codicon). `cmd` è il
@@ -18,7 +17,7 @@ export const ACTIONS = [
 ];
 export const ICONS = [
   { cmd: "refresh", icon: "refresh", title: "Refresh: read vite.config and scan the source again" },
-  { cmd: "openConfig", icon: "zap", title: "Open vite.config" },
+  { cmd: "inspector", icon: "info", title: "Inspector: the plugin options, package.json and vite.config, in Results' place" },
   { cmd: "openPluginConfig", icon: "wrench", title: "Open the vitetranslate options in vite.config" },
   { cmd: "settings", icon: "settings-gear", title: "Open the extension settings" },
 ];
@@ -71,10 +70,6 @@ export function projectHtml({ scriptUri, codiconsUri, cspSource, nonce }) {
       <h2>Languages <vscode-icon id="jump" name="zap" size="12" hidden></vscode-icon></h2>
       <vscode-tree id="langs" hide-arrows></vscode-tree>
       <p id="langNote" class="nota" hidden></p>
-    </section>
-    <section id="details" hidden>
-      <h2>Details</h2>
-      <vscode-tree id="tree" indent-guides="onHover"></vscode-tree>
     </section>
   </main>
   <footer class="actions">
