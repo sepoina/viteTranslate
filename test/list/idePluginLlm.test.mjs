@@ -85,7 +85,9 @@ console.log("\n== la pagina ==");
   eq("CSP col nonce, lo script della sezione", [true, true],
     [html.includes("script-src 'nonce-abc'"), html.includes('<script type="module" nonce="abc" src="vscode-webview://x/optionalWebview.js">')]);
   eq("i controlli, le azioni (righe come Config), poi la barra", true, /<div id="checks"><\/div>[\s\S]*<vscode-tree id="actions" hide-arrows>[\s\S]*<\/main>\s*<footer>/.test(html));
-  eq("i bottoni: Check again e Close", ["recheck", "close"], [...html.matchAll(/data-cmd="(\w+)"/g)].map((m) => m[1]));
+  eq("i bottoni: Back a sinistra, poi Check again", ["close", "recheck"], [...html.matchAll(/data-cmd="(\w+)"/g)].map((m) => m[1]));
+  eq("…Back, non Close: la freccia indietro", true, /data-cmd="close"[^>]*icon="arrow-left"[^>]*>Back</.test(html));
+  eq("lo sfondo tinto della sezione facoltativa", true, html.includes("background: color-mix(in srgb, var(--vscode-sideBar-background), var(--vscode-focusBorder) 8%)"));
 }
 
 console.log("\n== il controllo, col CLI vero ==");

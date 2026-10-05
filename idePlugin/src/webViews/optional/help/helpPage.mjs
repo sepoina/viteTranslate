@@ -1,8 +1,9 @@
-// La pagina Help della sezione facoltativa (una webview al posto di Results): come si accende LLM.
-// Compare quando si clicca LLM su un progetto senza blocco `llm` (OptionalView in extension.mjs,
-// la context key `vitetranslate.optional`), e se ne va col bottone Close o con la X nel titolo.
-// Nessun import di `vscode`, come selectorPage.mjs: stessa CSP, stessi codicons; lo script è
-// quello della sezione (dist/optionalWebview.js), che qui rimanda solo i clic dei bottoni.
+// La pagina Help della sezione facoltativa (una webview al posto di Results e Project): come si
+// accende LLM. Compare quando si clicca LLM su un progetto senza blocco `llm` (OptionalView, la
+// context key `vitetranslate.optional`), e se ne va con Back o con la freccia nel titolo. Nessun
+// import di `vscode`, come selectorPage.mjs: stessa CSP, stessi codicons; lo script è quello della
+// sezione (dist/optionalWebview.js), che qui rimanda solo i clic dei bottoni.
+import { pageHead, COLUMN_CSS, OPTIONAL_CSS, BACK_BUTTON } from "../../pageCommon.mjs";
 
 /** La documentazione completa di `llm`, aperta nel browser dal link in fondo. */
 export const LLM_DOC_URL = "https://github.com/sepoina/viteTranslate/blob/main/doc/llm.md";
@@ -16,22 +17,7 @@ export const LLM_DOC_URL = "https://github.com/sepoina/viteTranslate/blob/main/d
  * @returns {string}
  */
 export function helpHtml({ scriptUri, codiconsUri, cspSource, nonce }) {
-  return `<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'nonce-${nonce}'; style-src ${cspSource} 'unsafe-inline'; font-src ${cspSource};">
-  <link id="vscode-codicon-stylesheet" rel="stylesheet" href="${codiconsUri}">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <style>
-    body {
-      margin: 0; padding: 4px 12px 12px;
-      font-family: var(--vscode-font-family); font-size: var(--vscode-font-size); color: var(--vscode-foreground);
-    }
-    h2 {
-      margin: 8px 0 5px; font-size: 11px; font-weight: 600; letter-spacing: 0.04em;
-      text-transform: uppercase; color: var(--vscode-chat-linesAddedForeground);
-    }
+  return `${pageHead({ codiconsUri, cspSource, nonce })}${COLUMN_CSS}${OPTIONAL_CSS}
     p, ol { margin: 6px 0; line-height: 1.45; }
     ol { padding-left: 18px; }
     li { margin-bottom: 8px; }
@@ -41,10 +27,10 @@ export function helpHtml({ scriptUri, codiconsUri, cspSource, nonce }) {
       background: var(--vscode-textCodeBlock-background);
     }
     .note { color: var(--vscode-descriptionForeground); }
-    .bottoni { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
   </style>
 </head>
 <body>
+  <main>
   <h2>LLM translation is off</h2>
   <p>The <b>LLM</b> button wakes up when <code>vitetranslate()</code> in vite.config gets an <code>llm</code> block. Three steps, no new dependency.</p>
   <ol>
@@ -68,10 +54,13 @@ export function helpHtml({ scriptUri, codiconsUri, cspSource, nonce }) {
   </ol>
   <p class="note">Already there? In Restricted Mode vite.config is not run, so the block can't be seen: trust the workspace.</p>
   <p><a href="${LLM_DOC_URL}">Every option, costs and budget</a></p>
-  <div class="bottoni">
-    <vscode-button data-cmd="openPluginConfig" icon="wrench" title="Open the vitetranslate options in vite.config">Open the options</vscode-button>
-    <vscode-button data-cmd="close" secondary icon="close" title="Back to Results">Close</vscode-button>
-  </div>
+  </main>
+  <footer>
+    ${BACK_BUTTON}
+    <div class="destra">
+      <vscode-button data-cmd="openPluginConfig" icon="wrench" title="Open the vitetranslate options in vite.config">Open the options</vscode-button>
+    </div>
+  </footer>
   <script type="module" nonce="${nonce}" src="${scriptUri}"></script>
 </body>
 </html>`;

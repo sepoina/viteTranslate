@@ -1,8 +1,8 @@
-// La pagina del pannello LLM, nella sezione facoltativa (al posto di Results): in alto i tre
-// controlli (chiave, impostazioni, ping), sotto le azioni --llm-*, in fondo, ferma, la barra con
-// "Check again" e Close. Qui lo scheletro: lo riempie optionalWebview.mjs dallo stato
+// La pagina del pannello LLM, nella sezione facoltativa (al posto di Results e Project): in alto i
+// tre controlli (chiave, impostazioni, ping), sotto le azioni --llm-*, in fondo, ferma, la barra con
+// Back e "Check again". Qui lo scheletro: lo riempie optionalWebview.mjs dallo stato
 // (llmPanel.mjs). Nessun import di `vscode`.
-import { pageHead, COLUMN_CSS } from "../../pageCommon.mjs";
+import { pageHead, COLUMN_CSS, OPTIONAL_CSS, BACK_BUTTON } from "../../pageCommon.mjs";
 
 /**
  * @param {object} p
@@ -13,11 +13,7 @@ import { pageHead, COLUMN_CSS } from "../../pageCommon.mjs";
  * @returns {string}
  */
 export function llmHtml({ scriptUri, codiconsUri, cspSource, nonce }) {
-  return `${pageHead({ codiconsUri, cspSource, nonce })}${COLUMN_CSS}
-    footer {
-      flex: none; display: flex; flex-wrap: wrap; gap: 6px; justify-content: flex-end;
-      padding: 8px 12px 10px; border-top: 1px solid var(--vscode-sideBarSectionHeader-border, transparent);
-    }
+  return `${pageHead({ codiconsUri, cspSource, nonce })}${COLUMN_CSS}${OPTIONAL_CSS}
     .check { display: flex; align-items: baseline; gap: 6px; margin: 4px 0 4px 7px; }
     .check vscode-icon { flex: none; position: relative; top: 2px; }
     .check .desc { color: var(--vscode-descriptionForeground); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -38,8 +34,10 @@ export function llmHtml({ scriptUri, codiconsUri, cspSource, nonce }) {
     </section>
   </main>
   <footer>
-    <vscode-button data-cmd="recheck" id="recheck" secondary icon="refresh" title="Look for the key and ping the model again">Check again</vscode-button>
-    <vscode-button data-cmd="close" secondary icon="close" title="Back to Results">Close</vscode-button>
+    ${BACK_BUTTON}
+    <div class="destra">
+      <vscode-button data-cmd="recheck" id="recheck" secondary icon="refresh" title="Look for the key and ping the model again">Check again</vscode-button>
+    </div>
   </footer>
   <script type="module" nonce="${nonce}" src="${scriptUri}"></script>
 </body>

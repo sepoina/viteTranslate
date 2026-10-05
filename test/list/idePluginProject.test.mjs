@@ -109,7 +109,9 @@ console.log("\n== Help ==");
   const html = helpHtml({ scriptUri: "vscode-webview://x/helpWebview.js", codiconsUri: "vscode-webview://x/codicon.css", cspSource: "vscode-webview://x", nonce: "abc" });
   eq("CSP col nonce, e lo script suo", [true, true],
     [html.includes("script-src 'nonce-abc'"), html.includes('<script type="module" nonce="abc" src="vscode-webview://x/helpWebview.js">')]);
-  eq("i bottoni: opzioni del plugin e Close", ["openPluginConfig", "close"], [...html.matchAll(/data-cmd="(\w+)"/g)].map((m) => m[1]));
+  eq("la barra in fondo: Back a sinistra, poi le opzioni del plugin", ["close", "openPluginConfig"], [...html.matchAll(/data-cmd="(\w+)"/g)].map((m) => m[1]));
+  eq("…una colonna: il testo scorre, la barra ferma", true, /<main>[\s\S]*<\/main>\s*<footer>/.test(html));
+  eq("…e lo sfondo tinto", true, html.includes("background: color-mix(in srgb, var(--vscode-sideBar-background), var(--vscode-focusBorder) 8%)"));
   eq("il blocco llm da copiare, e il link alla doc", [true, true], [/llm: \{\s*connection: \{/.test(html), html.includes(`href="${LLM_DOC_URL}"`)]);
 }
 
@@ -118,9 +120,10 @@ console.log("\n== Inspector: la pagina ==");
   const html = inspectorHtml({ scriptUri: "vscode-webview://x/optionalWebview.js", codiconsUri: "vscode-webview://x/codicon.css", cspSource: "vscode-webview://x", nonce: "abc" });
   eq("CSP col nonce, e lo script della sezione", [true, true],
     [html.includes("script-src 'nonce-abc'"), html.includes('<script type="module" nonce="abc" src="vscode-webview://x/optionalWebview.js">')]);
-  eq("l'albero (nascosto finché lo stato non arriva), poi Close in fondo", true,
+  eq("l'albero (nascosto finché lo stato non arriva), poi Back in fondo", true,
     /<main>[\s\S]*<vscode-tree id="tree" indent-guides="onHover" hidden>[\s\S]*<\/main>\s*<footer>[\s\S]*data-cmd="close"/.test(html));
-  eq("un solo bottone: Close", ["close"], [...html.matchAll(/data-cmd="(\w+)"/g)].map((m) => m[1]));
+  eq("un solo bottone: Back", [["close"], true], [[...html.matchAll(/data-cmd="(\w+)"/g)].map((m) => m[1]), html.includes(">Back</vscode-button>")]);
+  eq("…e lo sfondo tinto", true, html.includes("background: color-mix(in srgb, var(--vscode-sideBar-background), var(--vscode-focusBorder) 8%)"));
 }
 
 rmSync(dir, { recursive: true, force: true });

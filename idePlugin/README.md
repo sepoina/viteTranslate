@@ -71,10 +71,15 @@ the bottom.
 Keep **Project** at least as tall as its command bar: VS Code lets you drag a section down to
 nothing, and the bar goes with it.
 
+### Taking over: Inspector, LLM, Help
+
+These three take the panel for themselves: **Results** and **Project** step aside, the background
+takes a tint of your theme's accent, and the bar at the bottom is theirs. **← Back** (or the ← in
+the section title) puts everything back where it was.
+
 ### Inspector
 
-Click ⓘ and it takes the place of **Results**; click it again, or *Close*, and Results is back. A
-tree you open as you like, and it stays as you left it:
+Click ⓘ in **Project**. A tree you open as you like, and it stays as you left it:
 
 - **vitetranslate**: the plugin options, as the plugin itself resolved them. Source language,
   locale folder, preloaded languages, auto-sync, `autoWrap`, ICU time zone, the `llm` block
@@ -88,7 +93,7 @@ Pick another project and the tree follows.
 
 ### LLM
 
-Click **LLM ›** and it takes the place of **Results**. On top, three lines that answer "can I go?":
+Click **LLM ›** in **Project**. On top, three lines that answer "can I go?":
 
 - **API key**: *where* it is (an environment variable, `.env.local`, `.env`, the system keyring),
   never what it is. Not found? It says where it looked.
@@ -99,10 +104,10 @@ Click **LLM ›** and it takes the place of **Results**. On top, three lines tha
 
 Below, the `--llm-*` actions: translate, estimate the cost, retranslate, regenerate the context,
 status, ping, set / check / clear the API key. Click one and it runs in a terminal, like Sync.
-*Check again* redoes the three lines; *Close*, or the × in the title, brings Results back.
+*Check again* redoes the three lines.
 
-No `llm` block in the plugin options? The button reads **LLM ?** and the same spot shows **Help**:
-how to add one.
+No `llm` block in the plugin options? The button reads **LLM ?** and opens **Help** instead: how
+to add one, and a button that opens the options in `vite.config`.
 
 ## Under the hood
 

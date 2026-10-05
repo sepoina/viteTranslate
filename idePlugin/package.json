@@ -83,7 +83,7 @@
           "type": "webview",
           "id": "vitetranslate.project",
           "name": "Project",
-          "when": "vitetranslate.ready"
+          "when": "vitetranslate.ready && !vitetranslate.optional"
         }
       ]
     },
@@ -139,9 +139,9 @@
       },
       {
         "command": "vitetranslate.closeOptional",
-        "title": "Close",
+        "title": "Back",
         "category": "viteTranslate",
-        "icon": "$(close)"
+        "icon": "$(arrow-left)"
       },
       {
         "command": "vitetranslate.refresh",

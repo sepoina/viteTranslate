@@ -190,6 +190,16 @@ eq("tre webview: Selector, Project, la facoltativa", ["vitetranslate.selector", 
 eq("Selector: una webview", "function", typeof selectorProvider?.resolveWebviewView);
 eq("comandi registrati", [true, true, true, true, true, true], ["refresh", "select", "sync", "llm", "inspector", "closeOptional"].map((c) => stato.comandi.has(`vitetranslate.${c}`)));
 eq("tutto sotto context.subscriptions", true, context.subscriptions.length >= 5);
+{
+  // Il manifest: la facoltativa si prende il pannello (via Results e Project), e si torna con ←.
+  const manifest = JSON.parse(readFileSync(new URL("../../idePlugin/package.json", import.meta.url), "utf8"));
+  const quando = Object.fromEntries(manifest.contributes.views.vitetranslate.map((v) => [v.id, v.when ?? null]));
+  eq("facoltativa aperta: Results e Project spariscono", { "vitetranslate.selector": null, "vitetranslate.results": "vitetranslate.ready && !vitetranslate.optional",
+    "vitetranslate.optional": "vitetranslate.optional", "vitetranslate.project": "vitetranslate.ready && !vitetranslate.optional" }, quando);
+  const comando = (id) => manifest.contributes.commands.find((c) => c.command === id);
+  eq("…la freccia nel titolo è Back, non Close; Inspector con la (i)", [["Back", "$(arrow-left)"], ["Inspector", "$(info)"]],
+    ["vitetranslate.closeOptional", "vitetranslate.inspector"].map((id) => [comando(id)?.title, comando(id)?.icon]));
+}
 
 const seleziona = (dir) => stato.comandi.get("vitetranslate.select")(dir);
 

@@ -1,5 +1,6 @@
-// Quello che le pagine di Selector e Project (selectorPage.mjs, projectPage.mjs) hanno in comune:
-// l'intestazione con la CSP e i codicons, e lo stile di base. Nessun import di `vscode`.
+// Quello che le pagine delle webview hanno in comune: l'intestazione con la CSP e i codicons, lo
+// stile di base, e quello delle pagine della sezione facoltativa (Help, LLM, Inspector). Nessun
+// import di `vscode`.
 //
 // La CSP chiude tutto tranne lo script col `nonce` e gli stili: quelli dei componenti Lit passano
 // da adoptedStyleSheets, il <style> della pagina è inline. I colori sono le variabili del tema di
@@ -48,3 +49,20 @@ export const COLUMN_CSS = `
       padding-left: 8px;
     }
     [hidden] { display: none !important; }`;
+
+/**
+ * Le pagine della sezione facoltativa si prendono il pannello (Results e Project spariscono): uno
+ * sfondo tinto dall'accento del tema, perché si veda che è un'altra modalità, e la barra in fondo,
+ * ferma, con Back a sinistra (BACK_BUTTON) e le azioni della pagina a destra (`.destra`).
+ * Da aggiungere dopo COLUMN_CSS.
+ */
+export const OPTIONAL_CSS = `
+    body { background: color-mix(in srgb, var(--vscode-sideBar-background), var(--vscode-focusBorder) 8%); }
+    footer {
+      flex: none; display: flex; flex-wrap: wrap; gap: 6px; align-items: center;
+      padding: 8px 12px 10px; border-top: 1px solid var(--vscode-sideBarSectionHeader-border, transparent);
+    }
+    footer .destra { display: flex; flex-wrap: wrap; gap: 6px; margin-left: auto; }`;
+
+/** Il tasto che rimette Results e Project: "Close" sembrava chiudere l'estensione. */
+export const BACK_BUTTON = `<vscode-button data-cmd="close" secondary icon="arrow-left" title="Back to Results and Project">Back</vscode-button>`;

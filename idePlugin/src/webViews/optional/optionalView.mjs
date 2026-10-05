@@ -1,14 +1,16 @@
-// La sezione facoltativa: una webview che prende il posto di Results, solo dopo un clic su LLM (una
-// TreeView non può diventare una webview: sono due sezioni, e la context key OPTIONAL_CONTEXT
-// decide quale si vede). Tre pagine, `mode`, un solo script (dist/optionalWebview.js):
+// La sezione facoltativa: una webview che si prende il pannello, solo dopo un clic su LLM o sulla (i)
+// di Project. Prende il posto di Results (una TreeView non può diventare una webview: sono due
+// sezioni, e la context key OPTIONAL_CONTEXT decide quale si vede) e nasconde Project: la sua barra,
+// con Back, è l'unica. Lo sfondo tinto (OPTIONAL_CSS in pageCommon.mjs) dice che è un'altra
+// modalità. Tre pagine, `mode`, un solo script (dist/optionalWebview.js):
 //   - "help": su un progetto senza `llm`, come configurarlo; testo fisso (help/helpPage.mjs);
 //   - "llm": il pannello LLM — dove sta la chiave, se le impostazioni bastano, se il modello
 //     risponde, e le azioni --llm-* (llm/llmController.mjs);
 //   - "inspector": la sintesi di vitetranslate, package.json e vite.config, in un albero
-//     (inspector/inspectorState.mjs). La apre e la chiude l'icona (i) di Project.
+//     (inspector/inspectorState.mjs). La apre l'icona (i) di Project.
 // LLM e Inspector chiedono lo stato al caricamento (`ready`), poi push() lo rimanda solo quando
 // cambia. show() la mette e la porta in primo piano, setMode() cambia pagina senza spostare il
-// focus, close() rimette Results. Aperta, segue il progetto selezionato: Help o LLM secondo il suo
+// focus, close() (Back) rimette Results e Project. Aperta, segue il progetto selezionato: Help o LLM secondo il suo
 // vite.config; Inspector resta Inspector, sul progetto nuovo.
 import * as vscode from "vscode";
 import { PageView } from "../pageView.mjs";
@@ -20,7 +22,7 @@ import { inspectorState } from "./inspector/inspectorState.mjs";
 import { openFile, openPluginConfig, progressIn } from "../../core/editorUi.mjs";
 
 export const OPTIONAL_VIEW_ID = "vitetranslate.optional";
-// Vera mentre la sezione facoltativa sta al posto di Results (i `when` delle due in package.json).
+// Vera mentre la sezione facoltativa sta al posto di Results e Project (i loro `when` in package.json).
 const OPTIONAL_CONTEXT = "vitetranslate.optional";
 
 const modoDi = (dati) => (dati?.probe?.vitetranslate?.llm ? "llm" : "help");
@@ -144,7 +146,7 @@ export class OptionalView extends PageView {
     return this.show(modoDi(await this.projects.data(progetto)));
   }
 
-  // L'icona (i) di Project: apre Inspector, o lo chiude se è già lì.
+  // L'icona (i) di Project: apre Inspector. Dalla palette, con Inspector già aperto, lo chiude.
   toggleInspector() {
     return this.mode === "inspector" ? this.close() : this.show("inspector");
   }
