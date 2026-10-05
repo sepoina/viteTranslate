@@ -12,9 +12,11 @@ import "@vscode-elements/elements/dist/vscode-tree/index.js";
 import "@vscode-elements/elements/dist/vscode-tree-item/index.js";
 import "@vscode-elements/elements/dist/vscode-textfield/index.js";
 import "@vscode-elements/elements/dist/vscode-icon/index.js";
+import { installTooltips } from "../tooltip/tooltipScript.mjs";
 
 // Una volta sola per pagina: chiamarla due volte lancia.
 const vscode = acquireVsCodeApi();
+installTooltips(); // i title diventano il fumetto della pagina (tooltipScript.mjs)
 
 const $ = (id) => document.getElementById(id);
 

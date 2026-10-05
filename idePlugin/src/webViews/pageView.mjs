@@ -17,11 +17,13 @@ export class PageView {
    * @param {(p: object) => string} [p.html] - la pagina: selectorHtml, projectHtml
    * @param {(riga: string) => void} p.log
    * @param {() => void} [p.onVisible] - la sezione è tornata in vista
+   * @param {() => void} [p.onOpen] - VS Code apre la sezione (resolveWebviewView): la prima volta fa
+   *   partire il pannello (avviaPannello in extension.mjs)
    * @param {(fase: "page" | "script" | "drawn") => void} [p.onStage] - le tappe di una pagina nuova:
    *   creata, script caricato (`ready`), primo stato disegnato (`drawn`, se la pagina lo dice)
    */
-  constructor({ extensionUri, name, script, html, log, onVisible, onStage }) {
-    Object.assign(this, { extensionUri, name, script, html, log, onVisible, onStage });
+  constructor({ extensionUri, name, script, html, log, onVisible, onOpen, onStage }) {
+    Object.assign(this, { extensionUri, name, script, html, log, onVisible, onOpen, onStage });
     /** @type {Record<string, (value?: string) => any>} i clic della pagina */
     this.actions = {};
     this.view = null;
@@ -54,6 +56,7 @@ export class PageView {
   }
 
   resolveWebviewView(view) {
+    this.onOpen?.();
     this.view = view;
     // Solo dist/: la pagina non vede nient'altro dell'estensione, né del workspace.
     view.webview.options = { enableScripts: true, localResourceRoots: [this.dist] };

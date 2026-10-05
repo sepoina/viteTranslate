@@ -1,6 +1,6 @@
 // Quello che le pagine delle webview hanno in comune: l'intestazione con la CSP e i codicons, lo
-// stile di base, e quello delle pagine della sezione facoltativa (Help, LLM, Inspector). Nessun
-// import di `vscode`.
+// stile di base, e quello delle pagine della sezione facoltativa (Help, LLM, Settings). La barra
+// dei comandi sta in commandBar/commandBar.mjs. Nessun import di `vscode`.
 //
 // La CSP chiude tutto tranne lo script col `nonce` e gli stili: quelli dei componenti Lit passano
 // da adoptedStyleSheets, il <style> della pagina è inline. I colori sono le variabili del tema di
@@ -52,17 +52,34 @@ export const COLUMN_CSS = `
 
 /**
  * Le pagine della sezione facoltativa si prendono il pannello (Results e Project spariscono): uno
- * sfondo tinto dall'accento del tema, perché si veda che è un'altra modalità, e la barra in fondo,
- * ferma, con Back a sinistra (BACK_BUTTON) e le azioni della pagina a destra (`.destra`).
- * Da aggiungere dopo COLUMN_CSS.
+ * sfondo tinto dall'accento del tema, perché si veda che è un'altra modalità (14%: si nota, senza
+ * gridare). La barra in fondo è quella di Project, con Back (commandBar.mjs). Da aggiungere dopo
+ * COLUMN_CSS.
  */
-export const OPTIONAL_CSS = `
-    body { background: color-mix(in srgb, var(--vscode-sideBar-background), var(--vscode-focusBorder) 8%); }
-    footer {
-      flex: none; display: flex; flex-wrap: wrap; gap: 6px; align-items: center;
-      padding: 8px 12px 10px; border-top: 1px solid var(--vscode-sideBarSectionHeader-border, transparent);
+/**
+ * Le righe-azione delle pagine (le azioni di LLM, le voci di Settings): a due piani, l'icona nella
+ * prima colonna, il nome e sotto la descrizione nella seconda (la descrizione va a capo lì, sotto il
+ * nome; un vscode-tree-item è alto una riga sola). Da aggiungere dopo COLUMN_CSS, con `.ciro`.
+ */
+export const ACTION_CSS = `
+    .azione {
+      display: grid; grid-template-columns: 16px 1fr; column-gap: 6px; align-items: center;
+      padding: 3px 6px 4px 9px; cursor: pointer;
     }
-    footer .destra { display: flex; flex-wrap: wrap; gap: 6px; margin-left: auto; }`;
+    .azione + .azione { margin-top: 2px; }
+    .azione:hover { background: var(--vscode-list-hoverBackground); }
+    .azione:focus-visible { outline: 1px solid var(--vscode-focusBorder); outline-offset: -1px; }
+    .azione .desc { grid-column: 2; line-height: 1.35; color: var(--vscode-descriptionForeground); }`;
 
-/** Il tasto che rimette Results e Project: "Close" sembrava chiudere l'estensione. */
-export const BACK_BUTTON = `<vscode-button data-cmd="close" secondary icon="arrow-left" title="Back to Results and Project">Back</vscode-button>`;
+/**
+ * Una riga-azione scritta nell'HTML (quelle di LLM le fa lo script): un clic, Invio o Spazio
+ * mandano `{ cmd }`, come i bottoni. Accanto agli accordion (accordion.mjs) ha la loro stessa
+ * faccia, ma non si apre: fa.
+ * @param {{ cmd: string, title: string, icon: string, detail: string }} p
+ * @returns {string}
+ */
+export const actionRowHtml = ({ cmd, title, icon, detail }) =>
+  `<div class="azione ciro" role="button" tabindex="0" data-cmd="${cmd}"><vscode-icon name="${icon}"></vscode-icon><span>${escape(title)}</span><span class="desc">${escape(detail)}</span></div>`;
+
+export const OPTIONAL_CSS = `
+    body { background: color-mix(in srgb, var(--vscode-sideBar-background), var(--vscode-focusBorder) 14%); }`;

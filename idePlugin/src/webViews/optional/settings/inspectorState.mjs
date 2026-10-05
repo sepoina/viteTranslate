@@ -1,17 +1,19 @@
-// Lo stato di Inspector, la pagina della sezione facoltativa (al posto di Results) che il clic
-// sull'icona (i) di Project apre: la sintesi del progetto selezionato in un vscode-tree. Nessun
-// import di `vscode`: si prova in Node puro.
+// L'albero di Settings, la pagina della sezione facoltativa (al posto di Results) che apre
+// l'ingranaggio di Project: la sintesi del progetto selezionato in un vscode-tree, sotto l'accordion
+// Highlight style. Nessun import di `vscode`: si prova in Node puro.
 //
 // Le righe sono quelle di summarize.mjs (projectChildren) dopo la prima ("yml tables", che è
-// Languages in Project): vitetranslate, package.json, vite.config. Il clic su una riga con `open`
+// Translations in Project): vitetranslate, package.json, vite.config. Il clic su una riga con `open`
 // rimanda `{ cmd: "open", value }`: lo apre l'estensione.
 import { projectChildren } from "../../../core/summarize.mjs";
 import { colore, NO_PROJECTS, NO_SELECTION, READING } from "../../project/projectState.mjs";
 
 // Una riga, con i figli. L'id è il percorso delle etichette: la pagina lo usa per ricordare cosa è
-// aperto fra un disegno e l'altro.
+// aperto fra un disegno e l'altro. Settings si apre tutto chiuso (`expanded` falso): si apre quello
+// che interessa, e la pagina lo ricorda.
 function nodo(riga, padre) {
   const id = `${padre}/${riga.label}`;
+  const children = riga.children?.length ? riga.children.map((f) => nodo(f, id)) : undefined;
   return {
     id,
     label: riga.label,
@@ -20,8 +22,8 @@ function nodo(riga, padre) {
     icon: riga.icon,
     color: colore(riga.iconColor),
     open: riga.open,
-    expanded: !!riga.expanded,
-    children: riga.children?.length ? riga.children.map((f) => nodo(f, id)) : undefined,
+    expanded: false,
+    children,
   };
 }
 

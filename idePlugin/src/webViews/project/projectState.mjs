@@ -2,13 +2,13 @@
 // con postMessage. Nessun import di `vscode`: si prova in Node puro.
 //
 // Le righe sono quelle di summarize.mjs (projectChildren), tradotte per la pagina: la prima, "yml
-// tables", diventa Languages, un file di lingua per riga, nello stile di Config. Senza file
+// tables", diventa Translations, un file di lingua per riga, nello stile di Config. Senza file
 // (localeDir assente, vite.config non letto…) resta la sua frase, in una nota. Le altre
-// (vitetranslate, package.json, vite.config) le mostra Inspector (inspectorState.mjs).
+// (vitetranslate, package.json, vite.config) le mostra Settings (inspectorState.mjs).
 // I colori di tema delle icone (`iconColor`, un id come "testing.iconPassed") diventano la variabile
 // CSS che VS Code dà alla webview (--vscode-testing-iconPassed).
 import { projectChildren } from "../../core/summarize.mjs";
-import { LLM_OFF, LLM_ICON } from "./projectPage.mjs";
+import { LLM_OFF, LLM_ICON } from "../commandBar/commandBar.mjs";
 
 export const NO_PROJECTS = "No Vite project in this workspace: no vite.config.* was found.";
 export const NO_SELECTION = "Select a project in Selector to see its setup.";
@@ -43,7 +43,7 @@ export const colore = (id) => (id ? `var(--vscode-${id.replace(/\./g, "-")})` : 
  * @param {object | null} [p.stats] - i conteggi delle tabelle dall'ultima scansione di Results
  * @param {boolean} [p.llm] - il progetto ha un blocco `llm` nelle opzioni del plugin
  * @param {string | null} [p.jumpKey] - la chiave scelta per ultima in Results, se è di questo
- *   progetto: il clic su una lingua apre il file lì, e la pagina lo segnala con un lampo
+ *   progetto: il clic su una lingua apre il file lì, e la pagina lo segnala col cuore
  */
 export function projectState({ hasProjects, project, title = null, dati, stats = null, llm = false, jumpKey = null }) {
   const acceso = !!project && !!llm;
@@ -77,7 +77,7 @@ export function projectState({ hasProjects, project, title = null, dati, stats =
       badge: r.badge,
     }));
     stato.languagesTooltip = tabelle.tooltip ?? null;
-    // Il lampo solo se c'è dove cliccare.
+    // Il cuore solo se c'è dove cliccare.
     stato.jumpKey = jumpKey ?? null;
   } else {
     stato.languagesNote = { text: tabelle.description, tooltip: tabelle.tooltip, icon: tabelle.icon };

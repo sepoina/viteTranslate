@@ -5,8 +5,15 @@
 //     (projectWatch.mjs), i gesti sull'editor (editorUi.mjs); più i moduli in Node puro;
 //   - probes/: i processi figli che leggono vite.config e le voci marcate;
 //   - views/results/: Results, la TreeView delle voci marcate (resultsView.mjs, markedTree.mjs);
-//   - webViews/: Selector, Project e la sezione facoltativa (Help, LLM, Inspector), su una base comune
-//     (pageView.mjs).
+//   - webViews/: Selector, Project e la sezione facoltativa (Help, LLM, Settings), su una base comune
+//     (pageView.mjs);
+//   - highlight/: l'evidenziazione dei metatag nell'editor, e il comando che ne sceglie lo stile.
+//     Non dipende dal pannello (l'accordion Highlight style di Settings, sì, da lei).
+//
+// Due modi di partire. L'estensione si attiva all'apertura del pannello, o di un file js/jsx/ts/tsx
+// (activationEvents in package.json: serve all'evidenziazione). L'evidenziazione parte subito; il
+// pannello — elenco dei progetti, vite.config, scansione, il file attivo inseguito — solo quando
+// una sua sezione si apre (avviaPannello): con il pannello chiuso non si esegue niente del progetto.
 // I moduli di stato e di pagina (…State.mjs, …Page.mjs, markedRows.mjs, …) non importano `vscode`
 // e si provano in Node puro.
 //
@@ -29,6 +36,8 @@ import { ResultsView } from "./views/results/resultsView.mjs";
 import { SelectorView, SELECTOR_VIEW_ID } from "./webViews/selector/selectorView.mjs";
 import { ProjectView, PROJECT_VIEW_ID } from "./webViews/project/projectView.mjs";
 import { OptionalView, OPTIONAL_VIEW_ID } from "./webViews/optional/optionalView.mjs";
+import { Highlighter } from "./highlight/highlighter.mjs";
+import { pickHighlightStyle } from "./highlight/stylePicker.mjs";
 
 export function activate(context) {
   const canale = vscode.window.createOutputChannel("viteTranslate");
@@ -37,16 +46,28 @@ export function activate(context) {
   const { extensionUri, workspaceState: state } = context;
   const extensionId = context.extension?.id ?? "sepoina.vitetranslate-ide";
 
+  const highlighter = new Highlighter({ log });
   const projects = new Projects({ probePath: sonda("probe.mjs"), log, state });
   const results = new ResultsView({ projects, probePath: sonda("markedProbe.mjs"), log, state });
-  const cli = new CliTasks({ projects, log });
+  const cli = new CliTasks({ runner: sonda("cliRunner.mjs"), runAsNodeCmd: sonda("runAsNode.cmd"), projects, log });
   const startup = new Startup({ projects, marked: results.tree, log });
+
+  // Il pannello parte la prima volta che una sua sezione si apre: una webview risolta, o Results in
+  // vista. `preparato` si risolve a pannello pronto (i test lo aspettano).
+  let avviato = false;
+  let segnalaPronto;
+  const preparato = new Promise((r) => (segnalaPronto = r));
+  const avviaPannello = () => {
+    if (avviato) return;
+    avviato = true;
+    results.start();
+    startup.start().then(segnalaPronto, segnalaPronto);
+  };
   // Una sezione tornata in vista recupera quanto rimandato mentre il pannello era nascosto.
   const allaVista = () => (results.wake(), watch.wake());
-  const selector = new SelectorView({ extensionUri, projects, results, startup, log, onVisible: allaVista });
-  const project = new ProjectView({ extensionUri, extensionId, projects, results, cli, startup, log, onVisible: allaVista });
-  const optional = new OptionalView({ extensionUri, projects, results, cli, log });
-  const preparato = startup.start();
+  const selector = new SelectorView({ extensionUri, projects, results, startup, log, onVisible: allaVista, onOpen: avviaPannello });
+  const project = new ProjectView({ extensionUri, projects, results, cli, startup, log, onVisible: allaVista, onOpen: avviaPannello });
+  const optional = new OptionalView({ extensionUri, projects, results, cli, highlighter, extensionId, log, onOpen: avviaPannello });
 
   const invalidate = (dir) => {
     projects.forget(dir);
@@ -57,12 +78,14 @@ export function activate(context) {
   const comandi = {
     "vitetranslate.select": (dir) => projects.select(dir),
     "vitetranslate.refresh": () => (invalidate(), projects.relist(true)),
+    "vitetranslate.highlightStyle": () => pickHighlightStyle(highlighter),
     ...project.commands,
     ...optional.commands,
   };
 
   context.subscriptions.push(
     canale,
+    highlighter,
     results,
     cli,
     startup,
@@ -73,10 +96,16 @@ export function activate(context) {
     vscode.window.registerWebviewViewProvider(SELECTOR_VIEW_ID, selector),
     vscode.window.registerWebviewViewProvider(PROJECT_VIEW_ID, project),
     vscode.window.registerWebviewViewProvider(OPTIONAL_VIEW_ID, optional),
-    results.onDidChangeVisibility(() => (results.visible && startup.stage("Results shown"), allaVista())),
+    results.onDidChangeVisibility(() => {
+      if (results.visible) {
+        avviaPannello();
+        startup.stage("Results shown");
+      }
+      allaVista();
+    }),
     ...Object.entries(comandi).map(([id, f]) => vscode.commands.registerCommand(id, f))
   );
-  return { tree: projects, marked: results.tree, project, selector, optional, controlli: optional.llm.checks, preparato };
+  return { tree: projects, marked: results.tree, project, selector, optional, controlli: optional.llm.checks, preparato, highlighter };
 }
 
 export function deactivate() {}

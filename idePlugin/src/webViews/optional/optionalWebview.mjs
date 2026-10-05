@@ -1,22 +1,33 @@
 // Lo script della sezione facoltativa, quella che prende il posto di Results: gira dentro la
-// webview, per tutte e tre le sue pagine. Esce in dist/optionalWebview.js.
+// webview, per tutte le sue pagine. Esce in dist/optionalWebview.js.
 //   - Help (helpPage.mjs): solo bottoni, `{ cmd }` col loro data-cmd.
 //   - LLM (llmPage.mjs): disegna lo stato che manda l'estensione (`{ type: "state" }`,
 //     llmPanel.mjs) — i controlli e le azioni — e rimanda `{ cmd: "action", value: id }` dal clic
-//     su un'azione, `{ cmd }` dai bottoni.
-//   - Inspector (inspectorPage.mjs): disegna l'albero dello stato (inspectorState.mjs) e rimanda
-//     `{ cmd: "open", value }` dal clic su una riga col suo file. Le righe aperte si ricordano per
-//     id (il percorso delle etichette), anche quando la pagina si ricrea: vscode.setState vive
-//     quanto la sezione. Una riga mai vista si apre se lo dice lo stato (`expanded`).
-// LLM e Inspector, al caricamento, chiedono lo stato (`ready`).
+//     (o Invio, Spazio) su un'azione, `{ cmd }` dai bottoni. Il ? nella barra si vede solo con un
+//     controllo andato male (`trouble`).
+//   - Settings (settingsPage.mjs): due accordion dallo stesso stato, e in mezzo due righe-azione
+//     (Vite config, Detailed config) che rimandano il loro `{ cmd }`, col clic o Invio e Spazio.
+//       · Highlight style: gli stili col loro campione (`highlight`, highlightState.mjs); rimanda
+//         `{ cmd: "style", value: id }` dal clic (o Invio, Spazio) su uno stile.
+//       · Local file status: l'albero (inspectorState.mjs); rimanda `{ cmd: "open", value }` dal
+//         clic su una riga col suo file.
+//     Le righe aperte si ricordano per id (il percorso delle etichette), gli accordion aperti pure
+//     (rememberAccordions), anche quando la pagina si ricrea: vscode.setState vive quanto la
+//     sezione. Una riga mai vista si apre se lo dice lo stato (`expanded`).
+// LLM e Settings, al caricamento, chiedono lo stato (`ready`).
 // I testi (un errore del modello, un percorso, quelli di vite.config e dei package.json) si
 // scrivono con textContent, mai come HTML.
 import "@vscode-elements/elements/dist/vscode-button/index.js";
 import "@vscode-elements/elements/dist/vscode-tree/index.js";
 import "@vscode-elements/elements/dist/vscode-tree-item/index.js";
 import "@vscode-elements/elements/dist/vscode-icon/index.js";
+import { installTooltips } from "../tooltip/tooltipScript.mjs";
+import { rememberAccordions } from "../accordion/accordionScript.mjs";
+import { watchCommandBar } from "../commandBar/commandBarScript.mjs";
 
 const vscode = acquireVsCodeApi();
+installTooltips(); // i title diventano il fumetto della pagina (tooltipScript.mjs)
+watchCommandBar(); // andata a capo, la seconda riga si centra (commandBarScript.mjs)
 
 const $ = (id) => document.getElementById(id);
 
@@ -48,7 +59,8 @@ function controlli(voci) {
   );
 }
 
-// Le azioni non cambiano: si disegnano una volta (si perderebbe il focus).
+// Le azioni non cambiano: si disegnano una volta (si perderebbe il focus). Una riga: icona e nome,
+// sotto la descrizione (llmPage.mjs).
 let disegnate = null;
 function azioni(voci) {
   const firma = JSON.stringify(voci);
@@ -56,18 +68,21 @@ function azioni(voci) {
   disegnate = firma;
   $("actions").replaceChildren(
     ...voci.map((a) => {
-      const item = document.createElement("vscode-tree-item");
-      item.className = "ciro";
-      item.dataset.value = a.id;
-      item.title = a.tooltip;
+      const riga = document.createElement("div");
+      riga.className = "azione ciro";
+      riga.setAttribute("role", "button");
+      riga.tabIndex = 0;
+      riga.dataset.value = a.id;
+      riga.title = a.tooltip;
       const icona = document.createElement("vscode-icon");
       icona.name = a.icon;
-      icona.slot = "icon-leaf";
+      const nome = document.createElement("span");
+      nome.textContent = a.label;
       const d = document.createElement("span");
-      d.slot = "description";
+      d.className = "desc";
       d.textContent = a.detail;
-      item.append(icona, document.createTextNode(a.label), d);
-      return item;
+      riga.append(icona, nome, d);
+      return riga;
     })
   );
 }
@@ -76,11 +91,14 @@ function disegna(stato) {
   controlli(stato.checks);
   azioni(stato.actions);
   $("recheck").disabled = stato.checking;
+  $("help").hidden = !stato.trouble;
 }
 
-// ------------------------------------------------------------------------------ Inspector
+// ------------------------------------------------------------------------------ Settings: l'albero
 
-const aperti = new Map(Object.entries(vscode.getState()?.aperti ?? {})); // id -> aperta
+// Quello che l'utente ha aperto, per tutta la vita della sezione: le righe dell'albero e l'accordion.
+const memoria = vscode.getState() ?? {};
+const aperti = new Map(Object.entries(memoria.righe ?? {})); // id -> aperta
 let firmaAlbero = null; // le righe disegnate: righe uguali non si ricostruiscono
 
 function icona(nome, colore, slot) {
@@ -96,7 +114,8 @@ function ricorda() {
   for (const item of $("tree").querySelectorAll("vscode-tree-item[data-id]")) {
     if (item.querySelector(":scope > vscode-tree-item")) aperti.set(item.dataset.id, item.open);
   }
-  vscode.setState({ aperti: Object.fromEntries(aperti) });
+  memoria.righe = Object.fromEntries(aperti);
+  vscode.setState(memoria);
 }
 
 // Una riga: etichetta, descrizione, tooltip, il file che apre il clic, e i figli.
@@ -139,18 +158,108 @@ function albero(stato) {
   tree.replaceChildren(...stato.details.map(nodo));
 }
 
+// ------------------------------------------------------------------------------ Settings: Highlight style
+
+// Il campione di uno stile: i delimitatori e il testo, ognuno col CSS della sua parte; il chip
+// (`match`) avvolge tutto o solo il testo, come nell'editor (cover).
+function campione(sample, testi) {
+  const parte = (testo, stile) => {
+    const s = document.createElement("span");
+    s.textContent = testo;
+    s.style.cssText = stile;
+    return s;
+  };
+  const chip = (...figli) => {
+    const s = document.createElement("span");
+    s.style.cssText = sample.match;
+    s.append(...figli);
+    return s;
+  };
+  const apre = parte(testi.open, sample.delimiters);
+  const chiude = parte(testi.close, sample.delimiters);
+  const testo = parte(testi.text, sample.text);
+  const c = document.createElement("span");
+  c.className = "campione";
+  c.setAttribute("aria-hidden", "true");
+  if (sample.cover === "content") c.append(apre, chip(testo), chiude);
+  else c.append(chip(apre, testo, chiude));
+  return c;
+}
+
+// Le righe si rifanno solo se cambia il catalogo (o il tema, per gli stili deboli); cambiare
+// stile sposta solo il segno, e il focus resta dov'era.
+let firmaStili = null;
+function stili(stato) {
+  const firma = JSON.stringify([stato.styles, stato.sample]);
+  if (firma !== firmaStili) {
+    firmaStili = firma;
+    $("styles").replaceChildren(
+      ...stato.styles.map((s) => {
+        const riga = document.createElement("div");
+        riga.className = "stile ciro";
+        riga.setAttribute("role", "radio");
+        riga.tabIndex = 0;
+        riga.dataset.value = s.id;
+        const segno = icona("circle-large-outline");
+        segno.classList.add("segno");
+        const nome = document.createElement("span");
+        const titolo = document.createElement("span");
+        titolo.textContent = s.name;
+        const d = document.createElement("span");
+        d.className = "desc";
+        d.textContent = s.description;
+        nome.append(titolo, d);
+        if (s.weak) {
+          const w = icona("warning");
+          w.classList.add("debole");
+          w.title = "Hard to see on this theme";
+          nome.append(w);
+        }
+        riga.append(segno, nome, campione(s.sample, stato.sample));
+        return riga;
+      })
+    );
+  }
+  for (const riga of $("styles").children) {
+    const scelto = riga.dataset.value === stato.current;
+    riga.setAttribute("aria-checked", String(scelto));
+    riga.setAttribute("aria-selected", String(scelto));
+    riga.firstChild.name = scelto ? "pass-filled" : "circle-large-outline";
+  }
+}
+
 // ------------------------------------------------------------------------------ la pagina
 
 window.addEventListener("message", (e) => {
   if (e.data?.type !== "state") return;
-  if ($("checks")) disegna(e.data);
-  else if ($("tree")) albero(e.data);
+  if ($("checks")) return disegna(e.data);
+  if ($("styles") && e.data.highlight) stili(e.data.highlight);
+  if ($("tree")) albero(e.data);
 });
 
-$("actions")?.addEventListener("vsc-tree-select", (e) => {
-  const righe = Array.isArray(e.detail) ? e.detail : e.detail?.selectedItems ?? [];
-  const id = righe[0]?.dataset.value;
+// Gli accordion di Settings: chiusi la prima volta, poi come li ha lasciati l'utente.
+rememberAccordions(memoria, () => vscode.setState(memoria));
+
+// Il clic, o Invio e Spazio, su uno stile: lo sceglie l'estensione.
+const scegli = (e) => {
+  const id = e.target.closest?.(".stile")?.dataset.value;
+  if (id) vscode.postMessage({ cmd: "style", value: id });
+  return !!id;
+};
+$("styles")?.addEventListener("click", scegli);
+$("styles")?.addEventListener("keydown", (e) => {
+  if ((e.key === "Enter" || e.key === " ") && scegli(e)) e.preventDefault();
+});
+
+// Il clic, o Invio e Spazio, su un'azione: la lancia l'estensione.
+const lancia = (e) => {
+  const id = e.target.closest?.(".azione")?.dataset.value;
   if (id) vscode.postMessage({ cmd: "action", value: id });
+  return !!id;
+};
+$("actions")?.addEventListener("click", lancia);
+$("actions")?.addEventListener("keydown", (e) => {
+  if ((e.key === "Enter" || e.key === " ") && lancia(e)) e.preventDefault();
 });
 
 // Il clic (o Invio) su una riga col suo file (package.json, vite.config): lo apre l'estensione.
@@ -166,5 +275,11 @@ document.addEventListener("click", (e) => {
   const bottone = e.target.closest?.("[data-cmd]");
   if (bottone && !bottone.disabled) vscode.postMessage({ cmd: bottone.dataset.cmd });
 });
+// Le righe-azione scritte nell'HTML (actionRowHtml, in Settings): Invio e Spazio come il clic.
+document.addEventListener("keydown", (e) => {
+  if ((e.key !== "Enter" && e.key !== " ") || !e.target.matches?.('[role="button"][data-cmd]')) return;
+  e.preventDefault();
+  vscode.postMessage({ cmd: e.target.dataset.cmd });
+});
 
-if ($("checks") || $("tree")) vscode.postMessage({ cmd: "ready" });
+if ($("checks") || $("tree") || $("styles")) vscode.postMessage({ cmd: "ready" });

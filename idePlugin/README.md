@@ -57,39 +57,40 @@ Hover an entry for the details: which languages are missing, what the extraction
 The selected project, and what to do with it. The languages scroll; the command bar stays put at
 the bottom.
 
-- **Languages**: the language files in `localeDir`, one row each, listed like **Config**: the
+- **Translations**: the language files in `localeDir`, one row each, listed like **Config**: the
   language code and its name in that language, the source first. Click one to open it. An entry
-  selected in **Results**? It opens right on that key, cursor on the translation: fix it there. A ⚡
-  next to *Languages* says so; select a file or a folder, or hide Results, and it's gone.
+  selected in **Results**? It opens right on that key, cursor on the translation: fix it there. A ♥
+  next to the title says so (hover for the key); pick a file or a folder, or hide Results: gone.
   The icon tells you how it's doing: green for the source, yellow when translations are missing
   (the badge says how many), red when the file can't be read, plain when it's complete. No files
   yet? One line says why.
 - **The command bar**: **Sync** runs the project's own `vtranslate-cli` in a terminal, and **LLM**
-  swaps **Results** for the LLM panel (below). On the right: ↻ refresh, ⓘ **Inspector** (below), 🔧
-  open `vite.config` right on the `vitetranslate({…})` options, ⚙ the extension settings.
+  swaps **Results** for the LLM panel (below). On the right: GitHub, ⚙ **Settings** (below), ↻
+  refresh.
 
-Keep **Project** at least as tall as its command bar: VS Code lets you drag a section down to
-nothing, and the bar goes with it.
+Keep **Project** at least as tall as its command bar: drag it to nothing and the bar goes too.
 
-### Taking over: Inspector, LLM, Help
+### Taking over: Settings, LLM, Help
 
-These three take the panel for themselves: **Results** and **Project** step aside, the background
-takes a tint of your theme's accent, and the bar at the bottom is theirs. **← Back** (or the ← in
-the section title) puts everything back where it was.
+These take the panel for themselves: **Results** and **Project** step aside and the
+background takes a tint of your theme's accent. The command bar stays, same look: **← Back** on
+the left, plus the page's own commands if it has any; on the right, the page's icon. Back puts
+everything back where it was (so does the ← in the section title).
 
-### Inspector
+### Settings
 
-Click ⓘ in **Project**. A tree you open as you like, and it stays as you left it:
+Click ⚙ in **Project**: under **CONFIG**, one row per setting, like LLM's actions.
 
-- **vitetranslate**: the plugin options, as the plugin itself resolved them. Source language,
-  locale folder, preloaded languages, auto-sync, `autoWrap`, ICU time zone, the `llm` block
-  (model, endpoint, budget, and the *name* of the key variable, never the key). Whatever you did
-  not set is marked `default`.
-- **package.json**: the dependencies that matter (`@sepoina/vitetranslate`, `vite`, `react`,
-  `@babel/core`, …) as *declared → installed*, plus the scripts. Click it to open it.
-- **vite.config**: the plugins in load order, the server port and host. Click it to open it.
-
-Pick another project and the tree follows.
+- **Highlight style**: each style with a sample; click one, editors switch at once.
+- **Vite config**: `vite.config`, opened right on the `vitetranslate({…})` options.
+- **Detailed config**: the extension's own settings in VS Code.
+- **Local file status**: what the selected project's files say.
+  - **vitetranslate**: the plugin options as resolved: source language, locale
+    folder, preloaded languages, auto-sync, `autoWrap`, ICU time zone, the `llm` block (model,
+    endpoint, budget, the *name* of the key variable, never the key). Unset: `default`.
+  - **package.json**: the dependencies that matter (`@sepoina/vitetranslate`, `vite`, …) as
+    *declared → installed*, plus the scripts. Click to open.
+  - **vite.config**: plugins in load order, server port and host. Click to open.
 
 ### LLM
 
@@ -99,15 +100,48 @@ Click **LLM ›** in **Project**. On top, three lines that answer "can I go?":
   never what it is. Not found? It says where it looked.
 - **Settings**: which model, at which host, and whether prices are set (without them, costs and
   budgets count tokens, not money).
-- **Ping**: does the model answer? Asked in the background, once per project, with one tiny
-  request. Skipped when there's no key: no point knocking without one.
+- **Ping**: does the model answer? One tiny request, in the background, once per project. No key,
+  no knocking.
 
-Below, the `--llm-*` actions: translate, estimate the cost, retranslate, regenerate the context,
-status, ping, set / check / clear the API key. Click one and it runs in a terminal, like Sync.
-*Check again* redoes the three lines.
+Below, the `--llm-*` actions, each explained: translate, estimate the cost, retranslate,
+regenerate the context, status, ping, set / check / clear the API key. Click one and it runs in a
+terminal, like Sync. *Check again*, in the bar, redoes the three lines; if one went wrong, the
+**?** next to it opens the setup guide.
 
 No `llm` block in the plugin options? The button reads **LLM ?** and opens **Help** instead: how
 to add one, and a button that opens the options in `vite.config`.
+
+## Highlighting
+
+Marked strings stand out as you type, in `.js`, `.jsx`, `.ts` and `.tsx`: `_%_…_%_`, `<Translate>…</Translate>`,
+`` ts`…` ``. Same rules as the extraction: what lights up gets translated. Comments, and code samples inside
+strings, stay plain.
+
+Fifteen styles, all in your theme's colors. Pick one in **Settings**, each with a sample.
+Or **viteTranslate: Choose highlight style…** tries each on your code as you move through the list: Enter keeps
+it, Esc changes nothing. Or set `vitetranslate.highlightStyle`, `off` included. No panel needed.
+
+<details><summary>The fifteen styles</summary>
+
+| Style | Looks like |
+| --- | --- |
+| `framed-box` (default) | Box and frame |
+| `badge` | Filled label |
+| `dotted-escape` | Fine underline |
+| `escape-chip` | Chip and ruler |
+| `highlighter` | Marker effect |
+| `inlay-hint` | Like inlay hints |
+| `inset` | Inset backdrop |
+| `keyword-mark` | Keyword accent |
+| `link` | Dotted link |
+| `neutral-italic` | Italic only |
+| `outlined-chip` | Chip with border |
+| `pill` | Chip on content |
+| `placeholder` | Snippet style |
+| `quote` | Left accent bar |
+| `selection-veil` | Like selection |
+
+</details>
 
 ## Under the hood
 
@@ -119,6 +153,30 @@ lines missing and a plain ✅.
 It's quick because every sync (4.6.4 and later) leaves an index of the entries in
 `node_modules/.viteTranslate/markers.json`, and the panel re-parses only what you changed since.
 After a save Babel stays warm for two minutes, then the process goes away.
+
+**Sync** and the LLM actions run in a terminal that tidies up after itself: when the CLI is done,
+press Enter within 10 seconds to keep it, any other key to close it now, or just look away. If
+something failed it stays until you press a key: the error is the part worth reading.
+
+Opening a JS or TS file wakes the extension for the highlighting only: `vite.config` is read, and the project scanned, when you open the panel.
+
+<details><summary>Which runtime Sync uses</summary>
+
+They run the CLI with the editor's own runtime. Except on Windows, where that runtime goes mute
+in a terminal: there they use the `node` in your PATH, the one Vite runs on. No Node in PATH? They
+still run and you see the output, but they can't ask you anything (*Translate*'s confirmation, the
+API key), and the terminal waits for a key the usual way. A warning says so, once.
+
+</details>
+
+## Settings
+
+⚙ in **Project** opens them.
+
+| Setting | Default | What it does |
+| --- | --- | --- |
+| `vitetranslate.detailCommand` | `false` | **Sync** and the LLM actions open their terminal with the command you'd type yourself, `$ npx vitetranslate --status`, colors included. Turn it on to also see how it's really launched: folder, runtime, runner, CLI file. |
+| `vitetranslate.highlightStyle` | `framed-box` | How marked strings stand out in the editor, or `off`. Try them live with **Choose highlight style…**. |
 
 ## Which project
 

@@ -17,6 +17,7 @@ export const __stato = {
   scelte: [], // le Quick Pick mostrate: [items, opzioni]
   scegli: null, // (items, opzioni) => cosa sceglie l'utente
   eseguiti: [], // i comandi di VS Code eseguiti (non quelli registrati dall'estensione)
+  esterni: [], // gli indirizzi aperti nel browser (env.openExternal)
   avvisi: [], // [tipo, testo] di showInformationMessage/showWarningMessage/showErrorMessage
   barra: [], // i testi di setStatusBarMessage
   taskEseguiti: [], // i task passati a tasks.executeTask
@@ -26,6 +27,14 @@ export const __stato = {
   treeViews: new Map(), // id -> TreeView
   comandi: new Map(),
   contesto: {}, // le chiavi date con setContext
+  config: {}, // le impostazioni, "sezione.chiave" -> valore (workspace.getConfiguration)
+  configWorkspace: {}, // quelle del workspace, per inspect(): "sezione.chiave" -> valore
+  aggiornate: [], // le impostazioni scritte con update: ["sezione.chiave", valore, target]
+  configurazioni: [], // gli ascoltatori di onDidChangeConfiguration
+  visibleTextEditors: [], // gli editor in vista (window.visibleTextEditors)
+  visibili: [], // gli ascoltatori di onDidChangeVisibleTextEditors
+  decorazioni: [], // i tipi di createTextEditorDecorationType: { options, disposed }
+  quickPick: null, // l'ultima di createQuickPick: il test la guida (attiva, accetta, chiudi)
   log: [],
   findFiles: async () => [],
 };
@@ -41,6 +50,8 @@ export class EventEmitter {
 }
 
 export const TreeItemCollapsibleState = { None: 0, Collapsed: 1, Expanded: 2 };
+export const OverviewRulerLane = { Left: 1, Center: 2, Right: 4, Full: 7 };
+export const ConfigurationTarget = { Global: 1, Workspace: 2, WorkspaceFolder: 3 };
 export const TreeItemCheckboxState = { Unchecked: 0, Checked: 1 };
 
 export class TreeItem {
@@ -85,8 +96,12 @@ const uri = (scheme, fsPath) => ({
   with: (cambi) => uri(cambi.scheme ?? scheme, fsPath),
   toString: () => `${scheme}://${fsPath}`,
 });
+// Il browser: l'indirizzo si annota in `esterni`.
+export const env = { openExternal: async (u) => (__stato.esterni.push(String(u)), true) };
+
 export const Uri = {
   file: (fsPath) => uri("file", path.resolve(fsPath)),
+  parse: (testo) => ({ scheme: testo.split(":")[0], toString: () => testo }),
   joinPath: (base, ...parti) => Uri.file(path.join(base.fsPath, ...parti)),
 };
 
@@ -134,6 +149,41 @@ export const window = {
   showWarningMessage: async (testo) => void __stato.avvisi.push(["warning", testo]),
   setStatusBarMessage: (testo) => (__stato.barra.push(testo), { dispose() {} }),
   showErrorMessage: async (testo) => void __stato.avvisi.push(["error", testo]),
+  get visibleTextEditors() {
+    return __stato.visibleTextEditors;
+  },
+  onDidChangeVisibleTextEditors: (f) => (__stato.visibili.push(f), { dispose() {} }),
+  createTextEditorDecorationType: (options) => {
+    const tipo = { options, disposed: false, dispose: () => void (tipo.disposed = true) };
+    __stato.decorazioni.push(tipo);
+    return tipo;
+  },
+  // Una Quick Pick che il test guida: attiva(voce) come le frecce, accetta() come Invio, chiudi()
+  // come Esc. hide() avvisa una volta sola, come VS Code.
+  createQuickPick: () => {
+    const ascolti = { attiva: [], accetta: [], chiusa: [] };
+    const qp = {
+      items: [], activeItems: [], title: "", placeholder: "", visible: false,
+      onDidChangeActive: (f) => (ascolti.attiva.push(f), { dispose() {} }),
+      onDidAccept: (f) => (ascolti.accetta.push(f), { dispose() {} }),
+      onDidHide: (f) => (ascolti.chiusa.push(f), { dispose() {} }),
+      show: () => void (qp.visible = true),
+      hide: () => {
+        if (!qp.visible) return;
+        qp.visible = false;
+        for (const f of ascolti.chiusa) f();
+      },
+      dispose() {},
+      attiva: (voce) => {
+        qp.activeItems = [voce];
+        for (const f of ascolti.attiva) f([voce]);
+      },
+      accetta: () => ascolti.accetta.forEach((f) => f()),
+      chiudi: () => qp.hide(),
+    };
+    __stato.quickPick = qp;
+    return qp;
+  },
 };
 
 export const workspace = {
@@ -144,6 +194,23 @@ export const workspace = {
     return __stato.isTrusted;
   },
   findFiles: (...argomenti) => __stato.findFiles(...argomenti),
+  // Le impostazioni: quelle in __stato.config ("sezione.chiave"), o il default. update() scrive e
+  // avvisa come VS Code, con affectsConfiguration.
+  getConfiguration: (sezione) => ({
+    get: (chiave, predefinito) => __stato.config[`${sezione}.${chiave}`] ?? predefinito,
+    inspect: (chiave) => ({
+      key: `${sezione}.${chiave}`,
+      globalValue: __stato.config[`${sezione}.${chiave}`],
+      workspaceValue: __stato.configWorkspace[`${sezione}.${chiave}`],
+    }),
+    update: async (chiave, valore, target) => {
+      const id = `${sezione}.${chiave}`;
+      __stato.config[id] = valore;
+      __stato.aggiornate.push([id, valore, target]);
+      for (const f of __stato.configurazioni) f({ affectsConfiguration: (s) => id === s || id.startsWith(`${s}.`) });
+    },
+  }),
+  onDidChangeConfiguration: (f) => (__stato.configurazioni.push(f), { dispose() {} }),
   getWorkspaceFolder: (uri) => __stato.workspaceFolders.find((f) => uri.fsPath.startsWith(f.uri.fsPath)),
   get textDocuments() {
     return __stato.textDocuments;

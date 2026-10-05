@@ -71,7 +71,14 @@ export class ResultsView {
       vscode.workspace.onDidCloseTextDocument((doc) => this.documento(doc, false)),
     ];
     for (const doc of vscode.workspace.textDocuments ?? []) if (doc.isDirty) this.documento(doc, true);
-    // All'apertura, il file già attivo.
+    // Il file attivo si insegue solo a pannello partito (start): prima vorrebbe dire cercare i
+    // progetti e selezionarne uno con il pannello chiuso.
+    this.avviato = false;
+  }
+
+  /** Il pannello è partito (avviaPannello in extension.mjs): da qui il file attivo, a cominciare da adesso. */
+  start() {
+    this.avviato = true;
     this.seguiEditor(vscode.window.activeTextEditor);
   }
 
@@ -155,6 +162,7 @@ export class ResultsView {
   // conta solo l'ultimo. Un progetto diverso si seleziona come da un clic in Config; lo stesso
   // progetto non tocca niente. Poi Results mostra il file.
   seguiEditor(editor) {
+    if (!this.avviato) return;
     clearTimeout(this.timerEditor);
     this.timerEditor = setTimeout(() => this.segui(editor), 150);
   }

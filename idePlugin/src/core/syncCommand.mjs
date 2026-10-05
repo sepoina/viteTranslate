@@ -35,6 +35,57 @@ export function findCli(dir) {
 }
 
 /**
+ * Il node.exe del PATH, o null. Solo .exe: un node.cmd passerebbe da cmd.exe, e le virgolette
+ * degli argomenti non sopravvivono.
+ *
+ * @param {Record<string, string | undefined>} env
+ * @returns {string | null}
+ */
+export function nodeOnPath(env) {
+  // In un oggetto qualunque (non process.env) la chiave può essere Path o PATH.
+  const chiave = Object.keys(env).find((k) => k.toUpperCase() === "PATH");
+  for (const voce of ((chiave && env[chiave]) || "").split(";")) {
+    const dir = voce.trim().replace(/^"(.*)"$/, "$1");
+    if (dir && fs.existsSync(path.join(dir, "node.exe"))) return path.join(dir, "node.exe");
+  }
+  return null;
+}
+
+/**
+ * Con cosa lanciare il CLI nel terminale di un task.
+ *   - macOS e Linux: il binario dell'editor in modalità Node (ELECTRON_RUN_AS_NODE), come le
+ *     sonde: nessun node richiesto nel PATH.
+ *   - Windows: lì l'editor è un'app grafica, e dentro il terminale (un ConPTY) non trova una
+ *     console a cui agganciarsi: il CLI gira, ma l'output si perde e il codice d'uscita a volte
+ *     non arriva. Quindi il node.exe del PATH, che c'è dove c'è Vite: output, colori, e l'input
+ *     di --llm-translate (la conferma) e --llm-key-set (la chiave nascosta).
+ *   - Windows senza node nel PATH: l'editor lanciato da runAsNode.cmd, che gli dà la console di
+ *     cmd.exe. Output e codice d'uscita sì; stdin però non è un terminale, e quelle due domande
+ *     non si possono fare (`interactive: false`).
+ * Nei primi due casi il CLI passa da cliRunner.mjs (`runner`), che scrive l'intestazione
+ * (cliHeader.mjs) e a fine corsa fa il conto alla rovescia e chiude il terminale. Nel terzo
+ * (`runner: null`) non si può leggere un tasto: restano la riga "Executing task" e il "press any
+ * key" di VS Code.
+ *
+ * @param {object} p
+ * @param {string} p.cli - il file del CLI (findCli)
+ * @param {string[]} p.args
+ * @param {string} p.runner - dist/cliRunner.mjs dell'estensione
+ * @param {string} p.runAsNodeCmd - dist/runAsNode.cmd dell'estensione
+ * @param {string} [p.platform]
+ * @param {string} [p.execPath] - il binario dell'editor
+ * @param {Record<string, string | undefined>} [p.env]
+ * @returns {{ command: string, args: string[], env: Record<string, string>, via: "editor" | "node" | "cmd", interactive: boolean, runner: string | null }}
+ */
+export function cliLaunch({ cli, args, runner, runAsNodeCmd, platform = process.platform, execPath = process.execPath, env = process.env }) {
+  const conRunner = [runner, cli, ...args];
+  if (platform !== "win32") return { command: execPath, args: conRunner, env: { ELECTRON_RUN_AS_NODE: "1" }, via: "editor", interactive: true, runner };
+  const node = nodeOnPath(env);
+  if (node) return { command: node, args: conRunner, env: {}, via: "node", interactive: true, runner };
+  return { command: runAsNodeCmd, args: [cli, ...args], env: { ELECTRON_RUN_AS_NODE: "1", VT_EDITOR_EXE: execPath }, via: "cmd", interactive: false, runner: null };
+}
+
+/**
  * Le azioni del pannello LLM (llmPanel.mjs): il CLI del progetto con un `--llm-*` (doc/llm.md).
  * `icon` è una codicon; `languages: true` chiede prima le lingue (per `--llm-retranslate`, che le
  * vuole).

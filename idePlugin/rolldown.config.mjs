@@ -4,9 +4,11 @@
 // L'estensione esce in CommonJS (dist/extension.cjs): è il formato che ogni VS Code e ogni
 // VSCodium caricano senza chiedere niente. I sorgenti restano ESM come il resto del repo, e
 // configFiles.js viene preso da lib/ e impacchettato qui dentro: la lista dei nomi di vite.config
-// è una sola, quella del CLI. La sonda esce a parte (dist/probe.mjs) perché gira in un altro
+// è una sola, quella del CLI. Allo stesso modo markerSyntax.js: i delimitatori e i nomi della macro
+// che evidenziazione e Results leggono sono quelli della libreria. La sonda esce a parte (dist/probe.mjs) perché gira in un altro
 // processo: ESM, così fa `await import()` del config come lo fa il CLI. Lo stesso per la sonda delle
-// voci marcate (dist/markedProbe.mjs), che importa la libreria installata nel progetto. E gli script
+// voci marcate (dist/markedProbe.mjs), che importa la libreria installata nel progetto, e per il
+// runner dei task del CLI (dist/cliRunner.mjs), che gira nel terminale del task. E gli script
 // delle webview di Selector, Project e della sezione facoltativa (dist/webview.js,
 // dist/projectWebview.js, dist/optionalWebview.js), che girano in un browser.
 import { defineConfig } from "rolldown";
@@ -35,6 +37,14 @@ export default defineConfig([
     platform: "node",
     external: nodeBuiltins,
     output: { file: qui("./dist/markedProbe.mjs"), format: "esm" },
+  },
+  // Quello che lanciano i task del CLI (cliTasks.mjs): il CLI, poi il conto alla rovescia che
+  // chiude il terminale.
+  {
+    input: qui("./src/core/cliRunner.mjs"),
+    platform: "node",
+    external: nodeBuiltins,
+    output: { file: qui("./dist/cliRunner.mjs"), format: "esm" },
   },
   // Lo script della sezione Selector: gira nella webview, cioè in un browser. Porta con sé i
   // componenti di @vscode-elements/elements (e Lit) che importa, niente altro.

@@ -4,6 +4,7 @@
 // compaiono già piene, invece di passare da "Loading…". La preparazione la fa questo giro, non
 // le sezioni: nascoste, VS Code non chiede loro niente. Da lì la chiave resta vera: i ricalcoli
 // successivi hanno già i loro segni (Loading…, ⏳). Un tetto di tempo, nel caso qualcosa si pianti.
+// Il giro parte con la prima sezione in vista (avviaPannello in extension.mjs), non con l'estensione.
 //
 // I tempi, nel canale: quanto ci mette a essere pronto, e da lì quanto ci mette VS Code a mostrare
 // Results e a creare, caricare e disegnare la pagina di Project (stage). Una volta sola.
@@ -26,12 +27,14 @@ export class Startup {
     Object.assign(this, { projects, marked, log });
     this.cambiato = new vscode.EventEmitter();
     this.onDidChange = this.cambiato.event; // `starting` è cambiato
-    this.t0 = Date.now();
+    // Il tempo e il tetto partono con start(), non con l'estensione: attivata da un file js/ts (per
+    // l'evidenziazione), il pannello può aprirsi molto dopo.
+    this.t0 = null;
+    this.timer = undefined;
     this.tPronto = null;
     this.tappe = new Set();
     this.pronto = false;
     this.testo = "Looking for Vite projects…";
-    this.timer = setTimeout(() => this.accendi(), READY_TIMEOUT_MS);
   }
 
   /** Cosa si sta preparando, o null a preparazione finita. */
@@ -49,6 +52,8 @@ export class Startup {
   /** Prepara la prima immagine; si risolve a pannello pronto. */
   async start() {
     if (this.pronto) return;
+    this.t0 ??= Date.now();
+    this.timer ??= setTimeout(() => this.accendi(), READY_TIMEOUT_MS);
     try {
       await this.projects.currentList();
     } catch {

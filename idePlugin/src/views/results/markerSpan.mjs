@@ -3,7 +3,9 @@
 // più righe — un <Translate> che va a capo, un template, un testo JSX lungo — non "possiede" le
 // righe sotto. Qui si risale: la voce più vicina sopra il cursore vale se il cursore sta dentro
 // di lei, e dove finisce lo si legge dal testo del documento, a partire da dove comincia.
-// Nessun import di `vscode`.
+// Nessun import di `vscode`. I delimitatori vengono da lib/markerSyntax.js, impacchettato qui alla
+// build: mai riscritti a mano (invariante 14 in doc/structure.md).
+import { SOURCE_OPEN, SOURCE_CLOSE } from "../../../../lib/markerSyntax.js";
 
 // Da riga e colonna (da 1) all'offset nel testo; null se fuori.
 function offsetDi(testo, line, column) {
@@ -79,16 +81,13 @@ export function markerEnd(testo, inizio) {
   }
   // Un testo marcato (`_%_…_%_`, anche quello che autoWrap avvolge con i suoi tag e valori in
   // mezzo): fino al `_%_` che lo chiude. Un testo JSX qualunque: fino al primo tag o `{`.
-  if (testo.startsWith(MARCA, inizio)) {
-    const chiude = testo.indexOf(MARCA, inizio + MARCA.length);
-    return chiude === -1 ? null : chiude + MARCA.length;
+  if (testo.startsWith(SOURCE_OPEN, inizio)) {
+    const chiude = testo.indexOf(SOURCE_CLOSE, inizio + SOURCE_OPEN.length);
+    return chiude === -1 ? null : chiude + SOURCE_CLOSE.length;
   }
   const fine = testo.slice(inizio).search(/[<{]/);
   return fine === -1 ? testo.length : inizio + fine;
 }
-
-// Il segno che apre e chiude un testo marcato.
-const MARCA = "_%_";
 
 // Quante voci sopra il cursore si provano, al massimo, prima di arrendersi.
 const RISALITA = 10;

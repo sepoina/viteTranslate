@@ -5,6 +5,7 @@
 //     sbagliato, e allora il bottone porta a Help): si dice con cosa parla, e cosa manca per i costi;
 //   - Ping: se il modello risponde, dal controllo in background.
 // Ogni controllo: { id, state: "ok" | "warning" | "error" | "running", text, description?, tooltip? }.
+// Uno andato male (error, warning) accende `trouble`: nella barra compare il ? che porta a Help.
 // Nessun import di `vscode`.
 import path from "node:path";
 import { LLM_ACTIONS } from "../../../core/syncCommand.mjs";
@@ -80,6 +81,7 @@ export function llmPanelState({ llm, baseDir, check = null, title = null }) {
     checks,
     // Il controllo si può rilanciare solo quando ha finito.
     checking: checks.some((c) => c.state === "running"),
+    trouble: checks.some((c) => c.state === "error" || c.state === "warning"),
     actions: LLM_ACTIONS.map(({ id, icon, label, detail, args }) => ({ id, icon, label, detail, tooltip: `vitetranslate ${args.join(" ")}` })),
   };
 }

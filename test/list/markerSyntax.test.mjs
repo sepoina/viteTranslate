@@ -7,6 +7,7 @@
 import {
   compiledMarker, isCompiledMarker, SOURCE_OPEN, SOURCE_CLOSE, UNTRANSLATED_KEY,
   mayHaveMarkers, SLOT_TAG_RE, RUNTIME_IMPORT,
+  MACRO_COMPONENT, MACRO_HOOK, TRANSLATE_TEXT_PROPS, RUNTIME_IMPORT_RE,
 } from "../../lib/markerSyntax.js";
 import { markerKey, markerFallback, stripSourceMarker } from "../../lib/react/parseCompiledMarker.js";
 import { markedTextOf, registerMarker } from "../../lib/dev/babel/markerCore.js";
@@ -77,6 +78,17 @@ console.log("\n== mayHaveMarkers (4.6.4): pre-filtro dei file, _%_ oppure import
     ["TranslateContainer non e' Translate (nessun confine di parola)", `import { TranslateContainer } from "${RUNTIME_IMPORT}";`, false],
   ];
   for (const [nome, code, atteso] of casi) eq(nome, atteso, mayHaveMarkers(code));
+}
+
+console.log("\n== la macro: i nomi in un posto solo (piano idePlugin_highlight) ==");
+{
+  // MACRO_IMPORT_RE è una regex letterale: deve dire gli stessi nomi delle costanti.
+  eq("il pre-filtro riconosce MACRO_COMPONENT", true, mayHaveMarkers(`import { ${MACRO_COMPONENT} } from "${RUNTIME_IMPORT}";`));
+  eq("…e MACRO_HOOK", true, mayHaveMarkers(`import { ${MACRO_HOOK} } from "${RUNTIME_IMPORT}";`));
+  const elenco = [...`import { ${MACRO_COMPONENT} as T, altro } from "${RUNTIME_IMPORT}";`.matchAll(RUNTIME_IMPORT_RE)];
+  eq("RUNTIME_IMPORT_RE: l'elenco fra graffe nel gruppo 1", `${MACRO_COMPONENT} as T, altro`, elenco[0]?.[1].trim());
+  eq("…e dice RUNTIME_IMPORT", true, RUNTIME_IMPORT_RE.source.includes(RUNTIME_IMPORT.replace(/\//g, "\\/")));
+  eq("TRANSLATE_TEXT_PROPS: le prop del testo", "t,o,a,children,skipMark", TRANSLATE_TEXT_PROPS.join(","));
 }
 
 console.log("\n== SLOT_TAG_RE: matchAll su piu' slot ==");

@@ -26,8 +26,11 @@ const VSIX = join(IDE_DIR, `${manifest.name}-${manifest.version}.vsix`);
 const CLI = process.env.VT_CODE_CLI || "code";
 
 function esegui(comando, argomenti, cwd = REPO_DIR) {
-  // shell su Windows: `code` e `npx` lì sono file .cmd, che spawn da solo non lancia.
-  const r = spawnSync(comando, argomenti, { cwd, stdio: "inherit", shell: process.platform === "win32" && comando !== process.execPath });
+  // shell su Windows: `code` e `npx` lì sono file .cmd, che spawn da solo non lancia. La shell però
+  // riceve una riga sola: un percorso con spazi (C:\Program Files\nodejs\npx.cmd) va tra virgolette.
+  const shell = process.platform === "win32" && comando !== process.execPath;
+  const q = (s) => (shell && /\s/.test(s) ? `"${s}"` : s);
+  const r = spawnSync(q(comando), argomenti.map(q), { cwd, stdio: "inherit", shell });
   if (r.error) {
     console.error(`[idePlugin] could not run "${comando}": ${r.error.message}`);
     process.exit(1);
@@ -49,6 +52,9 @@ const COMANDI = {
     // percorso relativo, quindi basta che stiano nella stessa cartella.
     const codicons = dirname(require.resolve("@vscode/codicons/package.json"));
     for (const file of ["codicon.css", "codicon.ttf"]) copyFileSync(join(codicons, "dist", file), join(IDE_DIR, "dist", file));
+    // Il lanciatore del CLI su Windows senza node nel PATH (cliLaunch in syncCommand.mjs): src/ non
+    // finisce nel .vsix, dist/ sì.
+    copyFileSync(join(IDE_DIR, "src", "core", "runAsNode.cmd"), join(IDE_DIR, "dist", "runAsNode.cmd"));
   },
   package() {
     dist();

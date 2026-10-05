@@ -4,6 +4,7 @@
 // sezione Project (projectPage.mjs). Nessun import di `vscode`: chi la usa (PageView in
 // extension.mjs) le passa l'indirizzo dello script e la sorgente ammessa dalla CSP.
 import { pageHead, COLUMN_CSS } from "../pageCommon.mjs";
+import { TOOLTIP_CSS } from "../tooltip/tooltip.mjs";
 
 /**
  * @param {object} p
@@ -14,7 +15,7 @@ import { pageHead, COLUMN_CSS } from "../pageCommon.mjs";
  * @returns {string}
  */
 export function selectorHtml({ scriptUri, codiconsUri, cspSource, nonce }) {
-  return `${pageHead({ codiconsUri, cspSource, nonce })}${COLUMN_CSS}
+  return `${pageHead({ codiconsUri, cspSource, nonce })}${COLUMN_CSS}${TOOLTIP_CSS}
     main { padding-bottom: 4px; }
     #query { width: "-webkit-fill-available"; }
     /* Il campo di ricerca e, alla sua destra, l'icona che lo svuota (invisibile a campo vuoto,

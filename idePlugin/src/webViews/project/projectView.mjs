@@ -1,6 +1,7 @@
-// La sezione Project: in alto, e scorrono, i file di lingua (Languages); in fondo, ferma, la barra
-// dei comandi: i bottoni Sync e LLM e le icone Refresh, Inspector (la sintesi di vitetranslate,
-// package.json e vite.config, nella sezione facoltativa), opzioni del plugin, impostazioni. Stato in projectState.mjs, pagina in projectPage.mjs e projectWebview.mjs.
+// La sezione Project: in alto, e scorrono, i file di lingua (Translations); in fondo, ferma, la barra
+// dei comandi: i bottoni Sync e LLM e le icone GitHub, Settings (l'ingranaggio: highlight,
+// vite.config, impostazioni dell'estensione, sintesi di vitetranslate, package.json e vite.config,
+// nella sezione facoltativa), Refresh. Stato in projectState.mjs, pagina in projectPage.mjs e projectWebview.mjs.
 //
 // Finché la lettura del vite.config non è arrivata la chiede (Projects.data la fa una volta sola),
 // con la barra di avanzamento della sezione; all'arrivo onDidRead ridisegna. I file di lingua si
@@ -11,7 +12,8 @@ import path from "node:path";
 import { PageView } from "../pageView.mjs";
 import { projectHtml } from "./projectPage.mjs";
 import { projectState, keyPosition } from "./projectState.mjs";
-import { openFile, openPluginConfig, progressIn, readText } from "../../core/editorUi.mjs";
+import { openFile, progressIn, readText } from "../../core/editorUi.mjs";
+import { PROJECT_URL } from "../commandBar/commandBar.mjs";
 
 export const PROJECT_VIEW_ID = "vitetranslate.project";
 
@@ -22,16 +24,16 @@ export class ProjectView extends PageView {
   /**
    * @param {object} p
    * @param {vscode.Uri} p.extensionUri
-   * @param {string} p.extensionId - per le impostazioni filtrate su questa estensione
    * @param {import("../../core/projects.mjs").Projects} p.projects
    * @param {import("../../views/results/resultsView.mjs").ResultsView} p.results
    * @param {import("../../core/cliTasks.mjs").CliTasks} p.cli
    * @param {import("../../core/startup.mjs").Startup} p.startup
    * @param {(riga: string) => void} p.log
    * @param {() => void} [p.onVisible]
+   * @param {() => void} [p.onOpen]
    */
-  constructor({ extensionUri, extensionId, projects, results, cli, startup, log, onVisible }) {
-    super({ extensionUri, name: "Project", html: projectHtml, script: "projectWebview.js", log, onVisible, onStage: (fase) => startup.stage(TAPPE[fase]) });
+  constructor({ extensionUri, projects, results, cli, startup, log, onVisible, onOpen }) {
+    super({ extensionUri, name: "Project", html: projectHtml, script: "projectWebview.js", log, onVisible, onOpen, onStage: (fase) => startup.stage(TAPPE[fase]) });
     Object.assign(this, { projects, results, cli });
     this.letture = new WeakSet(); // le letture già date alla barra di avanzamento
     this.barra = progressIn(PROJECT_VIEW_ID);
@@ -39,20 +41,21 @@ export class ProjectView extends PageView {
       const progetto = await projects.selectedOrAsk();
       return progetto && f(progetto);
     };
-    // I bottoni passano dai comandi registrati: Sync, LLM, Refresh e Inspector li ha anche la palette.
+    // I bottoni passano dai comandi registrati: Sync, LLM, Refresh e Settings li ha anche la palette.
     this.actions = {
       sync: () => vscode.commands.executeCommand("vitetranslate.sync"),
       llm: () => vscode.commands.executeCommand("vitetranslate.llm"),
       refresh: () => vscode.commands.executeCommand("vitetranslate.refresh"),
-      inspector: () => vscode.commands.executeCommand("vitetranslate.inspector"),
-      openPluginConfig: scelto(openPluginConfig),
       openLanguage: (file) => this.openLanguage(file),
-      // L'ingranaggio: le impostazioni di VS Code filtrate su questa estensione.
-      settings: () => vscode.commands.executeCommand("workbench.action.openSettings", `@ext:${extensionId}`),
+      // L'ingranaggio: Settings, nella sezione facoltativa (le impostazioni di VS Code sono lì, sulla
+      // chiave inglese).
+      settings: () => vscode.commands.executeCommand("vitetranslate.settings"),
+      // GitHub: il progetto, nel browser.
+      github: () => vscode.env.openExternal(vscode.Uri.parse(PROJECT_URL)),
     };
     this.commands = { "vitetranslate.sync": scelto((progetto) => cli.run(progetto, [], "sync")) };
-    // Segue l'elenco, la selezione, le letture, i risultati; il lampo accanto a Languages segue
-    // la voce scelta in Results; Languages i file di lingua creati o cancellati.
+    // Segue l'elenco, la selezione, le letture, i risultati; il cuore accanto a Translations
+    // segue la voce scelta in Results; Translations i file di lingua creati o cancellati.
     const push = () => this.push();
     this.ascolti.push(
       projects.onDidChange(push),

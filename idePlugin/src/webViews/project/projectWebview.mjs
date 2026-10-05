@@ -3,8 +3,8 @@
 //
 // Non decide niente, come webview.mjs: disegna lo stato che manda l'estensione (`{ type: "state" }`,
 // projectState.mjs) e rimanda i clic: `{ cmd: "openLanguage", value }` da un file di lingua,
-// `{ cmd }` dai bottoni e dalle icone della barra (il loro `data-cmd`). Al caricamento chiede lo
-// stato (`ready`).
+// `{ cmd }` dai bottoni e dalle icone della barra (commandBar.mjs, il loro `data-cmd`). Al
+// caricamento chiede lo stato (`ready`).
 //
 // I testi arrivano da vite.config: si scrivono con textContent, mai come HTML.
 import "@vscode-elements/elements/dist/vscode-button/index.js";
@@ -12,8 +12,12 @@ import "@vscode-elements/elements/dist/vscode-tree/index.js";
 import "@vscode-elements/elements/dist/vscode-tree-item/index.js";
 import "@vscode-elements/elements/dist/vscode-icon/index.js";
 import "@vscode-elements/elements/dist/vscode-badge/index.js";
+import { installTooltips } from "../tooltip/tooltipScript.mjs";
+import { watchCommandBar } from "../commandBar/commandBarScript.mjs";
 
 const vscode = acquireVsCodeApi();
+installTooltips(); // i title diventano il fumetto della pagina (tooltipScript.mjs)
+watchCommandBar(); // andata a capo, la seconda riga si centra (commandBarScript.mjs)
 
 const $ = (id) => document.getElementById(id);
 
@@ -66,15 +70,30 @@ function lingue(voci) {
   );
 }
 
+// Il cuore accanto a Translations: una chiave scelta in Results, il clic su una lingua apre il
+// file lì. Il tooltip (tooltip.mjs) dice quale, a metà delle sue tre righe; agli screen reader
+// lo dice aria-label. A ogni chiave nuova batte.
+let chiavePrima = null;
+function cuore(chiave) {
+  const c = $("jump");
+  c.hidden = !chiave;
+  $("jumpKey").textContent = chiave ?? "";
+  c.setAttribute("aria-label", chiave ? `Click a translation file to open it at ${chiave}, the entry picked in Results` : "");
+  if (chiave && chiave !== chiavePrima) {
+    c.classList.remove("nuovo");
+    void c.offsetWidth; // l'animazione riparte solo dopo un reflow
+    c.classList.add("nuovo");
+  }
+  chiavePrima = chiave ?? null;
+}
+
 function disegna(stato) {
   $("message").hidden = !stato.message;
   $("message").textContent = stato.message ?? "";
 
   $("languages").hidden = !stato.languages && !stato.languagesNote;
   $("languages").title = stato.languagesTooltip ?? "";
-  // Il lampo: una chiave scelta in Results, il clic su una lingua apre il file lì.
-  $("jump").hidden = !stato.jumpKey;
-  $("jump").title = stato.jumpKey ? `A language opens on ${stato.jumpKey}, the entry picked in Results` : "";
+  cuore(stato.jumpKey);
   $("langs").hidden = !stato.languages;
   if (stato.languages) lingue(stato.languages);
   const nota = $("langNote");

@@ -23,9 +23,10 @@ export class SelectorView extends PageView {
    * @param {import("../../core/startup.mjs").Startup} p.startup
    * @param {(riga: string) => void} p.log
    * @param {() => void} [p.onVisible]
+   * @param {() => void} [p.onOpen]
    */
-  constructor({ extensionUri, projects, results, startup, log, onVisible }) {
-    super({ extensionUri, name: "Selector", html: selectorHtml, script: "webview.js", log, onVisible });
+  constructor({ extensionUri, projects, results, startup, log, onVisible, onOpen }) {
+    super({ extensionUri, name: "Selector", html: selectorHtml, script: "webview.js", log, onVisible, onOpen });
     Object.assign(this, { projects, marked: results.tree, startup });
     this.actions = {
       select: (dir) => projects.select(dir),

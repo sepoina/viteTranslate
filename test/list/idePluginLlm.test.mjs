@@ -13,6 +13,7 @@ import { parseLlmStatus, errorOf, runLlmCheck, LLM_CHECK_ARGS } from "../../ideP
 import { llmPanelState } from "../../idePlugin/src/webViews/optional/llm/llmPanel.mjs";
 import { llmHtml } from "../../idePlugin/src/webViews/optional/llm/llmPage.mjs";
 import { LLM_ACTIONS } from "../../idePlugin/src/core/syncCommand.mjs";
+import { BACK_LABEL, COMMAND_BAR_CSS } from "../../idePlugin/src/webViews/commandBar/commandBar.mjs";
 
 let fail = 0;
 const eq = (nome, atteso, ottenuto) => {
@@ -74,6 +75,9 @@ console.log("\n== lo stato del pannello ==");
     llmPanelState({ ...base, llm: { connection: { ...llm.connection, costMillionInput: 1, costMillionOutput: 2 } } }).checks[1].description);
   eq("driver: niente chiave, settings pronte", ["API key: not needed", "custom driver"],
     ((s) => [s.checks[0].text, s.checks[1].description])(llmPanelState({ ...base, llm: { driver: "custom", connection: {} }, check: { key: "n/a (llm.driver is set)" } })));
+  eq("trouble: con un errore o un avviso sì, in corso o tutto ok no", [true, true, true, false, false],
+    [senza.trouble, llmPanelState({ ...base, check: { key: "keyring", ping: { ok: false, error: ERRORE } } }).trouble,
+      llmPanelState({ ...base, check: { error: "boom" } }).trouble, llmPanelState({ ...base, check: {} }).trouble, env.trouble]);
   const azioni = llmPanelState(base).actions;
   eq("le azioni: tutte, con la codicon e il comando nel tooltip", [LLM_ACTIONS.map((a) => a.id), "sparkle", "vitetranslate --llm-translate"],
     [azioni.map((a) => a.id), azioni[0].icon, azioni[0].tooltip]);
@@ -84,10 +88,17 @@ console.log("\n== la pagina ==");
   const html = llmHtml({ scriptUri: "vscode-webview://x/optionalWebview.js", codiconsUri: "vscode-webview://x/codicon.css", cspSource: "vscode-webview://x", nonce: "abc" });
   eq("CSP col nonce, lo script della sezione", [true, true],
     [html.includes("script-src 'nonce-abc'"), html.includes('<script type="module" nonce="abc" src="vscode-webview://x/optionalWebview.js">')]);
-  eq("i controlli, le azioni (righe come Config), poi la barra", true, /<div id="checks"><\/div>[\s\S]*<vscode-tree id="actions" hide-arrows>[\s\S]*<\/main>\s*<footer>/.test(html));
-  eq("i bottoni: Back a sinistra, poi Check again", ["close", "recheck"], [...html.matchAll(/data-cmd="(\w+)"/g)].map((m) => m[1]));
+  eq("i controlli, le azioni, poi la barra", true, /<div id="checks"><\/div>[\s\S]*<div id="actions"><\/div>[\s\S]*<\/main>\s*<footer class="actions">/.test(html));
+  eq("…le azioni su due piani: la descrizione sotto il nome, che va a capo", true,
+    /\.azione \{[^}]*grid-template-columns: 16px 1fr;[\s\S]*\.azione \.desc \{ grid-column: 2;/.test(html) && !/\.azione \.desc \{[^}]*nowrap/.test(html));
+  eq("nella barra: Back, Check again (lo id per spegnerlo), il ? di Help", ["close", "recheck", "help"], [...html.matchAll(/data-cmd="(\w+)"/g)].map((m) => m[1]));
+  eq("…il ? è un'icona-bottone, nascosta finché un controllo non va male", true,
+    /<vscode-icon id="help" data-cmd="help" name="question" action-icon label="Help" title="[^"]+" hidden><\/vscode-icon>/.test(html));
+  eq("…Check again primario, come Sync", true, /<vscode-button id="recheck" data-cmd="recheck" icon="refresh"/.test(html));
   eq("…Back, non Close: la freccia indietro", true, /data-cmd="close"[^>]*icon="arrow-left"[^>]*>Back</.test(html));
-  eq("lo sfondo tinto della sezione facoltativa", true, html.includes("background: color-mix(in srgb, var(--vscode-sideBar-background), var(--vscode-focusBorder) 8%)"));
+  eq("…la barra di Project: coi comandi niente Return to project, l'icona di LLM sì", [true, false, true],
+    [html.includes(COMMAND_BAR_CSS), html.includes(BACK_LABEL), html.includes('<vscode-icon class="pagina" name="sparkle"')]);
+  eq("lo sfondo tinto della sezione facoltativa", true, html.includes("background: color-mix(in srgb, var(--vscode-sideBar-background), var(--vscode-focusBorder) 14%)"));
 }
 
 console.log("\n== il controllo, col CLI vero ==");

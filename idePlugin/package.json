@@ -1,8 +1,8 @@
 {
   "name": "vitetranslate-ide",
   "displayName": "viteTranslate",
-  "description": "Your viteTranslate setup at a glance, in its own panel of the Activity Bar.",
-  "version": "0.0.3",
+  "description": "Your viteTranslate setup at a glance, in its own panel, and your marked strings highlighted as you type.",
+  "version": "0.0.6",
   "preview": true,
   "publisher": "sepoina",
   "author": {
@@ -44,7 +44,12 @@
     "@vscode/codicons": "^0.0.45",
     "rolldown": "^1.2.7"
   },
-  "activationEvents": [],
+  "activationEvents": [
+    "onLanguage:javascript",
+    "onLanguage:javascriptreact",
+    "onLanguage:typescript",
+    "onLanguage:typescriptreact"
+  ],
   "capabilities": {
     "untrustedWorkspaces": {
       "supported": "limited",
@@ -52,6 +57,75 @@
     }
   },
   "contributes": {
+    "configuration": {
+      "title": "viteTranslate",
+      "properties": {
+        "vitetranslate.detailCommand": {
+          "type": "boolean",
+          "default": false,
+          "markdownDescription": "When **Sync** or an LLM action starts, its terminal shows the command you would type, like `npx vitetranslate --llm-translate`. Turn this on to also see how it is really launched: the project folder, the runtime, the runner and the CLI file."
+        },
+        "vitetranslate.highlightStyle": {
+          "type": "string",
+          "default": "framed-box",
+          "enum": [
+            "off",
+            "framed-box",
+            "badge",
+            "dotted-escape",
+            "escape-chip",
+            "highlighter",
+            "inlay-hint",
+            "inset",
+            "keyword-mark",
+            "link",
+            "neutral-italic",
+            "outlined-chip",
+            "pill",
+            "placeholder",
+            "quote",
+            "selection-veil"
+          ],
+          "enumItemLabels": [
+            "Off",
+            "Framed box",
+            "Badge",
+            "Dotted escape",
+            "Escape chip",
+            "Highlighter",
+            "Inlay hint",
+            "Inset",
+            "Keyword mark",
+            "Link",
+            "Neutral italic",
+            "Outlined chip",
+            "Pill",
+            "Placeholder",
+            "Quote",
+            "Selection veil"
+          ],
+          "enumDescriptions": [
+            "No highlighting",
+            "Box and frame",
+            "Filled label",
+            "Fine underline",
+            "Chip and ruler",
+            "Marker effect",
+            "Like inlay hints",
+            "Inset backdrop",
+            "Keyword accent",
+            "Dotted link",
+            "Italic only",
+            "Chip with border",
+            "Chip on content",
+            "Snippet style",
+            "Left accent bar",
+            "Like selection"
+          ],
+          "markdownDescription": "How marked strings stand out in `.js`, `.jsx`, `.ts` and `.tsx` files: `_%_…_%_`, `<Translate>…</Translate>`, `` ts`…` ``. Colors come from your theme. To try them all live, run **viteTranslate: Choose highlight style…** from the Command Palette."
+        }
+      }
+    },
     "viewsContainers": {
       "activitybar": [
         {
@@ -132,16 +206,22 @@
         "icon": "$(sparkle)"
       },
       {
-        "command": "vitetranslate.inspector",
-        "title": "Inspector",
+        "command": "vitetranslate.settings",
+        "title": "Settings",
         "category": "viteTranslate",
-        "icon": "$(info)"
+        "icon": "$(settings-gear)"
       },
       {
         "command": "vitetranslate.closeOptional",
         "title": "Back",
         "category": "viteTranslate",
         "icon": "$(arrow-left)"
+      },
+      {
+        "command": "vitetranslate.highlightStyle",
+        "title": "Choose highlight style…",
+        "category": "viteTranslate",
+        "icon": "$(symbol-color)"
       },
       {
         "command": "vitetranslate.refresh",

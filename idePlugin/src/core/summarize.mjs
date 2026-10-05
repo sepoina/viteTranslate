@@ -41,8 +41,8 @@ export function projectRow(project, { roots, name }) {
 }
 
 /**
- * Le righe del progetto: i file di lingua (Languages in Project, projectState.mjs), poi la sintesi di
- * vitetranslate, package.json, vite.config (Inspector, inspectorState.mjs). Una riga si apre la prima volta se ha
+ * Le righe del progetto: i file di lingua (Translations in Project, projectState.mjs), poi la sintesi di
+ * vitetranslate, package.json, vite.config (l'albero di Settings, inspectorState.mjs). Una riga si apre la prima volta se ha
  * `expanded`; dopo, la pagina ricorda cosa ha aperto l'utente.
  * `stats` sono i conteggi dell'ultima scansione di Results (vedi tablesRow), se c'è.
  */
