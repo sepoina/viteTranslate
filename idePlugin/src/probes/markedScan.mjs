@@ -8,6 +8,11 @@
 // extractMarkers senza riscrittura. Solo, una tabella per file invece di una per progetto: la
 // tabella dice quali chiavi esistono, non dove stanno.
 //
+// Della libreria si usa l'export dichiarato `@sepoina/vitetranslate/ide/scan` (lib/ide/scan.js),
+// versionato da IDE_API: è il contratto, e questa estensione ne chiede almeno IDE_API_MIN. Le
+// librerie pubblicate prima dell'export si leggono per percorso dentro lib/ (perPercorso), con
+// quello che hanno.
+//
 // Da dove vengono le voci di un file, dal più economico:
 //   1. l'overlay: quello che la scansione precedente ha letto da sé, ripassato dall'estensione
 //      (stesso [mtimeMs, size]: il file non è cambiato da allora);
@@ -55,6 +60,38 @@ function autoWrapDa(valore) {
 
 const stessoStat = (stat, entry) => Array.isArray(stat) && stat[0] === entry.mtimeMs && stat[1] === entry.size;
 
+// La versione del contratto `./ide/scan` che questa estensione richiede (IDE_API in
+// lib/ide/scan.js). Si alza solo quando la sonda comincia a usare un export nuovo: allora la
+// libreria che lo porta si pubblica prima della .vsix (AGENTS.md, "REGOLE DI RILASCIO").
+export const IDE_API_MIN = 1;
+
+// La prima versione della libreria con quell'IDE_API: IDE_API_MIN detto all'utente, nella testata
+// di Settings. Sale con IDE_API_MIN. Le librerie più vecchie funzionano lo stesso, con meno.
+export const LIB_MIN = "4.6.4";
+
+// Una libreria senza `./ide/scan`, pubblicata prima dell'export: i suoi file letti per percorso
+// dentro lib/, come prima del contratto. Quello che non ha resta senza: niente indice né hash prima
+// di markerIndex.js (4.6.4-rc.1 e prima), niente righe prima di onMarker (4.6.3 e prima).
+async function perPercorso(pkgDir) {
+  const lib = (rel) => import(pathToFileURL(path.join(pkgDir, "lib", rel)).href);
+  const { default: walkSource } = await lib("dev/vite/uty/walkSource.js");
+  const { mayHaveMarkers } = await lib("markerSyntax.js");
+  const { listFiles } = await lib("dev/vite/uty/listLanguageFiles.js");
+  const { isLanguageFileName, tagFromFileName } = await lib("dev/vite/uty/languageFileFormat.js");
+  const { default: readLanguageFile } = await lib("dev/vite/uty/readLanguageFile.js");
+  // L'indice e il suo hash: solo dalle librerie che lo scrivono.
+  let indice = null;
+  let hash = null;
+  try {
+    indice = await lib("dev/vite/uty/markerIndex.js");
+    ({ hash } = await lib("dev/babel/markerCore.js"));
+  } catch {
+    indice = null;
+  }
+  const loadExtractMarkers = async () => (await lib("dev/babel/extractMarkers.js")).default;
+  return { walkSource, mayHaveMarkers, listFiles, isLanguageFileName, tagFromFileName, readLanguageFile, indice, hash, loadExtractMarkers };
+}
+
 /**
  * Uno scanner per il progetto della cwd. Tiene i moduli della libreria già caricati: in un
  * processo che resta vivo (scanWorker.mjs) Babel si carica una volta sola.
@@ -62,7 +99,7 @@ const stessoStat = (stat, entry) => Array.isArray(stat) && stat[0] === entry.mti
  * @returns {{ scan: (opzioni: object, overlay?: object) => Promise<object>, readonly babel: boolean }}
  */
 export function createScanner() {
-  let libreria = null; // { pkgDir, version, walkSource, mayHaveMarkers, …, indice, hash }
+  let libreria = null; // { pkgDir, version, ideApi, walkSource, mayHaveMarkers, …, indice, hash, loadExtractMarkers }
   let extractMarkers = null;
 
   // La libreria della cwd, caricata una volta. Se sul disco cambia versione sotto un processo
@@ -85,22 +122,30 @@ export function createScanner() {
     if (libreria) {
       return libreria.version === version ? { ok: true } : { ok: false, code: "STALE_WORKER", error: "the library changed on disk" };
     }
-    const lib = (rel) => import(pathToFileURL(path.join(pkgDir, "lib", rel)).href);
-    const { default: walkSource } = await lib("dev/vite/uty/walkSource.js");
-    const { mayHaveMarkers } = await lib("markerSyntax.js");
-    const { listFiles } = await lib("dev/vite/uty/listLanguageFiles.js");
-    const { isLanguageFileName, tagFromFileName } = await lib("dev/vite/uty/languageFileFormat.js");
-    const { default: readLanguageFile } = await lib("dev/vite/uty/readLanguageFile.js");
-    // L'indice e il suo hash: solo dalle librerie che lo scrivono.
-    let indice = null;
-    let hash = null;
+    // L'ingresso dichiarato per l'estensione. Una libreria che non lo ha si legge per percorso.
+    let ingresso = null;
     try {
-      indice = await lib("dev/vite/uty/markerIndex.js");
-      ({ hash } = await lib("dev/babel/markerCore.js"));
+      ingresso = createRequire(path.join(cwd, "package.json")).resolve("@sepoina/vitetranslate/ide/scan");
     } catch {
-      indice = null;
+      // ERR_PACKAGE_PATH_NOT_EXPORTED: pubblicata prima dell'export
     }
-    libreria = { pkgDir, version, lib, walkSource, mayHaveMarkers, listFiles, isLanguageFileName, tagFromFileName, readLanguageFile, indice, hash };
+    if (!ingresso) {
+      libreria = { pkgDir, version, ideApi: null, ...(await perPercorso(pkgDir)) };
+      return { ok: true };
+    }
+    const api = await import(pathToFileURL(ingresso).href);
+    // Un IDE_API assente o più basso del minimo: manca qualcosa che la sonda usa.
+    if (!(api.IDE_API >= IDE_API_MIN)) {
+      return { ok: false, code: "TOO_OLD", error: `@sepoina/vitetranslate ${version} is too old for this extension`, version };
+    }
+    libreria = {
+      pkgDir, version, ideApi: api.IDE_API,
+      walkSource: api.walkSource, mayHaveMarkers: api.mayHaveMarkers, listFiles: api.listFiles,
+      isLanguageFileName: api.isLanguageFileName, tagFromFileName: api.tagFromFileName, readLanguageFile: api.readLanguageFile,
+      indice: { readMarkerIndex: api.readMarkerIndex, autoWrapKey: api.autoWrapKey },
+      hash: api.hash,
+      loadExtractMarkers: api.loadExtractMarkers,
+    };
     return { ok: true };
   }
 
@@ -108,7 +153,7 @@ export function createScanner() {
    * @param {object} opzioni - { baseDir, srcDir, localeDir, sourceLanguage, autoWrap } come li ha
    *   risolti probe.mjs; baseDir assoluto o relativo alla cwd (la cartella del progetto)
    * @param {Record<string, object>} [overlay] - quello restituito dalla scansione precedente
-   * @returns {Promise<object>} `{ ok, version, scanned, languages, files, warnings, overlay,
+   * @returns {Promise<object>} `{ ok, version, ideApi, scanned, languages, files, warnings, overlay,
    *   origin, index }`, o `{ ok: false, code, error }`; mai un rifiuto
    */
   async function scan(opzioni, overlay = {}) {
@@ -217,7 +262,7 @@ export function createScanner() {
             else origin.index++;
           } else {
             // Caricato alla prima occorrenza, come fa scanSource: è qui che manca Babel, se manca.
-            extractMarkers ??= (await L.lib("dev/babel/extractMarkers.js")).default;
+            extractMarkers ??= await L.loadExtractMarkers();
             const table = {};
             const entries = [];
             const avvisi = [];
@@ -257,7 +302,7 @@ export function createScanner() {
       }
       // Nell'ordine di walkSource, come prima: le voci da indice e overlay si mescolano alle altre.
       return {
-        ok: true, version, scanned: elenco.length, languages: { source: sorgente, targets: destinazioni, stats }, files, warnings,
+        ok: true, version, ideApi: L.ideApi, scanned: elenco.length, languages: { source: sorgente, targets: destinazioni, stats }, files, warnings,
         overlay: L.indice ? nuovo : null,
         origin,
         index: !L.indice ? "unsupported" : valido ? "used" : letto ? "mismatch" : "none",

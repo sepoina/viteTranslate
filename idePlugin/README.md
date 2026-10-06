@@ -79,7 +79,10 @@ everything back where it was (so does the ← in the section title).
 
 ### Settings
 
-Click ⚙ in **Project**: under **CONFIG**, one row per setting, like LLM's actions.
+Click ⚙ in **Project**. On top, the logo and a small box: the CLI version installed in the
+project, and the oldest one this extension fully works with (yellow when yours is older, or
+missing). Hover the icons to see which is which. Then, under **CONFIG**, one row per setting, like
+LLM's actions.
 
 - **Highlight style**: each style with a sample; click one, editors switch at once.
 - **Vite config**: `vite.config`, opened right on the `vitetranslate({…})` options.

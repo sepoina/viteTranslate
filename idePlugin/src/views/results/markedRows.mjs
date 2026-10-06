@@ -200,6 +200,7 @@ export function markedChildren({ dir, input, marked, filter = "all", search = ""
   if (!marked.ok) {
     const perché = {
       NO_LIBRARY: "run npm install in the project",
+      TOO_OLD: "update it: npm install @sepoina/vitetranslate@latest",
       NO_SRCDIR: "check srcDir in vite.config",
       VT_NO_BABEL: "@babel/core is a peer dependency of @sepoina/vitetranslate",
     };

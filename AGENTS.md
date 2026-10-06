@@ -22,6 +22,11 @@ node -e "const s=require('fs').readFileSync('README.md','utf8').replace(/<!--[\s
 - quando un testo va ridotto analizza i punti confusi e pensa prima a come riorganizzarlo per renderlo più leggibile, alla luce di questo procedi. 
 - in chiusura di ogni bundle di release e a ogni revisione di versione, rilanciare `npm run estimateSize` (vedi `test/measureReactBundle.mjs` per cosa misura: runtime React + helper ICU). Lo script riscrive `site/runtimeSize.json` e confronta README.md: nello stesso commit si aggiorna README.md finché non stampa `README: OK` — il numero di byte esatto nella nota ⁴ sempre, le cifre arrotondate quando cambiano. Regola delle cifre: il peso reale si scrive arrotondato per difetto al kB (5,4 kB → "5 kB"), mai "< 5 kB", "sotto i 5 kB" o simili; nelle comparazioni si usa il kB superiore con "<" (5,4 kB → "<6 kB"). Non un controllo occasionale ("se cambia"): un aggiornamento sistematico ad ogni chiusura.
 
+## REGOLE DI RILASCIO
+
+- l'estensione (idePlugin/) legge la libreria installata nel progetto dell'utente solo per **Results**, attraverso l'export `@sepoina/vitetranslate/ide/scan` (`lib/ide/scan.js`), versionato da `IDE_API` (un intero). Il resto della libreria che le serve è impacchettato alla build. Il contratto è additivo: gli export si aggiungono, non si tolgono né cambiano significato.
+- quando l'estensione comincia a usare un export nuovo, la libreria alza `IDE_API` e l'estensione alza `IDE_API_MIN` (`idePlugin/src/probes/markedScan.mjs`). In quel caso, e solo in quello, la libreria con il nuovo `IDE_API` si pubblica su npm col tag `latest` prima della .vsix: si rilascia l'estensione solo quando `npm view @sepoina/vitetranslate@latest version` risponde con quella versione o una successiva. Ogni automazione futura della pubblicazione dell'estensione fa la stessa verifica prima di procedere.
+
 ## REGOLE DI COMPRESSIONE DELLA DOCUMENTAZIONE
 
 - In README.md usa principalmente per comprimere la tecnica di esternalizzare ad un file md doc (in folder doc) le funzioni secondarie lasciando in readme solo un richiamo/link al nuovo file di dettaglio che hai creato in doc.

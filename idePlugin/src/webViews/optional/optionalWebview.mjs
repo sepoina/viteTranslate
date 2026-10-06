@@ -5,7 +5,8 @@
 //     llmPanel.mjs) — i controlli e le azioni — e rimanda `{ cmd: "action", value: id }` dal clic
 //     (o Invio, Spazio) su un'azione, `{ cmd }` dai bottoni. Il ? nella barra si vede solo con un
 //     controllo andato male (`trouble`).
-//   - Settings (settingsPage.mjs): due accordion dallo stesso stato, e in mezzo due righe-azione
+//   - Settings (settingsPage.mjs): in testa la versione del CLI (`versions`, versionsState in
+//     inspectorState.mjs), col suo fumetto; poi due accordion dallo stesso stato, e in mezzo due righe-azione
 //     (Vite config, Detailed config) che rimandano il loro `{ cmd }`, col clic o Invio e Spazio.
 //       · Highlight style: gli stili col loro campione (`highlight`, highlightState.mjs); rimanda
 //         `{ cmd: "style", value: id }` dal clic (o Invio, Spazio) su uno stile.
@@ -228,11 +229,21 @@ function stili(stato) {
   }
 }
 
+// ------------------------------------------------------------------------------ Settings: la testata
+
+// La versione del CLI nel riquadro, in giallo se è sotto la minima o manca; il fumetto dice quale.
+function versioni(v) {
+  $("cliVersion").textContent = v.cli ?? "—";
+  $("versions").toggleAttribute("data-old", v.old);
+  $("cliIcon").title = v.tip;
+}
+
 // ------------------------------------------------------------------------------ la pagina
 
 window.addEventListener("message", (e) => {
   if (e.data?.type !== "state") return;
   if ($("checks")) return disegna(e.data);
+  if ($("versions") && e.data.versions) versioni(e.data.versions);
   if ($("styles") && e.data.highlight) stili(e.data.highlight);
   if ($("tree")) albero(e.data);
 });

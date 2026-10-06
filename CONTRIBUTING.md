@@ -61,6 +61,8 @@ npm run ide:install   # …and installs it (VT_CODE_CLI=codium for VSCodium)
 
 It is an npm workspace with its own `devDependencies` and scripts (`npm run build|package|install:editor|dev -w idePlugin`), the same commands as the `ide:*` scripts above: both go through `idePlugin/scripts/code.mjs`. Its tests are `test/list/idePlugin*.test.mjs`, part of `npm test`.
 
+**Results** reads the project's library through `@sepoina/vitetranslate/ide/scan` (`lib/ide/scan.js`): add exports, never remove them. Raising `IDE_API_MIN` in `markedScan.mjs` means publishing the library first (AGENTS.md).
+
 ## Pull requests
 
 Keep PRs focused on a single change, and describe the *why* behind it — the diff already

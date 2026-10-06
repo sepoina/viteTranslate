@@ -402,7 +402,7 @@ export class MarkedTree {
     // Chiuso da forget() mentre lavorava: la risposta non serve a nessuno, e non è un errore.
     if (marked.code === "DISPOSED") return marked;
     const o = marked.origin;
-    const da = o ? ` [index ${marked.index}: ${o.index} from the index, ${o.overlay} kept, ${o.parsed} parsed${marked.babel ? ", Babel warm" : ""}]` : "";
+    const da = o ? ` [api ${marked.ideApi ?? "by path"}, index ${marked.index}: ${o.index} from the index, ${o.overlay} kept, ${o.parsed} parsed${marked.babel ? ", Babel warm" : ""}]` : "";
     this.log(
       `${project.dir}: source ${marked.ok ? `scanned in ${marked.ms} ms, ${markedSummary(marked)}${da}` : `NOT scanned\n  ${marked.error}`}` +
         (marked.warnings?.length ? `\n  ${marked.warnings.map((w) => `${w.rel}: ${w.message}`).join("\n  ")}` : "") +

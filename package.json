@@ -57,6 +57,7 @@
       "import": "./lib/dist/react.es.js",
       "require": "./lib/dist/react.cjs"
     },
+    "./ide/scan": "./lib/ide/scan.js",
     "./package.json": "./package.json"
   },
   "scripts": {

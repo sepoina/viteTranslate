@@ -1,6 +1,9 @@
 // La pagina Settings, nella sezione facoltativa (al posto di Results e Project): tutto quello che è
-// impostazione, in un posto. La apre l'ingranaggio di Project. Dall'alto, e scorre, la sezione
-// CONFIG: le voci nello stile delle azioni di LLM (icona, nome, sotto il dettaglio). Due sono
+// impostazione, in un posto. La apre l'ingranaggio di Project. In testa il logo intero (logo.mjs)
+// e, a destra, un riquadro con due versioni, ognuna con la sua icona e il suo fumetto: quella del CLI
+// installato nel progetto selezionato (dallo stato, versionsState in inspectorState.mjs; in giallo
+// se è sotto la minima o manca) e la minima che l'estensione chiede (LIB_MIN, fissa). Sotto, e scorre,
+// la sezione CONFIG: le voci nello stile delle azioni di LLM (icona, nome, sotto il dettaglio). Due sono
 // accordion (accordion.mjs) che si aprono sotto di sé, uno aperto alla volta, in evidenza; chiusi
 // la prima volta, poi come li ha lasciati l'utente (rememberAccordions, in optionalWebview.mjs).
 // Due sono azioni, con la stessa faccia (actionRowHtml, in pageCommon.mjs). Nell'ordine:
@@ -18,6 +21,8 @@ import { pageHead, COLUMN_CSS, OPTIONAL_CSS, ACTION_CSS, actionRowHtml } from ".
 import { commandBarHtml, COMMAND_BAR_CSS } from "../../commandBar/commandBar.mjs";
 import { TOOLTIP_CSS } from "../../tooltip/tooltip.mjs";
 import { accordionHtml, ACCORDION_CSS } from "../../accordion/accordion.mjs";
+import { LOGO_SVG } from "./logo.mjs";
+import { LIB_MIN } from "../../../probes/markedScan.mjs";
 
 
 /**
@@ -54,6 +59,20 @@ export const SECTIONS = {
 export function settingsHtml({ scriptUri, codiconsUri, cspSource, nonce }) {
   return `${pageHead({ codiconsUri, cspSource, nonce })}${COLUMN_CSS}${OPTIONAL_CSS}${ACTION_CSS}${ACCORDION_CSS}${COMMAND_BAR_CSS}${TOOLTIP_CSS}
     main { padding-top: 8px; }
+    /* La testata: il logo, che si stringe se la sezione è stretta, e il riquadro delle versioni a
+       destra. La scritta ha il colore del testo, il "%" l'accento della pagina (i titoli). */
+    .testata { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 4px 0 10px; }
+    .logo { display: block; flex: 0 1 170px; min-width: 70px; height: auto; }
+    .logo-testo { fill: var(--vscode-foreground); }
+    .logo-pct { fill: var(--vscode-chat-linesAddedForeground); }
+    .versioni {
+      flex: none; display: grid; grid-template-columns: auto auto; align-items: center; column-gap: 5px; row-gap: 1px;
+      padding: 3px 7px; border: 1px solid var(--vscode-widget-border, var(--vscode-panel-border)); border-radius: 4px;
+      font-family: var(--vscode-editor-font-family); font-size: 11px; color: var(--vscode-descriptionForeground);
+    }
+    .versioni vscode-icon { display: block; }
+    #cliVersion { color: var(--vscode-foreground); }
+    .versioni[data-old] #cliVersion { color: var(--vscode-problemsWarningIcon-foreground); }
     #message { margin: 4px 0 8px; color: var(--vscode-descriptionForeground); }
     /* Uno stile: il segno nella prima colonna; nome e descrizione, poi il campione, nella seconda. */
     .stile {
@@ -76,6 +95,13 @@ export function settingsHtml({ scriptUri, codiconsUri, cspSource, nonce }) {
 </head>
 <body>
   <main>
+    <header class="testata">
+      ${LOGO_SVG}
+      <div class="versioni" id="versions">
+        <vscode-icon id="cliIcon" name="terminal-bash" title="The vitetranslate CLI of the selected project."></vscode-icon><span id="cliVersion">—</span>
+        <vscode-icon name="git-branch-conflicts" title="The oldest vitetranslate this extension fully works with.\nOlder ones still work, with less in Results."></vscode-icon><span>${LIB_MIN}</span>
+      </div>
+    </header>
     <section>
       <h2>Config</h2>
       ${accordionHtml({ ...SECTIONS.highlight, body: `<div id="styles" role="radiogroup" aria-label="Highlight style"></div>` })}

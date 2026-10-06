@@ -29,6 +29,7 @@ import { highlightState } from "./settings/highlightState.mjs";
 import { saveHighlightStyle } from "../../highlight/stylePicker.mjs";
 import { HIGHLIGHT_SETTING } from "../../highlight/highlighter.mjs";
 import { openFile, openPluginConfig, progressIn } from "../../core/editorUi.mjs";
+import { installedVersion } from "../../core/readPackage.mjs";
 
 export const OPTIONAL_VIEW_ID = "vitetranslate.optional";
 // Vera mentre la sezione facoltativa sta al posto di Results e Project (i loro `when` in package.json).
@@ -149,6 +150,8 @@ export class OptionalView extends PageView {
       project: scelto ?? null,
       title: scelto ? this.projects.titleOf(scelto) : null,
       dati,
+      // La versione del CLI nella testata: dal node_modules, senza aspettare la lettura.
+      cli: scelto ? installedVersion(scelto.dir, "@sepoina/vitetranslate") : null,
     });
   }
 

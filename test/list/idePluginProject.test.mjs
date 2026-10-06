@@ -19,7 +19,8 @@ import { TOOLTIP_CSS, tooltipHtml } from "../../idePlugin/src/webViews/tooltip/t
 import { placeTooltip, adoptTitle } from "../../idePlugin/src/webViews/tooltip/tooltipScript.mjs";
 import { selectorHtml } from "../../idePlugin/src/webViews/selector/selectorPage.mjs";
 import { helpHtml, LLM_DOC_URL } from "../../idePlugin/src/webViews/optional/help/helpPage.mjs";
-import { inspectorState } from "../../idePlugin/src/webViews/optional/settings/inspectorState.mjs";
+import { inspectorState, versionsState, olderThan } from "../../idePlugin/src/webViews/optional/settings/inspectorState.mjs";
+import { LIB_MIN } from "../../idePlugin/src/probes/markedScan.mjs";
 import { settingsHtml, SECTIONS } from "../../idePlugin/src/webViews/optional/settings/settingsPage.mjs";
 import { llmHtml } from "../../idePlugin/src/webViews/optional/llm/llmPage.mjs";
 
@@ -77,6 +78,20 @@ console.log("\n== Settings: lo stato dell'albero ==");
   eq("niente messaggio, il titolo del progetto", [null, "app"], [s.message, s.title]);
   eq("i messaggi di Project, senza albero", [[NO_PROJECTS, null], [NO_SELECTION, null], [READING, null]],
     [inspectorState({ hasProjects: false, project: null }), inspectorState({ hasProjects: true, project: null }), inspectorState({ hasProjects: true, project, title: "app" })].map((x) => [x.message, x.details]));
+}
+
+console.log("\n== Settings: la testata, logo e versioni ==");
+{
+  eq("olderThan: major.minor.patch, l'rc vale la versione", [true, false, false, true, false],
+    [olderThan("4.6.3", "4.6.4"), olderThan("4.6.4-rc.3", "4.6.4"), olderThan("4.10.0", "4.6.4"), olderThan("3.99.99", "4.6.4"), olderThan("5.0.0", "4.6.4")]);
+  eq("versionsState: installata, vecchia, mancante, nessun progetto", [[false, "4.7.0"], [true, "4.6.3"], [true, null], [false, null]],
+    [versionsState("4.7.0"), versionsState("4.6.3"), versionsState(null), versionsState(null, false)].map((v) => [v.old, v.cli]));
+  eq("…la vecchia dice la minima nel fumetto", true, versionsState("4.6.3").tip.includes(LIB_MIN));
+  eq("inspectorState porta le versioni, anche senza lettura", "4.7.0", inspectorState({ hasProjects: true, project, title: "app", cli: "4.7.0" }).versions.cli);
+  const html = settingsHtml({ scriptUri: "s.js", codiconsUri: "c.css", cspSource: "x", nonce: "n" });
+  eq("la pagina: logo prima di Config, riquadro con le due icone e la minima", [true, true, true, true],
+    [/<header class="testata">\s*<svg class="logo"[\s\S]*<\/header>\s*<section>\s*<h2>Config/.test(html),
+      html.includes('name="terminal-bash"'), html.includes('name="git-branch-conflicts"'), html.includes(`<span>${LIB_MIN}</span>`)]);
 }
 
 console.log("\n== keyPosition: la chiave nel file di lingua ==");
