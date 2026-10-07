@@ -12,7 +12,7 @@
 import { createHash } from "node:crypto";
 import { readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join, relative } from "node:path";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 
 import { compileLanguageModule } from "../lib/dev/compile/compileTable.js";
 import readLanguageFile from "../lib/dev/vite/uty/readLanguageFile.js";
@@ -105,6 +105,8 @@ async function main() {
   if (diffs > 0) process.exitCode = 1;
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+// pathToFileURL e non `file://${argv[1]}`: su Windows quel confronto non torna mai (file:///D:/… contro
+// file://D:\…), e lo strumento usciva muto con 0, `--write` compreso.
+if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   await main();
 }
