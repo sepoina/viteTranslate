@@ -28,6 +28,7 @@ node -e "const s=require('fs').readFileSync('README.md','utf8').replace(/<!--[\s
 
 - l'estensione (idePlugin/) legge la libreria installata nel progetto dell'utente solo per **Results**, attraverso l'export `@sepoina/vitetranslate/ide/scan` (`lib/ide/scan.js`), versionato da `IDE_API` (un intero). Il resto della libreria che le serve è impacchettato alla build. Il contratto è additivo: gli export si aggiungono, non si tolgono né cambiano significato.
 - quando l'estensione comincia a usare un export nuovo, la libreria alza `IDE_API` e l'estensione alza `IDE_API_MIN` (`idePlugin/src/probes/markedScan.mjs`). In quel caso, e solo in quello, la libreria con il nuovo `IDE_API` si pubblica su npm col tag `latest` prima della .vsix: si rilascia l'estensione solo quando `npm view @sepoina/vitetranslate@latest version` risponde con quella versione o una successiva. Ogni automazione futura della pubblicazione dell'estensione fa la stessa verifica prima di procedere.
+- finché l'estensione è in preview (`"preview": true` in `idePlugin/package.json`) vale anche il tag `next`. Il suffisso di pre-release non conta (4.6.4-rc.3 vale 4.6.4), come in `olderThan` (`idePlugin/src/webViews/optional/settings/inspectorState.mjs`): la stessa regola con cui l'estensione giudica la libreria dell'utente.
 
 ## REGOLE DI COMPRESSIONE DELLA DOCUMENTAZIONE
 

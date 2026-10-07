@@ -2,7 +2,7 @@ name: Publish extension
 
 # L'estensione per l'editor (idePlugin/) sul Visual Studio Marketplace. Workflow a sé, staccato
 # da publish.yml, e solo a mano (Actions → Publish extension → Run workflow): lo si lancia quando
-# la libreria che l'estensione richiede è già su npm come "latest" (vedi "Libreria pronta?").
+# la libreria che l'estensione richiede è già su npm (vedi "Libreria pronta?").
 # Così niente gara con publish.yml quando un push alza insieme libreria ed estensione.
 #
 # Autenticazione: trusted publishing OIDC (`vsce publish --oidc`, da @vscode/vsce 4.0.0), nessun
@@ -67,9 +67,11 @@ jobs:
             exit 1
           fi
 
-      # AGENTS.md, "REGOLE DI RILASCIO": l'estensione esce solo quando npm "latest" è almeno la
-      # libreria che porta l'IDE_API che le serve. Quella versione è LIB_MIN in markedScan.mjs,
-      # che sale insieme a IDE_API_MIN: letta da lì, qui non c'è niente da tenere allineato.
+      # AGENTS.md, "REGOLE DI RILASCIO": l'estensione esce solo quando su npm c'è già la libreria
+      # che porta l'IDE_API che le serve. Quella versione è LIB_MIN in markedScan.mjs, che sale
+      # insieme a IDE_API_MIN: letta da lì, qui non c'è niente da tenere allineato. Vale il tag
+      # "latest" e, finché l'estensione è in preview ("preview": true in idePlugin/package.json),
+      # anche "next": tolta la preview la regola torna rigida da sola.
       - name: Libreria pronta?
         run: |
           LIB_MIN=$(node -e '
@@ -78,22 +80,29 @@ jobs:
             if (!m) process.exit(1);
             console.log(m[1]);
           ') || { echo "::error::LIB_MIN non trovato in idePlugin/src/probes/markedScan.mjs."; exit 1; }
-          LATEST=$(npm view @sepoina/vitetranslate@latest version)
-          echo "npm latest: $LATEST, richiesta: $LIB_MIN"
-          # exit 0 = LATEST >= LIB_MIN; a parità di X.Y.Z una pre-release è più vecchia della
-          # stabile, come vuole semver.
-          if ! node -e '
-            const [latest, min] = process.argv.slice(1);
-            const parse = (v) => { const [core, ...pre] = v.split("-"); return [core.split(".").map(Number), pre.join("-")]; };
-            const [a, aPre] = parse(latest), [b, bPre] = parse(min);
-            for (let i = 0; i < 3; i++) if (a[i] !== b[i]) process.exit(a[i] > b[i] ? 0 : 1);
-            if (!aPre) process.exit(0);
-            if (!bPre) process.exit(1);
-            process.exit(aPre.localeCompare(bPre, undefined, { numeric: true }) >= 0 ? 0 : 1);
-          ' "$LATEST" "$LIB_MIN"; then
-            echo "::error::npm latest è $LATEST, l'estensione chiede almeno $LIB_MIN: pubblica prima la libreria (AGENTS.md, REGOLE DI RILASCIO)."
-            exit 1
+          TAGS="latest"
+          if [ "$(node -p "require('./idePlugin/package.json').preview === true")" = "true" ]; then
+            TAGS="latest next"
           fi
+          for TAG in $TAGS; do
+            # Un tag che non c'è, o npm che non risponde: nessuna versione, e il tag non basta.
+            VERSION=$(npm view "@sepoina/vitetranslate@$TAG" version 2>/dev/null || true)
+            echo "npm $TAG: ${VERSION:-(nessuna)}, richiesta: $LIB_MIN"
+            [ -n "$VERSION" ] || continue
+            # exit 0 = VERSION non è più vecchia di LIB_MIN. Lo stesso confronto di olderThan
+            # (idePlugin/src/webViews/optional/settings/inspectorState.mjs): il suffisso di
+            # pre-release non conta, 4.6.4-rc.3 vale 4.6.4, come per l'estensione.
+            if node -e '
+              const n = (v) => String(v).split(/[-+]/)[0].split(".").map((x) => Number(x) || 0);
+              const [a, b] = process.argv.slice(1).map(n);
+              for (let i = 0; i < 3; i++) if ((a[i] ?? 0) !== (b[i] ?? 0)) process.exit((a[i] ?? 0) > (b[i] ?? 0) ? 0 : 1);
+            ' "$VERSION" "$LIB_MIN"; then
+              echo "Libreria pronta: $VERSION su $TAG."
+              exit 0
+            fi
+          done
+          echo "::error::Su npm ($TAGS) nessuna libreria arriva a $LIB_MIN: pubblica prima la libreria (AGENTS.md, REGOLE DI RILASCIO)."
+          exit 1
 
       # Un solo npm install alla radice: idePlugin è un workspace, e rolldown, codicons e i
       # sorgenti di lib/ che il bundle si porta dentro stanno lì.
