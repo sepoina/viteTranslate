@@ -5,9 +5,9 @@
 //     llmPanel.mjs) — i controlli e le azioni — e rimanda `{ cmd: "action", value: id }` dal clic
 //     (o Invio, Spazio) su un'azione, `{ cmd }` dai bottoni. Il ? nella barra si vede solo con un
 //     controllo andato male (`trouble`).
-//   - Settings (settingsPage.mjs): in testa la versione del CLI (`versions`, versionsState in
-//     inspectorState.mjs), col suo fumetto; poi due accordion dallo stesso stato, e in mezzo due righe-azione
-//     (Vite config, Detailed config) che rimandano il loro `{ cmd }`, col clic o Invio e Spazio.
+//   - Settings (settingsPage.mjs): due accordion dallo stato, e in mezzo due righe-azione
+//     (Vite config, Detailed config) che rimandano il loro `{ cmd }`, col clic o Invio e Spazio; in
+//     fondo VERSION, le versioni col loro fumetto (`versions`, versionsState in inspectorState.mjs).
 //       · Highlight style: gli stili col loro campione (`highlight`, highlightState.mjs); rimanda
 //         `{ cmd: "style", value: id }` dal clic (o Invio, Spazio) su uno stile.
 //       · Local file status: l'albero (inspectorState.mjs); rimanda `{ cmd: "open", value }` dal
@@ -15,7 +15,10 @@
 //     Le righe aperte si ricordano per id (il percorso delle etichette), gli accordion aperti pure
 //     (rememberAccordions), anche quando la pagina si ricrea: vscode.setState vive quanto la
 //     sezione. Una riga mai vista si apre se lo dice lo stato (`expanded`).
-// LLM e Settings, al caricamento, chiedono lo stato (`ready`).
+//   - Library (libraryPage.mjs): il guasto della libreria, dallo stato (`library`, libraryState);
+//     i bottoni rimandano il loro `{ cmd }`.
+//   - Loading (loadingPage.mjs): l'avvio del pannello; scrive la tappa che arriva (`loading`).
+// LLM, Settings, Library e Loading, al caricamento, chiedono lo stato (`ready`).
 // I testi (un errore del modello, un percorso, quelli di vite.config e dei package.json) si
 // scrivono con textContent, mai come HTML.
 import "@vscode-elements/elements/dist/vscode-button/index.js";
@@ -229,19 +232,37 @@ function stili(stato) {
   }
 }
 
-// ------------------------------------------------------------------------------ Settings: la testata
+// ------------------------------------------------------------------------------ Settings: VERSION
 
-// La versione del CLI nel riquadro, in giallo se è sotto la minima o manca; il fumetto dice quale.
+// L'estensione, e del progetto la libreria e il suo IDE_API: in giallo se mancano o sono troppo
+// vecchi, e il fumetto dice perché.
 function versioni(v) {
-  $("cliVersion").textContent = v.cli ?? "—";
-  $("versions").toggleAttribute("data-old", v.old);
-  $("cliIcon").title = v.tip;
+  $("extensionVersion").textContent = v.extension;
+  for (const [riga, valore, voce] of [["libraryRow", "libraryVersion", v.library], ["ideRow", "ideVersion", v.ide]]) {
+    $(valore).textContent = voce.text;
+    $(riga).toggleAttribute("data-old", voce.old);
+    $(riga).title = voce.tip;
+  }
+}
+
+// ------------------------------------------------------------------------------ Library
+
+// Cosa non va, il comando che lo sistema, dove lanciarlo e l'errore com'è.
+function guasto(l) {
+  $("libHeading").textContent = l.heading;
+  $("libIntro").textContent = l.intro;
+  $("libCommand").textContent = l.command;
+  $("libWhere").textContent = l.where;
+  $("libDetail").textContent = l.detail ?? "";
+  $("libDetail").hidden = !l.detail;
 }
 
 // ------------------------------------------------------------------------------ la pagina
 
 window.addEventListener("message", (e) => {
   if (e.data?.type !== "state") return;
+  if ($("loading")) return e.data.loading && ($("loadingText").textContent = e.data.loading);
+  if ($("library")) return e.data.library && guasto(e.data.library);
   if ($("checks")) return disegna(e.data);
   if ($("versions") && e.data.versions) versioni(e.data.versions);
   if ($("styles") && e.data.highlight) stili(e.data.highlight);
@@ -293,4 +314,4 @@ document.addEventListener("keydown", (e) => {
   vscode.postMessage({ cmd: e.target.dataset.cmd });
 });
 
-if ($("checks") || $("tree") || $("styles")) vscode.postMessage({ cmd: "ready" });
+if ($("checks") || $("tree") || $("styles") || $("library") || $("loading")) vscode.postMessage({ cmd: "ready" });

@@ -22,11 +22,10 @@ import { filterItems, shownCount } from "../../views/results/markedRows.mjs";
  * @param {object | null} [p.marked] - l'ultima scansione del selezionato (markedScan.mjs)
  * @param {string} [p.filter] - il filtro scelto: una voce di FILTERS
  * @param {string} [p.search] - il testo di ricerca
- * @param {string | null} [p.starting] - all'avvio, cosa si sta preparando: la pagina mostra solo questo
  * @returns {{ empty: boolean, projects: object[] | null, selected: string | null,
- *   filters: object[] | null, filter: string, search: string, searchVisible: boolean, starting: string | null }}
+ *   filters: object[] | null, filter: string, search: string, searchVisible: boolean }}
  */
-export function selectorState({ projects, selected, roots, nameOf, marked = null, filter = "all", search = "", starting = null }) {
+export function selectorState({ projects, selected, roots, nameOf, marked = null, filter = "all", search = "" }) {
   const righe = projects.length > 1
     ? projects.map((p) => {
       const { label, description, tooltip } = projectRow(p, { roots, name: nameOf(p.dir) });
@@ -44,6 +43,5 @@ export function selectorState({ projects, selected, roots, nameOf, marked = null
     filter: filtro,
     search,
     searchVisible: search !== "" || (!!selected && shownCount(marked, filtro) > 0),
-    starting,
   };
 }

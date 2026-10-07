@@ -199,8 +199,11 @@ export function markedSummary(marked) {
 export function markedChildren({ dir, input, marked, filter = "all", search = "", glyphs = GLYPHS }) {
   if (!marked.ok) {
     const perché = {
-      NO_LIBRARY: "run npm install in the project",
-      TOO_OLD: "update it: npm install @sepoina/vitetranslate@latest",
+      // I guasti della libreria (LIBRARY_PROBLEMS): la sezione facoltativa prende il posto di
+      // Results e dice il comando; questa riga si vede solo nell'attimo prima.
+      NO_LIBRARY: "install @sepoina/vitetranslate in the project",
+      TOO_OLD: "update @sepoina/vitetranslate",
+      UNREADABLE_LIBRARY: "reinstall @sepoina/vitetranslate",
       NO_SRCDIR: "check srcDir in vite.config",
       VT_NO_BABEL: "@babel/core is a peer dependency of @sepoina/vitetranslate",
     };
@@ -215,7 +218,6 @@ export function markedChildren({ dir, input, marked, filter = "all", search = ""
     }];
   }
   const baseDir = path.resolve(dir, input.baseDir);
-  const senzaRiga = marked.files.some((f) => f.entries.some((e) => e.id !== null && e.line === null));
   // Un file che non si è potuto leggere resta sotto Malformed.
   const files = FAMIGLIE[filter]
     ? marked.files.map((f) => ({ ...f, entries: f.entries.filter(della(filter)) })).filter((f) => f.entries.length || (filter === "malformed" && f.error))
@@ -228,15 +230,7 @@ export function markedChildren({ dir, input, marked, filter = "all", search = ""
   if (!trovati.length) {
     return [{ label: `nothing matches "${search.trim()}"`, description: SCELTE[filter] ? `in ${SCELTE[filter].label}` : undefined, icon: "search" }];
   }
-  const righe = folderRows(buildTree(trovati), baseDir, "", glyphs);
-  if (senzaRiga) {
-    righe.push({
-      label: `@sepoina/vitetranslate ${marked.version} does not report lines`,
-      description: "update it to jump to each entry",
-      icon: "info",
-    });
-  }
-  return righe;
+  return folderRows(buildTree(trovati), baseDir, "", glyphs);
 }
 
 // I percorsi `rel` di walkSource, sempre con "/", relativi a baseDir.

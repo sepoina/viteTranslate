@@ -61,13 +61,6 @@ function segnaRicerca() {
 }
 
 function disegna(stato) {
-  // All'avvio solo la riga di cosa si sta preparando: le sezioni compaiono tutte insieme dopo.
-  $("starting").hidden = !stato.starting;
-  if (stato.starting) {
-    $("startingText").textContent = stato.starting;
-    for (const id of ["config", "filter", "search", "empty"]) $(id).hidden = true;
-    return;
-  }
   $("config").hidden = !stato.projects;
   if (stato.projects) riempi($("projects"), stato.projects, stato.selected);
   $("filter").hidden = !stato.filters;

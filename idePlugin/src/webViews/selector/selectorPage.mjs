@@ -24,13 +24,10 @@ export function selectorHtml({ scriptUri, codiconsUri, cspSource, nonce }) {
     .campo #query { flex: 1 1 auto; min-width: 0; }
     #clear[aria-hidden="true"] { visibility: hidden; }
     #empty { margin: 6px 0 12px; color: var(--vscode-descriptionForeground); }
-    /* L'avvio: visibile da subito, prima ancora che arrivi lo stato. */
-    #starting { margin: 10px 0 12px; color: var(--vscode-descriptionForeground); display: flex; align-items: center; gap: 6px; }
   </style>
 </head>
 <body>
   <main>
-    <p id="starting"><vscode-icon name="loading" spin></vscode-icon><span id="startingText">Looking for Vite projects…</span></p>
     <section id="config" hidden>
       <h2>Config</h2>
       <vscode-tree id="projects" hide-arrows></vscode-tree>

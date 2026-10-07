@@ -8,8 +8,9 @@ was on.
 
 ## What you see
 
-Three sections, open and close them like any sidebar. At startup only **Selector** shows, saying
-what it's reading; **Results** and **Project** join in when they have something true to say.
+Three sections, open and close them like any sidebar. At startup a single **Loading** page shows the
+logo and what it's reading; **Selector**, **Results** and **Project** take over when they have
+something true to say.
 
 ### Selector
 
@@ -72,17 +73,15 @@ Keep **Project** at least as tall as its command bar: drag it to nothing and the
 
 ### Taking over: Settings, LLM, Help
 
-These take the panel for themselves: **Results** and **Project** step aside and the
-background takes a tint of your theme's accent. The command bar stays, same look: **← Back** on
+These take the panel for themselves: **Selector**, **Results** and **Project** step aside (nothing to
+pick while you're here) and the background takes a tint of your theme's accent. The command bar stays, same look: **← Back** on
 the left, plus the page's own commands if it has any; on the right, the page's icon. Back puts
 everything back where it was (so does the ← in the section title).
 
 ### Settings
 
-Click ⚙ in **Project**. On top, the logo and a small box: the CLI version installed in the
-project, and the oldest one this extension fully works with (yellow when yours is older, or
-missing). Hover the icons to see which is which. Then, under **CONFIG**, one row per setting, like
-LLM's actions.
+Click ⚙ in **Project**. On top, the logo. Then, under **CONFIG**, one row per setting, like LLM's
+actions.
 
 - **Highlight style**: each style with a sample; click one, editors switch at once.
 - **Vite config**: `vite.config`, opened right on the `vitetranslate({…})` options.
@@ -94,6 +93,10 @@ LLM's actions.
   - **package.json**: the dependencies that matter (`@sepoina/vitetranslate`, `vite`, …) as
     *declared → installed*, plus the scripts. Click to open.
   - **vite.config**: plugins in load order, server port and host. Click to open.
+
+Under **VERSION**, who's who: this extension, the library installed in the project, the oldest
+library the extension accepts, and the IDE API (how **Results** talks to the library), present /
+requested. Yellow means missing or too old; hover for why.
 
 ### LLM
 
@@ -149,11 +152,12 @@ it, Esc changes nothing. Or set `vitetranslate.highlightStyle`, `off` included. 
 ## Under the hood
 
 **Results** asks *your* installed `@sepoina/vitetranslate` (and its `@babel/core`), in a separate process:
-same entries `vtranslate-cli` would find, no Babel shipped inside the extension. Line numbers and
-the green shades need the library newer than 4.6.3; an older one still lists the entries, with
-lines missing and a plain ✅.
+same entries `vtranslate-cli` would find, no Babel shipped inside the extension. It needs 4.6.4 or
+later. No library at all, or an older one? **Results** and **Project** step aside for a page that
+says what's wrong and the `npm install` that fixes it (**Selector** stays only if there's another
+project to switch to). It leaves by itself once the library is there (or hit **Check again**).
 
-It's quick because every sync (4.6.4 and later) leaves an index of the entries in
+It's quick because every sync leaves an index of the entries in
 `node_modules/.viteTranslate/markers.json`, and the panel re-parses only what you changed since.
 After a save Babel stays warm for two minutes, then the process goes away.
 

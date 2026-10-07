@@ -9,7 +9,7 @@ import { mkdtempSync, mkdirSync, rmSync, writeFileSync, readFileSync } from "nod
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { projectState, keyPosition, NO_PROJECTS, NO_SELECTION, READING } from "../../idePlugin/src/webViews/project/projectState.mjs";
-import { ACTION_CSS } from "../../idePlugin/src/webViews/pageCommon.mjs";
+import { ACTION_CSS, OPTIONAL_CSS } from "../../idePlugin/src/webViews/pageCommon.mjs";
 import { projectHtml } from "../../idePlugin/src/webViews/project/projectPage.mjs";
 import { ACTIONS, ICONS, LLM_OFF, LLM_ICON, BACK_LABEL, COMMAND_BAR_CSS, PROJECT_URL } from "../../idePlugin/src/webViews/commandBar/commandBar.mjs";
 import { wrapsBelow } from "../../idePlugin/src/webViews/commandBar/commandBarScript.mjs";
@@ -20,9 +20,11 @@ import { placeTooltip, adoptTitle } from "../../idePlugin/src/webViews/tooltip/t
 import { selectorHtml } from "../../idePlugin/src/webViews/selector/selectorPage.mjs";
 import { helpHtml, LLM_DOC_URL } from "../../idePlugin/src/webViews/optional/help/helpPage.mjs";
 import { inspectorState, versionsState, olderThan } from "../../idePlugin/src/webViews/optional/settings/inspectorState.mjs";
-import { LIB_MIN } from "../../idePlugin/src/probes/markedScan.mjs";
-import { settingsHtml, SECTIONS } from "../../idePlugin/src/webViews/optional/settings/settingsPage.mjs";
+import { LIB_MIN, IDE_API_MIN } from "../../idePlugin/src/probes/markedScan.mjs";
+import { settingsHtml, SECTIONS, VERSION_ROWS } from "../../idePlugin/src/webViews/optional/settings/settingsPage.mjs";
 import { llmHtml } from "../../idePlugin/src/webViews/optional/llm/llmPage.mjs";
+import { libraryHtml, libraryState } from "../../idePlugin/src/webViews/optional/library/libraryPage.mjs";
+import { loadingHtml, FIRST_STEP } from "../../idePlugin/src/webViews/optional/loading/loadingPage.mjs";
 
 let fail = 0;
 const eq = (nome, atteso, ottenuto) => {
@@ -80,18 +82,64 @@ console.log("\n== Settings: lo stato dell'albero ==");
     [inspectorState({ hasProjects: false, project: null }), inspectorState({ hasProjects: true, project: null }), inspectorState({ hasProjects: true, project, title: "app" })].map((x) => [x.message, x.details]));
 }
 
-console.log("\n== Settings: la testata, logo e versioni ==");
+console.log("\n== Settings: il logo e VERSION ==");
 {
   eq("olderThan: major.minor.patch, l'rc vale la versione", [true, false, false, true, false],
     [olderThan("4.6.3", "4.6.4"), olderThan("4.6.4-rc.3", "4.6.4"), olderThan("4.10.0", "4.6.4"), olderThan("3.99.99", "4.6.4"), olderThan("5.0.0", "4.6.4")]);
-  eq("versionsState: installata, vecchia, mancante, nessun progetto", [[false, "4.7.0"], [true, "4.6.3"], [true, null], [false, null]],
-    [versionsState("4.7.0"), versionsState("4.6.3"), versionsState(null), versionsState(null, false)].map((v) => [v.old, v.cli]));
-  eq("…la vecchia dice la minima nel fumetto", true, versionsState("4.6.3").tip.includes(LIB_MIN));
-  eq("inspectorState porta le versioni, anche senza lettura", "4.7.0", inspectorState({ hasProjects: true, project, title: "app", cli: "4.7.0" }).versions.cli);
+  const lib = (library, selected) => versionsState({ library, selected }).library;
+  eq("la libreria: installata, vecchia, mancante, nessun progetto", [["4.7.0", false], ["4.6.3", true], ["not installed", true], ["—", false]],
+    [lib("4.7.0"), lib("4.6.3"), lib(null), lib(null, false)].map((v) => [v.text, v.old]));
+  eq("…la vecchia dice la minima nel fumetto", true, lib("4.6.3").tip.includes(LIB_MIN));
+  const ide = (marked, selected) => versionsState({ library: "4.7.0", marked, selected }).ide;
+  eq("l'IDE_API: dalla scansione, vecchia, assente, illeggibile, non ancora scansionato, nessun progetto",
+    [[String(IDE_API_MIN), false], [String(IDE_API_MIN - 1), true], ["none", true], ["none", true], ["?", true], ["—", false], ["—", false]],
+    [ide({ ok: true, ideApi: IDE_API_MIN }), ide({ ok: false, code: "TOO_OLD", ideApi: IDE_API_MIN - 1 }), ide({ ok: false, code: "TOO_OLD" }),
+      ide({ ok: false, code: "NO_LIBRARY" }), ide({ ok: false, code: "UNREADABLE_LIBRARY" }), ide(null), ide(null, false)].map((v) => [v.text, v.old]));
+  eq("…la vecchia dice la minima nel fumetto", true, ide({ ok: false, code: "TOO_OLD", ideApi: IDE_API_MIN - 1 }).tip.includes(`Older than ${IDE_API_MIN}`));
+  eq("l'estensione: la sua versione, o un trattino", ["1.2.3", "—"], [versionsState({ extension: "1.2.3" }).extension, versionsState().extension]);
+  eq("inspectorState porta le versioni, anche senza lettura", ["4.7.0", "1.2.3", String(IDE_API_MIN)],
+    ((v) => [v.library.text, v.extension, v.ide.text])(inspectorState({ hasProjects: true, project, title: "app", cli: "4.7.0", extension: "1.2.3", marked: { ok: true, ideApi: IDE_API_MIN } }).versions));
   const html = settingsHtml({ scriptUri: "s.js", codiconsUri: "c.css", cspSource: "x", nonce: "n" });
-  eq("la pagina: logo prima di Config, riquadro con le due icone e la minima", [true, true, true, true],
-    [/<header class="testata">\s*<svg class="logo"[\s\S]*<\/header>\s*<section>\s*<h2>Config/.test(html),
-      html.includes('name="terminal-bash"'), html.includes('name="git-branch-conflicts"'), html.includes(`<span>${LIB_MIN}</span>`)]);
+  eq("la pagina: in testa solo il logo, poi Config, poi Version", [true, false, true],
+    [/<header class="testata">\s*<svg class="logo"[^]*?<\/svg>\s*<\/header>\s*<section>\s*<h2>Config/.test(html), html.includes('id="cliVersion"'),
+      /<h2>Config<\/h2>[^]*<section id="versions">\s*<h2>Version<\/h2>/.test(html)]);
+  eq("VERSION: quattro righe, nell'ordine", ["VS Code extension", "Project library", "Requested by the extension", "IDE API present/requested"], VERSION_ROWS.map((r) => r.title));
+  eq("…i posti per lo stato e le minime, fisse", [true, true, true, true, true, true],
+    [...["extensionVersion", "libraryVersion", "ideVersion", "libraryRow", "ideRow"].map((id) => html.includes(`id="${id}"`)),
+      html.includes(`<span class="valore">${LIB_MIN}</span>`) && html.includes(`<span id="ideVersion">—</span>/${IDE_API_MIN}</span>`)]);
+}
+
+console.log("\n== le pagine facoltative: più aria sopra i capitoli ==");
+{
+  const p = { scriptUri: "s.js", codiconsUri: "c.css", cspSource: "x", nonce: "n" };
+  eq("h2 a 22px (OPTIONAL_CSS) in Help, LLM, Settings e Library", [true, [true, true, true, true]],
+    [OPTIONAL_CSS.includes("h2 { margin-top: 22px; }"), [helpHtml, llmHtml, settingsHtml, libraryHtml].map((f) => f(p).includes(OPTIONAL_CSS))]);
+}
+
+console.log("\n== Loading: l'avvio ==");
+{
+  const html = loadingHtml({ scriptUri: "s.js", codiconsUri: "c.css", cspSource: "x", nonce: "n" });
+  eq("il logo, e la prima tappa con la rotella, prima ancora dello stato", [true, true],
+    [/<main id="loading"[^>]*>\s*<svg class="logo"/.test(html), html.includes(`<vscode-icon name="loading" spin></vscode-icon><span id="loadingText">${FIRST_STEP}</span>`)]);
+  eq("niente barra dei comandi, niente sfondo tinto, lo script col nonce", [false, false, true],
+    [html.includes("<footer"), html.includes(OPTIONAL_CSS.trim()), html.includes('<script type="module" nonce="n" src="s.js">')]);
+}
+
+console.log("\n== Library: il guasto della libreria ==");
+{
+  const stato = (code, extra = {}, preview = false) => libraryState({ title: "app", dir: join("/", "p"), marked: { ok: false, code, error: "riga uno\nriga due", ...extra }, preview });
+  const manca = stato("NO_LIBRARY");
+  eq("manca: il comando, il nome del progetto, dove", ["npm install @sepoina/vitetranslate@latest", true, `Run it in ${join("/", "p")}, then Check again.`, "app"],
+    [manca.library.command, manca.library.intro.startsWith("app "), manca.library.where, manca.title]);
+  eq("vecchia e illeggibile: lo stesso comando, con la versione installata", [["npm install @sepoina/vitetranslate@latest", true], ["npm install @sepoina/vitetranslate@latest", true]],
+    [stato("TOO_OLD", { version: "4.6.3" }), stato("UNREADABLE_LIBRARY", { version: "4.6.4" })].map((s, i) => [s.library.command, s.library.intro.includes(["4.6.3", "4.6.4"][i])]));
+  eq("…troppo vecchia dice la minima", true, stato("TOO_OLD", { version: "4.6.3" }).library.intro.includes(`${LIB_MIN} or later`));
+  eq("estensione in preview: il tag next", "npm install @sepoina/vitetranslate@next", stato("TOO_OLD", { version: "4.6.3" }, true).library.command);
+  eq("…l'errore, solo la prima riga", "riga uno", manca.library.detail);
+  const html = libraryHtml({ scriptUri: "s.js", codiconsUri: "c.css", cspSource: "x", nonce: "n" });
+  eq("la pagina: niente Back, Check again e l'ingranaggio, i posti per i testi", [false, true, true, true],
+    [html.includes('data-cmd="close"'), html.includes('data-cmd="refresh"'), html.includes('data-cmd="settings"'),
+      ["library", "libHeading", "libIntro", "libCommand", "libWhere", "libDetail"].every((id) => html.includes(`id="${id}"`))]);
 }
 
 console.log("\n== keyPosition: la chiave nel file di lingua ==");

@@ -84,9 +84,12 @@ export class Projects {
     this.emitter.fire(undefined);
   }
 
-  /** Il messaggio di Results cambia fra "nessun progetto" e "selezionane uno". */
+  /**
+   * Il messaggio di Results cambia fra "nessun progetto" e "selezionane uno"; Selector resta
+   * accanto al guasto della libreria solo se c'è un altro progetto da scegliere (il suo `when`).
+   */
   syncContext(progetti) {
-    const contesto = { "vitetranslate.hasProjects": progetti.length > 0 };
+    const contesto = { "vitetranslate.hasProjects": progetti.length > 0, "vitetranslate.manyProjects": progetti.length > 1 };
     const chiave = JSON.stringify(contesto);
     if (chiave === this.contesto) return;
     this.contesto = chiave;

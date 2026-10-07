@@ -63,15 +63,15 @@ console.log("\n== Search ==");
 
 console.log("\n== l'avvio ==");
 {
-  eq("di norma niente", null, selectorState(base).starting);
-  eq("all'avvio: il testo di cosa si prepara", "Reading…", selectorState({ ...base, starting: "Reading…" }).starting);
+  // Cosa si prepara lo dice la sezione facoltativa (loadingPage.mjs): Selector, all'avvio, non si vede.
+  eq("niente avvio nello stato", false, "starting" in selectorState(base));
 }
 
 console.log("\n== la pagina ==");
 {
   const html = selectorHtml({ scriptUri: "vscode-webview://x/webview.js", codiconsUri: "vscode-webview://x/codicon.css", cspSource: "vscode-webview://x", nonce: "abc" });
   eq("sezioni nascoste finché lo stato non arriva", 3, (html.match(/<section id="\w+" hidden>/g) ?? []).length);
-  eq("l'avvio si vede da subito, le sezioni no", [true, 3], [/<p id="starting">(?![^>]*hidden)/.test(html), (html.match(/<section id="\w+" hidden>/g) ?? []).length]);
+  eq("…e niente riga dell'avvio", false, html.includes('id="starting"'));
   eq("niente barra dei comandi: sta in Project", [false, false], [html.includes("<footer"), html.includes("data-cmd=")]);
   eq("i codicons: il link che vscode-icon cerca, e il font ammesso dalla CSP", [true, true],
     [html.includes('<link id="vscode-codicon-stylesheet" rel="stylesheet" href="vscode-webview://x/codicon.css">'), html.includes("font-src vscode-webview://x;")]);

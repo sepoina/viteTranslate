@@ -66,7 +66,10 @@ const SRC = (nome) => fileURLToPath(new URL(`../../idePlugin/src/${nome}`, impor
 const SONDE = { [join("dist", "probe.mjs")]: SRC("probes/probe.mjs"), [join("dist", "markedProbe.mjs")]: SRC("probes/markedProbe.mjs") };
 const memoria = new Map();
 const workspaceState = { get: (k) => memoria.get(k), update: async (k, v) => void memoria.set(k, v) };
-const context = { subscriptions: [], asAbsolutePath: (rel) => SONDE[rel] ?? rel, workspaceState, extensionUri: vscode.Uri.file(join(ws, "ext")) };
+// L'estensione in preview, come oggi: la pagina del guasto della libreria chiede il tag next. La
+// versione la mostra VERSION, in Settings.
+const extension = { id: "sepoina.vitetranslate-ide", packageJSON: { preview: true, version: "1.2.3" } };
+const context = { subscriptions: [], asAbsolutePath: (rel) => SONDE[rel] ?? rel, workspaceState, extensionUri: vscode.Uri.file(join(ws, "ext")), extension };
 const { marked, tree, controlli, preparato } = activate(context);
 const markedView = stato.treeViews.get("vitetranslate.results");
 const mprovider = markedView.treeDataProvider;
@@ -195,8 +198,14 @@ eq("tutto sotto context.subscriptions", true, context.subscriptions.length >= 5)
   // Il manifest: la facoltativa si prende il pannello (via Results e Project), e si torna con ←.
   const manifest = JSON.parse(readFileSync(new URL("../../idePlugin/package.json", import.meta.url), "utf8"));
   const quando = Object.fromEntries(manifest.contributes.views.vitetranslate.map((v) => [v.id, v.when ?? null]));
-  eq("facoltativa aperta: Results e Project spariscono", { "vitetranslate.selector": null, "vitetranslate.results": "vitetranslate.ready && !vitetranslate.optional",
-    "vitetranslate.optional": "vitetranslate.optional", "vitetranslate.project": "vitetranslate.ready && !vitetranslate.optional" }, quando);
+  eq("facoltativa aperta (o all'avvio): Selector, Results e Project spariscono; Selector resta sul guasto con più progetti", {
+    "vitetranslate.selector": "vitetranslate.ready && (!vitetranslate.optional || vitetranslate.libraryProblem && vitetranslate.manyProjects)",
+    "vitetranslate.results": "vitetranslate.ready && !vitetranslate.optional",
+    "vitetranslate.optional": "vitetranslate.optional || !vitetranslate.ready", "vitetranslate.project": "vitetranslate.ready && !vitetranslate.optional" }, quando);
+  eq("…prima di essere risolta la facoltativa si chiama Loading: è l'avvio", "Loading",
+    manifest.contributes.views.vitetranslate.find((v) => v.id === "vitetranslate.optional")?.name);
+  eq("…la ← nel titolo e nella palette: non durante l'avvio, non sul guasto", Array(2).fill("vitetranslate.ready && !vitetranslate.libraryProblem"),
+    [manifest.contributes.menus["view/title"], manifest.contributes.menus.commandPalette].map((m) => m.find((x) => x.command === "vitetranslate.closeOptional")?.when.replace(/^.*?vitetranslate\.optional && /, "")));
   const comando = (id) => manifest.contributes.commands.find((c) => c.command === id);
   eq("…la freccia nel titolo è Back, non Close; Settings con l'ingranaggio", [["Back", "$(arrow-left)"], ["Settings", "$(settings-gear)"]],
     ["vitetranslate.closeOptional", "vitetranslate.settings"].map((id) => [comando(id)?.title, comando(id)?.icon]));
@@ -219,11 +228,12 @@ console.log("\n== Selector: la pagina ==");
   eq("niente default aperto", true, webview.html.includes("default-src 'none'"));
   eq("i codicons da dist/", true, webview.html.includes(`href="vscode-webview://x${join(ws, "ext/dist/codicon.css")}"`));
   eq("prima di ready: niente stato mandato", 0, pagina.stati.length);
-  eq("all'avvio Selector dice cosa prepara, prima ancora dello stato", true,
-    /<p id="starting"><vscode-icon name="loading" spin><\/vscode-icon><span id="startingText">Looking for Vite projects…/.test(webview.html));
-  eq("…Results e Project ancora nascoste", undefined, stato.contesto["vitetranslate.ready"]);
+  eq("all'avvio la facoltativa dice cosa prepara, prima ancora dello stato", [true, "loading", "Loading"],
+    [/<vscode-icon name="loading" spin><\/vscode-icon><span id="loadingText">Looking for Vite projects…/.test(optView.webview.html), optProvider.mode, optView.title]);
+  eq("…al posto di Selector, Results e Project", [true, undefined], [stato.contesto["vitetranslate.optional"], stato.contesto["vitetranslate.ready"]]);
   await preparato;
-  eq("nessun progetto selezionato: pronto appena c'è l'elenco", true, stato.contesto["vitetranslate.ready"]);
+  eq("nessun progetto selezionato: pronto appena c'è l'elenco, la facoltativa lascia il posto", [true, false, null],
+    [stato.contesto["vitetranslate.ready"], stato.contesto["vitetranslate.optional"], optProvider.mode]);
 }
 
 console.log("\n== Selector: tutti i progetti, nessuno selezionato ==");
@@ -234,8 +244,8 @@ console.log("\n== Selector: tutti i progetti, nessuno selezionato ==");
   eq("Config: tutti e due, nome e cartella", [["my-app", "app"], ["other", "other"]], s0.projects.map((r) => [r.label, r.description]));
   eq("…col percorso del config nel tooltip", join(ws, "app/vite.config.js"), s0.projects[0].tooltip);
   eq("nessuno selezionato, Filter nascosto", [null, null, false], [s0.selected, s0.filters, s0.empty]);
-  eq("contesto: ci sono progetti, e il pannello è pronto", { "vitetranslate.hasProjects": true, "vitetranslate.ready": true }, stato.contesto);
-  eq("…Selector non mostra più l'avvio", null, s0.starting);
+  eq("contesto: ci sono progetti, più d'uno, e il pannello è pronto", { "vitetranslate.optional": false, "vitetranslate.hasProjects": true, "vitetranslate.manyProjects": true, "vitetranslate.ready": true }, stato.contesto);
+  eq("…Selector non porta l'avvio", false, "starting" in s0);
   eq("Project passivo: lo dice", [NO_SELECTION, null, undefined], ((s) => [s.message, s.languages, projectView.description])(await progetto()));
   eq("…Settings anche", [NO_SELECTION, null], ((s) => [s.message, s.details])(await ispettore()));
   eq("Results passiva", [[], undefined], [await pieno(mprovider), markedView.description]);
@@ -528,6 +538,11 @@ console.log("\n== Project: i bottoni ==");
   eq("…lo stato: l'albero di my-app, tutto chiuso; Off e i quindici stili, quello di serie segnato",
     [["vitetranslate", "package.json", "vite.config.js"], [false, false, false], "my-app", 16, "framed-box"],
     [impostazioni.details?.map((r) => r.label), impostazioni.details?.map((r) => r.expanded), optView.description, impostazioni.highlight?.styles.length, impostazioni.highlight?.current]);
+  // VERSION: l'estensione, la libreria di app (quella del repo) e il suo IDE_API, dalla scansione.
+  const repoVersion = JSON.parse(readFileSync(join(REPO, "package.json"), "utf8")).version;
+  eq("…VERSION: l'estensione, la libreria del progetto, il suo IDE_API, niente in giallo",
+    ["1.2.3", [repoVersion, false], [String(marked.resultOf(join(ws, "app"))?.ideApi), false]],
+    ((v) => [v?.extension, [v?.library.text, v?.library.old], [v?.ide.text, v?.ide.old]])(impostazioni.versions));
   // Highlight style: il clic su uno stile lo salva, e la pagina segna quello nuovo.
   const aggiornate = stato.aggiornate.length;
   await optPagina.ricevi({ cmd: "style", value: "pill" });
@@ -795,6 +810,64 @@ console.log("\n== la sonda inversa: il cursore nell'editor seleziona la voce =="
   await cursore(ciao.line + 1, 2, { text: suPiùRighe });
   eq("…ma non oltre la sua fine", benvenuto.id, markedView.selection[0]?.id);
   markedView.selection = [];
+}
+
+console.log("\n== la libreria troppo vecchia: l'avviso al posto di Results e Project ==");
+{
+  // guasto/ usa il plugin, ma la sua @sepoina/vitetranslate è una 4.6.3, di prima di ./ide/scan.
+  scrivi("guasto/vite.config.js", `import vitetranslate from ${JSON.stringify(PLUGIN)};\nexport default { plugins: [vitetranslate({ localeDir: "locale", sourceLanguage: "it-IT" })] };\n`);
+  scrivi("guasto/package.json", JSON.stringify({ name: "guasto", version: "0.1.0" }));
+  scrivi("guasto/src/A.jsx", "export const A = () => <p>_%_Ciao_%_</p>;\n");
+  const lib = "guasto/node_modules/@sepoina/vitetranslate";
+  const libreria = (version, exports) => scrivi(`${lib}/package.json`, JSON.stringify({ name: "@sepoina/vitetranslate", version, type: "module", exports: { ...exports, "./package.json": "./package.json" } }));
+  libreria("4.6.3", {});
+  // Quello che fa VS Code da sé: aspettare che le scansioni arrivino e che la sezione decida.
+  const finché = async (condizione) => {
+    for (let giro = 0; giro < 100 && !condizione(); giro++) {
+      await marked.idle();
+      await new Promise((r) => setTimeout(r, 20));
+    }
+  };
+  const fuochi = () => stato.eseguiti.filter(([id]) => id === "vitetranslate.optional.focus").length;
+  stato.findFiles = async () => [vscode.Uri.file(join(ws, "app/vite.config.js")), vscode.Uri.file(join(ws, "guasto/vite.config.js"))];
+  await stato.comandi.get("vitetranslate.refresh")();
+  const prima = fuochi();
+  await stato.comandi.get("vitetranslate.select")(join(ws, "guasto"));
+  await pieno(mprovider);
+  await finché(() => optProvider.mode === "library");
+  eq("guasto: la facoltativa al posto di Results e Project, senza focus", [true, true, "library", "Library", prima],
+    [stato.contesto["vitetranslate.optional"], stato.contesto["vitetranslate.libraryProblem"], optProvider.mode, optView.title, fuochi()]);
+  eq("…la pagina: niente Back, Check again", [false, true], [optView.webview.html.includes('data-cmd="close"'), optView.webview.html.includes('data-cmd="refresh"')]);
+  eq("…due progetti: Selector resta, per passare all'altro (il suo when)", true, stato.contesto["vitetranslate.manyProjects"]);
+  // In VS Code Results ora è nascosta: nessun disegno la scansiona più.
+  markedView.visible = false;
+  await optPagina.ricevi({ cmd: "ready" });
+  const s = optPagina.stati.at(-1);
+  eq("…lo stato: il guasto, la versione, il comando (in preview: next), il progetto", ["This viteTranslate is too old", true, "npm install @sepoina/vitetranslate@next", "guasto"],
+    [s.library?.heading, s.library?.intro.includes("4.6.3"), s.library?.command, optView.description]);
+  await stato.comandi.get("vitetranslate.closeOptional")();
+  eq("…closeOptional non lo toglie: non c'è dove tornare", "library", optProvider.mode);
+  await optPagina.ricevi({ cmd: "settings" });
+  eq("…l'ingranaggio: Settings sopra il guasto, con la freccia", ["settings", false], [optProvider.mode, stato.contesto["vitetranslate.libraryProblem"]]);
+  await optPagina.ricevi({ cmd: "ready" });
+  eq("…VERSION: la 4.6.3 in giallo, e niente IDE API (l'export non c'è)", [["4.6.3", true], ["none", true]],
+    ((v) => [[v?.library.text, v?.library.old], [v?.ide.text, v?.ide.old]])(optPagina.stati.at(-1).versions));
+  await optPagina.ricevi({ cmd: "close" });
+  eq("…e Back da Settings torna al guasto", ["library", true, true], [optProvider.mode, stato.contesto["vitetranslate.optional"], stato.contesto["vitetranslate.libraryProblem"]]);
+
+  // Aggiornata: una libreria con ./ide/scan (la lib/ del repo). Check again rilegge e riscansiona
+  // da solo, con Results nascosta; la scansione buona rimette Results e Project.
+  symlinkSync(join(REPO, "lib"), join(ws, lib, "lib"), "junction");
+  libreria("4.6.4-rc.3", { "./ide/scan": "./lib/ide/scan.js" });
+  await optPagina.ricevi({ cmd: "refresh" });
+  await finché(() => optProvider.mode === null);
+  eq("Check again, riparata: tornano Results e Project", [null, false, false], [optProvider.mode, stato.contesto["vitetranslate.optional"], stato.contesto["vitetranslate.libraryProblem"]]);
+  markedView.visible = true;
+  eq("…Results: la voce di guasto/, con la sua riga", true, (await tutto()).some((r) => r.label.endsWith(" Ciao") && r.description === ":1"));
+
+  stato.findFiles = async () => [vscode.Uri.file(join(ws, "app/vite.config.js"))];
+  await stato.comandi.get("vitetranslate.refresh")();
+  await progetto();
 }
 
 console.log("\n== Restricted Mode ==");

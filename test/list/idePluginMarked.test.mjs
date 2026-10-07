@@ -58,17 +58,30 @@ export const Page = ({ n }) => (
   eq("letta dall'export ./ide/scan", IDE_API, r.ideApi);
 }
 
-console.log("\n== sonda: libreria senza ./ide/scan, letta per percorso ==");
+console.log("\n== sonda: libreria senza ./ide/scan ==");
 {
-  // Una libreria pubblicata prima dell'export: il suo package.json non lo dichiara, lib/ è quella del repo.
+  // Una libreria pubblicata prima dell'export (4.6.3 e prima): il suo package.json non lo dichiara.
+  // Il suo lib/ (qui quello del repo) non si legge per percorso: è troppo vecchia, e basta.
   const pkg = join(radice, "vecchia/node_modules/@sepoina/vitetranslate");
   mkdirSync(pkg, { recursive: true });
-  writeFileSync(join(pkg, "package.json"), JSON.stringify({ name: "@sepoina/vitetranslate", version: "4.6.4-rc.2", type: "module", exports: { "./package.json": "./package.json" } }));
+  writeFileSync(join(pkg, "package.json"), JSON.stringify({ name: "@sepoina/vitetranslate", version: "4.6.3", type: "module", exports: { "./package.json": "./package.json" } }));
   symlinkSync(join(REPO, "lib"), join(pkg, "lib"), "junction");
   scrivi("vecchia/src/A.jsx", "export const A = () => <p>_%_Ciao_%_</p>;\n");
   const r = await sonda("vecchia", { baseDir: ".", srcDir: "src", localeDir: "locale", sourceLanguage: "it-IT", autoWrap: false });
-  eq("ok, senza api, la sua versione", [true, null, "4.6.4-rc.2"], [r.ok, r.ideApi, r.version]);
-  eq("la voce, con la riga", [["Ciao", 1]], r.files?.[0]?.entries.map((e) => [e.text, e.line]));
+  eq("TOO_OLD, con la sua versione", [false, "TOO_OLD", "4.6.3", true], [r.ok, r.code, r.version, String(r.error).includes("4.6.3")]);
+  eq("…e nessun IDE_API: l'export non c'è", false, "ideApi" in r);
+}
+
+console.log("\n== sonda: libreria che non si carica ==");
+{
+  // L'export c'è, ma il modulo si rompe al caricamento: un'installazione a metà.
+  const pkg = "rotta/node_modules/@sepoina/vitetranslate";
+  scrivi(`${pkg}/package.json`, JSON.stringify({ name: "@sepoina/vitetranslate", version: "4.6.4", type: "module", exports: { "./ide/scan": "./lib/ide/scan.js", "./package.json": "./package.json" } }));
+  scrivi(`${pkg}/lib/ide/scan.js`, 'import "./manca.js";\nexport const IDE_API = 1;\n');
+  scrivi("rotta/src/A.jsx", "export const A = () => <p>_%_Ciao_%_</p>;\n");
+  const r = await sonda("rotta", { baseDir: ".", srcDir: "src", localeDir: "locale", sourceLanguage: "it-IT", autoWrap: false });
+  eq("UNREADABLE_LIBRARY, con la versione e il perché", [false, "UNREADABLE_LIBRARY", "4.6.4", true],
+    [r.ok, r.code, r.version, /can't be read by this extension: .*manca\.js/.test(r.error)]);
 }
 
 console.log("\n== sonda: IDE_API sotto il minimo ==");
@@ -80,6 +93,7 @@ console.log("\n== sonda: IDE_API sotto il minimo ==");
   scrivi("troppoVecchia/src/A.jsx", "export const A = () => <p>_%_Ciao_%_</p>;\n");
   const r = await sonda("troppoVecchia", { baseDir: ".", srcDir: "src", localeDir: "locale", sourceLanguage: "it-IT", autoWrap: false });
   eq("TOO_OLD, con la versione nel messaggio", [false, "TOO_OLD", true], [r.ok, r.code, String(r.error).includes("9.0.0")]);
+  eq("…e l'IDE_API che dichiara: lo mostra VERSION", 0, r.ideApi);
 }
 
 console.log("\n== sonda: i problemi di ogni voce ==");
@@ -207,9 +221,11 @@ console.log("\n== righe: i casi limite ==");
   const input = { baseDir: ".", srcDir: "src" };
   const dir = join("/", "p");
   const errore = markedChildren({ dir, input, marked: { ok: false, code: "NO_LIBRARY", error: "@sepoina/vitetranslate is not installed in this project" } });
-  eq("errore: una riga col rimedio", ["@sepoina/vitetranslate is not installed in this project", "run npm install in the project"], [errore[0].label, errore[0].description]);
+  eq("errore: una riga col rimedio", ["@sepoina/vitetranslate is not installed in this project", "install @sepoina/vitetranslate in the project"], [errore[0].label, errore[0].description]);
   const tooOld = markedChildren({ dir, input, marked: { ok: false, code: "TOO_OLD", error: "@sepoina/vitetranslate 9.0.0 is too old for this extension" } });
-  eq("troppo vecchia: il comando che la aggiorna", [1, true, "error"], [tooOld.length, tooOld[0].description.includes("npm install @sepoina/vitetranslate@latest"), tooOld[0].icon]);
+  eq("troppo vecchia: da aggiornare (il comando lo dà la pagina del guasto)", [1, "update @sepoina/vitetranslate", "error"], [tooOld.length, tooOld[0].description, tooOld[0].icon]);
+  const illeggibile = markedChildren({ dir, input, marked: { ok: false, code: "UNREADABLE_LIBRARY", error: "@sepoina/vitetranslate 4.6.4 can't be read by this extension: x" } });
+  eq("illeggibile: da reinstallare", "reinstall @sepoina/vitetranslate", illeggibile[0].description);
 
   const vuoto = markedChildren({ dir, input, marked: { ok: true, scanned: 7, files: [] } });
   eq("niente di marcato", ["nothing marked yet", "7 files scanned in src/"], [vuoto[0].label, vuoto[0].description]);
@@ -232,8 +248,7 @@ console.log("\n== righe: i casi limite ==");
 
   const vecchia = markedChildren({ dir, input, marked: { ok: true, version: "4.6.3", scanned: 1, files: [{ ...file, entries: [{ id: "A_1", text: "Ciao", line: null, column: null }] }] } });
   const [voce] = vecchia[0].children[0].children;
-  eq("libreria senza righe: niente :riga", [undefined, null], [voce.description, voce.line]);
-  eq("…e una riga che lo spiega", "@sepoina/vitetranslate 4.6.3 does not report lines", vecchia.at(-1).label);
+  eq("voce senza riga: niente :riga", [undefined, null], [voce.description, voce.line]);
 }
 
 console.log("\n== righe: glifi e filtro ==");

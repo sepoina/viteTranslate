@@ -228,6 +228,20 @@ export class MarkedTree {
     if (s.carico) await s.carico;
   }
 
+  /**
+   * Un risultato aggiornato di `project`, anche con Results nascosta: senza disegni nessuno
+   * farebbe partire il carico. Lo usa la sezione facoltativa quando copre Results per un guasto
+   * della libreria, per accorgersi che è stato riparato. Un carico superato mentre arrivava non
+   * basta: se ne fa partire un altro. Si ferma sui salvataggi in attesa (`attesa`): sono di refresh().
+   */
+  async current(project) {
+    const s = this.statoDi(project.dir);
+    while ((!s.risultato || s.gen !== s.genRisultato) && !s.attesa) {
+      if (!s.carico) this.avvia(project, s);
+      await s.carico;
+    }
+  }
+
   getTreeItem(row) {
     return treeItem(row);
   }
@@ -402,7 +416,7 @@ export class MarkedTree {
     // Chiuso da forget() mentre lavorava: la risposta non serve a nessuno, e non è un errore.
     if (marked.code === "DISPOSED") return marked;
     const o = marked.origin;
-    const da = o ? ` [api ${marked.ideApi ?? "by path"}, index ${marked.index}: ${o.index} from the index, ${o.overlay} kept, ${o.parsed} parsed${marked.babel ? ", Babel warm" : ""}]` : "";
+    const da = o ? ` [api ${marked.ideApi}, index ${marked.index}: ${o.index} from the index, ${o.overlay} kept, ${o.parsed} parsed${marked.babel ? ", Babel warm" : ""}]` : "";
     this.log(
       `${project.dir}: source ${marked.ok ? `scanned in ${marked.ms} ms, ${markedSummary(marked)}${da}` : `NOT scanned\n  ${marked.error}`}` +
         (marked.warnings?.length ? `\n  ${marked.warnings.map((w) => `${w.rel}: ${w.message}`).join("\n  ")}` : "") +

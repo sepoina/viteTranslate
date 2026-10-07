@@ -145,7 +145,8 @@
         {
           "type": "webview",
           "id": "vitetranslate.selector",
-          "name": "Selector"
+          "name": "Selector",
+          "when": "vitetranslate.ready && (!vitetranslate.optional || vitetranslate.libraryProblem && vitetranslate.manyProjects)"
         },
         {
           "id": "vitetranslate.results",
@@ -155,8 +156,8 @@
         {
           "type": "webview",
           "id": "vitetranslate.optional",
-          "name": "Help",
-          "when": "vitetranslate.optional"
+          "name": "Loading",
+          "when": "vitetranslate.optional || !vitetranslate.ready"
         },
         {
           "type": "webview",
@@ -244,14 +245,14 @@
         },
         {
           "command": "vitetranslate.closeOptional",
-          "when": "view == vitetranslate.optional",
+          "when": "view == vitetranslate.optional && vitetranslate.ready && !vitetranslate.libraryProblem",
           "group": "navigation"
         }
       ],
       "commandPalette": [
         {
           "command": "vitetranslate.closeOptional",
-          "when": "vitetranslate.optional"
+          "when": "vitetranslate.optional && vitetranslate.ready && !vitetranslate.libraryProblem"
         }
       ]
     }

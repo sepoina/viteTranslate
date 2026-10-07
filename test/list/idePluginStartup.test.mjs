@@ -1,7 +1,8 @@
 // Estensione per l'editor (idePlugin): l'avvio. Con un progetto solo (quindi già selezionato),
-// Results e Project restano nascoste (context key vitetranslate.ready) finché il suo vite.config
-// non è letto e la prima scansione non è arrivata; intanto Selector dice cosa sta preparando. Un
-// processo a parte da idePluginExtension.test.mjs: l'avvio si vede una volta sola per attivazione.
+// Selector, Results e Project restano nascoste (context key vitetranslate.ready) finché il suo
+// vite.config non è letto e la prima scansione non è arrivata; intanto la sezione facoltativa, nel
+// modo loading, dice cosa sta preparando, e poi lascia il posto. Un processo a parte da
+// idePluginExtension.test.mjs: l'avvio si vede una volta sola per attivazione.
 //
 //   node test/list/idePluginStartup.test.mjs
 import module from "node:module";
@@ -55,29 +56,33 @@ const context = {
   extensionUri: vscode.Uri.file(join(ws, "ext")),
 };
 
-const { marked, tree, preparato } = activate(context);
-// Selector, aperto subito, come all'avvio di VS Code.
+const { marked, tree, preparato, optional } = activate(context);
+// La sezione facoltativa, aperta subito: all'avvio di VS Code è l'unica in vista.
 const stati = [];
-stato.webviews.get("vitetranslate.selector").resolveWebviewView({
+const vistaAvvio = {
   webview: {
     options: {}, html: "", cspSource: "vscode-webview://x",
     asWebviewUri: (uri) => `vscode-webview://x${uri.fsPath}`,
     onDidReceiveMessage: () => ({ dispose() {} }),
     postMessage: async (m) => void stati.push(m),
   },
+  title: undefined,
   visible: true,
   onDidChangeVisibility: () => ({ dispose() {} }),
   onDidDispose: () => ({ dispose() {} }),
-});
+};
+stato.webviews.get("vitetranslate.optional").resolveWebviewView(vistaAvvio);
 
 console.log("\n== l'avvio con un progetto selezionato ==");
-eq("subito: Results e Project nascoste", undefined, stato.contesto["vitetranslate.ready"]);
+eq("subito: Selector, Results e Project nascoste", undefined, stato.contesto["vitetranslate.ready"]);
+eq("…al loro posto la facoltativa, sull'avvio: Loading, il logo, la prima tappa", [true, "loading", "Loading", true, true],
+  [stato.contesto["vitetranslate.optional"], optional.mode, vistaAvvio.title, vistaAvvio.webview.html.includes('<main id="loading"'), vistaAvvio.webview.html.includes("Looking for Vite projects…")]);
 await preparato;
-await new Promise((r) => setTimeout(r, 0));
-const passi = [...new Set(stati.map((s) => s.starting))];
-eq("Selector ha detto cosa preparava, poi più niente", ["Reading the vite.config of my-app…", "Scanning my-app for marked strings…", null],
+const passi = [...new Set(stati.map((s) => s.loading))];
+eq("la facoltativa ha detto cosa preparava", ["Reading the vite.config of my-app…", "Scanning my-app for marked strings…"],
   passi.filter((p) => p !== "Looking for Vite projects…"));
-eq("pronto: le sezioni si mostrano", true, stato.contesto["vitetranslate.ready"]);
+eq("pronto: le sezioni si mostrano, la facoltativa lascia il posto", [true, false, null],
+  [stato.contesto["vitetranslate.ready"], stato.contesto["vitetranslate.optional"], optional.mode]);
 eq("…con vite.config già letto e la scansione già arrivata", [true, true], [!!tree.ready(APP), marked.resultOf(APP)?.ok]);
 const [radice] = await stato.treeViews.get("vitetranslate.results").treeDataProvider.getChildren();
 eq("Results disegna subito le righe vere, niente Loading", "src", radice?.label);
@@ -107,6 +112,25 @@ console.log("\n== Project compare: le tappe ==");
   await ricevi({ cmd: "drawn" });
   const tappe = stato.log.filter((r) => /startup: Project/.test(r)).map((r) => /startup: (.*) \+\d+ ms after ready/.exec(r)?.[1]);
   eq("…e le sue tappe nel canale, una volta sola", ["Project page created", "Project script loaded", "Project drawn"], tappe);
+}
+
+console.log("\n== Settings aperto durante l'avvio (dalla palette) ==");
+{
+  // Un'altra attivazione: un avvio nuovo, sullo stesso workspace.
+  const context2 = { ...context, subscriptions: [] };
+  const { preparato: preparato2, optional: opt } = activate(context2);
+  const vista = { ...vistaAvvio, webview: { ...vistaAvvio.webview, postMessage: async () => {} }, title: undefined };
+  stato.webviews.get("vitetranslate.optional").resolveWebviewView(vista);
+  await stato.comandi.get("vitetranslate.settings")();
+  eq("Settings sopra l'avvio", ["settings", "Settings", true], [opt.mode, vista.title, stato.contesto["vitetranslate.optional"]]);
+  await stato.comandi.get("vitetranslate.closeOptional")();
+  eq("…Back, con l'avvio non finito: si torna all'avvio", ["loading", "Loading", true], [opt.mode, vista.title, stato.contesto["vitetranslate.optional"]]);
+  await stato.comandi.get("vitetranslate.settings")();
+  await preparato2;
+  eq("…riaperto e lasciato aperto: a pannello pronto resta Settings", ["settings", true], [opt.mode, stato.contesto["vitetranslate.optional"]]);
+  await stato.comandi.get("vitetranslate.closeOptional")();
+  eq("…e il suo Back, ad avvio finito, rimette Results e Project", [null, false], [opt.mode, stato.contesto["vitetranslate.optional"]]);
+  for (const d of context2.subscriptions) d.dispose?.();
 }
 
 for (const d of context.subscriptions) d.dispose?.();

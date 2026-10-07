@@ -51,12 +51,6 @@ export const COLUMN_CSS = `
     [hidden] { display: none !important; }`;
 
 /**
- * Le pagine della sezione facoltativa si prendono il pannello (Results e Project spariscono): uno
- * sfondo tinto dall'accento del tema, perché si veda che è un'altra modalità (14%: si nota, senza
- * gridare). La barra in fondo è quella di Project, con Back (commandBar.mjs). Da aggiungere dopo
- * COLUMN_CSS.
- */
-/**
  * Le righe-azione delle pagine (le azioni di LLM, le voci di Settings): a due piani, l'icona nella
  * prima colonna, il nome e sotto la descrizione nella seconda (la descrizione va a capo lì, sotto il
  * nome; un vscode-tree-item è alto una riga sola). Da aggiungere dopo COLUMN_CSS, con `.ciro`.
@@ -81,5 +75,12 @@ export const ACTION_CSS = `
 export const actionRowHtml = ({ cmd, title, icon, detail }) =>
   `<div class="azione ciro" role="button" tabindex="0" data-cmd="${cmd}"><vscode-icon name="${icon}"></vscode-icon><span>${escape(title)}</span><span class="desc">${escape(detail)}</span></div>`;
 
+/**
+ * Le pagine della sezione facoltativa si prendono il pannello (Selector, Results e Project
+ * spariscono): uno sfondo tinto dall'accento del tema, perché si veda che è un'altra modalità (14%:
+ * si nota, senza gridare), e più aria sopra ogni capitolo (h2: 22px invece degli 8 di COLUMN_CSS).
+ * La barra in fondo è quella di Project, con Back (commandBar.mjs). Da aggiungere dopo COLUMN_CSS.
+ */
 export const OPTIONAL_CSS = `
-    body { background: color-mix(in srgb, var(--vscode-sideBar-background), var(--vscode-focusBorder) 14%); }`;
+    body { background: color-mix(in srgb, var(--vscode-sideBar-background), var(--vscode-focusBorder) 14%); }
+    h2 { margin-top: 22px; }`;

@@ -1,9 +1,7 @@
 // La pagina Settings, nella sezione facoltativa (al posto di Results e Project): tutto quello che è
-// impostazione, in un posto. La apre l'ingranaggio di Project. In testa il logo intero (logo.mjs)
-// e, a destra, un riquadro con due versioni, ognuna con la sua icona e il suo fumetto: quella del CLI
-// installato nel progetto selezionato (dallo stato, versionsState in inspectorState.mjs; in giallo
-// se è sotto la minima o manca) e la minima che l'estensione chiede (LIB_MIN, fissa). Sotto, e scorre,
-// la sezione CONFIG: le voci nello stile delle azioni di LLM (icona, nome, sotto il dettaglio). Due sono
+// impostazione, in un posto. La apre l'ingranaggio di Project. In testa il logo intero (logo.mjs).
+// Sotto, e scorre, la sezione CONFIG: le voci nello stile delle azioni di LLM (icona, nome, sotto il
+// dettaglio). Due sono
 // accordion (accordion.mjs) che si aprono sotto di sé, uno aperto alla volta, in evidenza; chiusi
 // la prima volta, poi come li ha lasciati l'utente (rememberAccordions, in optionalWebview.mjs).
 // Due sono azioni, con la stessa faccia (actionRowHtml, in pageCommon.mjs). Nell'ordine:
@@ -15,15 +13,33 @@
 //   - Detailed config (azione): le impostazioni dell'estensione in VS Code;
 //   - Local file status: l'albero di vitetranslate, package.json e vite.config del progetto
 //     selezionato (inspectorState.mjs). Un ramo con un file lo apre.
+// Poi la sezione VERSION: una riga per versione, icona, nome e il valore a destra, ognuna col suo
+// fumetto (VERSION_ROWS). Quelle dell'estensione e del progetto le scrive lo stato (versionsState
+// in inspectorState.mjs; in giallo quando mancano o sono troppo vecchie), quelle che l'estensione
+// chiede (LIB_MIN, IDE_API_MIN) sono fisse.
 // In fondo, ferma, la barra dei comandi: Back e l'icona della pagina (commandBar.mjs). Qui lo
 // scheletro: lo riempie optionalWebview.mjs dallo stato. Nessun import di `vscode`.
-import { pageHead, COLUMN_CSS, OPTIONAL_CSS, ACTION_CSS, actionRowHtml } from "../../pageCommon.mjs";
+import { pageHead, COLUMN_CSS, OPTIONAL_CSS, ACTION_CSS, actionRowHtml, escape } from "../../pageCommon.mjs";
 import { commandBarHtml, COMMAND_BAR_CSS } from "../../commandBar/commandBar.mjs";
 import { TOOLTIP_CSS } from "../../tooltip/tooltip.mjs";
 import { accordionHtml, ACCORDION_CSS } from "../../accordion/accordion.mjs";
-import { LOGO_SVG } from "./logo.mjs";
-import { LIB_MIN } from "../../../probes/markedScan.mjs";
+import { LOGO_SVG, LOGO_CSS } from "./logo.mjs";
+import { LIB_MIN, IDE_API_MIN } from "../../../probes/markedScan.mjs";
 
+/**
+ * Le righe di VERSION, nell'ordine. `value` è l'HTML del valore: uno <span> con `id` lo riempie lo
+ * stato. Una riga con `id` prende dallo stato anche il fumetto e il giallo (`data-old`); le altre
+ * hanno il loro `tip`, fisso.
+ */
+export const VERSION_ROWS = [
+  { icon: "extensions", title: "VS Code extension", value: `<span id="extensionVersion">—</span>`, tip: "The viteTranslate extension you're running." },
+  { id: "libraryRow", icon: "package", title: "Project library", value: `<span id="libraryVersion">—</span>` },
+  { icon: "git-branch-conflicts", title: "Requested by the extension", value: LIB_MIN, tip: "The oldest vitetranslate this extension works with." },
+  { id: "ideRow", icon: "plug", title: "IDE API present/requested", value: `<span id="ideVersion">—</span>/${IDE_API_MIN}` },
+];
+
+const versionRowHtml = ({ id, icon, title, value, tip }) =>
+  `<div class="versione ciro"${id ? ` id="${id}"` : ""}${tip ? ` title="${escape(tip)}"` : ""}><vscode-icon name="${icon}"></vscode-icon><span>${escape(title)}</span><span class="valore">${value}</span></div>`;
 
 /**
  * Le voci di CONFIG, nell'ordine. Con `id` e `group` sono accordion (uno aperto alla volta), con
@@ -57,22 +73,17 @@ export const SECTIONS = {
  * @returns {string}
  */
 export function settingsHtml({ scriptUri, codiconsUri, cspSource, nonce }) {
-  return `${pageHead({ codiconsUri, cspSource, nonce })}${COLUMN_CSS}${OPTIONAL_CSS}${ACTION_CSS}${ACCORDION_CSS}${COMMAND_BAR_CSS}${TOOLTIP_CSS}
+  return `${pageHead({ codiconsUri, cspSource, nonce })}${COLUMN_CSS}${OPTIONAL_CSS}${ACTION_CSS}${ACCORDION_CSS}${COMMAND_BAR_CSS}${TOOLTIP_CSS}${LOGO_CSS}
     main { padding-top: 8px; }
-    /* La testata: il logo, che si stringe se la sezione è stretta, e il riquadro delle versioni a
-       destra. La scritta ha il colore del testo, il "%" l'accento della pagina (i titoli). */
-    .testata { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 4px 0 10px; }
-    .logo { display: block; flex: 0 1 170px; min-width: 70px; height: auto; }
-    .logo-testo { fill: var(--vscode-foreground); }
-    .logo-pct { fill: var(--vscode-chat-linesAddedForeground); }
-    .versioni {
-      flex: none; display: grid; grid-template-columns: auto auto; align-items: center; column-gap: 5px; row-gap: 1px;
-      padding: 3px 7px; border: 1px solid var(--vscode-widget-border, var(--vscode-panel-border)); border-radius: 4px;
-      font-family: var(--vscode-editor-font-family); font-size: 11px; color: var(--vscode-descriptionForeground);
-    }
-    .versioni vscode-icon { display: block; }
-    #cliVersion { color: var(--vscode-foreground); }
-    .versioni[data-old] #cliVersion { color: var(--vscode-problemsWarningIcon-foreground); }
+    /* La testata: il logo, che si stringe se la sezione è stretta. Sotto, l'aria la dà h2
+       (OPTIONAL_CSS). */
+    .testata { margin: 4px 0 0; }
+    .testata .logo { width: min(170px, 100%); }
+    /* VERSION: icona, nome e, a destra, il valore; in giallo quando manca o è troppo vecchio. */
+    .versione { display: grid; grid-template-columns: 16px 1fr auto; column-gap: 6px; align-items: center; padding: 2px 6px 2px 9px; }
+    .versione + .versione { margin-top: 2px; }
+    .versione .valore { font-family: var(--vscode-editor-font-family); color: var(--vscode-descriptionForeground); }
+    .versione[data-old] .valore { color: var(--vscode-problemsWarningIcon-foreground); }
     #message { margin: 4px 0 8px; color: var(--vscode-descriptionForeground); }
     /* Uno stile: il segno nella prima colonna; nome e descrizione, poi il campione, nella seconda. */
     .stile {
@@ -97,10 +108,6 @@ export function settingsHtml({ scriptUri, codiconsUri, cspSource, nonce }) {
   <main>
     <header class="testata">
       ${LOGO_SVG}
-      <div class="versioni" id="versions">
-        <vscode-icon id="cliIcon" name="terminal-bash" title="The vitetranslate CLI of the selected project."></vscode-icon><span id="cliVersion">—</span>
-        <vscode-icon name="git-branch-conflicts" title="The oldest vitetranslate this extension fully works with.\nOlder ones still work, with less in Results."></vscode-icon><span>${LIB_MIN}</span>
-      </div>
     </header>
     <section>
       <h2>Config</h2>
@@ -112,6 +119,10 @@ export function settingsHtml({ scriptUri, codiconsUri, cspSource, nonce }) {
         body: `<p id="message" hidden></p>
         <vscode-tree id="tree" indent-guides="onHover" hidden></vscode-tree>`,
       })}
+    </section>
+    <section id="versions">
+      <h2>Version</h2>
+      ${VERSION_ROWS.map(versionRowHtml).join("\n      ")}
     </section>
   </main>
   ${commandBarHtml({ back: { icon: "settings-gear", name: "Settings" } })}

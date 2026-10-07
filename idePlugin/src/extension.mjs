@@ -18,9 +18,11 @@
 // e si provano in Node puro.
 //
 // Il pannello è un contenitore suo della Activity Bar (contributes.viewsContainers in
-// package.json) con tre sezioni, dall'alto: Selector, Results (o al suo posto la facoltativa),
-// Project. Finché non c'è una selezione Results e Project sono vuote: Results mostra il messaggio
-// di viewsWelcome ("Select a project…"), Project lo scrive da sé.
+// package.json) con tre sezioni, dall'alto: Selector, Results, Project. Quando c'è, la facoltativa
+// prende il posto di tutte e tre (Selector resta solo accanto al guasto della libreria, se c'è un
+// altro progetto da scegliere); all'avvio è lei a dire cosa si prepara. Finché non c'è una
+// selezione Results e Project sono vuote: Results mostra il messaggio di viewsWelcome ("Select a
+// project…"), Project lo scrive da sé.
 //
 // Le sezioni parlano la stessa lingua, e qui si usano solo così:
 //   - invalidate(dir?): quanto letto di un progetto (o di tutti) non vale più;
@@ -45,6 +47,10 @@ export function activate(context) {
   const sonda = (file) => context.asAbsolutePath(path.join("dist", file));
   const { extensionUri, workspaceState: state } = context;
   const extensionId = context.extension?.id ?? "sepoina.vitetranslate-ide";
+  // In preview la libreria si chiede a npm col tag `next` (la pagina del guasto, libraryPage.mjs).
+  const preview = context.extension?.packageJSON?.preview === true;
+  // In VERSION, nella pagina Settings.
+  const extensionVersion = context.extension?.packageJSON?.version ?? null;
 
   const highlighter = new Highlighter({ log });
   const projects = new Projects({ probePath: sonda("probe.mjs"), log, state });
@@ -52,8 +58,9 @@ export function activate(context) {
   const cli = new CliTasks({ runner: sonda("cliRunner.mjs"), runAsNodeCmd: sonda("runAsNode.cmd"), projects, log });
   const startup = new Startup({ projects, marked: results.tree, log });
 
-  // Il pannello parte la prima volta che una sua sezione si apre: una webview risolta, o Results in
-  // vista. `preparato` si risolve a pannello pronto (i test lo aspettano).
+  // Il pannello parte la prima volta che una sua sezione si apre: una webview risolta (di solito la
+  // facoltativa, che all'avvio è l'unica in vista), o Results in vista. `preparato` si risolve a
+  // pannello pronto, e la facoltativa uscita dall'avvio (i test lo aspettano).
   let avviato = false;
   let segnalaPronto;
   const preparato = new Promise((r) => (segnalaPronto = r));
@@ -61,19 +68,22 @@ export function activate(context) {
     if (avviato) return;
     avviato = true;
     results.start();
-    startup.start().then(segnalaPronto, segnalaPronto);
+    startup.start().then(() => optional.avviata).then(segnalaPronto, segnalaPronto);
   };
   // Una sezione tornata in vista recupera quanto rimandato mentre il pannello era nascosto.
   const allaVista = () => (results.wake(), watch.wake());
-  const selector = new SelectorView({ extensionUri, projects, results, startup, log, onVisible: allaVista, onOpen: avviaPannello });
+  const selector = new SelectorView({ extensionUri, projects, results, log, onVisible: allaVista, onOpen: avviaPannello });
   const project = new ProjectView({ extensionUri, projects, results, cli, startup, log, onVisible: allaVista, onOpen: avviaPannello });
-  const optional = new OptionalView({ extensionUri, projects, results, cli, highlighter, extensionId, log, onOpen: avviaPannello });
+  const optional = new OptionalView({
+    extensionUri, projects, results, cli, highlighter, startup, extensionId, extensionVersion, preview, log, onVisible: allaVista, onOpen: avviaPannello,
+  });
 
   const invalidate = (dir) => {
     projects.forget(dir);
     for (const sezione of [results, optional, project]) sezione.invalidate(dir);
   };
-  const watch = new ProjectWatch({ projects, invalidate, isVisible: () => selector.visible || results.visible || project.visible });
+  // Anche la facoltativa: con lei in vista Selector, di solito, non c'è.
+  const watch = new ProjectWatch({ projects, invalidate, isVisible: () => selector.visible || results.visible || project.visible || optional.visible });
 
   const comandi = {
     "vitetranslate.select": (dir) => projects.select(dir),

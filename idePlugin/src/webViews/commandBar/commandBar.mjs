@@ -6,6 +6,7 @@
 //   - facoltativa (`back`): a sinistra Back e i comandi della pagina (Check again e il ? di LLM,
 //     Open the options), a destra l'icona della pagina. Se Back è solo, l'icona è preceduta da "Return to
 //     project"; coi comandi della pagina la scritta non c'è (non c'è posto, e Back si spiega da sé).
+//     La pagina del guasto della libreria non ha Back (`withBack: false`): solo i suoi comandi.
 // Nessun import di `vscode`.
 import { escape } from "../pageCommon.mjs";
 
@@ -84,11 +85,13 @@ const bottone = (c) => {
  * @param {object} [p]
  * @param {{ icon: string, name: string }} [p.back] - la pagina facoltativa: la sua codicon e il suo nome
  * @param {Comando[]} [p.commands] - i comandi della pagina, a sinistra dopo Back
+ * @param {boolean} [p.withBack] - false: senza Back, per la pagina che non ha dove tornare (il
+ *   guasto della libreria)
  * @returns {string}
  */
-export function commandBarHtml({ back = null, commands = [] } = {}) {
+export function commandBarHtml({ back = null, commands = [], withBack = true } = {}) {
   if (back) {
-    const sinistra = [BACK_BUTTON, ...commands.map(bottone)].join("\n      ");
+    const sinistra = [...(withBack ? [BACK_BUTTON] : []), ...commands.map(bottone)].join("\n      ");
     const ritorno = commands.length ? "" : `<span class="ritorno">${escape(BACK_LABEL)}</span>\n      `;
     return `<footer class="actions">
     <div class="bottoni">

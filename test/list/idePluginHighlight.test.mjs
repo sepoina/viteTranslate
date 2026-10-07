@@ -325,7 +325,8 @@ console.log("\n== 5. attivata da un file js: il pannello aspetta ==");
   eq("…e l'editor è colorato", true, [...ed.disegni.values()].some((r) => r.length > 0));
   eq("il comando di scelta è registrato", true, stato.comandi.has("vitetranslate.highlightStyle"));
   eq("pannello chiuso: nessun progetto cercato, niente pronto", [0, undefined], [cercati, stato.contesto["vitetranslate.ready"]]);
-  stato.webviews.get("vitetranslate.selector").resolveWebviewView({
+  // Aperto il pannello, la prima sezione in vista è la facoltativa, sull'avvio.
+  stato.webviews.get("vitetranslate.optional").resolveWebviewView({
     webview: {
       options: {}, html: "", cspSource: "vscode-webview://x", asWebviewUri: (u) => `vscode-webview://x${u.fsPath}`,
       onDidReceiveMessage: () => ({ dispose() {} }), postMessage: async () => {},
@@ -333,7 +334,7 @@ console.log("\n== 5. attivata da un file js: il pannello aspetta ==");
     visible: true, onDidChangeVisibility: () => ({ dispose() {} }), onDidDispose: () => ({ dispose() {} }),
   });
   await preparato;
-  eq("Selector aperto: il pannello parte e si prepara", [true, true], [cercati > 0, stato.contesto["vitetranslate.ready"]]);
+  eq("pannello aperto: parte e si prepara", [true, true], [cercati > 0, stato.contesto["vitetranslate.ready"]]);
   for (const d of context.subscriptions) d.dispose?.();
 }
 

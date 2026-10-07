@@ -8,10 +8,10 @@
 // extractMarkers senza riscrittura. Solo, una tabella per file invece di una per progetto: la
 // tabella dice quali chiavi esistono, non dove stanno.
 //
-// Della libreria si usa l'export dichiarato `@sepoina/vitetranslate/ide/scan` (lib/ide/scan.js),
-// versionato da IDE_API: è il contratto, e questa estensione ne chiede almeno IDE_API_MIN. Le
-// librerie pubblicate prima dell'export si leggono per percorso dentro lib/ (perPercorso), con
-// quello che hanno.
+// Della libreria si usa solo l'export dichiarato `@sepoina/vitetranslate/ide/scan`
+// (lib/ide/scan.js), versionato da IDE_API: è il contratto, e questa estensione ne chiede almeno
+// IDE_API_MIN. Una libreria senza l'export (pubblicata prima della 4.6.4-rc.3) non si legge a
+// metà: è TOO_OLD, e la sezione facoltativa dice come aggiornarla.
 //
 // Da dove vengono le voci di un file, dal più economico:
 //   1. l'overlay: quello che la scansione precedente ha letto da sé, ripassato dall'estensione
@@ -20,12 +20,9 @@
 //      questa libreria e questo input: stesso [mtimeMs, size] dell'ultima sync;
 //   3. il file letto: se il contenuto ha lo stesso hash dell'overlay o dell'indice (un file
 //      toccato, salvato identico) le voci sono quelle; altrimenti Babel. Solo qui si carica.
-// L'overlay restituito contiene i file dei punti 1 e 3: quelli cambiati dopo la sync. Una libreria
-// senza markerIndex.js (4.6.4-rc.1 e prima) non ha indice né hash: ogni file passa da Babel,
-// come prima.
+// L'overlay restituito contiene i file dei punti 1 e 3: quelli cambiati dopo la sync.
 //
-// Le posizioni arrivano da `onMarker`, aggiunto a extractMarkers dopo la 4.6.3. Con una libreria
-// più vecchia la callback non viene mai chiamata: le voci si prendono dalla tabella, senza riga.
+// Le posizioni arrivano da `onMarker`, la callback di extractMarkers.
 //
 // Ogni voce porta i suoi problemi (`problems`), gli stessi nomi di errorSolve.mark più uno:
 //   - malformed: un avviso dell'estrazione su quella voce (stessa riga e colonna nel messaggio).
@@ -66,31 +63,14 @@ const stessoStat = (stat, entry) => Array.isArray(stat) && stat[0] === entry.mti
 export const IDE_API_MIN = 1;
 
 // La prima versione della libreria con quell'IDE_API: IDE_API_MIN detto all'utente, nella testata
-// di Settings. Sale con IDE_API_MIN. Le librerie più vecchie funzionano lo stesso, con meno.
+// di Settings e nella pagina del guasto. Sale con IDE_API_MIN. Le rc contano come la loro versione
+// (olderThan): la prima con l'export è la 4.6.4-rc.3.
 export const LIB_MIN = "4.6.4";
 
-// Una libreria senza `./ide/scan`, pubblicata prima dell'export: i suoi file letti per percorso
-// dentro lib/, come prima del contratto. Quello che non ha resta senza: niente indice né hash prima
-// di markerIndex.js (4.6.4-rc.1 e prima), niente righe prima di onMarker (4.6.3 e prima).
-async function perPercorso(pkgDir) {
-  const lib = (rel) => import(pathToFileURL(path.join(pkgDir, "lib", rel)).href);
-  const { default: walkSource } = await lib("dev/vite/uty/walkSource.js");
-  const { mayHaveMarkers } = await lib("markerSyntax.js");
-  const { listFiles } = await lib("dev/vite/uty/listLanguageFiles.js");
-  const { isLanguageFileName, tagFromFileName } = await lib("dev/vite/uty/languageFileFormat.js");
-  const { default: readLanguageFile } = await lib("dev/vite/uty/readLanguageFile.js");
-  // L'indice e il suo hash: solo dalle librerie che lo scrivono.
-  let indice = null;
-  let hash = null;
-  try {
-    indice = await lib("dev/vite/uty/markerIndex.js");
-    ({ hash } = await lib("dev/babel/markerCore.js"));
-  } catch {
-    indice = null;
-  }
-  const loadExtractMarkers = async () => (await lib("dev/babel/extractMarkers.js")).default;
-  return { walkSource, mayHaveMarkers, listFiles, isLanguageFileName, tagFromFileName, readLanguageFile, indice, hash, loadExtractMarkers };
-}
+// I guasti della libreria stessa: manca, è troppo vecchia, non si riesce a caricare. Con questi
+// Results non ha niente da mostrare, e la sezione facoltativa prende il posto di Results e Project
+// per dire come rimediare (OptionalView, il modo "library").
+export const LIBRARY_PROBLEMS = new Set(["NO_LIBRARY", "TOO_OLD", "UNREADABLE_LIBRARY"]);
 
 /**
  * Uno scanner per il progetto della cwd. Tiene i moduli della libreria già caricati: in un
@@ -100,6 +80,11 @@ async function perPercorso(pkgDir) {
  */
 export function createScanner() {
   let libreria = null; // { pkgDir, version, ideApi, walkSource, mayHaveMarkers, …, indice, hash, loadExtractMarkers }
+  // `ideApi`, se l'export c'è: lo mostra VERSION, in Settings (versionsState in inspectorState.mjs).
+  const troppoVecchia = (version, ideApi) => ({
+    ok: false, code: "TOO_OLD", error: `@sepoina/vitetranslate ${version} is too old for this extension`, version,
+    ...(typeof ideApi === "number" && { ideApi }),
+  });
   let extractMarkers = null;
 
   // La libreria della cwd, caricata una volta. Se sul disco cambia versione sotto un processo
@@ -122,22 +107,27 @@ export function createScanner() {
     if (libreria) {
       return libreria.version === version ? { ok: true } : { ok: false, code: "STALE_WORKER", error: "the library changed on disk" };
     }
-    // L'ingresso dichiarato per l'estensione. Una libreria che non lo ha si legge per percorso.
-    let ingresso = null;
+    // L'ingresso dichiarato per l'estensione. Una libreria che non lo ha è di prima del contratto.
+    let ingresso;
     try {
       ingresso = createRequire(path.join(cwd, "package.json")).resolve("@sepoina/vitetranslate/ide/scan");
     } catch {
       // ERR_PACKAGE_PATH_NOT_EXPORTED: pubblicata prima dell'export
+      return troppoVecchia(version);
     }
-    if (!ingresso) {
-      libreria = { pkgDir, version, ideApi: null, ...(await perPercorso(pkgDir)) };
-      return { ok: true };
+    // L'export c'è ma non si carica (un'installazione rotta): non è un guasto della scansione ma
+    // della libreria, e lo si dice così.
+    let api;
+    try {
+      api = await import(pathToFileURL(ingresso).href);
+    } catch (error) {
+      return {
+        ok: false, code: "UNREADABLE_LIBRARY", version,
+        error: `@sepoina/vitetranslate ${version} can't be read by this extension: ${senzaColori(error?.message ?? error).split("\n")[0]}`,
+      };
     }
-    const api = await import(pathToFileURL(ingresso).href);
     // Un IDE_API assente o più basso del minimo: manca qualcosa che la sonda usa.
-    if (!(api.IDE_API >= IDE_API_MIN)) {
-      return { ok: false, code: "TOO_OLD", error: `@sepoina/vitetranslate ${version} is too old for this extension`, version };
-    }
+    if (!(api.IDE_API >= IDE_API_MIN)) return troppoVecchia(version, api.IDE_API);
     libreria = {
       pkgDir, version, ideApi: api.IDE_API,
       walkSource: api.walkSource, mayHaveMarkers: api.mayHaveMarkers, listFiles: api.listFiles,
@@ -168,7 +158,7 @@ export function createScanner() {
       const L = libreria;
       const version = L.version;
       if (!fs.existsSync(srcRoot)) {
-        return { ok: false, code: "NO_SRCDIR", error: `srcDir not found: ${path.relative(cwd, srcRoot) || "."}`, version };
+        return { ok: false, code: "NO_SRCDIR", error: `srcDir not found: ${path.relative(cwd, srcRoot) || "."}`, version, ideApi: L.ideApi };
       }
       const inizio = Date.now();
       const files = [];
@@ -217,14 +207,14 @@ export function createScanner() {
 
       // L'indice della sync vale solo per questa libreria e per lo stesso input.
       const autoWrap = autoWrapDa(opzioni.autoWrap);
-      const letto = L.indice ? L.indice.readMarkerIndex(baseDir) : null;
+      const letto = L.indice.readMarkerIndex(baseDir);
       const valido = !!letto
         && letto.pkgVersion === version
         && typeof letto.srcDir === "string" && path.join(baseDir, letto.srcDir) === srcRoot
         && typeof letto.localeDir === "string" && path.join(baseDir, letto.localeDir) === localeDir
         && letto.autoWrap === L.indice.autoWrapKey(autoWrap);
       const indice = valido ? letto : null;
-      const precedente = L.indice ? overlay ?? {} : {};
+      const precedente = overlay ?? {};
       const nuovo = {};
       const origin = { index: 0, overlay: 0, parsed: 0 };
 
@@ -251,11 +241,11 @@ export function createScanner() {
             continue;
           }
           if (!L.mayHaveMarkers(code)) {
-            if (L.indice) nuovo[entry.rel] = { stat, none: true };
+            nuovo[entry.rel] = { stat, none: true };
             continue;
           }
-          const h = L.hash ? L.hash(code) : null;
-          const noto = h === null ? null : o?.hash === h ? o : indice?.marked?.[entry.rel]?.hash === h ? indice.marked[entry.rel] : null;
+          const h = L.hash(code);
+          const noto = o?.hash === h ? o : indice?.marked?.[entry.rel]?.hash === h ? indice.marked[entry.rel] : null;
           if (noto) {
             dati = { entries: noto.entries, warnings: noto.warnings };
             if (noto === o) origin.overlay++;
@@ -277,12 +267,10 @@ export function createScanner() {
               files.push({ rel: entry.rel, path: entry.path, entries: [], error: senzaColori(error?.message ?? error).split("\n")[0] });
               continue;
             }
-            // Libreria senza onMarker: le voci ci sono, le righe no.
-            if (!entries.length) for (const [id, text] of Object.entries(table)) entries.push({ id, text, line: null, column: null });
             dati = { entries, warnings: avvisi };
             origin.parsed++;
           }
-          if (L.indice) nuovo[entry.rel] = { stat, hash: h, entries: dati.entries, warnings: dati.warnings };
+          nuovo[entry.rel] = { stat, hash: h, entries: dati.entries, warnings: dati.warnings };
         }
 
         // Il giudizio, su una copia: le voci dell'overlay tornano all'estensione così come sono.
@@ -303,9 +291,9 @@ export function createScanner() {
       // Nell'ordine di walkSource, come prima: le voci da indice e overlay si mescolano alle altre.
       return {
         ok: true, version, ideApi: L.ideApi, scanned: elenco.length, languages: { source: sorgente, targets: destinazioni, stats }, files, warnings,
-        overlay: L.indice ? nuovo : null,
+        overlay: nuovo,
         origin,
-        index: !L.indice ? "unsupported" : valido ? "used" : letto ? "mismatch" : "none",
+        index: valido ? "used" : letto ? "mismatch" : "none",
         ms: Date.now() - inizio,
       };
     } catch (error) {
