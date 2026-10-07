@@ -2,7 +2,7 @@
   "name": "vitetranslate-ide",
   "displayName": "viteTranslate",
   "description": "Your viteTranslate setup at a glance, in its own panel, and your marked strings highlighted as you type.",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "preview": true,
   "publisher": "sepoina",
   "author": {
