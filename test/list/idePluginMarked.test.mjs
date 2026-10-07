@@ -13,6 +13,7 @@ import runProbe from "../../idePlugin/src/probes/runProbe.mjs";
 import { ScanWorker } from "../../idePlugin/src/probes/scanWorker.mjs";
 import { IDE_API } from "../../lib/ide/scan.js";
 import { markedInput, markedChildren, markedSummary, glyphsOf, filterItems, PASSED, loadingRow, frozenRows, searchFiles, shownCount } from "../../idePlugin/src/views/results/markedRows.mjs";
+import { pathKey } from "../../idePlugin/src/core/pickProject.mjs";
 
 let fail = 0;
 const eq = (nome, atteso, ottenuto) => {
@@ -314,7 +315,8 @@ console.log("\n== righe: caricamento e disegno bloccato ==");
     ] },
   ];
   eq("niente da bloccare: le stesse righe", true, frozenRows(righe, new Map()) === righe);
-  const bloccate = frozenRows(righe, new Map([[join(dir, "src/A.jsx"), "saved"], [join(dir, "src/B.jsx"), "unsaved"]]));
+  // Chiavi per pathKey, come le fa markedTree (forgetFile, setDirty): su Windows sono in minuscolo.
+  const bloccate = frozenRows(righe, new Map([[pathKey(join(dir, "src/A.jsx")), "saved"], [pathKey(join(dir, "src/B.jsx")), "unsaved"]]));
   const [a, b] = bloccate[1].children;
   eq("salvato: il segno davanti al conteggio", "⏳ updating · 1", a.description);
   eq("…le voci senza clic, col perché nel tooltip", [undefined, true], [a.children[0].open, /^Saved: /.test(a.children[0].tooltip)]);

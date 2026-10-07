@@ -84,8 +84,13 @@ console.log("\n== i guasti ==");
   eq("processo riusato morto senza rispondere: riprova con uno nuovo", [true, 2], [r.ok, avvii]);
 
   avvii = 0;
-  const s = await nuovo().request({ mode: "stale", flag: join(dir, "stale") });
+  const sw = nuovo();
+  const s = await sw.request({ mode: "stale", flag: join(dir, "stale") });
   eq("STALE_WORKER: riprova con uno nuovo", [true, 2], [s.ok, avvii]);
+  // w e sw hanno riprovato con un processo che risponde babel: true, quindi resta acceso per
+  // IDLE_MS, con la cwd nella cartella temporanea: su Windows il rmSync in fondo non la toglierebbe.
+  w.dispose();
+  sw.dispose();
 
   avvii = 0;
   const f = nuovo();
@@ -108,6 +113,8 @@ console.log("\n== i guasti ==");
   eq("sonda che non c'è: una risposta d'errore, mai un rifiuto", false, assente.ok);
 }
 
-rmSync(dir, { recursive: true, force: true });
+// Con dei tentativi: su Windows un processo appena chiuso (timeout, dispose: kill() non aspetta che
+// esca) tiene la cartella, che è la sua cwd, per qualche istante ancora, e rmSync risponde EPERM.
+rmSync(dir, { recursive: true, force: true, maxRetries: 10, retryDelay: 100 });
 console.log(fail ? `\n${fail} KO` : "\ntutto ok");
 process.exit(fail ? 1 : 0);

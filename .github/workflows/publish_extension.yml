@@ -24,7 +24,7 @@ jobs:
     concurrency:
       group: vsce-publish
       cancel-in-progress: false
-    # Il vsce di show e publish (il package resta al @3 di scripts/code.mjs). Non "@4": la 4.0.0
+    # Il vsce del publish (controlli e package passano da code.mjs, col suo @3). Non "@4": la 4.0.0
     # di latest scambia il token OIDC col protocollo vecchio e il Marketplace risponde 400 ("No
     # api-version was supplied"). Quello finale (api-version, FederatedToken) c'è dalla 4.0.1-1,
     # ancora pre-release: microsoft/vscode-vsce@c960f2e. Il range prende oggi la 4.0.1-3, e da
@@ -54,71 +54,22 @@ jobs:
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           echo "vsix=idePlugin/$NAME-$VERSION.vsix" >> "$GITHUB_OUTPUT"
 
-      # Lanciato a mano, una versione già pubblicata è una version dimenticata in package.json:
-      # errore, non un salto silenzioso come in publish.yml (che gira a ogni push).
-      # `vsce show --json` stampa "undefined", ed esce con 0, per un'estensione che sul
-      # Marketplace non c'è ancora; un errore di rete esce con un codice diverso e ferma il job.
-      - name: Versione già sul Marketplace?
-        env:
-          ID: ${{ steps.meta.outputs.id }}
-          VERSION: ${{ steps.meta.outputs.version }}
-        run: |
-          npx --yes "$VSCE" show "$ID" --json > "$RUNNER_TEMP/show.json"
-          if node -e '
-            const [file, version] = process.argv.slice(1);
-            const out = require("fs").readFileSync(file, "utf8").trim();
-            const ext = out === "undefined" ? null : JSON.parse(out);
-            process.exit(ext?.versions?.some((v) => v.version === version) ? 0 : 1);
-          ' "$RUNNER_TEMP/show.json" "$VERSION"; then
-            echo "::error::$ID@$VERSION è già sul Marketplace: alza version in idePlugin/package.json."
-            exit 1
-          fi
-
-      # AGENTS.md, "REGOLE DI RILASCIO": l'estensione esce solo quando su npm c'è già la libreria
-      # che porta l'IDE_API che le serve. Quella versione è LIB_MIN in markedScan.mjs, che sale
-      # insieme a IDE_API_MIN: letta da lì, qui non c'è niente da tenere allineato. Vale il tag
-      # "latest" e, finché l'estensione è in preview ("preview": true in idePlugin/package.json),
-      # anche "next": tolta la preview la regola torna rigida da sola.
-      - name: Libreria pronta?
-        run: |
-          LIB_MIN=$(node -e '
-            const s = require("fs").readFileSync("idePlugin/src/probes/markedScan.mjs", "utf8");
-            const m = s.match(/export const LIB_MIN = "([^"]+)"/);
-            if (!m) process.exit(1);
-            console.log(m[1]);
-          ') || { echo "::error::LIB_MIN non trovato in idePlugin/src/probes/markedScan.mjs."; exit 1; }
-          TAGS="latest"
-          if [ "$(node -p "require('./idePlugin/package.json').preview === true")" = "true" ]; then
-            TAGS="latest next"
-          fi
-          for TAG in $TAGS; do
-            # Un tag che non c'è, o npm che non risponde: nessuna versione, e il tag non basta.
-            VERSION=$(npm view "@sepoina/vitetranslate@$TAG" version 2>/dev/null || true)
-            echo "npm $TAG: ${VERSION:-(nessuna)}, richiesta: $LIB_MIN"
-            [ -n "$VERSION" ] || continue
-            # exit 0 = VERSION non è più vecchia di LIB_MIN. Lo stesso confronto di olderThan
-            # (idePlugin/src/webViews/optional/settings/inspectorState.mjs): il suffisso di
-            # pre-release non conta, 4.6.4-rc.3 vale 4.6.4, come per l'estensione.
-            if node -e '
-              const n = (v) => String(v).split(/[-+]/)[0].split(".").map((x) => Number(x) || 0);
-              const [a, b] = process.argv.slice(1).map(n);
-              for (let i = 0; i < 3; i++) if ((a[i] ?? 0) !== (b[i] ?? 0)) process.exit((a[i] ?? 0) > (b[i] ?? 0) ? 0 : 1);
-            ' "$VERSION" "$LIB_MIN"; then
-              echo "Libreria pronta: $VERSION su $TAG."
-              exit 0
-            fi
-          done
-          echo "::error::Su npm ($TAGS) nessuna libreria arriva a $LIB_MIN: pubblica prima la libreria (AGENTS.md, REGOLE DI RILASCIO)."
-          exit 1
+      # Si può pubblicare? Commit pulito, versione non ancora sul Marketplace, libreria su npm
+      # (AGENTS.md, "REGOLE DI RILASCIO": latest, e anche next finché l'estensione è in preview).
+      # Lo stesso controllo di `npm run ide:release` in locale: le regole stanno in code.mjs, una
+      # volta sola. Prima di npm install, apposta: usa solo Node, git, npm e npx.
+      - name: Controlli
+        run: node idePlugin/scripts/code.mjs check
 
       # Un solo npm install alla radice: idePlugin è un workspace, e rolldown, codicons e i
       # sorgenti di lib/ che il bundle si porta dentro stanno lì.
       - name: Install deps
         run: npm install
 
-      # I test dell'estensione e quello dell'ingresso ./ide/scan che Results legge.
+      # I test dell'estensione e quello dell'ingresso ./ide/scan che Results legge: gli stessi di
+      # `npm run ide:release`.
       - name: Test
-        run: npm test -- idePlugin ideScan
+        run: node idePlugin/scripts/code.mjs test
 
       # La stessa strada del .vsix fatto in locale: build e vsce package --no-dependencies.
       - name: Package

@@ -37,7 +37,9 @@
     "build": "node scripts/code.mjs build",
     "package": "node scripts/code.mjs build package",
     "install:editor": "node scripts/code.mjs build package install",
-    "dev": "node scripts/code.mjs build dev"
+    "dev": "node scripts/code.mjs build dev",
+    "release": "node scripts/code.mjs check test build package upload",
+    "tag": "node scripts/code.mjs tag"
   },
   "vsce": {
     "dependencies": false
