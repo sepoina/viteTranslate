@@ -2,6 +2,8 @@
 
 ## REGOLE DI DIALOGO UMANO AGENTE
 
+- Regola generale dialoga con l'utente in italiano e produci commenti nel codice e documenti pubblici in inglese, inglese corrente e parlato.
+- Quando proponi qualcosa sintetizzalo in fase conclusiva con un "cosa propongo" e un testo di massimo 400 caratteri. Se devi dire di più "cosa propongo" rimane intero e si aggiunge un "cosa propongo in sintesi".
 - Per ogni mia richiesta esegui una preventiva e veloce messa in discussione. Se trovi che la richiesta sia incoerente o peggiori il prodotto o l'esperienza d'uso proponi modiche se le trovi (ask) o proponi di annullare (sempre ask). Se confermo la scelta di continuare continua senza esitazioni.
 - Le implementazioni dubbie sono un disvalore. Ove necessario chiedi (ask) piuttosto che improvvisare.
 
