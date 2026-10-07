@@ -35,7 +35,7 @@ export class ScanWorker {
     this.disposed = false;
   }
 
-  /** Vero se c'è un processo acceso. */
+  /** Vero se c'è un processo acceso. Solo per i test. */
   get alive() {
     return this.child !== null;
   }

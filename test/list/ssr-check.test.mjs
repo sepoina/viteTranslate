@@ -2,7 +2,8 @@
 // Se il markup arriva a HTML senza che esista un `document`, la limitazione "No SSR support"
 // del README non c'è più. Girato dalla radice, dove stanno react e react-dom.
 import { renderToString } from "react-dom/server";
-import { writeFileSync, unlinkSync } from "node:fs";
+import { writeFileSync } from "node:fs";
+import { rimuoviTemporanei } from "./tempFiles.mjs";
 
 const { compileLanguageModule } = await import("../../lib/dev/compile/compileTable.js");
 const { resolveEntry, resolveEntryText } = await import("../../lib/react/resolveEntry.js");
@@ -25,7 +26,8 @@ let table;
 try {
   table = (await import(tmp.href)).default;
 } finally {
-  unlinkSync(tmp);
+  // Uno che resta è un KO (tempFiles.mjs), anche se poi il test esce con process.exit(0).
+  rimuoviTemporanei([tmp]);
 }
 
 let fail = 0;

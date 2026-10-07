@@ -21,7 +21,7 @@ export const PARTS = ["match", "frame", "ruler", "text", "delimiters", "componen
  * L'opacità massima dello sfondo del chip: un colore del tema già trasparente resta com'è, uno
  * opaco lascia intravedere quello che c'è sotto (la riga corrente, la selezione mentre si ridisegna).
  */
-export const CHIP_MAX_ALPHA = 0.6;
+const CHIP_MAX_ALPHA = 0.6;
 
 /** Un colore del tema come variabile CSS: VS Code le definisce nell'editor e nelle webview. */
 export const cssVar = (id) => `var(--vscode-${id.replace(/\./g, "-")})`;

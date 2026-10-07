@@ -17,12 +17,19 @@ export function pickerItems(attuale) {
 
 // Scrive la scelta dove l'utente l'aveva già messa: se il workspace ha la sua, scriverla nelle
 // impostazioni utente non cambierebbe niente. La usa anche l'accordion Highlight style di Settings,
-// nella sezione facoltativa (optionalView.mjs).
+// nella sezione facoltativa (optionalView.mjs). Se la scrittura non riesce (un settings.json
+// rotto) lo dice all'utente, e si risolve con false: mai un rifiuto.
 export async function saveHighlightStyle(id) {
   const config = vscode.workspace.getConfiguration("vitetranslate");
   const dove = config.inspect(HIGHLIGHT_SETTING);
   const target = dove?.workspaceValue !== undefined ? vscode.ConfigurationTarget.Workspace : vscode.ConfigurationTarget.Global;
-  await config.update(HIGHLIGHT_SETTING, id, target);
+  try {
+    await config.update(HIGHLIGHT_SETTING, id, target);
+    return true;
+  } catch (error) {
+    vscode.window.showErrorMessage(`viteTranslate: could not save the highlight style: ${error?.message ?? error}`);
+    return false;
+  }
 }
 
 /**
@@ -48,13 +55,9 @@ export function pickHighlightStyle(highlighter) {
     // attimo, finché l'impostazione nuova non arriva.
     qp.onDidHide(async () => {
       qp.dispose();
-      const cambia = scelto && scelto.id !== attuale;
-      try {
-        if (cambia) await saveHighlightStyle(scelto.id);
-      } finally {
-        highlighter.preview(null);
-      }
-      resolve(cambia ? scelto.id : null);
+      const salvato = !!scelto && scelto.id !== attuale && (await saveHighlightStyle(scelto.id));
+      highlighter.preview(null);
+      resolve(salvato ? scelto.id : null);
     });
     qp.show();
   });

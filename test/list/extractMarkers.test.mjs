@@ -361,8 +361,11 @@ console.log("\n== autoWrap: parità con la reference (senza spazio a cavallo del
   ];
   for (const [nome, src] of CASI_AUTOWRAP) {
     const filename = "/p/src/App.jsx";
-    const b = viaBabel(src, filename, { autoWrap: true });
-    const s = viaSplice(src, filename, { autoWrap: true });
+    // baseDir come nel primo confronto e come nell'uso vero: Babel rende assoluto `filename`, e
+    // su Windows "/p/…" diventa "D:\p\…". Senza baseDir la chiave si calcolerebbe da due percorsi
+    // diversi, e le tabelle non coinciderebbero per un motivo che non è dell'estrazione.
+    const b = viaBabel(src, filename, { autoWrap: true, baseDir: "/p" });
+    const s = viaSplice(src, filename, { autoWrap: true, baseDir: "/p" });
     eq(`${nome} · tabella`, dump(b.table), dump(s.table));
     let same;
     try {

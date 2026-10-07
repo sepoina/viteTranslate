@@ -82,6 +82,7 @@ export function llmPanelState({ llm, baseDir, check = null, title = null }) {
     // Il controllo si può rilanciare solo quando ha finito.
     checking: checks.some((c) => c.state === "running"),
     trouble: checks.some((c) => c.state === "error" || c.state === "warning"),
-    actions: LLM_ACTIONS.map(({ id, icon, label, detail, args }) => ({ id, icon, label, detail, tooltip: `vitetranslate ${args.join(" ")}` })),
+    // Il tooltip: il comando da scrivere a mano, come lo mostra il terminale (cliHeader.mjs).
+    actions: LLM_ACTIONS.map(({ id, icon, label, detail, args }) => ({ id, icon, label, detail, tooltip: `npx vitetranslate ${args.join(" ")}` })),
   };
 }

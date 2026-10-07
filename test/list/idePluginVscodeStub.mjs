@@ -19,10 +19,12 @@ export const __stato = {
   eseguiti: [], // i comandi di VS Code eseguiti (non quelli registrati dall'estensione)
   esterni: [], // gli indirizzi aperti nel browser (env.openExternal)
   avvisi: [], // [tipo, testo] di showInformationMessage/showWarningMessage/showErrorMessage
+  rispondi: null, // (testo, bottoni) => il bottone che l'utente clicca in un avviso, o undefined
   barra: [], // i testi di setStatusBarMessage
   taskEseguiti: [], // i task passati a tasks.executeTask
   taskExecutions: [], // quelli "in corso": il test li mette a mano
   fineTask: [], // gli ascoltatori di tasks.onDidEndTaskProcess
+  fineTaskTutto: [], // quelli di tasks.onDidEndTask (dispose li toglie)
   treeView: null, // l'ultima creata
   treeViews: new Map(), // id -> TreeView
   comandi: new Map(),
@@ -30,11 +32,13 @@ export const __stato = {
   config: {}, // le impostazioni, "sezione.chiave" -> valore (workspace.getConfiguration)
   configWorkspace: {}, // quelle del workspace, per inspect(): "sezione.chiave" -> valore
   aggiornate: [], // le impostazioni scritte con update: ["sezione.chiave", valore, target]
+  configRotta: null, // un testo: update() fallisce con quel messaggio (un settings.json rotto)
   configurazioni: [], // gli ascoltatori di onDidChangeConfiguration
   visibleTextEditors: [], // gli editor in vista (window.visibleTextEditors)
   visibili: [], // gli ascoltatori di onDidChangeVisibleTextEditors
   decorazioni: [], // i tipi di createTextEditorDecorationType: { options, disposed }
   quickPick: null, // l'ultima di createQuickPick: il test la guida (attiva, accetta, chiudi)
+  watcher: [], // i glob dei FileSystemWatcher creati
   log: [],
   findFiles: async () => [],
 };
@@ -146,13 +150,14 @@ export const window = {
   showInformationMessage: async (testo) => void __stato.avvisi.push(["info", testo]),
   // La scelta la fa il test: __stato.scegli(items, opzioni) -> la voce (o le voci) scelte.
   showQuickPick: async (items, opzioni) => (__stato.scelte.push([items, opzioni]), __stato.scegli?.(items, opzioni)),
-  showWarningMessage: async (testo) => void __stato.avvisi.push(["warning", testo]),
+  showWarningMessage: async (testo, ...bottoni) => (__stato.avvisi.push(["warning", testo]), __stato.rispondi?.(testo, bottoni)),
   setStatusBarMessage: (testo) => (__stato.barra.push(testo), { dispose() {} }),
   showErrorMessage: async (testo) => void __stato.avvisi.push(["error", testo]),
   get visibleTextEditors() {
     return __stato.visibleTextEditors;
   },
   onDidChangeVisibleTextEditors: (f) => (__stato.visibili.push(f), { dispose() {} }),
+  onDidChangeActiveColorTheme: evento(),
   createTextEditorDecorationType: (options) => {
     const tipo = { options, disposed: false, dispose: () => void (tipo.disposed = true) };
     __stato.decorazioni.push(tipo);
@@ -204,6 +209,7 @@ export const workspace = {
       workspaceValue: __stato.configWorkspace[`${sezione}.${chiave}`],
     }),
     update: async (chiave, valore, target) => {
+      if (__stato.configRotta) throw new Error(__stato.configRotta);
       const id = `${sezione}.${chiave}`;
       __stato.config[id] = valore;
       __stato.aggiornate.push([id, valore, target]);
@@ -217,7 +223,7 @@ export const workspace = {
   },
   onDidChangeTextDocument: (f) => (__stato.documenti.push(f), { dispose() {} }),
   onDidCloseTextDocument: (f) => (__stato.chiusi.push(f), { dispose() {} }),
-  createFileSystemWatcher: () => ({ onDidChange: evento(), onDidCreate: evento(), onDidDelete: evento(), dispose() {} }),
+  createFileSystemWatcher: (glob) => (__stato.watcher.push(glob), { onDidChange: evento(), onDidCreate: evento(), onDidDelete: evento(), dispose() {} }),
   onDidChangeWorkspaceFolders: evento(),
   onDidGrantWorkspaceTrust: evento(),
 };
@@ -243,6 +249,10 @@ export const tasks = {
   },
   executeTask: async (task) => (__stato.taskEseguiti.push(task), { task }),
   onDidEndTaskProcess: (f) => (__stato.fineTask.push(f), { dispose() {} }),
+  onDidEndTask: (f) => {
+    __stato.fineTaskTutto.push(f);
+    return { dispose: () => (__stato.fineTaskTutto = __stato.fineTaskTutto.filter((g) => g !== f)) };
+  },
 };
 
 export const commands = {

@@ -1,11 +1,14 @@
-// La voce di Results sotto il cursore dell'editor (la sonda inversa, seguiCursore in extension.mjs).
+// La voce di Results sotto il cursore dell'editor (la sonda inversa, seguiCursore in resultsView.mjs).
 // La scansione dà di ogni voce solo dove comincia (riga e colonna, da extractMarkers): una voce su
 // più righe — un <Translate> che va a capo, un template, un testo JSX lungo — non "possiede" le
 // righe sotto. Qui si risale: la voce più vicina sopra il cursore vale se il cursore sta dentro
 // di lei, e dove finisce lo si legge dal testo del documento, a partire da dove comincia.
 // Nessun import di `vscode`. I delimitatori vengono da lib/markerSyntax.js, impacchettato qui alla
-// build: mai riscritti a mano (invariante 14 in doc/structure.md).
+// build: mai riscritti a mano (invariante 14 in doc/structure.md). Dove finiscono tag e template lo
+// dicono le stesse funzioni dell'evidenziazione (metatagScan.mjs, metatagPatterns.mjs).
 import { SOURCE_OPEN, SOURCE_CLOSE } from "../../../../lib/markerSyntax.js";
+import { fineTag, chiusura } from "../../highlight/metatagScan.mjs";
+import { fineTemplate } from "../../highlight/metatagPatterns.mjs";
 
 // Da riga e colonna (da 1) all'offset nel testo; null se fuori.
 function offsetDi(testo, line, column) {
@@ -19,40 +22,15 @@ function offsetDi(testo, line, column) {
 }
 
 // La fine di un elemento JSX che comincia a `inizio` (su `<`): dopo il suo tag di chiusura, contando
-// gli elementi con lo stesso nome annidati. Un `>` dentro un attributo può ingannarla: è una sonda,
-// e nel dubbio non sceglie.
+// gli elementi con lo stesso nome annidati; un autochiuso finisce col suo `>`. I tag si leggono
+// saltando stringhe e graffe degli attributi (fineTag): un `>` lì dentro non inganna.
 function fineElemento(testo, inizio) {
   const nome = /^<([A-Za-z_$][\w$.:-]*)/.exec(testo.slice(inizio, inizio + 200))?.[1];
   if (!nome) return null;
-  const re = new RegExp(`<(/?)${nome.replace(/[.$]/g, "\\$&")}(?=[\\s/>])`, "g");
-  re.lastIndex = inizio;
-  let profondità = 0;
-  for (let m; (m = re.exec(testo)); ) {
-    const chiude = testo.indexOf(">", m.index);
-    if (chiude === -1) return null;
-    if (m[1]) profondità--;
-    else if (testo[chiude - 1] !== "/") profondità++;
-    else if (profondità === 0) return chiude + 1; // <Nome … /> : finisce lì
-    if (profondità === 0) return chiude + 1;
-    re.lastIndex = chiude + 1;
-  }
-  return null;
-}
-
-// La fine di un template literal: il backtick che chiude, saltando gli escape e i `${…}`.
-function fineTemplate(testo, apertura) {
-  let graffe = 0;
-  for (let i = apertura + 1; i < testo.length; i++) {
-    const c = testo[i];
-    if (c === "\\") i++;
-    else if (graffe === 0 && c === "`") return i + 1;
-    else if (c === "$" && testo[i + 1] === "{") {
-      graffe++;
-      i++;
-    } else if (graffe > 0 && c === "{") graffe++;
-    else if (graffe > 0 && c === "}") graffe--;
-  }
-  return null;
+  const apre = fineTag(testo, inizio);
+  if (!apre) return null;
+  if (apre.selfClosing) return apre.end;
+  return chiusura(testo, nome, apre.end)?.end ?? null;
 }
 
 /**

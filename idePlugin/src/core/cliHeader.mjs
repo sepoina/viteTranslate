@@ -1,6 +1,6 @@
 // L'intestazione del terminale di un task del CLI, prima del suo output: la scrive cliRunner.mjs,
 // che la riceve già pronta (VT_HEADER). Di solito una riga sola, il comando equivalente da scrivere
-// a mano, coi colori di una shell: `$ npx vtranslate-cli --llm-translate fr-FR`. Con l'impostazione
+// a mano, coi colori di una shell: `$ npx vitetranslate --llm-translate fr-FR`. Con l'impostazione
 // `vitetranslate.detailCommand`, sotto, come lo si lancia davvero: la cartella, il runtime, il
 // runner, il file del CLI. Nessun import di `vscode`.
 
@@ -17,7 +17,7 @@ const quota = (a) => (/^[\w@%+=:,./\\-]+$/.test(a) ? a : `"${a.replace(/"/g, '\\
 /**
  * `$ npx <name> <args>`: il comando in verde, i flag in ciano, i valori (le lingue) in giallo.
  *
- * @param {string} name - il comando della libreria (findCli: vitetranslate, vtranslate-cli, …)
+ * @param {string} name - il comando da scrivere: `vitetranslate`, il launcher (cliTasks.mjs)
  * @param {string[]} args
  */
 export function npxLine(name, args) {
@@ -27,7 +27,7 @@ export function npxLine(name, args) {
 
 /**
  * @param {object} p
- * @param {string} p.name - il comando della libreria
+ * @param {string} p.name - il comando da scrivere (npxLine)
  * @param {string[]} p.args - gli argomenti del CLI
  * @param {boolean} [p.detail] - vitetranslate.detailCommand
  * @param {string} [p.dir] - la cartella del progetto

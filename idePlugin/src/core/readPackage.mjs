@@ -6,7 +6,7 @@ import path from "node:path";
 
 // Le dipendenze che il pannello nomina, in quest'ordine. Le altre non dicono niente su
 // viteTranslate e allungherebbero la lista.
-export const WATCHED = ["@sepoina/vitetranslate", "vite", "react", "react-dom", "@vitejs/plugin-react", "@babel/core"];
+const WATCHED = ["@sepoina/vitetranslate", "vite", "react", "react-dom", "@vitejs/plugin-react", "@babel/core"];
 
 /**
  * La versione installata di `name` vista da `dir`: risale le cartelle cercando

@@ -8,12 +8,13 @@
 //   node test/list/devRender.test.mjs
 import { createElement, Fragment } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import { readdirSync, statSync, writeFileSync, unlinkSync, readFileSync } from "node:fs";
+import { readdirSync, statSync, writeFileSync, readFileSync } from "node:fs";
 import { join, resolve, dirname } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { devRender } from "../../lib/markup/devRender.js";
 import { compileLanguageModule } from "../../lib/dev/compile/compileTable.js";
 import readLanguageFile from "../../lib/dev/vite/uty/readLanguageFile.js";
+import { temporaneiAllUscita } from "./tempFiles.mjs";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 const ICU_RUNTIME_URL = pathToFileURL(join(ROOT, "lib/icu/runtime.js")).href;
@@ -34,8 +35,8 @@ const renderAny = (node) => {
   return renderToStaticMarkup(createElement(Fragment, null, node));
 };
 
-const temporanei = [];
-process.on("exit", () => { for (const p of temporanei) { try { unlinkSync(p); } catch { /* già rimosso */ } } });
+// Cancellati all'uscita; uno che resta è un KO (tempFiles.mjs).
+const temporanei = temporaneiAllUscita();
 let contatore = 0;
 async function compilaTabella(table, tag) {
   const n = ++contatore;

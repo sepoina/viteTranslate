@@ -12,7 +12,7 @@ import { spawn } from "node:child_process";
 export const LLM_CHECK_ARGS = ["--llm-status", "--llm-ping", "--simpleLog"];
 // Quanto si aspetta il ping: il CLI ritenta da sé (connection.maxRetries), e ogni tentativo ha il
 // suo timeoutMs. Oltre, il processo si ferma e il pannello dice che il modello non ha risposto.
-export const LLM_CHECK_TIMEOUT_MS = 90000;
+const LLM_CHECK_TIMEOUT_MS = 90000;
 
 const ANSI = /\x1b\[[0-9;]*m/g;
 

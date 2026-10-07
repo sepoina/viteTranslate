@@ -2,7 +2,8 @@
 // del workspace cambiate, il workspace diventato fidato. Le notifiche arrivano a raffica (un
 // salvataggio tocca più file, un git checkout molti): si aspetta che si calmino. A pannello
 // nascosto — tutte le sezioni chiuse o fuori vista — non si ricalcola niente, lo si segna e basta:
-// ci pensa wake(), quando una sezione torna in vista.
+// ci pensa wake(), quando una sezione torna in vista. Si comincia a guardare col pannello (start):
+// attivata da un file js/ts per l'evidenziazione, l'estensione a pannello chiuso non legge niente.
 import * as vscode from "vscode";
 import path from "node:path";
 import { WATCH_GLOB, inNodeModules } from "./pickProject.mjs";
@@ -19,24 +20,35 @@ export class ProjectWatch {
     this.timer = undefined;
     this.forza = false;
     this.sporco = false;
+    this.ascolti = [];
+  }
+
+  /**
+   * Il pannello è partito (avviaPannello in extension.mjs): da qui si guardano i file. Prima solo
+   * un comando dalla palette (Sync) può aver chiesto l'elenco dei progetti, senza nessuno che lo
+   * tenesse aggiornato: si ricalcola.
+   */
+  start() {
+    if (this.ascolti.length) return;
+    this.projects.forgetList();
     const watcher = vscode.workspace.createFileSystemWatcher(WATCH_GLOB);
     // Subito, prima dell'attesa: Project si svuota ("Reading vite.config…") e Results si blocca.
     const cambiato = (uri) => {
       if (inNodeModules(uri.fsPath)) return;
-      invalidate(path.dirname(uri.fsPath));
+      this.invalidate(path.dirname(uri.fsPath));
       this.schedule(true);
     };
-    this.ascolti = [
+    this.ascolti.push(
       watcher,
       watcher.onDidChange(cambiato),
       watcher.onDidCreate(cambiato),
       watcher.onDidDelete(cambiato),
       vscode.workspace.onDidChangeWorkspaceFolders(() => this.schedule(true)),
       vscode.workspace.onDidGrantWorkspaceTrust(() => {
-        invalidate();
+        this.invalidate();
         this.schedule(true);
-      }),
-    ];
+      })
+    );
   }
 
   /** Ricalcola dopo la raffica; `force` avvisa le sezioni anche se l'elenco è lo stesso. */

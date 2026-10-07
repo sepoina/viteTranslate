@@ -9,6 +9,7 @@
 // CSS che VS Code dà alla webview (--vscode-testing-iconPassed).
 import { projectChildren } from "../../core/summarize.mjs";
 import { LLM_OFF, LLM_ICON } from "../commandBar/commandBar.mjs";
+import { cssVar } from "../../highlight/decorationPlan.mjs";
 
 export const NO_PROJECTS = "No Vite project in this workspace: no vite.config.* was found.";
 export const NO_SELECTION = "Select a project in Selector to see its setup.";
@@ -31,8 +32,8 @@ export function keyPosition(testo, id) {
   return { line: i + 1, column: id.length + 2 + (dopo.length - dopo.trimStart().length) };
 }
 
-/** Il colore di tema `id` ("testing.iconPassed") come lo vede la webview: una variabile CSS. */
-export const colore = (id) => (id ? `var(--vscode-${id.replace(/\./g, "-")})` : undefined);
+/** Il colore di tema `id` ("testing.iconPassed") come lo vede la webview: una variabile CSS (cssVar). */
+export const colore = (id) => (id ? cssVar(id) : undefined);
 
 /**
  * @param {object} p

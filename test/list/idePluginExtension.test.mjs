@@ -418,7 +418,7 @@ console.log("\n== Results: il disegno non aspetta ==");
   marked.forget(join(ws, "app"));
   eq("config cambiata: processo chiuso", false, marked.workers.has(join(ws, "app")));
   const bloccate = await mprovider.getChildren();
-  eq("…messaggio in testa, le righe di prima restano", ["⏳ vite.config changed: updating…", "src"], [markedView.message, bloccate[0].label]);
+  eq("…messaggio in testa, le righe di prima restano", ["⏳ Reading the project again: updating…", "src"], [markedView.message, bloccate[0].label]);
   await pieno(mprovider);
   eq("…dopo: niente messaggio, tutto riparsato (overlay buttato)", [undefined, true], [markedView.message, /0 kept, 2 parsed/.test(stato.log.at(-1))]);
 }
@@ -577,15 +577,35 @@ console.log("\n== Project: i bottoni ==");
     [task?.execution.process, task?.execution.args, task?.execution.options.cwd, envTask]);
   eq("…il CLI c'è; col runner niente Executing task, e il terminale lo chiude lui", [true, !lancio.runner, !!lancio.runner],
     [task?.execution.args.includes(CLI_REPO), task?.presentationOptions.echo, task?.presentationOptions.close]);
-  eq("…l'intestazione per il runner: solo il comando npx, niente cartella", lancio.runner ? cliHeader({ name: "vtranslate-cli", args: [] }) : undefined, testata);
+  eq("…l'intestazione per il runner: solo il comando npx, quello della documentazione, niente cartella", lancio.runner ? cliHeader({ name: "vitetranslate", args: [] }) : undefined, testata);
   eq("…annotato nel canale", true, /app: sync started \(vtranslate-cli /.test(stato.log.at(-1)));
-  stato.taskExecutions = [{ task }];
+  // Un task di app col terminale ancora aperto (il CLI che gira, o il runner che aspetta un tasto):
+  // si chiede, e senza risposta non parte niente. terminate() fa quello che fa VS Code: la fine del
+  // processo, poi quella del task.
+  const aperto = {
+    task,
+    chiuso: 0,
+    terminate() {
+      aperto.chiuso++;
+      stato.taskExecutions = [];
+      for (const f of stato.fineTask) f({ execution: aperto, exitCode: 1 });
+      for (const f of stato.fineTaskTutto) f({ execution: aperto });
+    },
+  };
+  stato.taskExecutions = [aperto];
   await stato.comandi.get("vitetranslate.sync")();
-  eq("un sync già in corso: nessun secondo task", [1, ["info", "A sync is already running for this project."]],
-    [stato.taskEseguiti.length, stato.avvisi.at(-1)]);
-  stato.taskExecutions = [];
+  eq("un sync col terminale aperto: lo chiede, e senza risposta niente", [1, 0, "warning", true],
+    [stato.taskEseguiti.length, aperto.chiuso, stato.avvisi.at(-1)[0], /A sync for this project still has its terminal open/.test(stato.avvisi.at(-1)[1])]);
+  const avvisiChiusura = stato.avvisi.length;
+  stato.rispondi = (_testo, bottoni) => bottoni[0];
+  await stato.comandi.get("vitetranslate.sync")();
+  stato.rispondi = null;
+  eq("…Close it and run: chiuso, e il sync nuovo parte; la fine del vecchio non è un errore", [1, 2, []],
+    [aperto.chiuso, stato.taskEseguiti.length, stato.avvisi.slice(avvisiChiusura).filter(([tipo]) => tipo === "error")]);
+  eq("…nel canale: chiuso, non fallito", true, stato.log.some((r) => /app: sync closed, to run another command/.test(r)));
+  const avvisiFine = stato.avvisi.length;
   for (const f of stato.fineTask) f({ execution: { task }, exitCode: 0 });
-  eq("fine con 0: annotata, nessun errore", [true, "info"], [/sync ended with exit code 0/.test(stato.log.at(-1)), stato.avvisi.at(-1)[0]]);
+  eq("fine con 0: annotata, nessun errore", [true, 0], [/sync ended with exit code 0/.test(stato.log.at(-1)), stato.avvisi.length - avvisiFine]);
   for (const f of stato.fineTask) f({ execution: { task }, exitCode: 1 });
   eq("fine con errore: lo dice, col codice", ["error", true], [stato.avvisi.at(-1)[0], /sync failed \(exit code 1\)/.test(stato.avvisi.at(-1)[1])]);
   // vitetranslate.detailCommand: si legge a ogni lancio, e l'intestazione dice anche come.

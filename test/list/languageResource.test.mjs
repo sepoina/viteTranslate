@@ -11,8 +11,9 @@
 //   node test/list/languageResource.test.mjs
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { basename, dirname, join, resolve } from "node:path";
-import { writeFileSync, unlinkSync, readFileSync } from "node:fs";
+import { writeFileSync, readFileSync } from "node:fs";
 import vitetranslate from "../../lib/dev/vite/vitetranslate.js";
+import { rimuoviTemporanei } from "./tempFiles.mjs";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(HERE, "../..");
@@ -65,7 +66,11 @@ async function loadRuntime({ preloadedLanguages, isProduction }) {
     // unità, su Linux con "/". Ci si aggancia all'estensione, non alla forma del percorso —
     // altrimenti in CI non si sostituisce niente e a caricare il .yml finisce l'ESM loader di
     // Node, che di YAML non sa nulla (ERR_UNKNOWN_FILE_EXTENSION).
-    .replace(/"([^"]+\.yml)"/g, (_, percorso) => JSON.stringify(compila(percorso)));
+    .replace(/"([^"]+\.yml)"/g, (_, percorso) => JSON.stringify(compila(percorso)))
+    // In dev il manifest riesporta anche moduli della libreria (icuDev, devRender) per percorso
+    // assoluto: Vite li risolve, l'ESM loader di Node su Windows legge "D:" come schema di URL e
+    // li rifiuta. Diventano URL file://, come i .yml compilati qui sopra.
+    .replace(/"((?:[A-Za-z]:)?\/[^"]+\.js)"/g, (_, percorso) => JSON.stringify(pathToFileURL(percorso).href));
 
   const manifestPath = join(ROOT, "lib/react", `__manifest-${stamp}.mjs`);
   const modulePath = join(ROOT, "lib/react", `__resource-${stamp}.mjs`);
@@ -82,7 +87,8 @@ async function loadRuntime({ preloadedLanguages, isProduction }) {
     // che l'ESM loader di Node legge come schema di URL e rifiuta.
     return await import(`${pathToFileURL(modulePath).href}?t=${stamp}`);
   } finally {
-    for (const f of temporanei) { try { unlinkSync(f); } catch {} }
+    // Uno che resta è un KO (tempFiles.mjs): finirebbe nel pacchetto npm.
+    fail += rimuoviTemporanei(temporanei);
   }
 }
 

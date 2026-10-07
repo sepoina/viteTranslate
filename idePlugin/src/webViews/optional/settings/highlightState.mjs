@@ -10,7 +10,7 @@ import { renderOptionsOf, cssVar } from "../../../highlight/decorationPlan.mjs";
 import { SOURCE_OPEN, SOURCE_CLOSE } from "../../../../../lib/markerSyntax.js";
 
 /** Il campione: il testo tra i delimitatori della libreria. */
-export const SAMPLE = { open: SOURCE_OPEN, text: "Hello, world", close: SOURCE_CLOSE };
+const SAMPLE = { open: SOURCE_OPEN, text: "Hello, world", close: SOURCE_CLOSE };
 
 // Da opzioni di decorazione a CSS inline.
 const css = (...parti) =>

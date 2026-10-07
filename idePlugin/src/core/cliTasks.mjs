@@ -9,14 +9,24 @@
 // equivalente (`$ npx vitetranslate …`, cliHeader.mjs) al posto della riga "Executing task" di VS
 // Code; con vitetranslate.detailCommand anche cartella, runtime, runner e file del CLI. Il CLI
 // esegue vite.config, quindi non in Restricted
-// Mode; un comando alla volta per progetto. Le tabelle che scrive le vede il watcher dei sorgenti,
+// Mode; un comando alla volta per progetto (uno rimasto col terminale aperto lo si chiude, se
+// l'utente lo chiede: chiudi). Le tabelle che scrive le vede il watcher dei sorgenti,
 // e Results si aggiorna da sé. Lo usano Sync (Project) e le azioni LLM.
 import * as vscode from "vscode";
 import { findCli, cliLaunch } from "./syncCommand.mjs";
 import { cliHeader } from "./cliHeader.mjs";
 
 /** L'avviso, una volta per sessione, quando su Windows non c'è un node nel PATH. */
-export const NO_NODE = "Node.js is not in PATH: viteTranslate runs its CLI with the editor's own runtime. The output shows, but nothing can be typed in: Translate can't ask before spending, and Set the API key can't read the key. Install Node.js, or add it to PATH, and restart the editor.";
+const NO_NODE = "Node.js is not in PATH: viteTranslate runs its CLI with the editor's own runtime. The output shows, but nothing can be typed in: Translate can't ask before spending, and Set the API key can't read the key. Install Node.js, or add it to PATH, and restart the editor.";
+
+// Il comando nell'intestazione del terminale: quello che la documentazione fa scrivere (il
+// launcher, che trova da sé il CLI del progetto), non il nome del bin della libreria.
+const COMANDO = "vitetranslate";
+
+/** Il bottone che chiude il terminale di un task rimasto aperto e lancia quello nuovo. */
+export const CLOSE_AND_RUN = "Close it and run";
+// Quanto si aspetta che VS Code dia per finito il task chiuso, prima di lanciare comunque.
+const ATTESA_CHIUSURA_MS = 5000;
 
 export class CliTasks {
   /**
@@ -32,6 +42,7 @@ export class CliTasks {
     this.projects = projects;
     this.log = log;
     this.avvisato = false; // NO_NODE già detto
+    this.chiusi = new WeakSet(); // le esecuzioni chiuse da CLOSE_AND_RUN: la loro fine non è un errore
     // Un task finito: la sua definizione { type, command, dir }. Il pannello LLM ci ascolta i
     // --llm-key-set|clear.
     this.finito = new vscode.EventEmitter();
@@ -39,11 +50,48 @@ export class CliTasks {
     this.ascolto = vscode.tasks.onDidEndTaskProcess((e) => {
       const d = e.execution.task.definition;
       if (d.type !== "vitetranslate") return;
-      log(`${d.dir}: ${d.command} ended with exit code ${e.exitCode}`);
-      // Senza "see the terminal": col runner il task finisce quando il terminale si è già chiuso.
-      if (e.exitCode) vscode.window.showErrorMessage(`viteTranslate: ${d.command} failed (exit code ${e.exitCode}).`);
+      if (this.chiusi.delete(e.execution)) log(`${d.dir}: ${d.command} closed, to run another command`);
+      else {
+        log(`${d.dir}: ${d.command} ended with exit code ${e.exitCode}`);
+        // Senza "see the terminal": col runner il task finisce quando il terminale si è già chiuso.
+        if (e.exitCode) vscode.window.showErrorMessage(`viteTranslate: ${d.command} failed (exit code ${e.exitCode}).`);
+      }
       this.finito.fire(d);
     });
+  }
+
+  /**
+   * Un task dello stesso progetto ha ancora il terminale aperto. Col runner il task vive quanto il
+   * terminale (cliRunner.mjs): il CLI può star girando, ma anche essere finito da un pezzo, con il
+   * runner che aspetta un tasto (dopo un errore, o "Kept open") o la fine del conto alla rovescia.
+   * Non lo si distingue da qui: lo si chiude solo se l'utente lo chiede, e il comando nuovo parte
+   * quando VS Code lo dà per finito. Vero se si può lanciare.
+   *
+   * @param {vscode.TaskExecution} inCorso
+   * @param {string} nome - il comando nuovo
+   */
+  async chiudi(inCorso, nome) {
+    const { command, dir } = inCorso.task.definition;
+    const scelta = await vscode.window.showWarningMessage(
+      `A ${command} for this project still has its terminal open: it may be running, or waiting for a key. Close it and run ${nome}?`,
+      CLOSE_AND_RUN
+    );
+    if (scelta !== CLOSE_AND_RUN) return false;
+    this.chiusi.add(inCorso);
+    await new Promise((resolve) => {
+      const fine = () => {
+        clearTimeout(timer);
+        ascolto.dispose();
+        resolve();
+      };
+      const ascolto = vscode.tasks.onDidEndTask((e) => {
+        const d = e.execution.task.definition;
+        if (d.type === "vitetranslate" && d.dir === dir) fine();
+      });
+      const timer = setTimeout(fine, ATTESA_CHIUSURA_MS);
+      inCorso.terminate();
+    });
+    return true;
   }
 
   /**
@@ -56,13 +104,13 @@ export class CliTasks {
     const trovato = findCli(progetto.dir);
     if (!trovato.ok) return vscode.window.showErrorMessage(`viteTranslate: ${trovato.error}`);
     const inCorso = vscode.tasks.taskExecutions.find((e) => e.task.definition.type === "vitetranslate" && e.task.definition.dir === progetto.dir);
-    if (inCorso) return vscode.window.showInformationMessage(`A ${inCorso.task.definition.command} is already running for this project.`);
+    if (inCorso && !(await this.chiudi(inCorso, nome))) return;
     const lancio = cliLaunch({ cli: trovato.cli, args, runner: this.runner, runAsNodeCmd: this.runAsNodeCmd });
     const env = { ...lancio.env };
     // L'impostazione si legge a ogni lancio: cambiarla vale dal comando dopo, senza ricaricare.
     if (lancio.runner) {
       const detail = vscode.workspace.getConfiguration("vitetranslate").get("detailCommand", false);
-      env.VT_HEADER = cliHeader({ name: trovato.name, args, detail, dir: progetto.dir, runtime: lancio.command, runner: lancio.runner, cli: trovato.cli });
+      env.VT_HEADER = cliHeader({ name: COMANDO, args, detail, dir: progetto.dir, runtime: lancio.command, runner: lancio.runner, cli: trovato.cli });
     }
     const task = new vscode.Task(
       { type: "vitetranslate", command: nome, dir: progetto.dir },

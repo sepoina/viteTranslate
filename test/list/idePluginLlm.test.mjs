@@ -79,7 +79,7 @@ console.log("\n== lo stato del pannello ==");
     [senza.trouble, llmPanelState({ ...base, check: { key: "keyring", ping: { ok: false, error: ERRORE } } }).trouble,
       llmPanelState({ ...base, check: { error: "boom" } }).trouble, llmPanelState({ ...base, check: {} }).trouble, env.trouble]);
   const azioni = llmPanelState(base).actions;
-  eq("le azioni: tutte, con la codicon e il comando nel tooltip", [LLM_ACTIONS.map((a) => a.id), "sparkle", "vitetranslate --llm-translate"],
+  eq("le azioni: tutte, con la codicon e il comando nel tooltip", [LLM_ACTIONS.map((a) => a.id), "sparkle", "npx vitetranslate --llm-translate"],
     [azioni.map((a) => a.id), azioni[0].icon, azioni[0].tooltip]);
 }
 

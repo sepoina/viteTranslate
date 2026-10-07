@@ -1,9 +1,9 @@
 // Quali progetti elenca il pannello: tutti i vite.config.* del workspace, fuori da node_modules,
 // uno per cartella. Quale si guarda lo sceglie l'utente in Selector, o lo porta il file attivo
-// (projectOf): extension.mjs.
+// (projectOf, in resultsView.mjs).
 //
-// Nessun import di `vscode`: i percorsi arrivano da fuori (extension.mjs), così tutto si prova in
-// Node puro.
+// Nessun import di `vscode`: i percorsi arrivano da fuori (projects.mjs, resultsView.mjs), così
+// tutto si prova in Node puro.
 import path from "node:path";
 import { CONFIG_FILES } from "../../../lib/dev/vite/uty/configFiles.js";
 

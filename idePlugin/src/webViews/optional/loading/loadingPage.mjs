@@ -8,7 +8,7 @@
 import { pageHead, COLUMN_CSS } from "../../pageCommon.mjs";
 import { LOGO_SVG, LOGO_CSS } from "../settings/logo.mjs";
 
-// La prima tappa di Startup (startup.mjs): la pagina la mostra da subito.
+// La prima tappa di Startup (startup.mjs, che la prende da qui): la pagina la mostra da subito.
 export const FIRST_STEP = "Looking for Vite projects…";
 
 /**

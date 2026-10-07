@@ -11,12 +11,13 @@
 import { renderToStaticMarkup } from "react-dom/server";
 import { createElement as h } from "react";
 import { transformSync } from "@babel/core";
-import { writeFileSync, unlinkSync, readFileSync } from "node:fs";
+import { writeFileSync, readFileSync } from "node:fs";
 import { pathToFileURL } from "node:url";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import extractMarkers from "../../lib/dev/babel/extractMarkers.js";
 import { compileLanguageModule } from "../../lib/dev/compile/compileTable.js";
+import { temporaneiAllUscita } from "./tempFiles.mjs";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(HERE, "../..");
@@ -35,8 +36,8 @@ const ok_ = (nome, cond) => {
 
 const stamp = `${Date.now()}-${Math.random().toString(36).slice(2)}`;
 let contatore = 0;
-const temporanei = [];
-process.on("exit", () => { for (const p of temporanei) { try { unlinkSync(p); } catch { /* già rimosso */ } } });
+// Cancellati all'uscita; uno che resta è un KO (tempFiles.mjs).
+const temporanei = temporaneiAllUscita();
 function scrivi(nome, contenuto) {
   const p = join(REACT_DIR, nome);
   writeFileSync(p, contenuto, "utf8");

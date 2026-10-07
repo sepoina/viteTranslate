@@ -302,6 +302,17 @@ const imposta = (id) => vscode.workspace.getConfiguration("vitetranslate").updat
   stato.quickPick.accetta();
   await fine;
   eq("il workspace ha la sua: si scrive nel workspace", [["vitetranslate.highlightStyle", "off", vscode.ConfigurationTarget.Workspace]], stato.aggiornate);
+
+  // Un settings.json che non si scrive: l'errore si vede, e la scelta si chiude senza anteprima.
+  stato.configRotta = "settings.json is not valid JSON";
+  const avvisi0 = stato.avvisi.length;
+  fine = pickHighlightStyle(h);
+  stato.quickPick.attiva(stato.quickPick.items.find((v) => v.id === "badge"));
+  stato.quickPick.accetta();
+  eq("scrittura fallita: lo dice, niente salvato, niente anteprima",
+    [null, [["error", "viteTranslate: could not save the highlight style: settings.json is not valid JSON"]], null],
+    [await fine, stato.avvisi.slice(avvisi0), h.anteprima]);
+  stato.configRotta = null;
   h.dispose();
   delete stato.configWorkspace["vitetranslate.highlightStyle"];
   delete stato.config["vitetranslate.highlightStyle"];
@@ -319,12 +330,14 @@ console.log("\n== 5. attivata da un file js: il pannello aspetta ==");
     subscriptions: [], asAbsolutePath: (rel) => rel, extensionUri: vscode.Uri.file(join(tmpdir(), "ext")),
     workspaceState: { get: (k) => memoria.get(k), update: async (k, v) => void memoria.set(k, v) },
   };
+  const watcher0 = stato.watcher.length;
   const { preparato, highlighter } = activate(context);
   await pausa(300);
   eq("l'evidenziazione c'è subito, con lo stile di serie", DEFAULT_STYLE, highlighter.stile?.id);
   eq("…e l'editor è colorato", true, [...ed.disegni.values()].some((r) => r.length > 0));
   eq("il comando di scelta è registrato", true, stato.comandi.has("vitetranslate.highlightStyle"));
-  eq("pannello chiuso: nessun progetto cercato, niente pronto", [0, undefined], [cercati, stato.contesto["vitetranslate.ready"]]);
+  eq("pannello chiuso: nessun progetto cercato, niente pronto, nessun watcher", [0, undefined, 0],
+    [cercati, stato.contesto["vitetranslate.ready"], stato.watcher.length - watcher0]);
   // Aperto il pannello, la prima sezione in vista è la facoltativa, sull'avvio.
   stato.webviews.get("vitetranslate.optional").resolveWebviewView({
     webview: {
@@ -335,6 +348,8 @@ console.log("\n== 5. attivata da un file js: il pannello aspetta ==");
   });
   await preparato;
   eq("pannello aperto: parte e si prepara", [true, true], [cercati > 0, stato.contesto["vitetranslate.ready"]]);
+  eq("…e guarda i file: progetti, sorgenti e lingue", ["**/{package.json,", "**/*.{js,jsx,ts,tsx,yml}"],
+    stato.watcher.slice(watcher0).map((g) => g.replace(/vite\.config.*$/, "")));
   for (const d of context.subscriptions) d.dispose?.();
 }
 

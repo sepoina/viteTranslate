@@ -3,6 +3,7 @@
 // importato dai sorgenti di questo repo: la risposta è quella che vedrebbe il CLI.
 //
 //   node test/list/idePluginProbe.test.mjs
+import { spawnSync } from "node:child_process";
 import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -56,6 +57,16 @@ export default ({ command }) => ({ plugins: [Promise.resolve(vitetranslate({ loc
   eq("RegExp descritta, non persa", { $regexp: "/^(p|li)$/" }, r.vitetranslate?.autoWrap);
 }
 
+console.log("\n== config esportato come Promise (come lo accetta Vite, e il CLI) ==");
+{
+  const dir = progetto("promessa", "vite.config.mjs", `
+import vitetranslate from ${JSON.stringify(PLUGIN)};
+export default Promise.resolve({ plugins: [vitetranslate({ localeDir: "l", sourceLanguage: "fr-FR" })] });
+`);
+  const r = await sonda(dir, "vite.config.mjs");
+  eq("letto: il plugin c'è", [true, "fr-FR"], [r.ok, r.vitetranslate?.sourceLanguage]);
+}
+
 console.log("\n== plugin non registrato ==");
 {
   const dir = progetto("senza", "vite.config.js", `export default { plugins: [{ name: "altro" }] };`);
@@ -97,6 +108,12 @@ export default { server: { port }, plugins: [vitetranslate({ localeDir: "locale"
 `);
   const r = await sonda(dir, "vite.config.ts");
   eq("letto", [true, 5000, "en-US"], [r.ok, r.vite?.port, r.vitetranslate?.sourceLanguage]);
+  // Un Node che non toglie i tipi (qui spento col flag, come su un editor vecchio): l'errore dice
+  // cosa fare, sulla prima riga, quella che il pannello mostra. Senza IPC la sonda risponde su stdout.
+  const senza = spawnSync(process.execPath, ["--no-experimental-strip-types", PROBE, "vite.config.ts"], { cwd: dir, encoding: "utf8" });
+  const risposta = JSON.parse(senza.stdout.trim().split("\n").at(-1));
+  eq("Node senza type stripping: l'aiuto sulla prima riga", [false, true],
+    [risposta.ok, /can't read TypeScript: update the editor, or use a vite\.config\.js\.$/.test(risposta.error.split("\n")[0])]);
 } else {
   console.log("  --  saltato: questo Node non toglie i tipi");
 }

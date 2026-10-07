@@ -186,7 +186,7 @@ export function createScanner() {
       const destinazioni = [...tabelle.keys()].filter((tag) => tag !== sorgente);
 
       // Per ogni file di lingua: quante chiavi della sorgente gli mancano (assenti o `null`), o
-      // perché non si legge. Lo mostra Languages in Project. Senza tabella sorgente leggibile
+      // perché non si legge. Lo mostra Translations in Project. Senza tabella sorgente leggibile
       // non c'è un metro: `missing` resta null.
       const chiaviSorgente = tabelle.has(sorgente) ? Object.keys(tabelle.get(sorgente)) : null;
       const stats = {};
@@ -196,9 +196,11 @@ export function createScanner() {
       }
       for (const [tag, error] of errori) stats[tag] = { error };
 
+      // Una sorgente che manca va sincronizzata; una che non si legge no: come le altre tabelle
+      // illeggibili non si giudica, e lo dice il suo stat (il sync non ripara uno YAML rotto).
       const problemiDi = (id) => {
         const assente = [...tabelle].filter(([, t]) => !(id in t)).map(([tag]) => tag);
-        if (!tabelle.has(sorgente)) assente.unshift(sorgente ?? "source language");
+        if (!tabelle.has(sorgente) && !errori.has(sorgente)) assente.unshift(sorgente ?? "source language");
         if (assente.length) return [{ kind: "notSynced", detail: assente }];
         const mancanti = destinazioni.filter((tag) => tabelle.get(tag)[id] === null);
         if (!mancanti.length) return [];

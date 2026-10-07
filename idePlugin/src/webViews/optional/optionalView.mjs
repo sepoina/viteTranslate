@@ -136,7 +136,7 @@ export class OptionalView extends PageView {
     const stili = () => this.mode === "settings" && this.push();
     this.ascolti.push(
       vscode.workspace.onDidChangeConfiguration((e) => e.affectsConfiguration(`vitetranslate.${HIGHLIGHT_SETTING}`) && stili()),
-      ...[vscode.window.onDidChangeActiveColorTheme?.(stili)].filter(Boolean)
+      vscode.window.onDidChangeActiveColorTheme(stili)
     );
   }
 

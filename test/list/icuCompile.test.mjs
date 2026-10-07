@@ -3,7 +3,6 @@
 // codice sorgente (fragile), si guarda cosa produce a runtime.
 //
 //   node test/list/icuCompile.test.mjs
-import { pathToFileURL } from "node:url";
 import { compileLanguageModule } from "../../lib/dev/compile/compileTable.js";
 
 const STUB = `
@@ -12,7 +11,9 @@ const jsx = (type, props) => ({ type, children: props.children });
 const jsxs = jsx;
 `;
 
-const ICU_RUNTIME_URL = pathToFileURL(new URL("../../lib/icu/runtime.js", import.meta.url).pathname).href;
+// Già un URL file://: passarne il `.pathname` a pathToFileURL su Windows dà "/D:/…", che diventa
+// "D:\D:\…".
+const ICU_RUNTIME_URL = new URL("../../lib/icu/runtime.js", import.meta.url).href;
 
 async function load(table, sourceTable = null, options = {}) {
   const warns = [];

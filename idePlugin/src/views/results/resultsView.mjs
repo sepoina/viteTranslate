@@ -8,7 +8,7 @@
 //     poi Results mostra la sua riga, aperta sulle voci (MarkedTree.follow), con un reveal e senza
 //     ridisegnare niente;
 //   - il cursore, a ritroso (seguiCursore): su una riga che ha una voce, Results la seleziona;
-//   - la voce selezionata, per Languages in Project (selectedKey).
+//   - la voce selezionata, per Translations in Project (selectedKey).
 import * as vscode from "vscode";
 import { inNodeModules, projectOf } from "../../core/pickProject.mjs";
 import { progressIn } from "../../core/editorUi.mjs";
@@ -41,7 +41,7 @@ export class ResultsView {
     // (onDidRender: dopo che `rendered` è cambiato, non prima come onDidChangeTreeData).
     this.chiave = new vscode.EventEmitter();
     this.onDidChangeSelectedKey = this.chiave.event;
-    // Un file di lingua creato o cancellato: Languages in Project rilegge la cartella.
+    // Un file di lingua creato o cancellato: Translations in Project rilegge la cartella.
     this.lingue = new vscode.EventEmitter();
     this.onDidChangeLanguageFiles = this.lingue.event;
 
@@ -50,17 +50,31 @@ export class ResultsView {
     this.timerCursore = undefined;
     this.timerEditor = undefined;
 
-    const sorgenti = vscode.workspace.createFileSystemWatcher(SOURCE_GLOB);
-    const nuovoOVia = (uri) => {
-      this.sorgenteCambiato(uri);
-      if (!inNodeModules(uri.fsPath) && uri.fsPath.endsWith(".yml")) this.lingue.fire(uri.fsPath);
-    };
     const chiave = () => this.chiave.fire(undefined);
     this.ascolti = [
       this.view,
       this.view.onDidChangeSelection(chiave),
       this.view.onDidChangeVisibility(chiave),
       this.tree.onDidRender(chiave),
+    ];
+    // Sorgenti, documenti e file attivo si guardano solo a pannello partito (start): attivata da un
+    // file js/ts per l'evidenziazione, l'estensione col pannello chiuso non ha niente da seguire.
+    this.avviato = false;
+  }
+
+  /**
+   * Il pannello è partito (avviaPannello in extension.mjs): da qui il watcher dei sorgenti, i
+   * documenti con modifiche non salvate e il file attivo, a cominciare da adesso.
+   */
+  start() {
+    if (this.avviato) return;
+    this.avviato = true;
+    const sorgenti = vscode.workspace.createFileSystemWatcher(SOURCE_GLOB);
+    const nuovoOVia = (uri) => {
+      this.sorgenteCambiato(uri);
+      if (!inNodeModules(uri.fsPath) && uri.fsPath.endsWith(".yml")) this.lingue.fire(uri.fsPath);
+    };
+    this.ascolti.push(
       sorgenti,
       sorgenti.onDidChange((uri) => this.sorgenteCambiato(uri)),
       sorgenti.onDidCreate(nuovoOVia),
@@ -68,17 +82,9 @@ export class ResultsView {
       vscode.window.onDidChangeActiveTextEditor((editor) => this.seguiEditor(editor)),
       vscode.window.onDidChangeTextEditorSelection((e) => this.seguiCursore(e)),
       vscode.workspace.onDidChangeTextDocument((e) => this.documento(e.document, e.document.isDirty)),
-      vscode.workspace.onDidCloseTextDocument((doc) => this.documento(doc, false)),
-    ];
+      vscode.workspace.onDidCloseTextDocument((doc) => this.documento(doc, false))
+    );
     for (const doc of vscode.workspace.textDocuments ?? []) if (doc.isDirty) this.documento(doc, true);
-    // Il file attivo si insegue solo a pannello partito (start): prima vorrebbe dire cercare i
-    // progetti e selezionarne uno con il pannello chiuso.
-    this.avviato = false;
-  }
-
-  /** Il pannello è partito (avviaPannello in extension.mjs): da qui il file attivo, a cominciare da adesso. */
-  start() {
-    this.avviato = true;
     this.seguiEditor(vscode.window.activeTextEditor);
   }
 
@@ -87,7 +93,7 @@ export class ResultsView {
   }
 
   /**
-   * La voce selezionata adesso in Results, per Languages in Project: { dir, id }, o null. Vale solo
+   * La voce selezionata adesso in Results, per Translations in Project: { dir, id }, o null. Vale solo
    * se è una voce (con la chiave, non un file né una cartella), se sta nel disegno corrente (un
    * filtro, una ricerca, un ridisegno possono averla tolta), se è del progetto selezionato, e se
    * Results è in vista (non chiusa, non coperta dalla sezione facoltativa). Non si salva: si guarda.
@@ -162,7 +168,6 @@ export class ResultsView {
   // conta solo l'ultimo. Un progetto diverso si seleziona come da un clic in Config; lo stesso
   // progetto non tocca niente. Poi Results mostra il file.
   seguiEditor(editor) {
-    if (!this.avviato) return;
     clearTimeout(this.timerEditor);
     this.timerEditor = setTimeout(() => this.segui(editor), 150);
   }

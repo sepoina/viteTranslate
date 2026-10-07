@@ -23,9 +23,10 @@ import { renderToStaticMarkup, renderToPipeableStream } from "react-dom/server";
 import { createElement as h } from "react";
 import { Writable } from "node:stream";
 import { transformSync } from "@babel/core";
-import { writeFileSync, unlinkSync, readFileSync } from "node:fs";
+import { writeFileSync, readFileSync } from "node:fs";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { dirname, join, resolve } from "node:path";
+import { temporaneiAllUscita } from "./tempFiles.mjs";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(HERE, "../..");
@@ -43,12 +44,8 @@ const eq = (nome, atteso, ottenuto) => {
 // (React, il context, gli helper) devono continuare a risolversi. Vanno tolti anche se il test
 // muore a metà, altrimenti restano nel sorgente del pacchetto.
 const stamp = `${Date.now()}-${Math.random().toString(36).slice(2)}`;
-const temporanei = [];
-process.on("exit", () => {
-  for (const percorso of temporanei) {
-    try { unlinkSync(percorso); } catch { /* già rimosso */ }
-  }
-});
+// Cancellati all'uscita; uno che resta è un KO (tempFiles.mjs).
+const temporanei = temporaneiAllUscita();
 
 function scrivi(nome, contenuto) {
   const percorso = join(REACT_DIR, nome);

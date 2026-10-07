@@ -127,6 +127,15 @@ console.log("\n== sonda: i problemi di ogni voce ==");
   eq("una tabella che non si legge: il perché, e non è fra le destinazioni", [true, false],
     [typeof conRotto.languages.stats["de-DE"]?.error === "string", conRotto.languages.targets.includes("de-DE")]);
   rmSync(join(radice, "stati/locale/de-DE.yml"));
+  // La sorgente che non si legge: non si giudica, come le altre. Il sync non la ripara, quindi le
+  // voci non diventano tutte "da sincronizzare": restano i giudizi sulle destinazioni.
+  scrivi("stati/locale/it-IT.yml", "a: [rotto\n");
+  const sorgenteRotta = await sonda("stati", input);
+  const giudizi = Object.fromEntries(sorgenteRotta.files[0].entries.filter((e) => e.id).map((e) => [e.text.slice(0, 12), e.problems.map((p) => `${p.kind}:${p.detail.join("+")}`)]));
+  eq("sorgente illeggibile: il suo errore, e le voci giudicate sulle destinazioni",
+    [true, [], ["notFullyTranslated:en-US"], ["notSynced:fr-FR"]],
+    [typeof sorgenteRotta.languages.stats["it-IT"]?.error === "string", giudizi.Uno, giudizi.Due, giudizi.Quattro]);
+  scrivi("stati/locale/it-IT.yml", yml([[uno, "Uno"], [due, "Due"], [tre, "Tre"], [quattro, "Quattro"]]));
   const per = Object.fromEntries(r.files[0].entries.map((e) => [e.text.slice(0, 12), e.problems.map((p) => `${p.kind}:${Array.isArray(p.detail) ? p.detail.join("+") : "…"}`)]));
   eq("tradotta ovunque: nessun problema", [], per.Uno);
   eq("manca in una lingua: notFullyTranslated", ["notFullyTranslated:en-US"], per.Due);

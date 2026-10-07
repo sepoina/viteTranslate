@@ -13,10 +13,11 @@
 //   node test/list/languageList.test.mjs
 import { renderToStaticMarkup } from "react-dom/server";
 import { createElement as h } from "react";
-import { writeFileSync, unlinkSync, readFileSync } from "node:fs";
+import { writeFileSync, readFileSync } from "node:fs";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { dirname, join, resolve } from "node:path";
 import { TranslateContext } from "../../lib/react/TranslateContext.js";
+import { temporaneiAllUscita } from "./tempFiles.mjs";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(HERE, "../..");
@@ -34,12 +35,8 @@ const eq = (nome, atteso, ottenuto) => {
 // e TranslateContext resta la STESSA istanza che importa il test, altrimenti il Provider non
 // parlerebbe con l'hook.
 const stamp = `${Date.now()}-${Math.random().toString(36).slice(2)}`;
-const temporanei = [];
-process.on("exit", () => {
-  for (const percorso of temporanei) {
-    try { unlinkSync(percorso); } catch { /* già rimosso */ }
-  }
-});
+// Cancellati all'uscita; uno che resta è un KO (tempFiles.mjs).
+const temporanei = temporaneiAllUscita();
 
 function scriviTemporaneo(nome, contenuto) {
   const percorso = join(ROOT, "lib/react", nome);

@@ -6,10 +6,14 @@
 // che sporca lo stato globale di Node sporca un processo che muore subito dopo, e ogni lettura
 // parte da una cache dei moduli vuota — un config modificato si rilegge davvero.
 //
-// Stesso percorso di lib/dev/vite/uty/loadConfig.js (il CLI): import del file, chiamata della
-// funzione se `defineConfig` ha ricevuto una funzione, ricerca del plugin per nome e lettura di
-// `vitetranslateConfig`. Non si passa da Vite: nessun hook del plugin viene eseguito, quindi
-// nessuna sincronizzazione parte (VITETRANSLATE_NO_SYNC, messo da runProbe, è una cintura in più).
+// Stesso percorso di lib/dev/vite/uty/loadConfig.js (il CLI): import del file, config e plugin
+// risolti come fa Vite (un config-funzione o Promise, plugin annidati o in una Promise: lo stesso
+// di resolveViteConfig.js), ricerca del plugin per nome e lettura di `vitetranslateConfig`. Il
+// codice è una copia, non un import: le sonde non importano niente da lib/ del repo (lo controlla
+// ideScanEntry.test.mjs). Che le due letture dicano lo stesso lo provano i test sulle stesse forme
+// (loadConfigShapes.test.mjs, idePluginProbe.test.mjs). Non si passa da Vite: nessun hook del
+// plugin viene eseguito, quindi nessuna sincronizzazione parte (VITETRANSLATE_NO_SYNC, messo da
+// runProbe, è una cintura in più).
 //
 //   argv[2] = nome del file di config, relativo alla cwd (la cartella del progetto)
 import path from "node:path";
@@ -42,7 +46,7 @@ function serializza(valore, visti = new WeakSet()) {
 }
 
 // `plugins` di Vite accetta array annidati, `false`/`null` e anche Promise: si appiattisce
-// tutto, aspettando le Promise, come fa Vite stesso.
+// tutto, aspettando le Promise, come fa Vite stesso (flattenPlugins in resolveViteConfig.js).
 async function appiattisci(lista) {
   const fuori = [];
   for (const voce of await Promise.all(lista ?? [])) {
@@ -52,13 +56,22 @@ async function appiattisci(lista) {
   return fuori;
 }
 
+// Un vite.config TypeScript lo carica il Node dell'editor togliendo i tipi, se lo sa fare (da sé
+// dalla 22.18 e dalla 23.6). Su un editor col Node più vecchio l'errore grezzo ("Unknown file
+// extension") non dice cosa fare: lo si aggiunge, come fa il CLI (loadConfig.js).
+function aiutoTs(file) {
+  if (!/\.[cm]?ts$/.test(file) || process.features?.typescript) return "";
+  return ` This editor runs vite.config with its own Node (${process.version}), which can't read TypeScript: update the editor, or use a vite.config.js.`;
+}
+
+const file = process.argv[2];
 try {
-  const file = process.argv[2];
-  let { default: config } = await import(pathToFileURL(path.resolve(file)).href);
-  // Stessi argomenti del CLI (loadConfig.js): il pannello mostra ciò che vede `vtranslate-cli`.
-  if (typeof config === "function") {
-    config = await config({ command: "build", mode: "production", isSsrBuild: false, isPreview: false });
-  }
+  const { default: esportato } = await import(pathToFileURL(path.resolve(file)).href);
+  // Stessi argomenti del CLI (CONFIG_ENV in resolveViteConfig.js): il pannello mostra ciò che vede
+  // `vtranslate-cli`. Una funzione si chiama, una Promise si aspetta.
+  const config = await (typeof esportato === "function"
+    ? esportato({ command: "build", mode: "production", isSsrBuild: false, isPreview: false })
+    : esportato);
   const plugins = await appiattisci(config?.plugins);
   const plugin = plugins.find((p) => p?.name === "vitetranslate");
   rispondi({
@@ -74,5 +87,7 @@ try {
     vitetranslate: plugin?.vitetranslateConfig ? serializza(plugin.vitetranslateConfig) : null,
   });
 } catch (error) {
-  rispondi({ ok: false, code: error?.code ?? null, error: String(error?.message ?? error) });
+  // L'aiuto sulla prima riga: è quella che il pannello mostra (errorLine in summarize.mjs).
+  const [prima, ...resto] = String(error?.message ?? error).split("\n");
+  rispondi({ ok: false, code: error?.code ?? null, error: [prima + aiutoTs(file), ...resto].join("\n") });
 }

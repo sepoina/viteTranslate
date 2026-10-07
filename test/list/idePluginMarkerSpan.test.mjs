@@ -75,6 +75,9 @@ eq("senza il testo del documento: solo la riga", [null, "Titolo"], [testo(entryA
 
 console.log("\n== markerEnd ==");
 eq("elemento con lo stesso nome annidato", 25, markerEnd("<b>uno <b>due</b> tre</b> resto", 0));
+eq("un > in un attributo non inganna (fineTag salta graffe e stringhe)", 30,
+  markerEnd("<Translate value={(x) => x} /> resto <Translate>b</Translate>", 0));
+eq("autochiuso: finisce col suo >", 23, markerEnd("<Translate value={1} /> resto", 0));
 eq("stringa: fino alla virgoletta, gli escape saltati", 8, markerEnd('"a\\"b c" dopo', 0));
 eq("template con ${…} che contiene un backtick", 14, markerEnd("`a ${ `x` } b` z", 0));
 eq("un elemento mai chiuso: null, nel dubbio non sceglie", null, markerEnd("<Translate>senza fine", 0));

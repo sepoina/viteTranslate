@@ -39,7 +39,7 @@ export class Projects {
     this.contesto = null; // le chiavi di contesto già date a VS Code, per non ridarle uguali
   }
 
-  /** La cartella del progetto scelto, o null. */
+  /** La cartella del progetto scelto, o null. Solo per i test: le sezioni chiedono selectedProject(). */
   get selected() {
     return this.scelto;
   }
@@ -138,6 +138,16 @@ export class Projects {
       this.names.set(dir, pkg.ok ? pkg.name ?? null : null);
     }
     return this.names.get(dir);
+  }
+
+  /**
+   * L'elenco calcolato finora, e i nomi letti con lui, non valgono più: la prossima richiesta li
+   * ricalcola. Le letture dei vite.config restano: le invalida chi guarda i file (ProjectWatch).
+   */
+  forgetList() {
+    this.list = null;
+    this.listKey = null;
+    this.names.clear();
   }
 
   /** Dimentica quanto letto per `dir`, o tutto senza argomenti. */

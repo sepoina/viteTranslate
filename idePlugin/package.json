@@ -59,6 +59,10 @@
     "untrustedWorkspaces": {
       "supported": "limited",
       "description": "In Restricted Mode vite.config is not executed: only package.json is read."
+    },
+    "virtualWorkspaces": {
+      "supported": false,
+      "description": "viteTranslate reads your project's files on disk and runs its CLI in a terminal."
     }
   },
   "contributes": {
@@ -189,7 +193,7 @@
         "properties": {
           "command": {
             "type": "string",
-            "description": "What to run: sync"
+            "description": "What to run: sync, or an LLM action like llm translate"
           },
           "dir": {
             "type": "string",

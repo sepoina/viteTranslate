@@ -1,6 +1,6 @@
 {
   "name": "@sepoina/vitetranslate",
-  "version": "4.6.4-rc.3",
+  "version": "4.6.4-rc.4",
   "versionDescription": "JSX inside <Translate> becomes the message: values, tags and links compiled at build time.",
   "description": "Extract translatable strings straight from your JSX — a Vite plugin that auto-generates and syncs your translation tables, with zero runtime dependencies.",
   "author": {

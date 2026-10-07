@@ -12,7 +12,8 @@
 //
 // Due modi di partire. L'estensione si attiva all'apertura del pannello, o di un file js/jsx/ts/tsx
 // (activationEvents in package.json: serve all'evidenziazione). L'evidenziazione parte subito; il
-// pannello — elenco dei progetti, vite.config, scansione, il file attivo inseguito — solo quando
+// pannello — elenco dei progetti, vite.config, scansione, i watcher dei file, il file attivo
+// inseguito — solo quando
 // una sua sezione si apre (avviaPannello): con il pannello chiuso non si esegue niente del progetto.
 // I moduli di stato e di pagina (…State.mjs, …Page.mjs, markedRows.mjs, …) non importano `vscode`
 // e si provano in Node puro.
@@ -67,6 +68,7 @@ export function activate(context) {
   const avviaPannello = () => {
     if (avviato) return;
     avviato = true;
+    watch.start();
     results.start();
     startup.start().then(() => optional.avviata).then(segnalaPronto, segnalaPronto);
   };
@@ -115,6 +117,7 @@ export function activate(context) {
     }),
     ...Object.entries(comandi).map(([id, f]) => vscode.commands.registerCommand(id, f))
   );
+  // Per i test. VS Code la offre alle altre estensioni come `exports`: non è un'API promessa.
   return { tree: projects, marked: results.tree, project, selector, optional, controlli: optional.llm.checks, preparato, highlighter };
 }
 

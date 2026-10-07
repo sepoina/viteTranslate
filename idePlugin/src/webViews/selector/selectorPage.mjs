@@ -1,8 +1,8 @@
 // La pagina della sezione Selector (una webview): Config, Filter e Search, fatti coi componenti di
 // @vscode-elements/elements. Qui solo lo scheletro: elenchi e ricerca li riempie webview.mjs dallo
 // stato che l'estensione manda (selectorState.mjs). I bottoni (Sync, LLM, le icone) stanno nella
-// sezione Project (projectPage.mjs). Nessun import di `vscode`: chi la usa (PageView in
-// extension.mjs) le passa l'indirizzo dello script e la sorgente ammessa dalla CSP.
+// sezione Project (projectPage.mjs). Nessun import di `vscode`: chi la usa (SelectorView, via
+// PageView in pageView.mjs) le passa l'indirizzo dello script e la sorgente ammessa dalla CSP.
 import { pageHead, COLUMN_CSS } from "../pageCommon.mjs";
 import { TOOLTIP_CSS } from "../tooltip/tooltip.mjs";
 
@@ -17,7 +17,6 @@ import { TOOLTIP_CSS } from "../tooltip/tooltip.mjs";
 export function selectorHtml({ scriptUri, codiconsUri, cspSource, nonce }) {
   return `${pageHead({ codiconsUri, cspSource, nonce })}${COLUMN_CSS}${TOOLTIP_CSS}
     main { padding-bottom: 4px; }
-    #query { width: "-webkit-fill-available"; }
     /* Il campo di ricerca e, alla sua destra, l'icona che lo svuota (invisibile a campo vuoto,
        senza far saltare il campo). */
     .campo { display: flex; align-items: center; gap: 4px; }

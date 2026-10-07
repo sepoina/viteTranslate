@@ -37,7 +37,7 @@ export const LLM_OFF = "LLM is not set up for this project: click to see how";
 export const LLM_ICON = { on: "chevron-right", off: "question" };
 
 /** Il tasto che rimette Results e Project, primario come Sync: "Close" sembrava chiudere l'estensione. */
-export const BACK_BUTTON = `<vscode-button data-cmd="close" icon="arrow-left" title="Back to Results and Project">Back</vscode-button>`;
+const BACK_BUTTON = `<vscode-button data-cmd="close" icon="arrow-left" title="Back to Results and Project">Back</vscode-button>`;
 /** La scritta a destra, prima dell'icona della pagina, quando Back è l'unico bottone. */
 export const BACK_LABEL = "Return to project";
 

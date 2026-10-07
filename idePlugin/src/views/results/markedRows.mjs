@@ -1,4 +1,4 @@
-// Dalla risposta di markedProbe.mjs alle righe della sezione Marked: l'albero dei file di srcDir
+// Dalla risposta di markedProbe.mjs alle righe della sezione Results: l'albero dei file di srcDir
 // che contengono voci marcate, e sotto ogni file le sue voci, nell'ordine del sorgente.
 //
 // Stesse righe di summarize.mjs, con in più: `key` (l'id del TreeItem al posto dell'etichetta:
@@ -7,7 +7,7 @@
 // (dove portare il cursore al clic). Nessun import di `vscode`.
 //
 // Ogni voce porta davanti al testo un glifo solo, nessuna icona: i glifi dei suoi problemi (vedi
-// markedProbe.mjs), quelli di `errorSolve.mark` del progetto — chi li ha cambiati in vite.config
+// markedScan.mjs), quelli di `errorSolve.mark` del progetto — chi li ha cambiati in vite.config
 // li ritrova qui uguali a come li vede a schermo nell'app — oppure, se è a posto, un glifo verde
 // che dice in che forma è scritta nel sorgente (PASSED). Il filtro — tutte le voci, o solo quelle
 // di un problema — si sceglie in Selector (selectorState.mjs): si vedono solo le scelte che
@@ -98,11 +98,22 @@ const SCELTE = {
 const conProblemi = (e) => e.problems?.length > 0;
 const della = (filtro) => (e) => e.problems?.some((p) => FAMIGLIE[filtro].includes(p.kind)) ?? false;
 
+// I conteggi di ogni scansione: una scansione arrivata non cambia più, e a ogni disegno li chiedono
+// in tanti (il filtro, l'intestazione, Selector).
+const conteggi = new WeakMap();
+
 /**
  * Quante voci in tutto, quante con un problema qualsiasi (issues) e quante per filtro. Un file
  * che non si è potuto leggere conta come un malformed: lo mostra quel filtro.
  */
-export function markedCounts(marked) {
+function markedCounts(marked) {
+  if (marked && conteggi.has(marked)) return conteggi.get(marked);
+  const n = contaVoci(marked);
+  if (marked) conteggi.set(marked, n);
+  return n;
+}
+
+function contaVoci(marked) {
   const n = { all: 0, issues: 0, malformed: 0, notSynced: 0, untranslated: 0 };
   for (const f of marked?.files ?? []) {
     if (f.error) n.malformed++;

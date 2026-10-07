@@ -3,7 +3,7 @@
 //   node test/list/llmDebug.test.mjs
 import { mkdtempSync, rmSync, mkdirSync, writeFileSync, existsSync, readFileSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { basename, join } from "node:path";
 import createDebugTrace, { debugStamp, listDebugTraces } from "../../lib/dev/llm/debugTrace.js";
 
 let fail = 0;
@@ -77,8 +77,9 @@ console.log("\n== T5 collisione di timestamp ==");
   debug1.write("run", {});
   const debug2 = createDebugTrace({ localeDir, now });
   debug2.write("run", {});
-  eq("prima cartella senza suffisso", "260918154107", debug1.dir.split("/").pop());
-  eq("seconda cartella con -2", "260918154107-2", debug2.dir.split("/").pop());
+  // basename e non split("/"): su Windows il separatore è "\".
+  eq("prima cartella senza suffisso", "260918154107", basename(debug1.dir));
+  eq("seconda cartella con -2", "260918154107-2", basename(debug2.dir));
 }
 
 // T6 — Infinity nel dato -> "Infinity" nel file

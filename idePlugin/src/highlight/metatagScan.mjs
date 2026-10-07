@@ -50,7 +50,7 @@ export function fineTag(text, i) {
 }
 
 /** Dove finisce (dopo la `}`) la graffa che si apre a `i`, saltando le stringhe; null se non si chiude. */
-export function fineGraffa(text, i) {
+function fineGraffa(text, i) {
   let graffe = 0;
   let q = null;
   for (let j = i; j < text.length; j++) {
@@ -168,8 +168,12 @@ function nomiAttributi(text, da, a) {
   return nomi;
 }
 
-// Il tag che chiude l'elemento `nome` aperto prima di `da`, contando gli omonimi annidati.
-function chiusura(text, nome, da) {
+/**
+ * Il tag che chiude l'elemento `nome` aperto prima di `da`, contando gli omonimi annidati. Lo usa
+ * anche la sonda inversa di Results (markerSpan.mjs).
+ * @returns {{ start: number, end: number } | null}
+ */
+export function chiusura(text, nome, da) {
   const re = new RegExp(String.raw`<(\/?)${escapeRe(nome)}(?=[\s/>])`, "g");
   re.lastIndex = da;
   let profondità = 1;

@@ -17,7 +17,8 @@
 //   overviewRuler  color, lane (Left, Center, Right, Full): un segno nel righello a destra
 //   weakOn         i tipi di tema ("light", "dark") su cui lo stile si vede poco coi colori di serie
 //
-// L'ordine è quello che vede l'utente (impostazioni, Quick Pick, pagina Highlight): Off, lo stile
+// L'ordine è quello che vede l'utente (impostazioni, Quick Pick, accordion Highlight style di
+// Settings): Off, lo stile
 // di serie, poi gli altri in ordine alfabetico per nome.
 //
 // L'elenco delle impostazioni in idePlugin/package.json (vitetranslate.highlightStyle: enum,

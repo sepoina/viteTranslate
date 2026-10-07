@@ -16,11 +16,12 @@
 //   node test/list/translateComponent.test.mjs
 import { renderToStaticMarkup } from "react-dom/server";
 import { createElement as h } from "react";
-import { writeFileSync, unlinkSync, readFileSync } from "node:fs";
+import { writeFileSync, readFileSync } from "node:fs";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { dirname, join, resolve } from "node:path";
 import { compileLanguageModule } from "../../lib/dev/compile/compileTable.js";
 import { TranslateContext } from "../../lib/react/TranslateContext.js";
+import { temporaneiAllUscita } from "./tempFiles.mjs";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(HERE, "../..");
@@ -37,14 +38,10 @@ const eq = (nome, atteso, ottenuto) => {
 // bundler: si riscrive quell'import verso un manifest vero, scritto accanto all'originale così
 // gli altri import relativi (React, il context, gli helper) continuano a risolversi.
 const stamp = `${Date.now()}-${Math.random().toString(36).slice(2)}`;
-const temporanei = [];
 // I file di appoggio vivono dentro lib/react per risolvere gli import relativi dei moduli sotto
 // test: vanno tolti anche se il test muore a metà, altrimenti restano nel sorgente del pacchetto.
-process.on("exit", () => {
-  for (const percorso of temporanei) {
-    try { unlinkSync(percorso); } catch { /* già rimosso */ }
-  }
-});
+// Cancellati all'uscita; uno che resta è un KO (tempFiles.mjs).
+const temporanei = temporaneiAllUscita();
 
 function scriviTemporaneo(nome, contenuto) {
   const percorso = join(ROOT, "lib/react", nome);

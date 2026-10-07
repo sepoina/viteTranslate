@@ -1,6 +1,6 @@
 // L'avvio. Finché la prima immagine non è pronta Selector, Results e Project restano nascoste e la
-// sezione facoltativa, nel modo "loading", scrive cosa si sta facendo (`starting`; la prima tappa è
-// anche in loadingPage.mjs). Pronta vuol dire: l'elenco dei progetti c'è e, se uno è
+// sezione facoltativa, nel modo "loading", scrive cosa si sta facendo (`starting`; la prima tappa,
+// FIRST_STEP, la pagina la mostra già da sé). Pronta vuol dire: l'elenco dei progetti c'è e, se uno è
 // selezionato, il suo vite.config è letto e la sua prima scansione è arrivata — così le sezioni
 // compaiono già piene, invece di passare da "Loading…". La preparazione la fa questo giro, non
 // le sezioni: nascoste, VS Code non chiede loro niente. Da lì la chiave resta vera: i ricalcoli
@@ -10,6 +10,7 @@
 // I tempi, nel canale: quanto ci mette a essere pronto, e da lì quanto ci mette VS Code a mostrare
 // Results e a creare, caricare e disegnare la pagina di Project (stage). Una volta sola.
 import * as vscode from "vscode";
+import { FIRST_STEP } from "../webViews/optional/loading/loadingPage.mjs";
 
 // Vera quando la prima immagine del pannello è pronta: fino ad allora Selector, Results e Project
 // non si vedono (i loro `when` in package.json) e la sezione facoltativa dice cosa sta preparando.
@@ -36,7 +37,7 @@ export class Startup {
     this.tPronto = null;
     this.tappe = new Set();
     this.pronto = false;
-    this.testo = "Looking for Vite projects…";
+    this.testo = FIRST_STEP;
   }
 
   /** Cosa si sta preparando, o null a preparazione finita. */

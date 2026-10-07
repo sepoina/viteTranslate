@@ -8,7 +8,8 @@
 //   - nessun risultato: la riga "Loading…";
 //   - risultato superato: il vecchio, bloccato (frozenRows) — i file salvati (`toccati`) e quelli
 //     con modifiche non salvate (`sporchi`) col segno e senza clic; un messaggio in testa se sono
-//     cambiati i file di lingua o il vite.config (`tutto`);
+//     cambiati i file di lingua, o se il progetto si rilegge (vite.config o package.json cambiati,
+//     Refresh: `tutto`);
 //   - risultato fresco: com'è (solo i file sporchi bloccati).
 // A carico arrivato si ridisegna. Un sorgente salvato blocca subito la sua riga, ma il carico parte
 // solo al refresh (l'attesa di resultsView.mjs, 300 ms): `attesa`.
@@ -321,7 +322,7 @@ export class MarkedTree {
       righe = fissa(frozenRows(rows, this.bloccati(project.dir, s, superato)), `marked:${project.dir}`, disegno);
       if (attuale) {
         const messaggio = !superato ? undefined
-          : s.tutto === "config" ? "⏳ vite.config changed: updating…"
+          : s.tutto === "config" ? "⏳ Reading the project again: updating…"
           : s.tutto === "locale" ? "⏳ Language files changed: updating…"
           : undefined;
         const cercato = this.cerca.trim() && marked ? `matching "${this.cerca.trim()}"` : null;
