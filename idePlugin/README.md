@@ -211,8 +211,9 @@ workspace to see the rest.
 
 ```bash
 npm run ide:dev       # a new window with the extension loaded from idePlugin/
-npm run ide:install   # build, package (idePlugin/vitetranslate-ide-<version>.vsix), install
+npm run ide:install   # build, package and install "viteTranslate DEV"
 ```
 
-After `ide:install`, run **Developer: Reload Window**. On VSCodium:
+The DEV build has an id of its own, so the Marketplace leaves it alone. It does not get along with the Marketplace
+version, though: disable one of them. After `ide:install`, run **Developer: Reload Window**. On VSCodium:
 `VT_CODE_CLI=codium npm run ide:install`.

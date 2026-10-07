@@ -2,7 +2,8 @@
 //
 //   node idePlugin/scripts/code.mjs build     # src/ → dist/ (rolldown.config.mjs), più i codicons
 //   node idePlugin/scripts/code.mjs package   # dist/ → idePlugin/vitetranslate-ide-<versione>.vsix
-//   node idePlugin/scripts/code.mjs install   # installa quel .vsix nell'editor
+//   node idePlugin/scripts/code.mjs devpack   # dist/ → idePlugin/vitetranslate-ide-dev-<versione>.vsix, "viteTranslate DEV"
+//   node idePlugin/scripts/code.mjs install   # installa il .vsix DEV nell'editor
 //   node idePlugin/scripts/code.mjs dev       # apre il repo in una finestra "Extension Development Host"
 //   node idePlugin/scripts/code.mjs check     # si può pubblicare? commit pulito, versione nuova, libreria su npm
 //   node idePlugin/scripts/code.mjs test      # i test dell'estensione e dell'ingresso ./ide/scan
@@ -20,10 +21,15 @@
 // e rilancia la build della libreria, o si pianta. Qui si usa solo il `node` in uso, e il npx
 // accanto a lui.
 //
+// Sviluppo e rilascio sullo stesso pc: la build DEV (`npm run ide:install`) ha un id suo,
+// sepoina.vitetranslate-ide-dev, quindi il Marketplace e gli aggiornamenti non la toccano mai.
+// Comandi, viste e impostazioni invece sono gli stessi della release: se ne tiene abilitata una sola.
+//
 // L'editor è `code`; per VSCodium: `VT_CODE_CLI=codium npm run ide:install`.
 import { spawn, spawnSync } from "node:child_process";
-import { copyFileSync, existsSync, readFileSync } from "node:fs";
+import { copyFileSync, cpSync, existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { createRequire } from "node:module";
+import { tmpdir } from "node:os";
 import { basename, dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -31,6 +37,8 @@ const IDE_DIR = dirname(dirname(fileURLToPath(import.meta.url)));
 const REPO_DIR = dirname(IDE_DIR);
 const manifest = JSON.parse(readFileSync(join(IDE_DIR, "package.json"), "utf8"));
 const VSIX = join(IDE_DIR, `${manifest.name}-${manifest.version}.vsix`);
+const NAME_DEV = `${manifest.name}-dev`;
+const VSIX_DEV = join(IDE_DIR, `${NAME_DEV}-${manifest.version}.vsix`);
 const CLI = process.env.VT_CODE_CLI || "code";
 // L'id sul Marketplace, e il vsce di package, show e del controllo. Il publish OIDC del workflow
 // ne usa un altro (VSCE in publish_extension.yml): solo quello ha bisogno della 4.0.1.
@@ -90,6 +98,22 @@ function marketplace() {
   }
 }
 
+// L'icona della barra laterale per la build DEV, ricavata da quella vera: lo stesso logo con un
+// tondo pieno in alto a destra, staccato da un anello vuoto. VS Code la disegna come sagoma di un
+// colore solo (una maschera), quindi la differenza sta nella forma, non nel colore.
+function iconaDev(svg) {
+  const [x, y, w, h] = svg.match(/viewBox="([^"]+)"/)[1].trim().split(/[\s,]+/).map(Number);
+  const lato = Math.min(w, h);
+  const [cx, cy, r] = [x + w - lato * 0.19, y + lato * 0.19, lato * 0.17].map((n) => +n.toFixed(2));
+  const maschera =
+    `<mask id="vt-dev" maskUnits="userSpaceOnUse" x="${x}" y="${y}" width="${w}" height="${h}">` +
+    `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="#fff"/><circle cx="${cx}" cy="${cy}" r="${+(r * 1.5).toFixed(2)}" fill="#000"/></mask>`;
+  return svg.replace(
+    /(<svg[^>]*>)([\s\S]*)(<\/svg>)/,
+    (_, apre, logo, chiude) => `${apre}${maschera}<g mask="url(#vt-dev)">${logo}</g><circle cx="${cx}" cy="${cy}" r="${r}" fill="currentColor"/>${chiude}`,
+  );
+}
+
 // La pagina nel browser e il file nella sua cartella, coi programmi del sistema. Staccati e senza
 // aspettarli: explorer.exe esce con 1 anche quando va tutto bene. Su Windows gli argomenti passano
 // così come sono: `/select,"…"` vuole le virgolette solo attorno al percorso.
@@ -128,13 +152,41 @@ const COMANDI = {
     // fa `"vsce": { "dependencies": false }` in idePlugin/package.json, per un `vsce package` a mano.
     esegui(bin("npx"), ["--yes", VSCE, "package", "--no-dependencies", "--out", VSIX], IDE_DIR);
   },
-  install() {
-    if (!existsSync(VSIX)) {
-      console.error(`[idePlugin] ${VSIX} is missing: run \`npm run ide:package\` first.`);
-      process.exit(1);
+  // La build DEV: lo stesso dist/, con un manifest che si fa riconoscere (id NAME_DEV, "viteTranslate
+  // DEV" e l'icona di iconaDev nella barra laterale). Si impacchetta da una copia in una cartella
+  // temporanea, così idePlugin/package.json non cambia mai, nemmeno se il comando si interrompe.
+  devpack() {
+    dist();
+    const dev = structuredClone(manifest);
+    dev.name = NAME_DEV;
+    dev.displayName = `${manifest.displayName} DEV`;
+    for (const contenitore of dev.contributes.viewsContainers.activitybar) {
+      contenitore.title = `${contenitore.title} DEV`;
+      contenitore.icon = contenitore.icon.replace(/\.svg$/, "-dev.svg");
     }
-    esegui(CLI, ["--install-extension", VSIX, "--force"]);
-    console.log("[idePlugin] installed. No viteTranslate icon in the Activity Bar yet? Run \"Developer: Reload Window\".");
+    const tmp = mkdtempSync(join(tmpdir(), "vt-devpack-"));
+    try {
+      for (const voce of ["dist", "media", "README.md", "LICENSE", ".vscodeignore"]) cpSync(join(IDE_DIR, voce), join(tmp, voce), { recursive: true });
+      for (const { icon } of manifest.contributes.viewsContainers.activitybar) {
+        writeFileSync(join(tmp, icon.replace(/\.svg$/, "-dev.svg")), iconaDev(readFileSync(join(IDE_DIR, icon), "utf8")));
+      }
+      writeFileSync(join(tmp, "package.json"), JSON.stringify(dev, null, 2) + "\n");
+      esegui(bin("npx"), ["--yes", VSCE, "package", "--no-dependencies", "--out", VSIX_DEV], tmp);
+    } finally {
+      rmSync(tmp, { recursive: true, force: true, maxRetries: 5, retryDelay: 100 });
+    }
+  },
+  // La build DEV accanto all'eventuale release, con un avviso se c'è anche lei: due abilitate
+  // registrano gli stessi comandi, e la seconda che parte fallisce. Da riga di comando si vede solo
+  // se è installata, non se è disabilitata.
+  install() {
+    if (!existsSync(VSIX_DEV)) ferma(`${VSIX_DEV} is missing: run \`npm run ide:install\`, which builds it first.`);
+    esegui(CLI, ["--install-extension", VSIX_DEV, "--force"]);
+    const installate = leggi(CLI, ["--list-extensions"]).out.split(/\r?\n/).map((riga) => riga.trim().toLowerCase());
+    if (installate.includes(ID.toLowerCase())) {
+      console.warn(`[idePlugin] the Marketplace ${manifest.displayName} (${ID}) is installed too: keep only one of the two enabled (Extensions > Disable, or uninstall it).`);
+    }
+    console.log(`[idePlugin] ${manifest.displayName} DEV installed. Already open? Run "Developer: Reload Window".`);
   },
   dev() {
     dist();

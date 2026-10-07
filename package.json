@@ -74,7 +74,7 @@
     "site:theme": "node site/syncTheme.mjs",
     "ide:build": "node idePlugin/scripts/code.mjs build",
     "ide:package": "node idePlugin/scripts/code.mjs build package",
-    "ide:install": "node idePlugin/scripts/code.mjs build package install",
+    "ide:install": "node idePlugin/scripts/code.mjs build devpack install",
     "ide:dev": "node idePlugin/scripts/code.mjs build dev",
     "ide:release": "node idePlugin/scripts/code.mjs check test build package upload",
     "ide:tag": "node idePlugin/scripts/code.mjs tag"

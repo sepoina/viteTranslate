@@ -56,8 +56,10 @@ setup of the project you are working on. It is not part of the npm package, and 
 ```bash
 npm run ide:dev       # opens this repo in an Extension Development Host window
 npm run ide:package   # builds idePlugin/vitetranslate-ide-<version>.vsix
-npm run ide:install   # …and installs it (VT_CODE_CLI=codium for VSCodium)
+npm run ide:install   # builds and installs "viteTranslate DEV" (VT_CODE_CLI=codium for VSCodium)
 ```
+
+**Release or DEV, one at a time.** The DEV build has its own id (`sepoina.vitetranslate-ide-dev`), name and a dot on the Activity Bar icon, so the Marketplace never mistakes it for the release, nor updates it. It shares commands, views and settings with the release, though: keep only one of the two enabled. `ide:install` warns you if the release is installed too.
 
 It is an npm workspace with its own `devDependencies` and scripts (`npm run build|package|install:editor|dev -w idePlugin`), the same commands as the `ide:*` scripts above: both go through `idePlugin/scripts/code.mjs`. Its tests are `test/list/idePlugin*.test.mjs`, part of `npm test`.
 
