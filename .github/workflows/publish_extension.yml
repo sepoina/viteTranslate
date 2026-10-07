@@ -5,7 +5,7 @@ name: Publish extension
 # la libreria che l'estensione richiede è già su npm (vedi "Libreria pronta?").
 # Così niente gara con publish.yml quando un push alza insieme libreria ed estensione.
 #
-# Autenticazione: trusted publishing OIDC (`vsce publish --oidc`, da @vscode/vsce 4.0.0), nessun
+# Autenticazione: trusted publishing OIDC (`vsce publish --oidc`, vedi VSCE nel job), nessun
 # token salvato nel repo. Sul Marketplace va un criterio di trusted publishing per
 # sepoina/viteTranslate e questo file (.github/workflows/publish_extension.yml). A ottobre 2026 il
 # Marketplace non permette ancora di crearlo (è in prova): fino ad allora, e comunque per la
@@ -24,6 +24,13 @@ jobs:
     concurrency:
       group: vsce-publish
       cancel-in-progress: false
+    # Il vsce di show e publish (il package resta al @3 di scripts/code.mjs). Non "@4": la 4.0.0
+    # di latest scambia il token OIDC col protocollo vecchio e il Marketplace risponde 400 ("No
+    # api-version was supplied"). Quello finale (api-version, FederatedToken) c'è dalla 4.0.1-1,
+    # ancora pre-release: microsoft/vscode-vsce@c960f2e. Il range prende oggi la 4.0.1-3, e da
+    # solo la 4.0.1 stabile, o una successiva, quando esce.
+    env:
+      VSCE: "@vscode/vsce@^4.0.1-3"
     steps:
       - uses: actions/checkout@v6
 
@@ -56,7 +63,7 @@ jobs:
           ID: ${{ steps.meta.outputs.id }}
           VERSION: ${{ steps.meta.outputs.version }}
         run: |
-          npx --yes @vscode/vsce@4 show "$ID" --json > "$RUNNER_TEMP/show.json"
+          npx --yes "$VSCE" show "$ID" --json > "$RUNNER_TEMP/show.json"
           if node -e '
             const [file, version] = process.argv.slice(1);
             const out = require("fs").readFileSync(file, "utf8").trim();
@@ -124,10 +131,10 @@ jobs:
           path: ${{ steps.meta.outputs.vsix }}
           retention-days: 30
 
-      # @4 e non il @3 di scripts/code.mjs: --oidc c'è da vsce 4.0.0. Pubblica il .vsix appena
-      # fatto, senza rifarlo.
+      # $VSCE (vedi env del job) e non il @3 di scripts/code.mjs: --oidc c'è solo dalla 4. Pubblica
+      # il .vsix appena fatto, senza rifarlo.
       - name: Publish (trusted publishing OIDC, nessun token)
-        run: npx --yes @vscode/vsce@4 publish --oidc --packagePath "${{ steps.meta.outputs.vsix }}"
+        run: npx --yes "$VSCE" publish --oidc --packagePath "${{ steps.meta.outputs.vsix }}"
 
       # Segna il commit pubblicato. Prefisso "ide-": i "vX.Y.Z" sono della libreria. Niente
       # release GitHub, come per il launcher in publish.yml: diventerebbe la "Latest" del repo al
