@@ -63,6 +63,8 @@ It is an npm workspace with its own `devDependencies` and scripts (`npm run buil
 
 **Results** reads the project's library through `@sepoina/vitetranslate/ide/scan` (`lib/ide/scan.js`): add exports, never remove them. Raising `IDE_API_MIN` in `markedScan.mjs` means publishing the library first (AGENTS.md).
 
+**Publishing** is manual: Actions → *Publish extension* tests, packages, runs `vsce publish --oidc` and tags `ide-v<version>`. It stops if that version is already on the Marketplace, or if npm `latest` is older than `LIB_MIN` in `markedScan.mjs`. Until the Marketplace enables trusted publishing, upload by hand the `.vsix` the run leaves as an artifact.
+
 ## Pull requests
 
 Keep PRs focused on a single change, and describe the *why* behind it — the diff already

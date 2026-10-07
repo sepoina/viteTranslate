@@ -59,7 +59,8 @@ const COMANDI = {
   package() {
     dist();
     // --no-dependencies: il bundle non ha dipendenze a runtime, e così vsce non chiama npm (che in
-    // un workspace npm come questo repo risponderebbe per la radice, non per idePlugin/).
+    // un workspace npm come questo repo risponderebbe per la radice, non per idePlugin/). Lo stesso
+    // fa `"vsce": { "dependencies": false }` in idePlugin/package.json, per un `vsce package` a mano.
     const npx = join(dirname(process.execPath), process.platform === "win32" ? "npx.cmd" : "npx");
     esegui(existsSync(npx) ? npx : "npx", ["--yes", "@vscode/vsce@3", "package", "--no-dependencies", "--out", VSIX], IDE_DIR);
   },

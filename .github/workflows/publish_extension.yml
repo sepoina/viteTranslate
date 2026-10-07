@@ -1,0 +1,136 @@
+name: Publish extension
+
+# L'estensione per l'editor (idePlugin/) sul Visual Studio Marketplace. Workflow a sé, staccato
+# da publish.yml, e solo a mano (Actions → Publish extension → Run workflow): lo si lancia quando
+# la libreria che l'estensione richiede è già su npm come "latest" (vedi "Libreria pronta?").
+# Così niente gara con publish.yml quando un push alza insieme libreria ed estensione.
+#
+# Autenticazione: trusted publishing OIDC (`vsce publish --oidc`, da @vscode/vsce 4.0.0), nessun
+# token salvato nel repo. Sul Marketplace va un criterio di trusted publishing per
+# sepoina/viteTranslate e questo file (.github/workflows/publish_extension.yml). A ottobre 2026 il
+# Marketplace non permette ancora di crearlo (è in prova): fino ad allora, e comunque per la
+# prima versione, il .vsix si carica a mano su https://marketplace.visualstudio.com/manage —
+# quello di "Upload .vsix" qui sotto, che resta tra gli artefatti anche se la pubblicazione
+# fallisce. Nessun ripiego su un PAT: quelli globali smettono di funzionare l'1/12/2026.
+on:
+  workflow_dispatch:
+
+jobs:
+  publish-extension:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # il tag ide-vX.Y.Z
+      id-token: write # il token OIDC che vsce scambia col Marketplace
+    concurrency:
+      group: vsce-publish
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v6
+
+      # Node 24: @vscode/vsce 4 ne chiede almeno 22.
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: npm
+
+      # Tutto letto da idePlugin/package.json, l'unico posto in cui vive. L'id sul Marketplace è
+      # <publisher>.<name>; il nome del .vsix è quello che dà scripts/code.mjs.
+      - name: Nome e versione dell'estensione
+        id: meta
+        working-directory: idePlugin
+        run: |
+          NAME=$(node -p "require('./package.json').name")
+          PUBLISHER=$(node -p "require('./package.json').publisher")
+          VERSION=$(node -p "require('./package.json').version")
+          echo "Estensione: $PUBLISHER.$NAME@$VERSION"
+          echo "id=$PUBLISHER.$NAME" >> "$GITHUB_OUTPUT"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "vsix=idePlugin/$NAME-$VERSION.vsix" >> "$GITHUB_OUTPUT"
+
+      # Lanciato a mano, una versione già pubblicata è una version dimenticata in package.json:
+      # errore, non un salto silenzioso come in publish.yml (che gira a ogni push).
+      # `vsce show --json` stampa "undefined", ed esce con 0, per un'estensione che sul
+      # Marketplace non c'è ancora; un errore di rete esce con un codice diverso e ferma il job.
+      - name: Versione già sul Marketplace?
+        env:
+          ID: ${{ steps.meta.outputs.id }}
+          VERSION: ${{ steps.meta.outputs.version }}
+        run: |
+          npx --yes @vscode/vsce@4 show "$ID" --json > "$RUNNER_TEMP/show.json"
+          if node -e '
+            const [file, version] = process.argv.slice(1);
+            const out = require("fs").readFileSync(file, "utf8").trim();
+            const ext = out === "undefined" ? null : JSON.parse(out);
+            process.exit(ext?.versions?.some((v) => v.version === version) ? 0 : 1);
+          ' "$RUNNER_TEMP/show.json" "$VERSION"; then
+            echo "::error::$ID@$VERSION è già sul Marketplace: alza version in idePlugin/package.json."
+            exit 1
+          fi
+
+      # AGENTS.md, "REGOLE DI RILASCIO": l'estensione esce solo quando npm "latest" è almeno la
+      # libreria che porta l'IDE_API che le serve. Quella versione è LIB_MIN in markedScan.mjs,
+      # che sale insieme a IDE_API_MIN: letta da lì, qui non c'è niente da tenere allineato.
+      - name: Libreria pronta?
+        run: |
+          LIB_MIN=$(node -e '
+            const s = require("fs").readFileSync("idePlugin/src/probes/markedScan.mjs", "utf8");
+            const m = s.match(/export const LIB_MIN = "([^"]+)"/);
+            if (!m) process.exit(1);
+            console.log(m[1]);
+          ') || { echo "::error::LIB_MIN non trovato in idePlugin/src/probes/markedScan.mjs."; exit 1; }
+          LATEST=$(npm view @sepoina/vitetranslate@latest version)
+          echo "npm latest: $LATEST, richiesta: $LIB_MIN"
+          # exit 0 = LATEST >= LIB_MIN; a parità di X.Y.Z una pre-release è più vecchia della
+          # stabile, come vuole semver.
+          if ! node -e '
+            const [latest, min] = process.argv.slice(1);
+            const parse = (v) => { const [core, ...pre] = v.split("-"); return [core.split(".").map(Number), pre.join("-")]; };
+            const [a, aPre] = parse(latest), [b, bPre] = parse(min);
+            for (let i = 0; i < 3; i++) if (a[i] !== b[i]) process.exit(a[i] > b[i] ? 0 : 1);
+            if (!aPre) process.exit(0);
+            if (!bPre) process.exit(1);
+            process.exit(aPre.localeCompare(bPre, undefined, { numeric: true }) >= 0 ? 0 : 1);
+          ' "$LATEST" "$LIB_MIN"; then
+            echo "::error::npm latest è $LATEST, l'estensione chiede almeno $LIB_MIN: pubblica prima la libreria (AGENTS.md, REGOLE DI RILASCIO)."
+            exit 1
+          fi
+
+      # Un solo npm install alla radice: idePlugin è un workspace, e rolldown, codicons e i
+      # sorgenti di lib/ che il bundle si porta dentro stanno lì.
+      - name: Install deps
+        run: npm install
+
+      # I test dell'estensione e quello dell'ingresso ./ide/scan che Results legge.
+      - name: Test
+        run: npm test -- idePlugin ideScan
+
+      # La stessa strada del .vsix fatto in locale: build e vsce package --no-dependencies.
+      - name: Package
+        run: npm run ide:package
+
+      - name: Upload .vsix
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.meta.outputs.id }}-${{ steps.meta.outputs.version }}
+          path: ${{ steps.meta.outputs.vsix }}
+          retention-days: 30
+
+      # @4 e non il @3 di scripts/code.mjs: --oidc c'è da vsce 4.0.0. Pubblica il .vsix appena
+      # fatto, senza rifarlo.
+      - name: Publish (trusted publishing OIDC, nessun token)
+        run: npx --yes @vscode/vsce@4 publish --oidc --packagePath "${{ steps.meta.outputs.vsix }}"
+
+      # Segna il commit pubblicato. Prefisso "ide-": i "vX.Y.Z" sono della libreria. Niente
+      # release GitHub, come per il launcher in publish.yml: diventerebbe la "Latest" del repo al
+      # posto di quella della libreria. Tag leggero: basta a ritrovare il commit, e non chiede
+      # un'identità git.
+      - name: Tag git
+        env:
+          TAG: ide-v${{ steps.meta.outputs.version }}
+        run: |
+          if git ls-remote --exit-code --tags origin "refs/tags/$TAG" >/dev/null 2>&1; then
+            echo "Il tag $TAG c'è già."
+            exit 0
+          fi
+          git tag "$TAG" "$GITHUB_SHA"
+          git push origin "refs/tags/$TAG"
