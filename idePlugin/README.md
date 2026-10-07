@@ -1,223 +1,108 @@
+<div align="center">
+
+<img src="https://github.com/sepoina/viteTranslate/raw/HEAD/idePlugin/media/icon.png" alt="" width="96" height="96" />
+
 # viteTranslate for VS Code
 
-> **Experimental, 0.0.2.** It reads your setup. It never touches it.
+**The editor half of [viteTranslate](https://github.com/sepoina/viteTranslate#readme).** <br/>
+Every marked string and how its translation is doing, in a panel of its own. No more opening `vite.config` to remember whether `autoWrap` was on.
 
-Your [viteTranslate](https://github.com/sepoina/viteTranslate) setup at a glance, in its own panel:
-click the % icon in the Activity Bar. No more opening `vite.config` to remember whether `autoWrap`
-was on.
+[![VS Code Marketplace](https://img.shields.io/badge/VS%20Code-Marketplace-007ACC?logo=visualstudiocode&logoColor=white)](https://marketplace.visualstudio.com/items?itemName=sepoina.vitetranslate-ide)
+[![npm library](https://img.shields.io/npm/v/@sepoina/vitetranslate?logo=npm&logoColor=white&label=library&color=CB3837)](https://www.npmjs.com/package/@sepoina/vitetranslate)
+[![License](https://img.shields.io/badge/license-Apache--2.0-blue)](https://github.com/sepoina/viteTranslate/blob/HEAD/idePlugin/LICENSE)
 
-## What you see
+[**Library**](https://github.com/sepoina/viteTranslate#readme) · [**Panel guide**](https://github.com/sepoina/viteTranslate/blob/HEAD/doc/ide-panel.md) · [**Site**](https://sepoina.github.io/viteTranslate/) · [**Issues**](https://github.com/sepoina/viteTranslate/issues)
 
-Three sections, open and close them like any sidebar. At startup a single **Loading** page shows the
-logo and what it's reading; **Selector**, **Results** and **Project** take over when they have
-something true to say.
+</div>
 
-### Selector
+![The viteTranslate panel next to the editor](https://github.com/sepoina/viteTranslate/raw/HEAD/doc/ide/panel.png)
 
-What you look at, and what to do with it. Top to bottom:
+> **Preview.** It reads your project and never writes to it. The only things that change files are **Sync** and the LLM actions, and they run the same CLI you'd type yourself.
 
-- **Config**: every Vite project in the workspace, one row each: its `package.json` name and its
-  folder. Click one and it's *the* project, for **Results** and **Project**. Only one project?
-  Nothing to choose, so no list.
-- **Filter**: what **Results** shows. **All**, **Malformed** (‼️, unreadable files too), **Not
-  synced** (🔄) or **Untranslated** (🔸 🔹), each with its count. Only the ones with something inside
-  show up, and when all is well the filter steps aside.
-- **Search**: narrows **Results** to the entries whose text, or file path, contains what you type.
-  No case, no accents: `citta` finds *Città*. It shows up once there's something to search, and
-  stays while you type, even when nothing matches. <kbd>Esc</kbd>, or the × on its right, clears it.
+## 🧩 One project, two halves
 
-### Results
+[viteTranslate](https://github.com/sepoina/viteTranslate#readme) is a Vite plugin: you write sentences right in your JSX, it extracts them and keeps one `.yml` table per language in sync. This extension is its view from inside the editor, and it doesn't work without it.
 
-Every string the project marks for translation, file by file: the folders of `srcDir`, only the
-files that have something marked, and under each file its entries in source order. Click an entry
-and the cursor lands on it. Save a file (or a language file) and the list follows.
-
-One glyph in front of each entry says how it's doing. Trouble wears the same glyphs your app shows
-on screen: your `errorSolve.mark`, or the defaults.
-
-| | means |
+| The library (npm) | The extension (here) |
 | --- | --- |
-| ‼️ | *malformed*: the extraction complained right there (nested or unpaired `_%_`, a rejected macro) |
-| 🔄 | *not synced*: not in the language files yet. Run the sync (this one is the panel's own) |
-| 🔸 | *untranslated*: `null` in every target language |
-| 🔹 | *not fully translated*: still `null` somewhere |
+| Extracts marked strings, syncs the tables | Lists them file by file, each with its status |
+| Fills `null` keys through an LLM, from the CLI | Runs Sync and the LLM actions in one click |
+| Reads its options from `vite.config` | Shows them as resolved, plus versions and the API key's whereabouts |
 
-All good is green, and the shade tells you how it's written:
+It doesn't re-implement anything: **Results** asks the library installed in *your* project, so the panel and `npx vitetranslate` never disagree.
 
-| | written as |
+## ✨ Features
+
+- **🔍 Every marked string, at a glance.** File by file, in source order. One glyph says how each one is doing: ‼️ malformed, 🔄 not synced, 🔸 untranslated, 🔹 partly translated, green when all is well. Filter, search (no case, no accents), click to jump.
+- **🌍 Language files, one click away.** Pick an entry, then a language: the file opens right on that key, cursor on the translation.
+- **🖍️ Highlighting as you type.** `_%_…_%_`, `<Translate>…</Translate>` and `` ts`…` `` stand out in `.js`, `.jsx`, `.ts` and `.tsx`, with the extraction's own rules: what lights up gets translated. Fifteen styles, all in your theme's colors.
+- **🤖 Sync and LLM, without typing.** **Sync** and every `--llm-*` action run the project's own CLI in a terminal. The LLM page first answers "can I go?": where the API key is (never what), which model, and whether it replies.
+- **⚙️ Your setup, resolved.** Plugin options, the dependencies that matter (*declared → installed*), Vite plugins in load order, library and extension versions.
+- **📁 Monorepos welcome.** Every Vite project in the workspace, and the panel follows the file you're editing.
+
+<table>
+<tr>
+<td width="50%"><img src="https://github.com/sepoina/viteTranslate/raw/HEAD/doc/ide/results.png" alt="Results, filtered to untranslated entries" /></td>
+<td width="50%"><img src="https://github.com/sepoina/viteTranslate/raw/HEAD/doc/ide/llm.png" alt="The LLM page" /></td>
+</tr>
+<tr>
+<td align="center"><sub>Results: filter, search, status glyphs</sub></td>
+<td align="center"><sub>LLM: key, model, ping, then the actions</sub></td>
+</tr>
+</table>
+
+![Highlighted strings in the editor](https://github.com/sepoina/viteTranslate/raw/HEAD/doc/ide/highlight.png)
+
+## 🚀 Getting started
+
+1. **Have viteTranslate in a Vite project**, version 4.6.4 or later. New to it? The [quick start](https://github.com/sepoina/viteTranslate#-quick-start) takes two minutes.
+
+   ```sh
+   npm install @sepoina/vitetranslate
+   ```
+
+2. **Install the extension** from the [Marketplace](https://marketplace.visualstudio.com/items?itemName=sepoina.vitetranslate-ide), or:
+
+   ```sh
+   code --install-extension sepoina.vitetranslate-ide
+   ```
+
+3. **Click the % icon** in the Activity Bar. Highlighting needs nothing: open a `.jsx` file and it's on.
+
+Older library, or none? The panel says so and gives you the `npm install` that fixes it.
+
+**Requirements**: VS Code 1.90+, a [trusted workspace](https://code.visualstudio.com/docs/editing/workspaces/workspace-trust) for anything beyond `package.json`, and on Windows a `node` in your PATH, so the CLI can ask you things (confirmations, the API key).
+
+## ⌨️ Commands
+
+From the panel, or the Command Palette under **viteTranslate:**
+
+| Command | Does |
 | --- | --- |
-| 🟢 | `"_%_…_%_"` in code |
-| ✅ | marked JSX text or attribute |
-| ❇️ | `<Translate>…</Translate>`, or a marked sentence with tags and values (`autoWrap`) |
-| ✳️ | `` ts`…` ``, or a marked template with `${…}` |
+| **Sync language files** | Runs `vitetranslate` in a terminal: new keys in, stale ones out |
+| **LLM** | Opens the LLM page: readiness check and every `--llm-*` action |
+| **Settings** | Opens the settings page: options, files, versions |
+| **Choose highlight style…** | Tries every style live on your code: <kbd>Enter</kbd> keeps it, <kbd>Esc</kbd> changes nothing |
+| **Refresh** | Re-reads projects and rescans **Results** (it refreshes by itself on save too) |
 
-Hover an entry for the details: which languages are missing, what the extraction said.
+## 🛠️ Settings
 
-### Project
-
-The selected project, and what to do with it. The languages scroll; the command bar stays put at
-the bottom.
-
-- **Translations**: the language files in `localeDir`, one row each, listed like **Config**: the
-  language code and its name in that language, the source first. Click one to open it. An entry
-  selected in **Results**? It opens right on that key, cursor on the translation: fix it there. A ♥
-  next to the title says so (hover for the key); pick a file or a folder, or hide Results: gone.
-  The icon tells you how it's doing: green for the source, yellow when translations are missing
-  (the badge says how many), red when the file can't be read, plain when it's complete. No files
-  yet? One line says why.
-- **The command bar**: **Sync** runs the project's own `vtranslate-cli` in a terminal, and **LLM**
-  swaps **Results** for the LLM panel (below). On the right: GitHub, ⚙ **Settings** (below), ↻
-  refresh.
-
-Keep **Project** at least as tall as its command bar: drag it to nothing and the bar goes too.
-
-### Taking over: Settings, LLM, Help
-
-These take the panel for themselves: **Selector**, **Results** and **Project** step aside (nothing to
-pick while you're here) and the background takes a tint of your theme's accent. The command bar stays, same look: **← Back** on
-the left, plus the page's own commands if it has any; on the right, the page's icon. Back puts
-everything back where it was (so does the ← in the section title).
-
-### Settings
-
-Click ⚙ in **Project**. On top, the logo. Then, under **CONFIG**, one row per setting, like LLM's
-actions.
-
-- **Highlight style**: each style with a sample; click one, editors switch at once.
-- **Vite config**: `vite.config`, opened right on the `vitetranslate({…})` options.
-- **Detailed config**: the extension's own settings in VS Code.
-- **Local file status**: what the selected project's files say.
-  - **vitetranslate**: the plugin options as resolved: source language, locale
-    folder, preloaded languages, auto-sync, `autoWrap`, ICU time zone, the `llm` block (model,
-    endpoint, budget, the *name* of the key variable, never the key). Unset: `default`.
-  - **package.json**: the dependencies that matter (`@sepoina/vitetranslate`, `vite`, …) as
-    *declared → installed*, plus the scripts. Click to open.
-  - **vite.config**: plugins in load order, server port and host. Click to open.
-
-Under **VERSION**, who's who: this extension, the library installed in the project, the oldest
-library the extension accepts, and the IDE API (how **Results** talks to the library), present /
-requested. Yellow means missing or too old; hover for why.
-
-### LLM
-
-Click **LLM ›** in **Project**. On top, three lines that answer "can I go?":
-
-- **API key**: *where* it is (an environment variable, `.env.local`, `.env`, the system keyring),
-  never what it is. Not found? It says where it looked.
-- **Settings**: which model, at which host, and whether prices are set (without them, costs and
-  budgets count tokens, not money).
-- **Ping**: does the model answer? One tiny request, in the background, once per project. No key,
-  no knocking.
-
-Below, the `--llm-*` actions, each explained: translate, estimate the cost, retranslate,
-regenerate the context, status, ping, set / check / clear the API key. Click one and it runs in a
-terminal, like Sync. *Check again*, in the bar, redoes the three lines; if one went wrong, the
-**?** next to it opens the setup guide.
-
-No `llm` block in the plugin options? The button reads **LLM ?** and opens **Help** instead: how
-to add one, and a button that opens the options in `vite.config`.
-
-## Highlighting
-
-Marked strings stand out as you type, in `.js`, `.jsx`, `.ts` and `.tsx`: `_%_…_%_`, `<Translate>…</Translate>`,
-`` ts`…` ``. Same rules as the extraction: what lights up gets translated. Comments, and code samples inside
-strings, stay plain.
-
-Fifteen styles, all in your theme's colors. Pick one in **Settings**, each with a sample.
-Or **viteTranslate: Choose highlight style…** tries each on your code as you move through the list: Enter keeps
-it, Esc changes nothing. Or set `vitetranslate.highlightStyle`, `off` included. No panel needed.
-
-<details><summary>The fifteen styles</summary>
-
-| Style | Looks like |
-| --- | --- |
-| `framed-box` (default) | Box and frame |
-| `badge` | Filled label |
-| `dotted-escape` | Fine underline |
-| `escape-chip` | Chip and ruler |
-| `highlighter` | Marker effect |
-| `inlay-hint` | Like inlay hints |
-| `inset` | Inset backdrop |
-| `keyword-mark` | Keyword accent |
-| `link` | Dotted link |
-| `neutral-italic` | Italic only |
-| `outlined-chip` | Chip with border |
-| `pill` | Chip on content |
-| `placeholder` | Snippet style |
-| `quote` | Left accent bar |
-| `selection-veil` | Like selection |
-
-</details>
-
-## Under the hood
-
-**Results** asks *your* installed `@sepoina/vitetranslate` (and its `@babel/core`), in a separate process:
-same entries `vtranslate-cli` would find, no Babel shipped inside the extension. It needs 4.6.4 or
-later. No library at all, or an older one? **Results** and **Project** step aside for a page that
-says what's wrong and the `npm install` that fixes it (**Selector** stays only if there's another
-project to switch to). It leaves by itself once the library is there (or hit **Check again**).
-
-It's quick because every sync leaves an index of the entries in
-`node_modules/.viteTranslate/markers.json`, and the panel re-parses only what you changed since.
-After a save Babel stays warm for two minutes, then the process goes away.
-
-**Sync** and the LLM actions run in a terminal that tidies up after itself: when the CLI is done,
-press Enter within 10 seconds to keep it, any other key to close it now, or just look away. If
-something failed it stays until you press a key: the error is the part worth reading.
-
-Opening a JS or TS file wakes the extension for the highlighting only: `vite.config` is read, and the project scanned, when you open the panel.
-
-<details><summary>Which runtime Sync uses</summary>
-
-They run the CLI with the editor's own runtime. Except on Windows, where that runtime goes mute
-in a terminal: there they use the `node` in your PATH, the one Vite runs on. No Node in PATH? They
-still run and you see the output, but they can't ask you anything (*Translate*'s confirmation, the
-API key), and the terminal waits for a key the usual way. A warning says so, once.
-
-</details>
-
-## Settings
-
-⚙ in **Project** opens them.
-
-| Setting | Default | What it does |
+| Setting | Default | Does |
 | --- | --- | --- |
-| `vitetranslate.detailCommand` | `false` | **Sync** and the LLM actions open their terminal with the command you'd type yourself, `$ npx vitetranslate --status`, colors included. Turn it on to also see how it's really launched: folder, runtime, runner, CLI file. |
-| `vitetranslate.highlightStyle` | `framed-box` | How marked strings stand out in the editor, or `off`. Try them live with **Choose highlight style…**. |
+| `vitetranslate.highlightStyle` | `framed-box` | How marked strings stand out, or `off` |
+| `vitetranslate.detailCommand` | `false` | Terminals also show how the CLI is really launched: folder, runtime, runner, CLI file |
 
-## Which project
+## 🔒 Safe by design
 
-The one highlighted in **Config**, and it follows you around: switch to a file and its project
-takes the highlight, while **Results** jumps to that file with its entries open. Same project?
-Nothing redraws. Picked another one in **Config**? It stays until you switch editor, and across
-restarts. Until there is one, **Results** and **Project** wait for you.
+- **Read-only.** `vite.config` runs in a separate process, never through Vite: no plugin hook fires, nothing gets synced. A config that hangs is dropped after 15 seconds.
+- **Restricted Mode respected.** Untrusted workspace? Nothing runs: you get `package.json` only.
+- **Nothing heavy inside.** No Babel bundled: it uses the one your project already has, and lets it go after two idle minutes.
+- **Secrets stay secret.** The API key is located, never displayed.
 
-It works the other way too: put the cursor on a line with a marked string and **Results** selects
-that entry (with *Filter* on *All* and *Search* empty, and the file saved). Your cursor stays put.
+## 📚 More
 
-Everything refreshes by itself when a `package.json` or `vite.config.*` changes (and, for
-**Results**, a source or language file). ↻ does it on demand.
-
-While it catches up, the panel never passes off old news as fresh: a project still loading says
-*Loading…*, a file you just saved shows ⏳, one with unsaved edits shows ✎, and their entries
-stop jumping (the lines may have moved) until the new scan lands.
-
-## How it reads vite.config
-
-It runs it, the way `vtranslate-cli` does: in a separate process and never through Vite. No plugin
-hook runs, nothing gets synced, nothing gets written. A config that hangs is dropped after 15
-seconds, and whatever it prints ends up in the **viteTranslate** output channel.
-
-In **Restricted Mode** nothing runs: you get `package.json` only, no **Results** and no **Sync**. Trust the
-workspace to see the rest.
-
-## Try it from the repository
-
-```bash
-npm run ide:dev       # a new window with the extension loaded from idePlugin/
-npm run ide:install   # build, package and install "viteTranslate DEV"
-```
-
-The DEV build has an id of its own, so the Marketplace leaves it alone. It does not get along with the Marketplace
-version, though: disable one of them. After `ide:install`, run **Developer: Reload Window**. On VSCodium:
-`VT_CODE_CLI=codium npm run ide:install`.
+- 📖 **[Panel guide](https://github.com/sepoina/viteTranslate/blob/HEAD/doc/ide-panel.md)**: every section, glyph and button, the fifteen styles, what happens under the hood.
+- 🌐 **[viteTranslate](https://github.com/sepoina/viteTranslate#readme)**: the library, its [CLI](https://github.com/sepoina/viteTranslate/blob/HEAD/doc/cli.md) and the [LLM guide](https://github.com/sepoina/viteTranslate/blob/HEAD/doc/llm.md).
+- 🧪 **[Run it from source](https://github.com/sepoina/viteTranslate/blob/HEAD/CONTRIBUTING.md#editor-extension-experimental)**: `npm run ide:dev` in the repository.
+- 💬 **[Discussions](https://github.com/sepoina/viteTranslate/discussions)** for ideas, **[Issues](https://github.com/sepoina/viteTranslate/issues)** for bugs.
+- 📄 **[License](https://github.com/sepoina/viteTranslate/blob/HEAD/idePlugin/LICENSE)**: Apache License 2.0.

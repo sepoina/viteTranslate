@@ -11,6 +11,7 @@ No translation keys to maintain. No separate extraction workflow. No runtime dep
 
 [![npm version](https://img.shields.io/npm/v/@sepoina/vitetranslate?logo=npm&logoColor=white&label=npm&color=CB3837)](https://www.npmjs.com/package/@sepoina/vitetranslate)
 [![npm downloads](https://img.shields.io/npm/dm/@sepoina/vitetranslate?logo=npm&logoColor=white&label=downloads&color=CB3837)](https://www.npmjs.com/package/@sepoina/vitetranslate)
+[![VS Code](https://img.shields.io/badge/VS%20Code-extension-007ACC?logo=visualstudiocode&logoColor=white)](https://marketplace.visualstudio.com/items?itemName=sepoina.vitetranslate-ide)
 [![provenance](https://img.shields.io/badge/npm-provenance-2b7489?logo=npm&logoColor=white)](https://www.npmjs.com/package/@sepoina/vitetranslate#provenance)
 
 [![Donate](https://img.shields.io/badge/support-PayPal-00457C?logo=paypal&logoColor=white)](https://www.paypal.com/paypalme/giancarloghigi)
@@ -19,7 +20,7 @@ No translation keys to maintain. No separate extraction workflow. No runtime dep
 [**Site**](https://sepoina.github.io/viteTranslate/) · [**StackBlitz**](https://stackblitz.com/edit/vitejs-vite-aa9rcqtt?file=locale%2Fit-IT.yml) · 
 [**Playground**](https://sepoina.github.io/viteTranslate/playground/) · 
 [**Showcase**](https://sepoina.github.io/viteTranslate/llmrestaurant/)  <br/>
-[Quick start](#-quick-start) · [CLI](#-cli) · [LLM](#-llm-auto-translation) · [Guides](#-guides) · [React](doc/react-api.md) · [Notes](#-notes)
+[Quick start](#-quick-start) · [CLI](#-cli) · [LLM](#-llm-auto-translation) · [VS Code](#-vs-code-extension) · [Guides](#-guides) · [React](doc/react-api.md) · [Notes](#-notes)
 
 <a href="https://youtu.be/pNM9ybG0uO4">
   <img src="doc/youplay.png" alt="Watch viteTranslate in action" width="60%" />
@@ -206,6 +207,14 @@ npx vitetranslate --llm-translate
 
 No dependency added — any OpenAI-compatible API key is enough (Gemini, OpenAI, OpenRouter, Groq, Ollama, …), or bring your own driver. Nothing gets written without passing a validator that refuses a lost `%s` or a mangled tag, and it runs only from the CLI, never from `vite dev`. Costs, budget guards, the context abstract, and the full flag reference: **[doc/llm.md](doc/llm.md)**.
 
+## 🧩 VS Code extension
+
+The other half, in your editor: every marked string with its translation status, language files opened right on the key, Sync and LLM actions one click away, marked strings highlighted as you type. It reads your project, never writes to it.
+
+<a href="https://marketplace.visualstudio.com/items?itemName=sepoina.vitetranslate-ide"><img src="doc/ide/panel.png" alt="The viteTranslate panel in VS Code" width="80%" /></a>
+
+[**Install from the Marketplace**](https://marketplace.visualstudio.com/items?itemName=sepoina.vitetranslate-ide) · [what's in the panel](doc/ide-panel.md)
+
 ---
 
 ## 📚 Guides
@@ -225,6 +234,7 @@ Everything past "hello world" lives in `doc/`, one topic per page:
 | [**Architecture**](doc/structure.md) | How a marked string travels from source to browser, with diagrams |
 | [**Known limitations**](doc/limitations.md) | Edge cases and constraints to be aware of |
 | [**Requirements**](doc/requirements.md) | Supported peer dependency versions |
+| [**VS Code panel**](doc/ide-panel.md) | Every section, glyph and button of the editor extension |
 | [**Live examples**](doc/live-examples.md) | Each live demo and edge case, next to its guide |
 
 ---
