@@ -6,21 +6,12 @@
 No translation keys to maintain. No separate extraction workflow. No runtime dependencies.
 
 [![Vite](https://img.shields.io/badge/Vite-5%20%7C%206%20%7C%207%20%7C%208-646CFF?logo=vite&logoColor=white)](https://vite.dev)
-[![publish](https://img.shields.io/github/actions/workflow/status/sepoina/viteTranslate/publish.yml?logo=githubactions&logoColor=white&label=publish&job=publish)](https://github.com/sepoina/viteTranslate/actions/workflows/publish.yml)
-[![runtime size](https://img.shields.io/badge/runtime-5%20kB%20gzip-4c1)](#-why-vitetranslate)
-
 [![npm version](https://img.shields.io/npm/v/@sepoina/vitetranslate?logo=npm&logoColor=white&label=npm&color=CB3837)](https://www.npmjs.com/package/@sepoina/vitetranslate)
 [![npm downloads](https://img.shields.io/npm/dm/@sepoina/vitetranslate?logo=npm&logoColor=white&label=downloads&color=CB3837)](https://www.npmjs.com/package/@sepoina/vitetranslate)
+[![runtime size](https://img.shields.io/badge/runtime-5%20kB%20gzip-4c1)](#-why-vitetranslate)
 [![VS Code](https://img.shields.io/badge/VS%20Code-extension-007ACC?logo=visualstudiocode&logoColor=white)](https://marketplace.visualstudio.com/items?itemName=sepoina.vitetranslate-ide)
-[![provenance](https://img.shields.io/badge/npm-provenance-2b7489?logo=npm&logoColor=white)](https://www.npmjs.com/package/@sepoina/vitetranslate#provenance)
 
-[![Donate](https://img.shields.io/badge/support-PayPal-00457C?logo=paypal&logoColor=white)](https://www.paypal.com/paypalme/giancarloghigi)
-[![Buy Me a Coffee](https://img.shields.io/badge/buy%20me%20a-coffee-FFDD00?logo=buymeacoffee&logoColor=black)](https://www.buymeacoffee.com/giancarlogy)
-
-[**Site**](https://sepoina.github.io/viteTranslate/) · [**StackBlitz**](https://stackblitz.com/edit/vitejs-vite-aa9rcqtt?file=locale%2Fit-IT.yml) · 
-[**Playground**](https://sepoina.github.io/viteTranslate/playground/) · 
-[**Showcase**](https://sepoina.github.io/viteTranslate/llmrestaurant/)  <br/>
-[Quick start](#-quick-start) · [CLI](#-cli) · [LLM](#-llm-auto-translation) · [VS Code](#-vs-code-extension) · [Guides](#-guides) · [React](doc/react-api.md) · [Notes](#-notes)
+[**Site**](https://sepoina.github.io/viteTranslate/) · [**Playground**](https://sepoina.github.io/viteTranslate/playground/) · [**StackBlitz**](https://stackblitz.com/edit/vitejs-vite-aa9rcqtt?file=locale%2Fit-IT.yml) · [**Showcase**](https://sepoina.github.io/viteTranslate/llmrestaurant/) · [Quick start](#-quick-start) · [VS Code](#-vs-code-extension) · [LLM](#-llm-auto-translation) · [Guides](#-guides)
 
 <a href="https://youtu.be/pNM9ybG0uO4">
   <img src="doc/youplay.png" alt="Watch viteTranslate in action" width="60%" />
@@ -45,7 +36,7 @@ Get a table to hand to a translator, kept in sync for you:
 App_pxxhl0: "Bon retour, <b>{name}</b> !"
 ```
 
-The key is generated for you, the sync runs itself inside Vite, and the runtime that ships to your users weighs 5 kB gzip.
+The key is generated for you, the sync runs itself inside Vite, and the runtime that ships to your users weighs 5 kB gzip. And [VS Code](#-vs-code-extension) shows every string with its translation status.
 
 ---
 
@@ -59,6 +50,7 @@ Every library in this table solves the same problem. They differ in how much mac
 | **Extraction inside the Vite lifecycle** ² | ✅ | ❌ | ❌ | ❌ |
 | **Zero runtime dependencies** | ✅ | ❌ | ❌ | ❌ |
 | **Official Vite plugin** | ✅ | ❌ | ✅ | ✅ |
+| **Official VS Code extension** | ✅ | ❌ | ❌ | ❌ |
 | **Keyless / Natural text syntax** ³ | ✅ | 🟡 | ✅ | 🟡 |
 | **Tiny runtime (<6 kB gzip)** ⁴ | ✅ | ❌ | ✅ | ❌ |
 | **ICU MessageFormat (plural, select, dates)** | ✅ | 🟡 | ✅ | ✅ |
@@ -78,6 +70,7 @@ Every library in this table solves the same problem. They differ in how much mac
 - **² Extraction inside the Vite lifecycle:** the plugin extracts the markers and syncs one YAML table per language by itself — a quick check when `vite dev` starts, a full scan before every build. Missing keys added, stale ones removed, the rest reported; a string that moved keeps its translation. 🎮 [Live](https://sepoina.github.io/viteTranslate/playground/#install-sync). The others extract with a separate command: `i18next-cli extract` and `lingui extract` (both with a `--watch` mode) sync every language file; `formatjs extract` writes the source language only, the rest comes from your TMS.
 - **Zero runtime dependencies:** none declared, and not on trust: the test suite asserts that the browser runtime imports nothing beyond React and the virtual module. `@babel/core` and Vite are _peer_ dependencies: they run the plugin on your machine and never enter the bundle. React is the one your app already ships. For comparison, `react-i18next` depends on three packages (i18next core on none), `@lingui/react` on `use-sync-external-store` plus Lingui's own packages, `react-intl` on three FormatJS packages.
 - **Official Vite plugin:** viteTranslate's does the whole job — extraction, sync, compilation, one chunk per language — with the same code from Vite 5 to 8. Lingui's `@lingui/vite-plugin` compiles catalogs (its macros still need a Babel or SWC plugin); FormatJS's `@formatjs/unplugin` generates IDs and pre-parses messages. i18next has none, and needs none: there is nothing to compile.
+- **Official VS Code extension:** [viteTranslate's](#-vs-code-extension) lists every marked string with its translation status, opens the language file right on the key, runs Sync and the LLM in one click, and highlights marked strings as you type. It asks the library installed in your project, so the panel and the CLI never disagree. Still in preview. None of the others ships one of its own: i18next and react-intl rely on third-party extensions, such as Lokalise's [i18n Ally](https://marketplace.visualstudio.com/items?itemName=lokalise.i18n-ally) or inlang's [Sherlock](https://marketplace.visualstudio.com/items?itemName=inlang.vs-code-extension) (i18next only); neither lists Lingui among its supported libraries.
 - **³ Keyless syntax:** the sentence you write in JSX is the source — values, tags and links included — and its key is generated at build time and resolved against the current table at runtime: no key to invent, nothing to keep in sync by hand. 🎮 [Live](https://sepoina.github.io/viteTranslate/playground/#static-text). Lingui does the same with its macros; FormatJS generates IDs through its Babel/SWC plugins or `@formatjs/unplugin`. i18next can use the sentence as the key (`keySeparator: false`, `nsSeparator: false`): possible, say its docs, but not recommended.
 - **ICU MessageFormat:** plurals, `select`, numbers and dates — compiled at build time, same as everything else. One deliberate deviation: an apostrophe is always an apostrophe, never ICU quoting. i18next has its own plural and context syntax built in; ICU needs the official `i18next-icu` plugin. See [the ICU guide](doc/icu.md) — 🎮 [plurals](https://sepoina.github.io/viteTranslate/playground/#icu-plural), [select](https://sepoina.github.io/viteTranslate/playground/#icu-select), [dates](https://sepoina.github.io/viteTranslate/playground/#icu-format), 🧪 [edge cases](https://sepoina.github.io/viteTranslate/edge/#icu).
 - **⁴ Runtime size:** viteTranslate's browser runtime weighs 5 kB gzip — `5814 bytes` exactly: 4727 B for the React runtime plus 1087 B for the ICU helpers, which ship only when a table uses ICU. Measured by `npm run estimateSize`, the source of truth for this number, on the whole API. The others, with the same tools (rolldown, minified, gzip, React left out) on what a basic app imports — provider, component, hook — in September 2026: Lingui 3 kB (smaller, yes), react-intl 13 kB (6 kB with its `no-parser` alias), i18next + react-i18next 19 kB. Imports, plugins and polyfills move every figure: read them as orders of magnitude.
@@ -92,13 +85,13 @@ Every library in this table solves the same problem. They differ in how much mac
 
 ## 🚀 Quick start
 
-Install the package with [npm](https://www.npmjs.com/package/@sepoina/vitetranslate) (React 18/19, Node 18+):
+**1. Install** the package with [npm](https://www.npmjs.com/package/@sepoina/vitetranslate) (React 18/19, Node 18+):
 
 ```sh
 npm install @sepoina/vitetranslate
 ```
 
-Register the plugin, with its two required options:
+**2. Register the plugin**, with its two required options:
 
 ```js
 // vite.config.js
@@ -110,14 +103,14 @@ export default defineConfig({
   plugins: [
     react(),
     vitetranslate({
-      localeDir: "locale", // where holding .yml tables
+      localeDir: "locale", // where the .yml tables live
       sourceLanguage: "en-US", // the language of source strings
     }),
   ],
 });
 ```
 
-Wrap your app in `TranslateContainer`, once, at the root:
+**3. Wrap your app** in `TranslateContainer`, once, at the root:
 
 ```jsx
 // main.jsx
@@ -132,7 +125,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
 );
 ```
 
-Write sentences inside `<Translate>` — values, tags and links included — and plain strings with `` ts`…` ``. Live in the [playground](https://sepoina.github.io/viteTranslate/playground/):
+**4. Write sentences** inside `<Translate>` — values, tags and links included — and plain strings with `` ts`…` ``. Live in the [playground](https://sepoina.github.io/viteTranslate/playground/):
 
 ```jsx
 // App.jsx
@@ -150,9 +143,9 @@ function App({ name }) {
 }
 ```
 
-Plurals, dates and other ICU arguments aren't JSX, so they go in a string marked `_%_…_%_`: `ts("_%_{0, plural, one {# file} other {# files}}_%_", count)`. Details: **[doc/icu.md](doc/icu.md)**, live in the [playground](https://sepoina.github.io/viteTranslate/playground/#icu-plural).
+Plurals and dates go in a string marked `_%_…_%_`: see **[ICU messages](doc/icu.md)**. That is the whole authoring workflow.
 
-That is the whole authoring workflow. Now build the tables and add a language:
+**5. Build the tables** and add a language:
 
 ```sh
 npx vitetranslate              # creates locale/en-US.yml with every marked string
@@ -161,7 +154,7 @@ npx vitetranslate --add fr-FR  # a new table: every key, null where each transla
 
 From then on the tables sync themselves when `vite dev` starts and before every build ([plugin options](doc/plugin-options.md)). Fill in the `null`s ([file format](doc/translations.md)) or let an [LLM](#-llm-auto-translation) do it; more in the [CLI](#-cli).
 
-Let users switch; each language loads as its own chunk ([React API](doc/react-api.md#usetranslatelanguage)):
+**6. Let users switch**; each language loads as its own chunk ([React API](doc/react-api.md#usetranslatelanguage)):
 
 ```jsx
 const { proposeNewLanguage } = useTranslateLanguage();
@@ -170,9 +163,19 @@ const { proposeNewLanguage } = useTranslateLanguage();
 
 ---
 
+## 🧩 VS Code extension
+
+The other half, in your editor: every marked string with its translation status, language files opened right on the key, Sync and LLM actions one click away, marked strings highlighted as you type. It reads your project, never writes to it.
+
+<a href="https://marketplace.visualstudio.com/items?itemName=sepoina.vitetranslate-ide"><img src="doc/ide/panel.png" alt="The viteTranslate panel in VS Code" width="80%" /></a>
+
+[**Install from the Marketplace**](https://marketplace.visualstudio.com/items?itemName=sepoina.vitetranslate-ide) · [what's in the panel](doc/ide-panel.md)
+
+---
+
 ## 💻 CLI
 
-Run it from the project root as `npx vitetranslate`, or install the tiny [launcher](launcher#readme) once, which runs each project's own version, and drop the `npx`:
+Run `npx vitetranslate` from the project root. Tired of `npx`? This installs a tiny [launcher](launcher#readme) that runs each project's own version:
 
 ```sh
 npm i -g vitetranslate
@@ -207,35 +210,22 @@ npx vitetranslate --llm-translate
 
 No dependency added — any OpenAI-compatible API key is enough (Gemini, OpenAI, OpenRouter, Groq, Ollama, …), or bring your own driver. Nothing gets written without passing a validator that refuses a lost `%s` or a mangled tag, and it runs only from the CLI, never from `vite dev`. Costs, budget guards, the context abstract, and the full flag reference: **[doc/llm.md](doc/llm.md)**.
 
-## 🧩 VS Code extension
-
-The other half, in your editor: every marked string with its translation status, language files opened right on the key, Sync and LLM actions one click away, marked strings highlighted as you type. It reads your project, never writes to it.
-
-<a href="https://marketplace.visualstudio.com/items?itemName=sepoina.vitetranslate-ide"><img src="doc/ide/panel.png" alt="The viteTranslate panel in VS Code" width="80%" /></a>
-
-[**Install from the Marketplace**](https://marketplace.visualstudio.com/items?itemName=sepoina.vitetranslate-ide) · [what's in the panel](doc/ide-panel.md)
-
 ---
 
 ## 📚 Guides
 
-Everything past "hello world" lives in `doc/`, one topic per page:
+Everything past "hello world" lives in `doc/`:
 
 | Guide | Covers |
 | :- | :- |
 | [**CLI**](doc/cli.md) | `vitetranslate` flags, `--status`, migrating from 3.x |
 | [**React API**](doc/react-api.md) | `<Translate>`, `useTranslateToString`, `useTranslateLanguage`, `TranslateContainer`, preloading & Suspense |
-| [**Plugin options**](doc/plugin-options.md) | Full `vitetranslate(options)` reference |
-| [**Translation file format**](doc/translations.md) | The `.yml` layout, adding a new language |
+| [**Plugin options**](doc/plugin-options.md) | Full `vitetranslate(options)` reference, `errorSolve` and its on-screen [diagnostics](doc/diagnostics.md) included |
+| [**Translation file format**](doc/translations.md) | The `.yml` layout, adding a new language by its [BCP 47 code](doc/bcp47.md) |
 | [**ICU messages**](doc/icu.md) | Plurals, `select`, numbers, dates — the syntax and what checks it |
 | [**LLM auto-translation**](doc/llm.md) | Filling `null` keys through an LLM, costs, guardrails |
-| [**Diagnostics**](doc/diagnostics.md) | `errorSolve` — what each on-screen mark means and when it fires |
-| [**BCP 47 codes**](doc/bcp47.md) | Supported language/region tags |
-| [**Architecture**](doc/structure.md) | How a marked string travels from source to browser, with diagrams |
-| [**Known limitations**](doc/limitations.md) | Edge cases and constraints to be aware of |
-| [**Requirements**](doc/requirements.md) | Supported peer dependency versions |
 | [**VS Code panel**](doc/ide-panel.md) | Every section, glyph and button of the editor extension |
-| [**Live examples**](doc/live-examples.md) | Each live demo and edge case, next to its guide |
+| **Deep dives** | [Architecture](doc/structure.md): from source to browser, with diagrams · [Known limitations](doc/limitations.md) · [Requirements](doc/requirements.md): peer dependency versions · [Live examples](doc/live-examples.md): each demo next to its guide |
 
 ---
 
@@ -245,3 +235,4 @@ Everything past "hello world" lives in `doc/`, one topic per page:
 - 💬 **[Discussions](https://github.com/sepoina/viteTranslate/discussions)** — questions, ideas, feedback. An actual bug goes to [Issues](https://github.com/sepoina/viteTranslate/issues) instead.
 - 🔐 **[Provenance](https://docs.npmjs.com/trusted-publishers/)** — every release ships via npm trusted publishing (OIDC).
 - 📄 **[License](LICENSE)** — Apache License 2.0.
+- ☕ **Support** — [PayPal](https://www.paypal.com/paypalme/giancarloghigi) or [Buy Me a Coffee](https://www.buymeacoffee.com/giancarlogy), if it saved you a few translation keys.
