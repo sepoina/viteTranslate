@@ -9,17 +9,23 @@
 // fallisce non ne trascina altri.
 //
 //   node test/list/syncPipeline.test.mjs
-import { mkdtempSync, rmSync, readdirSync, readFileSync, writeFileSync, statSync, mkdirSync } from "node:fs";
+import fs, { mkdtempSync, rmSync, readdirSync, readFileSync, writeFileSync, statSync, mkdirSync, symlinkSync, lstatSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { spawnSync } from "node:child_process";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import updateLanguage from "../../lib/dev/vite/updateLanguage.js";
 import { printSyncSummary } from "../../lib/dev/vite/uty/syncReport.js";
-import guardMassErase from "../../lib/dev/vite/uty/guardMassErase.js";
+import { detectMassErase } from "../../lib/dev/vite/uty/guardMassErase.js";
+import runSync from "../../lib/dev/vite/syncCore.js";
+import { syncIo } from "../../lib/dev/vite/uty/syncIo.js";
+import { scanPath } from "../../lib/dev/vite/uty/scanRecord.js";
+import { markerIndexPath } from "../../lib/dev/vite/uty/markerIndex.js";
+import { sessionPath } from "../../lib/dev/vite/uty/sessionStore.js";
 import readLanguageFile from "../../lib/dev/vite/uty/readLanguageFile.js";
 import { languageFileName } from "../../lib/dev/vite/uty/languageFileFormat.js";
 import { placeholderShape, convertPlaceholders } from "../../lib/dev/vite/uty/placeholderShape.js";
+import listLanguageFiles from "../../lib/dev/vite/uty/listLanguageFiles.js";
 
 let fail = 0;
 const eq = (nome, atteso, ottenuto) => {
@@ -76,6 +82,19 @@ async function zitto(fn) {
   console.log = console.warn = console.error = raccogli;
   try {
     await fn();
+  } finally {
+    Object.assign(console, originali);
+  }
+  return raccolto;
+}
+
+/** Synchronous twin of `zitto`, for pure functions that only print. */
+function zittoSync(fn) {
+  const originali = { log: console.log, warn: console.warn, error: console.error };
+  let raccolto = "";
+  console.log = console.warn = console.error = (...pezzi) => { raccolto += pezzi.join(" ") + "\n"; };
+  try {
+    fn();
   } finally {
     Object.assign(console, originali);
   }
@@ -278,22 +297,29 @@ console.log("\n== un file di cui non sappiamo niente resta dov'e' ==");
   eq("le altre lingue si sincronizzano lo stesso", true, "App_b" in p.tabella("en-US"));
 }
 {
-  // La lingua SORGENTE che non si apre. Prima veniva rigenerata dalla sola scansione del
-  // codice — cioe' sostituita da una tabella inventata — dopo un backup vuoto che diceva di
-  // essere una copia. Le sub-lingue si sincronizzano comunque: il loro riferimento e' la
-  // scansione, non questo file.
+  // The SOURCE language that cannot be opened. Decision D5 (4.7.1) reverses the old behavior:
+  // before, the sub-languages were synced anyway while the source was "left untouched". Now
+  // an unreadable file stops the whole sync before ANY table is written, so a half-synced
+  // project cannot happen (VT_LANGUAGE_UNREADABLE).
   const p = progetto();
   await p.sync({ App_a: "Ciao" });
   p.scrivi("en-US", "");
   await p.sync({ App_a: "Ciao" });
   rmSync(p.percorso("it-IT"));
   mkdirSync(p.percorso("it-IT"));
-  const { detto, esito } = await p.sync({ App_a: "Ciao", App_b: "Nuova" });
+  const prima = readFileSync(p.percorso("en-US"));
+  let errore = null;
+  await zitto(async () => {
+    try { await updateLanguage(p.servizio({ App_a: "Ciao", App_b: "Nuova" })); } catch (e) { errore = e; }
+  });
 
-  eq("lo dice", true, detto.includes("cannot be read"));
-  eq("e non finge di averla riscritta", false, esito.written);
+  eq("D5: the sync rejects", "VT_LANGUAGE_UNREADABLE", errore?.code);
+  eq("the message names the file", true, errore?.message.includes("it-IT.yml"));
+  eq("and says nothing was touched", true, errore?.message.includes("No language table was touched"));
+  eq("paths lists the unreadable file", true, errore?.paths?.length === 1 && errore.paths[0].endsWith("it-IT.yml"));
+  eq("the sub-language bytes are unchanged", true, prima.equals(readFileSync(p.percorso("en-US"))));
+  eq("the folder is still a folder", true, statSync(p.percorso("it-IT")).isDirectory());
   eq("nessun backup vuoto lasciato in giro", 0, backup(p, "corrupted").length);
-  eq("la sub-lingua riceve comunque la chiave nuova", true, "App_b" in p.tabella("en-US"));
 }
 
 console.log("\n== il backup e' una copia, non una trascrizione ==");
@@ -331,46 +357,50 @@ console.log("\n== guardia: quando la cancellazione non sembra una pulizia ==");
 
   {
     const p = await nuovo();
-    const esito = await zitto(async () => {
-      const r = await guardMassErase(p.servizio({ A_1: "uno", A_2: "due", A_3: "tre" }), 0);
-      eq("una chiave su quattro: nessun allarme", null, r);
-    });
-    eq("nessun backup per una pulizia normale", 0, backup(p, "erased").length);
-    eq("e nessun avviso", false, esito.includes("WARNING"));
+    const { detto } = await p.sync({ A_1: "uno", A_2: "due", A_3: "tre" });
+    eq("una chiave su quattro: nessun backup per una pulizia normale", 0, backup(p, "erased").length);
+    eq("e nessun avviso", false, detto.includes("WARNING"));
   }
   {
     const p = await nuovo();
-    let r;
-    const esito = await zitto(async () => { r = await guardMassErase(p.servizio({}), 0); });
-    eq("scansione a vuoto: allarme", 4, r.erased.length);
-    eq("motivo riconoscibile", true, esito.includes("found no marked string at all"));
+    const { detto } = await p.sync({});
+    eq("scansione a vuoto: motivo riconoscibile", true, detto.includes("found no marked string at all"));
     eq("backup di OGNI file lingua", 2, backup(p, "erased").length);
     const salvato = backup(p, "erased").find((f) => f.startsWith("en-US"));
     eq("il backup contiene le traduzioni", true, salvato !== undefined && readFileSync(join(p.localeDir, salvato), "utf8").includes("A_1"));
+    eq("e dice come ripristinare", true, detto.includes("restore the '.bak-erased-*' files"));
   }
   {
     const p = await nuovo();
-    let r;
-    await zitto(async () => { r = await guardMassErase(p.servizio({ A_1: "uno", A_2: "due" }), 0); });
-    eq("metà tabella in un colpo: allarme", 2, r.erased.length);
-    eq("backup di ogni file", 2, backup(p, "erased").length);
+    await p.sync({ A_1: "uno", A_2: "due" });
+    eq("metà tabella in un colpo: backup di ogni file", 2, backup(p, "erased").length);
+  }
+}
+
+console.log("\n== detectMassErase: pura, riconosce il sospetto e non scrive niente ==");
+{
+  const prima = { A_1: "uno", A_2: "due", A_3: "tre", A_4: "quattro" };
+  const rumore = (fn) => { let r; const detto = zittoSync(() => { r = fn(); }); return { r, detto }; };
+  {
+    const { r, detto } = rumore(() => detectMassErase({ previousTable: prima, sourceTable: { A_1: "uno", A_2: "due", A_3: "tre" } }));
+    eq("una chiave su quattro: null", null, r);
+    eq("niente da dire", "", detto);
   }
   {
-    // Un file saltato dalla scansione è un avviso, non un errore: il comando prosegue e le sue
-    // chiavi risultano "non più presenti nel codice". È esattamente il caso in cui una sola
-    // chiave persa vale un allarme, perché la perdita non dipende da ciò che si è scritto.
-    const p = await nuovo();
-    let r;
-    const esito = await zitto(async () => { r = await guardMassErase(p.servizio({ A_1: "uno", A_2: "due", A_3: "tre" }), 1); });
-    eq("un file saltato: allarme anche per una chiave sola", 1, r.erased.length);
-    eq("motivo riconoscibile", true, esito.includes("skipped by the scan"));
-    eq("backup di ogni file", 2, backup(p, "erased").length);
+    const { r, detto } = rumore(() => detectMassErase({ previousTable: prima, sourceTable: {} }));
+    eq("scansione a vuoto: 4 chiavi", 4, r.erased.length);
+    eq("causa", "the scan found no marked string at all", r.cause);
+    eq("stampa l'avviso", true, detto.includes("ERASED translations detected"));
   }
   {
-    const p = progetto();
-    const r = await zitto(() => guardMassErase(p.servizio({}), 0));
-    eq("progetto nuovo: niente da salvare, niente allarme", "", r.trim());
-    eq("nessun file creato dalla guardia", 0, p.file().length);
+    const { r } = rumore(() => detectMassErase({ previousTable: prima, sourceTable: { A_1: "uno", A_2: "due" } }));
+    eq("metà tabella: 2 chiavi", 2, r.erased.length);
+    eq("causa con il conteggio", "2 of 4 keys would be removed at once", r.cause);
+  }
+  {
+    const { r, detto } = rumore(() => detectMassErase({ previousTable: null, sourceTable: {} }));
+    eq("progetto nuovo (nessuna tabella precedente): null", null, r);
+    eq("e nessuna riga", "", detto);
   }
 }
 
@@ -573,6 +603,310 @@ console.log("\n== rename con conversione: conteggio sbagliato -> null, mai un va
   const t = p.tabella("en-US");
   eq("la conversione non sicura non si eredita: resta null", null, t.App_b);
   eq("e la chiave torna da tradurre", true, p.testo("en-US").includes(SEPARATORE));
+}
+
+// ============================================================= 4.7.1: safer synchronization
+// Decisions D1 (incomplete scan), D5 (two-phase sync), D6 (conflict check) of doc/ImplementationPlans/4_7_1.md.
+import backupLanguageFile from "../../lib/dev/vite/uty/backupLanguageFile.js";
+import { existsSync } from "node:fs";
+
+const HERE_SAFE = dirname(fileURLToPath(import.meta.url));
+const REPO = resolve(HERE_SAFE, "../..");
+
+/** Runs `fn` with some `syncIo` functions replaced; always restores them. */
+async function withIo(overrides, fn) {
+  const saved = {};
+  for (const name of Object.keys(overrides)) saved[name] = syncIo[name];
+  Object.assign(syncIo, overrides);
+  try {
+    return await fn();
+  } finally {
+    Object.assign(syncIo, saved);
+  }
+}
+const ioError = (code, message = code) => Object.assign(new Error(message), { code });
+
+/** Every file under `dir` (recursive) -> content, so "nothing was touched" is one comparison. */
+function photo(dir) {
+  const out = {};
+  const walk = (d) => {
+    for (const name of readdirSync(d, { withFileTypes: true })) {
+      const full = join(d, name.name);
+      if (name.isDirectory()) walk(full);
+      else out[full] = readFileSync(full).toString("base64");
+    }
+  };
+  walk(dir);
+  return out;
+}
+const same = (a, b) => JSON.stringify(Object.entries(a).sort()) === JSON.stringify(Object.entries(b).sort());
+
+/** A complete little project: sources with markers, a node_modules (so scan/session records exist). */
+function projectWithSources(sources) {
+  const root = mkdtempSync(join(tmpdir(), "vt-safe-"));
+  temporanee.push(root);
+  mkdirSync(join(root, "src"));
+  mkdirSync(join(root, "node_modules"));
+  writeFileSync(join(root, "package.json"), '{ "type": "module" }');
+  const api = {
+    root,
+    locale: join(root, "locale"),
+    config: { baseDir: root, srcDir: "src", localeDir: "locale", sourceLanguage: "it-IT" },
+    setSources(files) {
+      rmSync(join(root, "src"), { recursive: true, force: true });
+      mkdirSync(join(root, "src"));
+      for (const [name, code] of Object.entries(files)) writeFileSync(join(root, "src", name), code);
+    },
+    sync: async (extra = {}) => {
+      let result;
+      await zitto(async () => { result = await runSync({ config: api.config, ...extra }); });
+      return result;
+    },
+    /** `sync` that returns the error instead of throwing it. */
+    syncFails: async (extra = {}) => {
+      let error = null;
+      await zitto(async () => { try { await runSync({ config: api.config, ...extra }); } catch (e) { error = e; } });
+      return error;
+    },
+    lang: (tag) => join(root, "locale", languageFileName(tag)),
+    read: (tag) => readFileSync(api.lang(tag), "utf8"),
+  };
+  api.setSources(sources);
+  return api;
+}
+const SRC_OK = { "App.jsx": 'export const a = "_%_Ciao_%_"; export const b = "_%_Mondo_%_";\n' };
+// A marked file the parser cannot read: it is skipped by the scan.
+const SRC_BROKEN = { ...SRC_OK, "Broken.jsx": 'export const c = "_%_Rotto_%_"; const = ;\n' };
+
+console.log("\n== D1: a scan with skipped files stops the sync and touches no table ==");
+{
+  const p = projectWithSources(SRC_OK);
+  await p.sync();
+  writeFileSync(p.lang("en-US"), "");
+  await p.sync();
+  eq("healthy project: scan record written", true, existsSync(scanPath(p.root)));
+
+  p.setSources(SRC_BROKEN);
+  const locale = photo(p.locale);
+  const session = readFileSync(sessionPath(p.root), "utf8");
+  rmSync(markerIndexPath(p.root), { force: true });
+  const error = await p.syncFails();
+
+  eq("rejects VT_SCAN_INCOMPLETE", "VT_SCAN_INCOMPLETE", error?.code);
+  eq("paths: one skipped file", 1, error?.paths?.length);
+  eq("paths: names it with the reason", true, /Broken\.jsx: /.test(error?.paths?.[0] ?? ""));
+  eq("message: how many files", true, error?.message.includes("1 file(s)"));
+  eq("message: no table touched", true, error?.message.includes("No language table was touched"));
+  eq("message: fix and run again", true, error?.message.includes("Fix the file(s) and run again"));
+  eq("every locale byte unchanged", true, same(locale, photo(p.locale)));
+  eq("the scan record is removed", false, existsSync(scanPath(p.root)));
+  eq("the marker index is written anyway", true, existsSync(markerIndexPath(p.root)));
+  eq("no success session recorded", session, readFileSync(sessionPath(p.root), "utf8"));
+
+  // --status on the same fixture reads and reports: not a single write anywhere.
+  writeFileSync(scanPath(p.root), "{}"); // pretend a record exists, --status must not remove it
+  const all = photo(p.root);
+  const status = await p.sync({ soloStato: true });
+  eq("--status still answers", true, status.stato !== null);
+  eq("--status: no file written, removed or created", true, same(all, photo(p.root)));
+
+  // The same project, fixed: the sync works again.
+  p.setSources(SRC_OK);
+  const ok = await p.syncFails();
+  eq("fixed: the sync runs", null, ok);
+  eq("fixed: the scan record is back", true, existsSync(scanPath(p.root)));
+
+  // The command line: exit code 1 and a readable message, once.
+  p.setSources(SRC_BROKEN);
+  writeFileSync(join(p.root, "vite.config.js"),
+    `import { vitetranslate } from ${JSON.stringify(pathToFileURL(join(REPO, "lib/index.js")).href)};\n` +
+    `export default { plugins: [vitetranslate({ localeDir: "locale", sourceLanguage: "it-IT" })] };\n`);
+  const before = photo(p.locale);
+  const cli = spawnSync(process.execPath, [join(REPO, "lib/dev/vite/cli.js")], { cwd: p.root, encoding: "utf8" });
+  const out = (cli.stdout ?? "") + (cli.stderr ?? "");
+  eq("CLI: exit code 1", 1, cli.status);
+  eq("CLI: says the scan is incomplete", true, out.includes("incomplete"));
+  eq("CLI: the message is printed once", 1, out.split("No language table was touched").length - 1);
+  eq("CLI: no table touched", true, same(before, photo(p.locale)));
+}
+
+console.log("\n== D5: a table is never written before every backup is done ==");
+{
+  const p = projectWithSources(SRC_OK);
+  await p.sync();
+  for (const tag of ["en-US", "fr-FR"]) writeFileSync(p.lang(tag), "");
+  await p.sync();
+  p.setSources({ "App.jsx": "export const nothing = 1;\n" }); // complete scan that finds nothing: mass erase
+
+  // Order of the operations that matter.
+  const log = [];
+  const realWrite = syncIo.writeFileSync;
+  const realRename = syncIo.renameSync;
+  await withIo({
+    writeFileSync: (...a) => { if (String(a[0]).includes(".bak-")) log.push("backup"); return realWrite(...a); },
+    renameSync: (...a) => { log.push("table"); return realRename(...a); },
+  }, () => p.sync());
+  eq("three backups (every language file)", 3, log.filter((x) => x === "backup").length);
+  eq("then the table writes", true, log.filter((x) => x === "table").length >= 1);
+  eq("all backups come before the first table write", true, log.lastIndexOf("backup") < log.indexOf("table"));
+
+  // A failing backup on the second file: nothing is overwritten, the first backup stays.
+  const q = projectWithSources(SRC_OK);
+  await q.sync();
+  for (const tag of ["en-US", "fr-FR"]) writeFileSync(q.lang(tag), "");
+  await q.sync();
+  q.setSources({ "App.jsx": "export const nothing = 1;\n" });
+  const locale = photo(q.locale);
+  let n = 0;
+  const error = await withIo({
+    writeFileSync: (...a) => {
+      if (String(a[0]).includes(".bak-") && ++n === 2) throw ioError("EIO", "disk exploded");
+      return realWrite(...a);
+    },
+  }, () => q.syncFails());
+  eq("rejects VT_BACKUP_FAILED", "VT_BACKUP_FAILED", error?.code);
+  eq("message: nothing was overwritten", true, error?.message.includes("Nothing was overwritten"));
+  eq("the cause is kept", "EIO", error?.cause?.code);
+  const stillThere = readdirSync(q.locale).filter((f) => f.includes(".bak-"));
+  eq("the first backup is kept", 1, stillThere.length);
+  const withoutBackups = Object.fromEntries(Object.entries(photo(q.locale)).filter(([f]) => !f.includes(".bak-")));
+  eq("no table changed", true, same(locale, withoutBackups));
+  eq("no scan record left behind", false, existsSync(scanPath(q.root)));
+}
+
+console.log("\n== D5: an unreadable sub-language stops the sync before any write ==");
+{
+  const p = projectWithSources(SRC_OK);
+  await p.sync();
+  for (const tag of ["en-US", "fr-FR"]) writeFileSync(p.lang(tag), "");
+  await p.sync();
+  p.setSources({ "App.jsx": 'export const a = "_%_Ciao_%_"; export const n = "_%_Nuova_%_";\n' });
+  const locale = photo(p.locale);
+  const realRead = syncIo.readFileSync;
+  const error = await withIo({
+    readFileSync: (f, ...a) => { if (String(f).endsWith("fr-FR.yml")) throw ioError("EACCES"); return realRead(f, ...a); },
+  }, () => p.syncFails());
+  eq("rejects VT_LANGUAGE_UNREADABLE", "VT_LANGUAGE_UNREADABLE", error?.code);
+  eq("lists the file with its reason", true, /fr-FR\.yml cannot be read \(EACCES\)/.test(error?.message ?? ""));
+  eq("paths", true, error?.paths?.length === 1 && error.paths[0].endsWith("fr-FR.yml"));
+  eq("every table unchanged (the source included)", true, same(locale, photo(p.locale)));
+}
+
+console.log("\n== D5: a write failing half way reports what was written and clears the scan record ==");
+{
+  const p = projectWithSources(SRC_OK);
+  await p.sync();
+  for (const tag of ["de-DE", "en-US", "fr-FR"]) writeFileSync(p.lang(tag), "");
+  await p.sync();
+  p.setSources({ "App.jsx": 'export const a = "_%_Ciao_%_"; export const n = "_%_Nuova_%_";\n' });
+  const before = { it: p.read("it-IT"), de: p.read("de-DE"), en: p.read("en-US"), fr: p.read("fr-FR") };
+  const session = readFileSync(sessionPath(p.root), "utf8");
+  eq("a scan record exists before the failure", true, existsSync(scanPath(p.root)));
+
+  const realRename = syncIo.renameSync;
+  const error = await withIo({
+    renameSync: (from, to) => { if (String(to).endsWith("en-US.yml")) throw ioError("EIO", "write failed"); return realRename(from, to); },
+  }, () => p.syncFails());
+  eq("rejects VT_WRITE_FAILED", "VT_WRITE_FAILED", error?.code);
+  eq("written lists the first sub-language", "de-DE.yml", (error?.written ?? []).join(","));
+  eq("the message names it", true, error?.message.includes("de-DE.yml") && error.message.includes("run the sync again"));
+  eq("the failing file is named", true, error?.filePath?.endsWith("en-US.yml"));
+  // "Mondo" was dropped from the code and "Nuova" added: the keys of every table change.
+  const keysOf = (text) => [...text.matchAll(/^(App_\w+):/gm)].map((m) => m[1]).sort().join(",");
+  eq("the first sub-language was replaced", true, keysOf(p.read("de-DE")) !== keysOf(before.de));
+  eq("the failing one is untouched", before.en, p.read("en-US"));
+  eq("the later one is untouched", before.fr, p.read("fr-FR"));
+  eq("the source is untouched", before.it, p.read("it-IT"));
+  eq("no temporary file left behind", 0, readdirSync(p.locale).filter((f) => f.includes(".vt-tmp-")).length);
+  eq("the scan record is cleared", false, existsSync(scanPath(p.root)));
+  eq("no success session recorded", session, readFileSync(sessionPath(p.root), "utf8"));
+
+  // A rerun completes the job.
+  const again = await p.syncFails();
+  eq("rerun: succeeds", null, again);
+  eq("rerun: the source has the new key", true, p.read("it-IT").includes("Nuova"));
+  eq("rerun: every sub-language follows the source", true, ["de-DE", "en-US", "fr-FR"].every((t) => keysOf(p.read(t)) === keysOf(p.read("it-IT"))));
+}
+
+console.log("\n== backups: distinct names, raw bytes, a failure is an error ==");
+{
+  const dir = mkdtempSync(join(tmpdir(), "vt-bak-"));
+  temporanee.push(dir);
+  const file = join(dir, "en-US.yml");
+  const raw = Buffer.from([0xff, 0xfe, 0x41, 0x00, 0xe0, 0x9f]); // not valid UTF-8
+  const realNow = Date.now;
+  Date.now = () => 1700000000000;
+  let a, b;
+  try {
+    await zitto(async () => {
+      a = backupLanguageFile(file, "en-US.yml", raw, { kind: "corrupted", reason: "test" });
+      b = backupLanguageFile(file, "en-US.yml", raw, { kind: "corrupted", reason: "test" });
+    });
+  } finally {
+    Date.now = realNow;
+  }
+  eq("two backups in the same millisecond: two files", true, a !== b && existsSync(a) && existsSync(b));
+  eq("names keep the kind and the stamp", true, a.includes(".bak-corrupted-1700000000000-"));
+  eq("raw bytes preserved (first)", true, raw.equals(readFileSync(a)));
+  eq("raw bytes preserved (second)", true, raw.equals(readFileSync(b)));
+
+  let type = null;
+  try { backupLanguageFile(file, "en-US.yml", "not a Buffer", { kind: "corrupted", reason: "x" }); } catch (e) { type = e.name; }
+  eq("a string instead of the snapshot bytes: TypeError", "TypeError", type);
+
+  let failed = null;
+  const realW = syncIo.writeFileSync;
+  await zitto(async () => {
+    await withIo({ writeFileSync: () => { throw ioError("ENOSPC", "no space"); } }, () => {
+      try { backupLanguageFile(file, "en-US.yml", raw, { kind: "erased", reason: "x" }); } catch (e) { failed = e; }
+    });
+  });
+  eq("a failed backup throws VT_BACKUP_FAILED", "VT_BACKUP_FAILED", failed?.code);
+  eq("with the file and the cause", true, failed?.filePath === file && failed?.cause?.code === "ENOSPC");
+  eq("syncIo is restored", true, realW === syncIo.writeFileSync);
+}
+
+console.log("\n== unreadable language links block sync, default discovery stays unchanged ==");
+{
+  const p = progetto();
+  await p.sync({ App_a: "Hello" });
+  const before = p.testo("it-IT");
+  const target = join(p.localeDir, "target.data");
+  const link = join(p.localeDir, "fr-FR.yml");
+  let linked = true;
+  try { symlinkSync(target, link); } catch (e) {
+    if (e.code !== "EPERM") throw e;
+    linked = false;
+    console.log("  skip  symlink creation is not permitted here");
+  }
+  if (linked) {
+    eq("default listing excludes the dangling link", false, listLanguageFiles(p.localeDir).includes("fr-FR.yml"));
+    eq("sync listing retains it", true, listLanguageFiles(p.localeDir, { includeUnreadableLinks: true }).includes("fr-FR.yml"));
+    let error;
+    try { await p.sync({ App_a: "Changed", App_b: "New" }); } catch (e) { error = e; }
+    eq("dangling sub-language blocks the sync", "VT_LANGUAGE_UNREADABLE", error?.code);
+    eq("error names the link", true, error?.paths.includes(link));
+    eq("source bytes unchanged", before, p.testo("it-IT"));
+    eq("link is preserved", true, lstatSync(link).isSymbolicLink());
+
+    writeFileSync(target, 'App_a: "Bonjour"\n');
+    const realStat = fs.statSync;
+    try {
+      fs.statSync = (file, ...args) => {
+        if (String(file) === link) throw Object.assign(new Error("access denied"), { code: "EACCES" });
+        return realStat(file, ...args);
+      };
+      eq("default listing excludes inaccessible link", false, listLanguageFiles(p.localeDir).includes("fr-FR.yml"));
+      eq("sync listing retains inaccessible link", true, listLanguageFiles(p.localeDir, { includeUnreadableLinks: true }).includes("fr-FR.yml"));
+    } finally { fs.statSync = realStat; }
+
+    mkdirSync(join(p.localeDir, "de-DE.yml"));
+    eq("strict listing still excludes directories", false, listLanguageFiles(p.localeDir, { includeUnreadableLinks: true }).includes("de-DE.yml"));
+    await p.sync({ App_a: "Hello", App_b: "New" });
+    eq("valid link remains a link after sync", true, lstatSync(link).isSymbolicLink());
+    eq("valid link receives new keys", true, readFileSync(target, "utf8").includes("App_b: null"));
+    eq("valid link keeps its translation", true, readFileSync(target, "utf8").includes('App_a: "Bonjour"'));
+  }
 }
 
 for (const dir of temporanee) rmSync(dir, { recursive: true, force: true });

@@ -5,7 +5,7 @@
 // forza la riscrittura del file.
 //
 //   node test/list/readLanguageForSync.test.mjs
-import { mkdtempSync, rmSync, writeFileSync, mkdirSync } from "node:fs";
+import { mkdtempSync, rmSync, writeFileSync, mkdirSync, symlinkSync, chmodSync, realpathSync, statSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import readLanguageForSync from "../../lib/dev/vite/uty/readLanguageForSync.js";
@@ -97,6 +97,62 @@ console.log("\n== l'invariante: oldText è null ovunque tranne \"ok\" ==");
   for (const filePath of casi) {
     const esito = readLanguageForSync(filePath);
     eq(`${esito.status} · oldText null`, null, esito.oldText);
+  }
+}
+
+// ---- 4.7.1: the snapshot (doc/ImplementationPlans/4_7_1.md § S2) ----------------------------
+console.log("\n== snapshot: absent / file / null ==");
+{
+  const dir = cartella();
+  eq("missing -> { kind: absent }", "absent", readLanguageForSync(join(dir, "none.yml")).snapshot?.kind);
+
+  const folderPath = join(dir, "folder.yml");
+  mkdirSync(folderPath);
+  eq("unreadable -> null", null, readLanguageForSync(folderPath).snapshot);
+
+  const text = '# TableVersion: 1\nApp_a: "Ciao"\n';
+  const filePath = join(dir, "ok.yml");
+  writeFileSync(filePath, text, "utf8");
+  if (process.platform !== "win32") chmodSync(filePath, 0o640);
+  const ok = readLanguageForSync(filePath);
+  eq("ok -> kind file", "file", ok.snapshot.kind);
+  eq("ok -> bytes are the file", text, ok.snapshot.bytes.toString("utf8"));
+  eq("ok -> bytes is a Buffer", true, Buffer.isBuffer(ok.snapshot.bytes));
+  eq("ok -> realPath", realpathSync(filePath), ok.snapshot.realPath);
+  eq("ok -> mode", statSync(filePath).mode & 0o7777, ok.snapshot.mode);
+
+  const empty = join(dir, "empty.yml");
+  writeFileSync(empty, "");
+  const e = readLanguageForSync(empty);
+  eq("zero bytes -> status empty", "empty", e.status);
+  eq("zero bytes -> still a file snapshot", "file", e.snapshot.kind);
+  eq("zero bytes -> empty Buffer", 0, e.snapshot.bytes.length);
+
+  const bad = join(dir, "bad.yml");
+  writeFileSync(bad, Buffer.from([0xff, 0xfe, 0x00, 0x41]));
+  const c = readLanguageForSync(bad);
+  eq("corrupted -> file snapshot", "file", c.snapshot.kind);
+  eq("corrupted -> the exact bytes", "fffe0041", c.snapshot.bytes.toString("hex"));
+  eq("oldText never derived from the snapshot", null, c.oldText);
+}
+
+console.log("\n== a dangling symlink is unreadable, not missing ==");
+{
+  const dir = cartella();
+  const link = join(dir, "en-US.yml");
+  let linked = true;
+  try {
+    symlinkSync(join(dir, "nowhere.yml"), link);
+  } catch (error) {
+    if (error.code !== "EPERM") throw error;
+    linked = false;
+    console.log("  skip  dangling symlink: cannot create one here (EPERM)");
+  }
+  if (linked) {
+    const esito = readLanguageForSync(link);
+    eq("status", "unreadable", esito.status);
+    eq("snapshot", null, esito.snapshot);
+    eq("error.unreadable", true, esito.error?.unreadable);
   }
 }
 

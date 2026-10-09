@@ -1,7 +1,7 @@
 {
   "name": "@sepoina/vitetranslate",
-  "version": "4.7.0",
-  "versionDescription": "Your own marker delimiters (`markerStart`/`markerEnd`) with a CLI that rewrites the old ones, and short names: `<Trans>`, `useTrans`, `TransContainer`, `useTransLanguage`.",
+  "version": "4.7.1",
+  "versionDescription": "Safer sync: nothing is overwritten after a failed backup or an incomplete scan, tables are replaced atomically, paid LLM results are never lost, and impossible ICU dates fall back instead of shifting.",
   "description": "Keyless i18n for React and Vite: write the sentence in JSX, values and tags included, and get YAML tables kept in sync, LLM auto-translation and ICU, compiled at build time into a tiny runtime with zero dependencies.",
   "author": {
     "name": "Giancarlo Ghigi",

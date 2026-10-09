@@ -191,5 +191,19 @@ console.log("\n== sorgente rotta: testo semplice + icu-syntax, niente eco per og
   ok_("nessun avviso icu-syntax ripetuto per la traduzione (quiet)", !warnsA.some((w) => w.kind === "icu-syntax") && !warnsB.some((w) => w.kind === "icu-syntax"));
 }
 
+console.log("\n== 4.7.1: invalid dates through the compiled table ==");
+{
+  const { table: T } = await load({ d: "{0, date, ::yMMMd}", t: "{0, time, short}", m: "il {0, date, short}!" });
+  const render = (key, value) => {
+    try { return show(T[key]([value])); } catch (e) { return `THREW ${e.message}`; }
+  };
+  eq("impossible day: the value, no exception", "2024-02-31", render("d", "2024-02-31"));
+  eq("month 13: the value", "2024-13-01", render("d", "2024-13-01"));
+  eq("impossible ISO date-time: the value", "2024-02-31T10:00Z", render("t", "2024-02-31T10:00Z"));
+  eq("number out of range: the value", "100000000000000000000", render("d", 1e20));
+  eq("inside a sentence the fallback stays in place", "il 2024-02-31!", render("m", "2024-02-31"));
+  eq("a real date still formats", new Intl.DateTimeFormat("it-IT", { year: "numeric", month: "short", day: "numeric", timeZone: "UTC" }).format(new Date(Date.UTC(2024, 1, 29))), render("d", "2024-02-29"));
+}
+
 console.log(fail === 0 ? "\nTUTTI OK" : `\n${fail} FALLITI`);
 process.exitCode = fail === 0 ? 0 : 1;

@@ -80,6 +80,22 @@ vitetranslate --rewriteMarkerDryRun [start] [end]
 vitetranslate --rewriteMarker [start] [end]
 ```
 
+## When the sync stops
+
+The sync would rather stop than guess. These all end with a clear message and exit code `1`, and **none of them leaves a half-written table**:
+
+| Message | What happened | What to do |
+| :- | :- | :- |
+| `The scan … is incomplete` (`VT_SCAN_INCOMPLETE`) | A marked file could not be read or parsed, so some keys are missing from the scan and syncing would erase them from every language. | Fix the file(s) named in the message, then run again. A file using syntax the parser does not enable — decorators, for example — is skipped the same way, and blocks the CLI and `vite build` until it parses. |
+| `A language file cannot be read` (`VT_LANGUAGE_UNREADABLE`) | One or more language files cannot be opened (permissions, I/O error, a broken symlink). Every one is listed. | Fix them and run again. Nothing was touched. |
+| `cannot back up …` (`VT_BACKUP_FAILED`) | A `.bak-*` copy could not be written, so the sync refuses to overwrite the file it was protecting. | Free the disk space or fix the permissions, then run again. Backups already written stay. |
+| `… changed after it was read` (`VT_FILE_CHANGED`) | You (or your editor) saved a language file while the sync was running. It was **not** overwritten. | Run again once the other edit is done. |
+| `cannot write …` (`VT_WRITE_FAILED`) | A table could not be replaced. | See the reason in the message, fix it, run again. |
+
+When one table fails after others were already replaced, the message says which ones ("partial update"). There is no rollback — it could overwrite something newer — so just run the sync again: it picks up where it stopped.
+
+Under `vite dev` an incomplete scan is only a warning: the tables stay as they are and the server starts; the next start syncs again. `vite build` fails, like the CLI.
+
 ## Rewriting the markers
 
 Changed your [delimiters](plugin-options.md#markers) in `vite.config`? These two rewrite the source from the old ones to the new ones. The arguments are the markers **now in your source**: none means `_%_`, one means the same at both ends, two mean start and end. The target is always the markers of `vite.config`. Only `srcDir` is touched, through the syntax tree: comments and imports stay as they are, and only the delimiters change, never the text inside.

@@ -2,10 +2,13 @@
 // con due lingue e un driver finto, mai la rete vera.
 //
 //   node test/list/llmTranslatePass.test.mjs
-import { mkdtempSync, rmSync, mkdirSync, writeFileSync, readFileSync, readdirSync } from "node:fs";
+import { mkdtempSync, rmSync, mkdirSync, writeFileSync, readFileSync, readdirSync, existsSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import translatePass from "../../lib/dev/llm/translatePass.js";
+import maybeRunLlmCommand from "../../lib/dev/llm/llmCommands.js";
+import { syncIo } from "../../lib/dev/vite/uty/syncIo.js";
+import readLanguageFile from "../../lib/dev/vite/uty/readLanguageFile.js";
 import normalizeLlmOptions from "../../lib/dev/llm/llmOptions.js";
 import { updateLedger, recordFailure, recordRequest, readLedger, ratiosFor } from "../../lib/dev/llm/llmLedger.js";
 
@@ -886,6 +889,283 @@ console.log("\n== la riparazione porta codice e messaggio (trace 2026-09-25) =="
   const repair = JSON.parse(payloads[1]).items[0].previousAttemptRejectedBecause;
   eq("la riparazione porta codice e messaggio", true, repair.startsWith("icu-args: ") && repair.includes("{zero}"));
   eq("riparata e scritta", 1, result.perLanguage[0].filled);
+}
+
+// ============================================== 4.7.1: paid results are never lost silently
+// Decision D2 of doc/ImplementationPlans/4_7_1.md.
+const withIo = async (overrides, fn) => {
+  const saved = Object.fromEntries(Object.keys(overrides).map((k) => [k, syncIo[k]]));
+  Object.assign(syncIo, overrides);
+  try { return await fn(); } finally { Object.assign(syncIo, saved); }
+};
+const ioError = (code, message = code) => Object.assign(new Error(message), { code });
+const SRC2 = `export default function App() {
+  return <div>{"_%_First_%_"}{"_%_Second_%_"}</div>;
+}
+`;
+const fileOf = (baseDir, tag) => join(baseDir, "locale", `${tag}.yml`);
+const counting = () => {
+  const state = { calls: 0 };
+  state.driver = async (request) => {
+    state.calls++;
+    if (request.mode === "context") return { text: "# About\nA test app." };
+    const { items } = JSON.parse(request.userPayload);
+    return { translations: Object.fromEntries(items.map((i) => [i.k, `TR:${i.t}`])) };
+  };
+  return state;
+};
+
+console.log("\n== D1: a scan with skipped files stops the pass before any paid request ==");
+{
+  const baseDir = progetto(SRC2);
+  writeFileSync(join(baseDir, "src", "Broken.jsx"), 'export const c = "_%_Rotto_%_"; const = ;\n');
+  const stub = counting();
+  const config = baseConfig(baseDir, stub.driver);
+  config.llm.context = { mode: "auto" }; // would call the model for the context abstract
+  let error = null;
+  await catturaAsync(async () => { try { await translatePass({ config, noAsk: true }); } catch (e) { error = e; } });
+  eq("rejects VT_SCAN_INCOMPLETE", "VT_SCAN_INCOMPLETE", error?.code);
+  eq("the driver is never called, not even for the context", 0, stub.calls);
+  eq("the tables are untouched (still empty)", ["", ""], [readFileSync(fileOf(baseDir, "fr-FR"), "utf8"), readFileSync(fileOf(baseDir, "de-DE"), "utf8")]);
+}
+
+console.log("\n== --llm-retranslate: the backup comes before the first paid request ==");
+{
+  const baseDir = progetto(SRC2);
+  const stub = counting();
+  await catturaAsync(() => translatePass({ config: baseConfig(baseDir, stub.driver), noAsk: true }));
+  const translated = readFileSync(fileOf(baseDir, "fr-FR"), "utf8");
+  eq("fr-FR translated by the first pass", true, translated.includes('"TR:First"'));
+
+  // The backup must exist by the time the model is asked: record it from inside the driver.
+  const seen = [];
+  const driver = async (request) => {
+    seen.push(readdirSync(join(baseDir, "locale")).filter((f) => f.includes(".bak-erased-")).length);
+    return counting().driver(request);
+  };
+  const config = baseConfig(baseDir, driver);
+  config.llm.context = { mode: "auto" };
+  await catturaAsync(() => translatePass({ config, noAsk: true, retranslateTags: ["fr-FR"] }));
+  eq("a backup existed at the very first request (the context)", true, seen[0] === 1);
+  const bak = readdirSync(join(baseDir, "locale")).find((f) => f.includes("fr-FR.yml.bak-erased-"));
+  eq("and holds the bytes as they were", translated, readFileSync(join(baseDir, "locale", bak), "utf8"));
+
+  // A failing backup stops the run before the context request, which is a paid call too.
+  const stub2 = counting();
+  const config2 = baseConfig(baseDir, stub2.driver);
+  config2.llm.context = { mode: "auto" };
+  let error = null;
+  const realWrite = syncIo.writeFileSync;
+  await withIo({ writeFileSync: (f, ...a) => { if (String(f).includes(".bak-")) throw ioError("EIO", "no backup"); return realWrite(f, ...a); } }, async () => {
+    await catturaAsync(async () => { try { await translatePass({ config: config2, noAsk: true, retranslateTags: ["fr-FR"] }); } catch (e) { error = e; } });
+  });
+  eq("a failed backup rejects VT_BACKUP_FAILED", "VT_BACKUP_FAILED", error?.code);
+  eq("the driver is never called, not even for the context", 0, stub2.calls);
+  eq("fr-FR is untouched", translated, readFileSync(fileOf(baseDir, "fr-FR"), "utf8"));
+}
+
+console.log("\n== persist: a conflict is read and merged again, a human translation stays ==");
+{
+  const baseDir = progetto(SRC2);
+  let armed = false;
+  const realRead = syncIo.readFileSync;
+  const driver = async ({ userPayload }) => {
+    armed = true; // from now on, the first read of fr-FR.yml is followed by a human edit
+    const { items } = JSON.parse(userPayload);
+    return { translations: Object.fromEntries(items.map((i) => [i.k, `TR:${i.t}`])) };
+  };
+  const config = baseConfig(baseDir, driver);
+  config.llm.connection = { ...config.llm.connection, maxConcurrency: 1 };
+  // The human edit: the first key of fr-FR is translated between our read and our write.
+  let edited = false;
+  const { valore: result } = await catturaAsync(() => withIo({
+    readFileSync: (f, ...a) => {
+      const bytes = realRead(f, ...a);
+      if (armed && !edited && String(f).endsWith("fr-FR.yml")) {
+        edited = true;
+        const key = [...bytes.toString("utf8").matchAll(/^(App_\w+): null$/gm)][0][1];
+        writeFileSync(fileOf(baseDir, "fr-FR"), bytes.toString("utf8").replace(`${key}: null`, `${key}: "MANUAL"`));
+      }
+      return bytes;
+    },
+  }, () => translatePass({ config, noAsk: true, tags: ["fr-FR"] })));
+  const fr = readFileSync(fileOf(baseDir, "fr-FR"), "utf8");
+  eq("the human edit happened", true, edited);
+  eq("the human translation stays", true, fr.includes('"MANUAL"'));
+  eq("the other key got the model's translation", true, /"TR:(First|Second)"/.test(fr));
+  eq("no null left", false, fr.includes("null"));
+  eq("nothing unsaved", [], result.unsaved);
+}
+
+console.log("\n== persist: a write that fails is retried at the final pass ==");
+{
+  const baseDir = progetto(SRC2);
+  const realRename = syncIo.renameSync;
+  let failures = 0;
+  let armed = false; // the prerequisite sync must write fr-FR.yml normally; only the persist fails
+  const stub = counting();
+  const driver = async (request) => { armed = true; return stub.driver(request); };
+  const { valore: result } = await catturaAsync(() => withIo({
+    renameSync: (from, to) => {
+      if (armed && String(to).endsWith("fr-FR.yml") && failures < 1) { failures++; throw ioError("EIO", "disk hiccup"); }
+      return realRename(from, to);
+    },
+  }, () => translatePass({ config: baseConfig(baseDir, driver), noAsk: true, tags: ["fr-FR"] })));
+  eq("the first write failed", 1, failures);
+  const fr = readFileSync(fileOf(baseDir, "fr-FR"), "utf8");
+  eq("the results were kept and written at the end", true, fr.includes('"TR:First"') && fr.includes('"TR:Second"'));
+  eq("nothing unsaved", [], result.unsaved);
+  eq("no recovery file", 0, readdirSync(join(baseDir, "locale")).filter((f) => f.includes(".unsaved-")).length);
+}
+
+console.log("\n== persist: a table that stays unreadable also leaves a recovery file ==");
+{
+  const baseDir = progetto(SRC2);
+  const stub = counting();
+  // The human breaks the table during the run and never fixes it.
+  const driver = async (request) => {
+    writeFileSync(fileOf(baseDir, "fr-FR"), "this is not a language table }{\n");
+    return stub.driver(request);
+  };
+  const { valore: result } = await catturaAsync(() => translatePass({ config: baseConfig(baseDir, driver), noAsk: true, tags: ["fr-FR"] }));
+  eq("one language unsaved", ["fr-FR"], result.unsaved.map((u) => u.tag));
+  eq("the reason says why", true, /corrupted right now/.test(result.unsaved[0].reason));
+  eq("unreadable table: candidate archive requires review", true, result.unsaved[0].reviewRequired);
+  const recovered = readFileSync(result.unsaved[0].recoveryPath, "utf8");
+  eq("the archive itself asks for comparison", true, recovered.includes("# Recovery archive:") && recovered.includes("Compare with the current table"));
+  eq("the recovery file holds the paid pairs", true, recovered.includes('"TR:First"') && recovered.includes('"TR:Second"'));
+  eq("the broken table is left as it was", "this is not a language table }{\n", readFileSync(fileOf(baseDir, "fr-FR"), "utf8"));
+}
+
+console.log("\n== persist: a write that keeps failing leaves a recovery file and exit code 1 ==");
+{
+  const baseDir = progetto(SRC2);
+  const realRename = syncIo.renameSync;
+  let armed = false;
+  const stub1 = counting();
+  const config = baseConfig(baseDir, async (request) => { armed = true; return stub1.driver(request); });
+  const realExit = process.exitCode;
+  process.exitCode = undefined;
+  const warnings = [];
+  const realWarn = console.warn;
+  const { valore: result } = await catturaAsync(async () => {
+    console.warn = (...a) => warnings.push(a.join(" "));
+    try {
+      return await withIo({
+        renameSync: (from, to) => { if (armed && String(to).endsWith("fr-FR.yml")) throw ioError("EIO", "disk gone"); return realRename(from, to); },
+      }, () => translatePass({ config, noAsk: true, tags: ["fr-FR"] }));
+    } finally { console.warn = realWarn; }
+  });
+  eq("the pass finishes with mode done", "done", result.mode);
+  eq("one language unsaved", ["fr-FR"], result.unsaved.map((u) => u.tag));
+  eq("with the number of keys", 2, result.unsaved[0].keys);
+  eq("and the reason", true, /disk gone/.test(result.unsaved[0].reason));
+  const recovery = result.unsaved[0].recoveryPath;
+  eq("the recovery file sits next to the table", true, recovery.startsWith(fileOf(baseDir, "fr-FR") + ".unsaved-"));
+  const recovered = readFileSync(recovery, "utf8");
+  eq("it is a valid table holding the pairs", true, recovered.includes('"TR:First"') && recovered.includes('"TR:Second"') && /TableVersion/.test(recovered));
+  eq("sync and compile ignore it (not a .yml file)", false, recovery.endsWith(".yml"));
+  const tableNow = readFileSync(fileOf(baseDir, "fr-FR"), "utf8");
+  eq("the table itself still has its nulls", true, tableNow.includes("null") && !tableNow.includes("TR:"));
+  eq("the ledger still records what was paid", true, readLedger(baseDir).tokensToday >= 0);
+
+  // Through the command: the warning and the exit code. (reportOutcome is private, so the
+  // whole command runs, with the same failing rename.)
+  const baseDir2 = progetto(SRC2);
+  armed = false;
+  const stub2 = counting();
+  process.exitCode = undefined;
+  const logged = [];
+  const realLog = console.log;
+  console.log = (...a) => logged.push(a.join(" ").replace(/\x1b\[[0-9;]*m/g, ""));
+  console.warn = (...a) => logged.push(a.join(" ").replace(/\x1b\[[0-9;]*m/g, ""));
+  try {
+    await withIo({
+      renameSync: (from, to) => { if (armed && String(to).endsWith("fr-FR.yml")) throw ioError("EIO", "disk gone"); return realRename(from, to); },
+    }, () => maybeRunLlmCommand(["--llm-translate", "fr-FR", "--llm-noask"], baseConfig(baseDir2, async (request) => { armed = true; return stub2.driver(request); })));
+  } finally { console.log = realLog; console.warn = realWarn; }
+  eq("exit code 1", 1, process.exitCode);
+  // The log wraps long lines under its gutter: flatten it before looking for a sentence.
+  const text = logged.join("\n").replace(/\n[^\n]*?[║╟][─\s]*/g, " ");
+  eq("the warning names the language and the count", true, /fr-FR: 2 translation\(s\) could not be saved/.test(text));
+  eq("and points at the recovery file with safe merge instructions", true, text.includes(".unsaved-") && text.includes("Compare them with fr-FR.yml") && text.includes("preserve newer human edits"));
+  process.exitCode = realExit;
+}
+
+console.log("\n== recovery only contains results still eligible for merging ==");
+{
+  const source = 'export default function App(){return <div>{"_%_Human_%_"}{"_%_Saved_%_"}{"_%_Removed_%_"}{"_%_Pending_%_"}</div>}';
+  const baseDir = progetto(source);
+  const file = fileOf(baseDir, "fr-FR");
+  const realRename = syncIo.renameSync;
+  let armed = false;
+  let keys;
+  const driver = async ({ userPayload }) => {
+    const { items } = JSON.parse(userPayload);
+    keys = Object.fromEntries(items.map((i) => [i.t, i.k]));
+    let text = readFileSync(file, "utf8")
+      .replace(`${keys.Human}: null`, `${keys.Human}: "Human translation"`)
+      .replace(`${keys.Saved}: null`, `${keys.Saved}: "TR:Saved"`);
+    text = text.split("\n").filter((line) => !line.startsWith(`${keys.Removed}:`)).join("\n");
+    writeFileSync(file, text);
+    armed = true;
+    return { translations: Object.fromEntries(items.map((i) => [i.k, `TR:${i.t}`])) };
+  };
+  const { valore: result } = await catturaAsync(() => withIo({
+    renameSync: (from, to) => {
+      if (armed && String(to) === file) throw ioError("EIO");
+      return realRename(from, to);
+    },
+  }, () => translatePass({ config: baseConfig(baseDir, driver), noAsk: true, tags: ["fr-FR"] })));
+  eq("only one pending result is counted", 1, result.unsaved[0].keys);
+  eq("readable table: recovery was checked", false, result.unsaved[0].reviewRequired);
+  eq("human, saved and removed entries excluded", { [keys.Pending]: "TR:Pending" }, readLanguageFile(result.unsaved[0].recoveryPath).table);
+  eq("human translation preserved on disk", "Human translation", readLanguageFile(file).table[keys.Human]);
+  eq("removed key stays removed", false, Object.hasOwn(readLanguageFile(file).table, keys.Removed));
+}
+
+console.log("\n== recovery does not create an empty file when another edit resolves the pending work ==");
+{
+  const baseDir = progetto(SRC2);
+  const file = fileOf(baseDir, "fr-FR");
+  const realRename = syncIo.renameSync;
+  let armed = false, writes = 0;
+  const stub = counting();
+  const driver = async (request) => { armed = true; return stub.driver(request); };
+  const { valore: result } = await catturaAsync(() => withIo({
+    renameSync: (from, to) => {
+      if (armed && String(to) === file) {
+        if (++writes === 2) writeFileSync(file, readFileSync(file, "utf8").replace(/: null/g, ': "Human translation"'));
+        throw ioError("EIO");
+      }
+      return realRename(from, to);
+    },
+  }, () => translatePass({ config: baseConfig(baseDir, driver), noAsk: true, tags: ["fr-FR"] })));
+  eq("both checkpoint and final write failed", 2, writes);
+  eq("nothing remains eligible for recovery", [], result.unsaved);
+  eq("no empty recovery file created", 0, readdirSync(join(baseDir, "locale")).filter((f) => f.includes(".unsaved-")).length);
+}
+
+console.log("\n== explicit retranslation recovery keeps replacement candidates ==");
+{
+  const baseDir = progetto(SRC2);
+  const stub = counting();
+  await catturaAsync(() => translatePass({ config: baseConfig(baseDir, stub.driver), noAsk: true, tags: ["fr-FR"] }));
+  const file = fileOf(baseDir, "fr-FR");
+  const realRename = syncIo.renameSync;
+  let armed = false;
+  const driver = async ({ userPayload }) => {
+    armed = true;
+    return { translations: Object.fromEntries(JSON.parse(userPayload).items.map((i) => [i.k, `NEW:${i.t}`])) };
+  };
+  const { valore: result } = await catturaAsync(() => withIo({
+    renameSync: (from, to) => {
+      if (armed && String(to) === file) throw ioError("EIO");
+      return realRename(from, to);
+    },
+  }, () => translatePass({ config: baseConfig(baseDir, driver), noAsk: true, retranslateTags: ["fr-FR"] })));
+  eq("both replacements retained", 2, result.unsaved[0].keys);
+  eq("replacements contain the new values", ["NEW:First", "NEW:Second"], Object.values(readLanguageFile(result.unsaved[0].recoveryPath).table).sort());
 }
 
 for (const dir of temporanee) rmSync(dir, { recursive: true, force: true });

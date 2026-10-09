@@ -98,5 +98,68 @@ console.log("\n== cache Intl ==");
   ok_("fuso diverso -> formatter diverso (risultato divergente per un orario)", r3 !== undefined);
 }
 
+console.log("\n== 4.7.1: dates that do not exist fall back, they neither shift nor throw ==");
+{
+  const opts = { dateStyle: "medium" };
+  const fmtUtc = (y, m, d) => new Intl.DateTimeFormat("en-US", { ...opts, timeZone: "UTC" }).format(new Date(Date.UTC(y, m - 1, d)));
+  const noThrow = (name, v, expected) => {
+    let out, threw = false;
+    try { out = icuDate(v, "en-US", opts, { timeZone: "UTC" }); } catch { threw = true; }
+    ok_(`${name}: no exception`, !threw);
+    if (!threw) eq(`${name}: shown as it is`, expected, out);
+  };
+
+  // Numbers: the Date range is +-8.64e15 ms.
+  const edge = 8.64e15;
+  eq("number at +8.64e15 is formatted", new Intl.DateTimeFormat("en-US", { ...opts, timeZone: "UTC" }).format(new Date(edge)), icuDate(edge, "en-US", opts, { timeZone: "UTC" }));
+  eq("number at -8.64e15 is formatted", new Intl.DateTimeFormat("en-US", { ...opts, timeZone: "UTC" }).format(new Date(-edge)), icuDate(-edge, "en-US", opts, { timeZone: "UTC" }));
+  noThrow("number just above the range", edge + 1, edge + 1);
+  noThrow("number just below the range", -edge - 1, -edge - 1);
+  noThrow("1e20", 1e20, 1e20);
+  ok_("NaN: shown as it is, no exception", Number.isNaN(icuDate(NaN, "en-US", opts, { timeZone: "UTC" })));
+  noThrow("Infinity", Infinity, Infinity);
+  noThrow("-Infinity", -Infinity, -Infinity);
+  eq("invalid Date -> String(v)", "Invalid Date", icuDate(new Date(NaN), "en-US", opts));
+
+  // Date only (calendar dates, always UTC).
+  eq("2024-02-29 (leap year) is real", fmtUtc(2024, 2, 29), icuDate("2024-02-29", "en-US", opts));
+  noThrow("2024-02-30", "2024-02-30", "2024-02-30");
+  noThrow("2024-02-31 does not become March 2", "2024-02-31", "2024-02-31");
+  noThrow("2023-02-29 (not a leap year)", "2023-02-29", "2023-02-29");
+  eq("1900-02-29 is not real (century rule)", "1900-02-29", icuDate("1900-02-29", "en-US", opts));
+  eq("2000-02-29 is real (every 400 years)", fmtUtc(2000, 2, 29), icuDate("2000-02-29", "en-US", opts));
+  noThrow("month 00", "2024-00-10", "2024-00-10");
+  noThrow("month 13 does not become January next year", "2024-13-01", "2024-13-01");
+  noThrow("day 00", "2024-01-00", "2024-01-00");
+  noThrow("day 32", "2024-01-32", "2024-01-32");
+  noThrow("April 31", "2024-04-31", "2024-04-31");
+
+  // Years 0-99: Date.UTC would map them to 1900-1999.
+  const year = (iso) => new Intl.DateTimeFormat("en-US", { year: "numeric", timeZone: "UTC" }).format(new Date(new Date(0).setUTCFullYear(+iso.slice(0, 4), +iso.slice(5, 7) - 1, +iso.slice(8, 10))));
+  eq("0099-01-01 is year 99, not 1999", year("0099-01-01"), icuDate("0099-01-01", "en-US", { year: "numeric" }));
+  ok_("0099-01-01 does not say 1999", !icuDate("0099-01-01", "en-US", { year: "numeric" }).includes("1999"));
+  eq("0100-01-01 is year 100", year("0100-01-01"), icuDate("0100-01-01", "en-US", { year: "numeric" }));
+  eq("0000-01-01 is year 0 (as Intl formats it), never 1900", year("0000-01-01"), icuDate("0000-01-01", "en-US", { year: "numeric" }));
+  ok_("0000-01-01 does not say 1900", !icuDate("0000-01-01", "en-US", { year: "numeric" }).includes("1900"));
+  eq("0000-02-29 is real (year 0 is a leap year)", year("0000-02-29"), icuDate("0000-02-29", "en-US", { year: "numeric" }));
+
+  // ISO date-times: the calendar part is validated, the time-zone logic is untouched.
+  noThrow("2024-02-31T10:00Z does not become March 2", "2024-02-31T10:00Z", "2024-02-31T10:00Z");
+  noThrow("2024-13-01T10:00:00Z", "2024-13-01T10:00:00Z", "2024-13-01T10:00:00Z");
+  noThrow("2024-04-31T10:00:00+02:00", "2024-04-31T10:00:00+02:00", "2024-04-31T10:00:00+02:00");
+  eq("valid ISO with an offset", new Intl.DateTimeFormat("en-US", { ...opts, timeZone: "UTC" }).format(new Date("2024-02-29T23:30:00+02:00")), icuDate("2024-02-29T23:30:00+02:00", "en-US", opts, { timeZone: "UTC" }));
+  eq("valid ISO with Z and milliseconds", new Intl.DateTimeFormat("en-US", { ...opts, timeZone: "UTC" }).format(new Date("2024-02-29T10:00:00.123Z")), icuDate("2024-02-29T10:00:00.123Z", "en-US", opts, { timeZone: "UTC" }));
+  eq("valid ISO at the last day of a month", new Intl.DateTimeFormat("en-US", { ...opts, timeZone: "UTC" }).format(new Date("2024-04-30T12:00:00Z")), icuDate("2024-04-30T12:00:00Z", "en-US", opts, { timeZone: "UTC" }));
+}
+
+console.log("\n== 4.7.1: a calendar date shows the same day in every time zone ==");
+{
+  const opts = { dateStyle: "long" };
+  const zones = ["UTC", "Pacific/Kiritimati", "Pacific/Pago_Pago", "America/Los_Angeles", "Asia/Tokyo"];
+  const outs = zones.map((timeZone) => icuDate("2024-02-29", "en-US", opts, { timeZone }));
+  ok_("same text in 5 zones", outs.every((o) => o === outs[0]));
+  ok_("and it is the 29th", outs[0].includes("29"));
+}
+
 console.log(fail === 0 ? "\nTUTTI OK" : `\n${fail} FALLITI`);
 process.exitCode = fail === 0 ? 0 : 1;

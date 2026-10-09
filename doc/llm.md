@@ -253,7 +253,11 @@ A truncated reply that still brought some keys home is a `<` line ending in `tru
 
 Piped, redirected or in CI there is no live block, only the final log. A failed request doesn't stop the others: its keys stay `null` — a truncated one excepted, see above — and [`--llm-debug`](#debugging-a-run) has the full reply.
 
+Before it spends anything, the run does its homework: the sync it starts with (it stops with the same messages as the [sync](cli.md#when-the-sync-stops), an incomplete scan included) and, for `--llm-retranslate`, a backup of each table it is about to overwrite. If either fails, **no request is sent**, not even the context abstract.
+
 Every reply lands in its `.yml` **as soon as it is validated**, not at the end: stop a run with Ctrl+C and you lose only the requests still in flight. The file is re-read before each write, so a key you fill by hand meanwhile, or one a sync removes, is left alone. A `vite dev` running next to it just reloads the page on each write — watching the translations appear is part of the show.
+
+**If a table cannot be saved**, the run keeps the paid results, retries at later checkpoints and at the end, then saves the remaining candidates as `<tag>.yml.unsaved-<timestamp>` (ignored by sync), warns, and exits with code `1`. When the table is readable, recovery excludes removed keys, already saved values and human translations; `--llm-retranslate` still permits replacements. If the table cannot be read, the file is labeled a **candidate archive**: its contents have not been checked against your latest edits. Compare either recovery file with the current table before merging, preserving newer human edits and removed keys. Then run the sync and delete the recovery file once you have recovered what you need.
 
 ## The context abstract
 

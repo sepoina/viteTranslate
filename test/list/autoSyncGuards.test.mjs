@@ -4,10 +4,11 @@
 // per davvero quando nulla la ferma.
 //
 //   node test/list/autoSyncGuards.test.mjs
-import { mkdtempSync, rmSync, mkdirSync, writeFileSync, readdirSync } from "node:fs";
+import { mkdtempSync, rmSync, mkdirSync, writeFileSync, readdirSync, readFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import autoSync from "../../lib/dev/vite/autoSync.js";
+import runSync from "../../lib/dev/vite/syncCore.js";
 import { BABEL_MISSING } from "../../lib/dev/babel/babelPeer.js";
 
 let fail = 0;
@@ -145,6 +146,45 @@ console.log("\n== nessuna guardia attiva: la sincronizzazione avviene per davver
   eq("ran: true", true, esito.ran);
   eq("reason: synced", "synced", esito.reason);
   eq("i file di lingua sono stati scritti", true, localeSnapshot(p.localeDir).includes("it-IT.yml"));
+}
+
+// -------------------------------------------------------------- G15
+console.log("\n== G15: scansione incompleta -- in dev avviso, in build errore ==");
+{
+  const p = progetto();
+  // First a healthy sync, so there are tables (and a scan record) to protect. Through runSync and
+  // not autoSync: G3 would remember that outcome for the same command and config.
+  await zitto(() => runSync({ config: p.config() }));
+  writeFileSync(join(p.baseDir, "src", "Broken.jsx"), 'export const c = "_%_Rotto_%_"; const = ;\n');
+  writeFileSync(join(p.baseDir, "src", "App.jsx"), 'export const a = "_%_Ciao_%_"; export const b = "_%_Nuovo_%_";\n');
+  const before = readFileSync(join(p.localeDir, "it-IT.yml"), "utf8");
+
+  const warnings = [];
+  const realWarn = console.warn;
+  const realLog = console.log;
+  const realError = console.error;
+  console.warn = console.log = (...a) => { warnings.push(a.join(" ")); };
+  console.error = () => {};
+  let dev, buildError;
+  try {
+    dev = await autoSync({ config: p.config(), env: { command: "serve" } });
+    try { await autoSync({ config: p.config(), env: { command: "build" } }); } catch (e) { buildError = e; }
+  } finally {
+    console.warn = realWarn; console.log = realLog; console.error = realError;
+  }
+  eq("serve: resolves without syncing", false, dev?.ran);
+  eq("serve: reason scan-incomplete", "scan-incomplete", dev?.reason);
+  const text = warnings.join("\n");
+  eq("serve: the warning says the tables are untouched", true, text.includes("Your tables were left untouched; the dev server starts anyway"));
+  eq("serve: and names the broken file", true, text.includes("Broken.jsx"));
+  eq("build: rejects VT_SCAN_INCOMPLETE", "VT_SCAN_INCOMPLETE", buildError?.code);
+  eq("tables untouched by both", before, readFileSync(join(p.localeDir, "it-IT.yml"), "utf8"));
+
+  // The outcome is not frozen: fix the file and the same process syncs for real.
+  rmSync(join(p.baseDir, "src", "Broken.jsx"));
+  const fixed = await zitto(() => autoSync({ config: p.config(), env: { command: "serve" } }));
+  eq("after the fix, the next start syncs", "synced", fixed.reason);
+  eq("and the new key is in the table", true, readFileSync(join(p.localeDir, "it-IT.yml"), "utf8").includes("Nuovo"));
 }
 
 for (const dir of temporanee) rmSync(dir, { recursive: true, force: true });

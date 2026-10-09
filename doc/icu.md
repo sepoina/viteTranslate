@@ -70,6 +70,8 @@ The *k*-th `%s` (counted from 0) is `{k}` under the hood, so `"%s and {1}"` is l
 | an ISO string with time | an instant | resolved below |
 | anything else | not parsed | shown as-is |
 
+A date that does not exist — `"2024-02-31"`, `"2024-13-01"`, an ISO string carrying such a day, a number outside ±8.64e15 ms, an invalid `Date` — is never corrected: it does not roll over to March 2 and it does not throw. It shows as-is (the `Date` as `String(date)`). Years `0000`–`0099` are real years, not 1900–1999.
+
 A number under `1e11` in absolute value looks like Unix seconds, not milliseconds — a `console.warn` says so once, in development only.
 
 Time zone, in order of precedence: a calendar date is always UTC; then the `timeZone` prop of `<TranslateContainer>` (the viewer's preference, or the request's zone in SSR); then the plugin's `icu: { timeZone: "Europe/Rome" }` option (a build-time default — a restaurant's hours, shown in the restaurant's zone regardless of who's looking); then, with none of the above, whatever zone the runtime itself is in.
