@@ -7,6 +7,7 @@
 // package.json ritoccato a mano invece che con npm version. Rimedio: npm run sync:demos.
 //
 //   node test/list/demoDeps.test.mjs
+import { readFileSync } from "node:fs";
 import { demoDirs, nonSoddisfatte, soddisfa } from "../syncDemoDeps.mjs";
 
 let fail = 0;
@@ -22,6 +23,17 @@ const indietro = new Map(nonSoddisfatte().map((d) => [d.demo, d]));
 for (const demo of demoDirs()) {
   const d = indietro.get(demo);
   eq(`${demo} accetta la versione della radice`, d?.atteso ?? "allineata", d?.attuale ?? "allineata");
+}
+
+// The range alone is not enough: the lockfile must also record the library as a LINK to the root.
+// If an `npm install` ever replaces it with a registry tarball (it happened before 4.7.1: 4.7.0
+// from npm), everything still works locally, but the CI's `npm install` after the next version
+// bump asks npm for a version not published yet and fails with ETARGET.
+// Fix: delete node_modules/@sepoina/vitetranslate and run `npm install` at the root.
+{
+  const lock = JSON.parse(readFileSync(new URL("../../package-lock.json", import.meta.url), "utf8"));
+  const voce = lock.packages?.["node_modules/@sepoina/vitetranslate"];
+  eq("lockfile: the library is linked to the root", "link to root", voce?.link === true && voce.resolved === "" ? "link to root" : voce?.resolved ?? "missing");
 }
 
 // Il controllo di range, senza toccare il disco.
