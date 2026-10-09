@@ -76,7 +76,7 @@ jobs:
         run: npm run ide:package
 
       - name: Upload .vsix
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: ${{ steps.meta.outputs.id }}-${{ steps.meta.outputs.version }}
           path: ${{ steps.meta.outputs.vsix }}
