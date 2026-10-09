@@ -1,5 +1,4 @@
-import { Trans } from "@sepoina/vitetranslate/react";
-import { Icon } from "./icons.jsx";
+import { Trans, useTrans } from "@sepoina/vitetranslate/react";
 import { REPO } from "./links.js";
 import SectionHead from "./SectionHead.jsx";
 import SIZE from "./theme/runtimeSize.json";
@@ -21,22 +20,33 @@ const ROWS = [
   { label: "_%_Lingue caricate a richiesta_%_", v: ["y", "y", "y", "y"] },
 ];
 
-const MARKS = { y: "check", n: "x", p: "minus" };
+const GLYPHS = { y: "✓", p: "–", n: "✕" };
 
-function Mark({ kind }) {
+// Il segno si vede, il suo significato si legge: per i lettori di schermo "✓" non vuol dire niente.
+function Mark({ kind, label }) {
   return (
-    <span className={`mk mk-${kind}`}>
-      <Icon name={MARKS[kind]} size={16} strokeWidth={2.4} />
-    </span>
+    <>
+      <span className={`mk mk-${kind}`} aria-hidden="true" title={label}>
+        {GLYPHS[kind]}
+      </span>
+      <span className="sr-only">{label}</span>
+    </>
   );
 }
 
 export default function Compare() {
+  const trans = useTrans();
+  const labels = {
+    y: trans("_%_Disponibile_%_"),
+    p: trans("_%_Con strumenti o configurazione aggiuntivi_%_"),
+    n: trans("_%_Non offerto dal progetto_%_"),
+  };
+
   return (
     <section className="section" data-section="compare">
       <div className="wrap">
         <SectionHead
-          eyebrow={<Trans>_%_Confronto_%_</Trans>}
+          id="compare"
           title={<Trans t="_%_Stesso problema, <em>meno macchina</em>._%_" />}
           text={
             <Trans>
@@ -66,7 +76,7 @@ export default function Compare() {
                     </th>
                     {row.v.map((kind, n) => (
                       <td key={COLUMNS[n]} className={n === 0 ? "col-us" : undefined}>
-                        <Mark kind={kind} />
+                        <Mark kind={kind} label={labels[kind]} />
                       </td>
                     ))}
                   </tr>
@@ -74,24 +84,28 @@ export default function Compare() {
               </tbody>
             </table>
           </div>
-          <p className="compare-note">
-            <Icon name="minus" size={14} strokeWidth={2.4} />
-            <Trans>_%_= disponibile con strumenti o configurazione aggiuntivi._%_</Trans>
-          </p>
-          <p className="compare-note">
-            <Icon name="x" size={14} strokeWidth={2.4} />
-            <Trans>_%_= non offerto dagli strumenti del progetto: può supplire uno strumento di terzi._%_</Trans>
-          </p>
-          <p className="compare-note">
-            <span>
+          <div className="compare-notes">
+            <p>
+              <span className="mk mk-p" aria-hidden="true">
+                –
+              </span>{" "}
+              <Trans>_%_= disponibile con strumenti o configurazione aggiuntivi._%_</Trans>
+            </p>
+            <p>
+              <span className="mk mk-n" aria-hidden="true">
+                ✕
+              </span>{" "}
+              <Trans>_%_= non offerto dagli strumenti del progetto: può supplire uno strumento di terzi._%_</Trans>
+            </p>
+            <p>
               <Trans>
                 _%_Confronto aggiornato a settembre 2026: i18next 26 + react-i18next 17, Lingui 6, FormatJS (react-intl 12)._%_
               </Trans>{" "}
               <a href={`${REPO}#-why-vitetranslate`}>
                 <Trans>_%_Il perché di ogni casella_%_</Trans> ↗
               </a>
-            </span>
-          </p>
+            </p>
+          </div>
         </div>
       </div>
     </section>

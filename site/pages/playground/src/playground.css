@@ -39,12 +39,16 @@
   padding-top: clamp(3rem, 8vw, 5rem);
 }
 
+/* Alfa Slab One come i titoli della landing: peso 700 senza sintesi, vedi .page-hero h1 in theme.css. */
 .part > h2 {
-  margin: 0 0 0.4rem;
-  font-size: clamp(1.8rem, 4.4vw, 2.8rem);
-  font-weight: 600;
-  letter-spacing: -0.04em;
-  line-height: 1.1;
+  margin: 0 0 0.6rem;
+  font-family: var(--display);
+  font-size: clamp(2rem, 4.4vw, 3rem);
+  font-weight: 700;
+  font-synthesis: none;
+  letter-spacing: 0;
+  line-height: 1.08;
+  text-wrap: balance;
 }
 
 .part-text {

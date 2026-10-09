@@ -1,6 +1,5 @@
 import { Trans } from "@sepoina/vitetranslate/react";
 import { Code, M } from "./theme/Code.jsx";
-import { Icon } from "./icons.jsx";
 import SectionHead from "./SectionHead.jsx";
 
 const KEYLESS = `<Trans t={["${M}Ciao %s, come stai?${M}", nome]} />
@@ -14,14 +13,16 @@ Hero_1q8xz4: "Bienvenue"
 Cta_8wea0s: "Installer"
 Nav_1t0ndv: "Fonctions"`;
 
+// La prima è la lingua di chi legge, l'unica scaricata; le altre restano tratteggiate.
 const CHUNKS = ["it-IT", "en-US", "fr-FR", "de-DE", "pt-BR", "zh-CN", "ja-JP"];
 
+// Cinque righe: a sinistra cosa fa, a destra come si vede.
 export default function Features() {
   return (
     <section className="section" data-section="features">
       <div className="wrap">
         <SectionHead
-          eyebrow={<Trans>_%_Perché viteTranslate_%_</Trans>}
+          id="features"
           title={<Trans t="_%_Tutto ciò che serve. <em>Niente</em> di ciò che pesa._%_" />}
           text={
             <Trans>
@@ -31,12 +32,9 @@ export default function Features() {
           }
         />
 
-        <div className="bento" data-stagger>
-          <article className="tile t-keyless">
-            <div className="tile-copy">
-              <span className="tile-ico">
-                <Icon name="braces" />
-              </span>
+        <div className="features" data-stagger>
+          <article className="feature">
+            <div className="feature-copy">
               <h3>
                 <Trans>_%_Niente chiavi da inventare_%_</Trans>
               </h3>
@@ -47,14 +45,13 @@ export default function Features() {
                 </Trans>
               </p>
             </div>
-            <Code code={KEYLESS} lang="jsx" className="tile-code" />
+            <div className="feature-visual">
+              <Code code={KEYLESS} lang="jsx" className="snippet" />
+            </div>
           </article>
 
-          <article className="tile t-yaml">
-            <div className="tile-copy">
-              <span className="tile-ico">
-                <Icon name="sync" />
-              </span>
+          <article className="feature">
+            <div className="feature-copy">
               <h3>
                 <Trans>_%_Tabelle YAML sempre allineate_%_</Trans>
               </h3>
@@ -65,14 +62,13 @@ export default function Features() {
                 </Trans>
               </p>
             </div>
-            <Code code={TABLE} lang="yaml" className="tile-code" />
+            <div className="feature-visual">
+              <Code code={TABLE} lang="yaml" className="snippet" />
+            </div>
           </article>
 
-          <article className="tile t-llm">
-            <div className="tile-copy">
-              <span className="tile-ico">
-                <Icon name="sparkle" />
-              </span>
+          <article className="feature">
+            <div className="feature-copy">
               <h3>
                 <Trans>_%_Un LLM, ma con il paracadute_%_</Trans>
               </h3>
@@ -80,23 +76,22 @@ export default function Features() {
                 <Trans t="_%_<code>--llm-translate</code> riempie le chiavi mancanti con il modello che configuri. Il validatore scarta ciò che si romperebbe a runtime._%_" />
               </p>
             </div>
-            <ul className="verdicts">
-              <li className="bad">
-                <Icon name="x" size={16} />
-                <span>"Ciao , come stai?"</span>
-              </li>
-              <li className="ok">
-                <Icon name="check" size={16} />
-                <span>"Bonjour %s, ça va ?"</span>
-              </li>
-            </ul>
+            <div className="feature-visual">
+              <ul className="verdicts">
+                <li className="bad">
+                  <b aria-hidden="true">✕</b>
+                  <s>"Ciao , come stai?"</s>
+                </li>
+                <li className="ok">
+                  <b aria-hidden="true">✓</b>
+                  <span>"Bonjour %s, ça va ?"</span>
+                </li>
+              </ul>
+            </div>
           </article>
 
-          <article className="tile t-build">
-            <div className="tile-copy">
-              <span className="tile-ico">
-                <Icon name="server" />
-              </span>
+          <article className="feature">
+            <div className="feature-copy">
               <h3>
                 <Trans>_%_Compilato in build, nessun parser a runtime_%_</Trans>
               </h3>
@@ -107,22 +102,21 @@ export default function Features() {
                 </Trans>
               </p>
             </div>
-            <div className="flow" aria-hidden="true">
-              <span>JSX</span>
-              <i />
-              <span>Babel</span>
-              <i />
-              <span>Vite</span>
-              <i />
-              <span className="flow-end">.js</span>
+            <div className="feature-visual">
+              <div className="flow" aria-hidden="true">
+                <span>JSX</span>
+                <i>→</i>
+                <span>Babel</span>
+                <i>→</i>
+                <span>Vite</span>
+                <i>→</i>
+                <span className="flow-end">.js</span>
+              </div>
             </div>
           </article>
 
-          <article className="tile t-lazy">
-            <div className="tile-copy">
-              <span className="tile-ico">
-                <Icon name="layers" />
-              </span>
+          <article className="feature">
+            <div className="feature-copy">
               <h3>
                 <Trans>_%_Ogni lingua è un file a sé_%_</Trans>
               </h3>
@@ -130,12 +124,14 @@ export default function Features() {
                 <Trans>_%_Caricata con import() solo quando la scegli. Chi legge in italiano non scarica mai il cinese._%_</Trans>
               </p>
             </div>
-            <div className="chunks" aria-hidden="true">
-              {CHUNKS.map((tag, n) => (
-                <span key={tag} style={{ "--n": n }}>
-                  {tag}.js
-                </span>
-              ))}
+            <div className="feature-visual">
+              <div className="chunks" aria-hidden="true">
+                {CHUNKS.map((tag, n) => (
+                  <span key={tag} className={n === 0 ? "is-loaded" : undefined}>
+                    {tag}.js
+                  </span>
+                ))}
+              </div>
             </div>
           </article>
         </div>

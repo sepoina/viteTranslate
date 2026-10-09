@@ -211,18 +211,31 @@ const contrasto = (a, b) => {
   return (x + 0.05) / (y + 0.05);
 };
 const COPPIE = [
-  ...["text", "muted", "faint", "accent"].flatMap((f) => ["bg", "surface-2", "bg-deep"].map((b) => [f, b])),
+  ...["text", "muted", "faint", "quiet", "accent"].flatMap((f) => ["bg", "surface-2", "bg-deep"].map((b) => [f, b])),
+  ["lead", "bg"],
+  ["code-text", "bg"],
   ["accent-ink", "accent-fill"],
+  ["accent-ink-2", "accent-fill"],
+  ["ink-text", "ink"],
+  ["badge-ink", "badge-bg"],
   ...["warn", "error"].flatMap((f) => ["bg", "surface-2"].map((b) => [f, b])),
-  ...["tk-c", "tk-s", "tk-t", "tk-k", "tk-n"].map((f) => [f, "code-bg"]),
+  ...["tk-c", "tk-s", "tk-t", "tk-k", "tk-n", "code-text"].map((f) => [f, "code-bg"]),
+];
+// 3:1 basta per il testo grande e per i simboli (WCAG 1.4.3 e 1.4.11): --dim colora solo titoli e
+// testo decorativo, --mark-n è il ✕ del confronto, che ha accanto il suo significato per esteso.
+const COPPIE_3 = [
+  ...["bg", "bg-deep"].map((b) => ["dim", b]),
+  ["mark-n", "bg"],
 ];
 const esa = /^#[0-9a-f]{6}$/i;
 for (const [nome, mappa] of [["scuro", scuro], ["chiaro", chiaro]]) {
-  const sotto = COPPIE.filter(([f, b]) => {
-    const [a, c] = [risolvi(mappa, f), risolvi(mappa, b)];
-    return !esa.test(a) || !esa.test(c) || contrasto(a, c) < 4.5;
-  }).map(([f, b]) => `${f} su ${b}`);
-  eq(`tema ${nome}: ogni coppia di testo passa 4.5:1`, [], sotto);
+  for (const [coppie, soglia] of [[COPPIE, 4.5], [COPPIE_3, 3]]) {
+    const sotto = coppie.filter(([f, b]) => {
+      const [a, c] = [risolvi(mappa, f), risolvi(mappa, b)];
+      return !esa.test(a) || !esa.test(c) || contrasto(a, c) < soglia;
+    }).map(([f, b]) => `${f} su ${b}`);
+    eq(`tema ${nome}: ogni coppia passa ${soglia}:1`, [], sotto);
+  }
 }
 
 // 12. Una pagina, o una demo, resta autonoma: nessun import relativo esce dalla sua cartella (né lo zip

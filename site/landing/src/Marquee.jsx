@@ -20,22 +20,22 @@ const LANGUAGES = [
   "Svenska",
 ];
 
+// La striscia delle lingue, in fondo alla sezione "Come si vede". Due righe uguali che scorrono di
+// metà: il giro si chiude senza salti. Con il movimento ridotto resta una riga sola, che va a capo.
 export default function Marquee() {
   const row = LANGUAGES.map((name) => <span key={name}>{name}</span>);
 
   return (
-    <section className="marquee-sec" data-reveal>
-      <div className="wrap marquee-in">
-        <p className="marquee-cap">
-          <Trans>_%_Una sola sorgente. Tutte le lingue che vuoi._%_</Trans>
-        </p>
-        <div className="marquee" aria-hidden="true">
-          <div className="marquee-track">
-            <div className="marquee-row">{row}</div>
-            <div className="marquee-row">{row}</div>
-          </div>
+    <div className="marquee-sec" data-reveal>
+      <p className="marquee-cap">
+        <Trans>_%_Una sola sorgente. Tutte le lingue che vuoi._%_</Trans>
+      </p>
+      <div className="marquee" aria-hidden="true">
+        <div className="marquee-track">
+          <div className="marquee-row">{row}</div>
+          <div className="marquee-row">{row}</div>
         </div>
       </div>
-    </section>
+    </div>
   );
 }

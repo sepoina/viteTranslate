@@ -37,7 +37,11 @@ Never edit a copy.
 Why a copy: a page must build on its own (StackBlitz zip, a folder downloaded from GitHub).
 
 `tokens.css` is the only file with colors. The site test fails on a color written elsewhere, on a copy that
-differs, or on a text/background pair below 4.5:1 — so a rebrand is one file and a test run.
+differs, or on a text/background pair below 4.5:1 (3:1 for `--dim` and `--mark-n`, kept for large text and symbols)
+— so a rebrand is one file and a test run.
+
+Titles use `--display` (Alfa Slab One), which has no Chinese or Japanese glyphs. Give them `font-weight: 700` and
+`font-synthesis: none`: Latin stays as drawn, and the system CJK fallback comes out bold.
 
 Working on the theme with a dev server open: `node site/syncTheme.mjs --watch` in a second terminal.
 
@@ -47,7 +51,7 @@ subtree keeps the dark tokens.
 ## Cards: Source, StackBlitz, Zip
 
 The landing has two rows of cards: the site pages right under the hero (a click opens the page) and, at the
-bottom, a scrolling gallery of the projects in [`demo/`](../demo) (a click opens StackBlitz). Every card ends with the same three buttons:
+bottom, a grid of the projects in [`demo/`](../demo) (a click opens StackBlitz). Every card ends with the same three buttons:
 
 - **Source** — the folder on GitHub.
 - **StackBlitz** — `stackblitz.com/github/sepoina/viteTranslate/tree/main/<folder>`: StackBlitz reads the folder

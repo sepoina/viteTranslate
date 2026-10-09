@@ -16,7 +16,7 @@ export default function SiteBar({ home, children, tools }) {
     <header className="bar">
       <div className="wrap bar-in">
         <a className="bar-brand" href={home}>
-          <img src={logo} alt="viteTranslate" width="112" height="20" />
+          <img src={logo} alt="viteTranslate" width="124" height="22" />
         </a>
         {children}
         <div className="bar-tools">

@@ -8,7 +8,6 @@ import CodeDemo from "./CodeDemo.jsx";
 import Demos from "./Demos.jsx";
 import Features from "./Features.jsx";
 import Hero from "./Hero.jsx";
-import Marquee from "./Marquee.jsx";
 import Nav from "./Nav.jsx";
 import Outro from "./Outro.jsx";
 import Starters from "./Starters.jsx";
@@ -33,7 +32,6 @@ export default function App() {
         <Hero />
         <Demos />
         <CodeDemo />
-        <Marquee />
         <Features />
         <Steps />
         <Compare />

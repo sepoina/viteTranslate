@@ -11,17 +11,23 @@ const RULES = {
     `(?<c>//.*)|(?<m>${M}[^\\n]*?${M})|(?<s>"[^"\\n]*"|'[^'\\n]*')|(?<t></?[A-Za-z][\\w.]*|/?>)|(?<k>\\b(?:import|from|export|default|function|const|return|useState)\\b)`,
     "g"
   ),
-  yaml: /(?<c>#.*)|(?<k>^[\w-]+(?=:))|(?<s>"[^"\n]*")|(?<n>\bnull\b)/gm,
+  // Le chiavi restano del colore del testo: in una tabella conta il valore, la chiave la genera il plugin.
+  yaml: /(?<c>#.*)|(?<s>"[^"\n]*")|(?<n>\bnull\b)/gm,
   sh: /(?<c>#.*)|(?<k>--[\w-]+)|(?<s>"[^"\n]*")|(?<o>✓|✗)|(?<p>^\$)/gm,
 };
 const ALIAS = { js: "jsx", javascript: "jsx", bash: "sh" };
-const CLASS = { c: "tk-c", m: "tk-m", s: "tk-s", t: "tk-t", k: "tk-k", n: "tk-n", o: "tk-o", p: "tk-p" };
+const CLASS = { c: "tk-c", m: "tk-m", s: "tk-s", t: "tk-t", k: "tk-k", n: "tk-n", o: "tk-o", p: "tk-p", h: "tk-hl" };
 
-/** Divide `src` in nodi: testo semplice e <span class="tk-…"> per i token riconosciuti. "text" resta senza colori. */
-export function highlight(src, lang) {
+const escapeRe = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+/**
+ * Divide `src` in nodi: testo semplice e <span class="tk-…"> per i token riconosciuti. "text" resta senza colori.
+ * `mark` è un pezzo di testo da evidenziare (la frase di un esempio): vince sulle altre regole.
+ */
+export function highlight(src, lang, mark) {
   const rule = RULES[ALIAS[lang] ?? lang];
   if (!rule) return src;
-  const re = new RegExp(rule);
+  const re = mark ? new RegExp(`(?<h>${escapeRe(mark)})|${rule.source}`, rule.flags) : new RegExp(rule);
   const out = [];
   let last = 0;
   for (const m of src.matchAll(re)) {
@@ -39,7 +45,7 @@ export function highlight(src, lang) {
 }
 
 /** Un blocco di codice colorato. La barra con il titolo (nome del file, "terminal"…) c'è solo se c'è `title`. */
-export function Code({ code, lang = "jsx", title, className = "" }) {
+export function Code({ code, lang = "jsx", title, className = "", mark }) {
   return (
     <div className={`code ${className}`.trim()}>
       {title && (
@@ -48,7 +54,7 @@ export function Code({ code, lang = "jsx", title, className = "" }) {
         </div>
       )}
       <pre>
-        <code>{highlight(code.trim(), lang)}</code>
+        <code>{highlight(code.trim(), lang, mark)}</code>
       </pre>
     </div>
   );

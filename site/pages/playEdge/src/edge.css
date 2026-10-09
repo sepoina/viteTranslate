@@ -63,13 +63,16 @@ body {
   scroll-margin-top: 64px;
 }
 
+/* Alfa Slab One come i titoli della landing: peso 700 senza sintesi, vedi .page-hero h1 in theme.css. */
 .cases h2 {
   position: relative;
   margin: 0 0 1rem;
-  font-size: clamp(1.4rem, 3vw, 1.9rem);
-  font-weight: 600;
-  letter-spacing: -0.03em;
-  line-height: 1.2;
+  font-family: var(--display);
+  font-size: clamp(1.6rem, 3vw, 2.2rem);
+  font-weight: 700;
+  font-synthesis: none;
+  letter-spacing: 0;
+  line-height: 1.15;
 }
 
 .cases table {
@@ -274,7 +277,7 @@ body {
 }
 
 /* La dimensione che fa stare il sorgente nel palco: la larghezza divisa per i caratteri della riga
-   più lunga (un carattere di Geist Mono è largo 0.6em), l'altezza divisa per le righe. Mai sotto
+   più lunga (un carattere di IBM Plex Mono è largo 0.6em), l'altezza divisa per le righe. Mai sotto
    i 14 px (le righe lunghe vanno a capo), mai sopra i 32. --cols e --rows li scrive SourceDock. */
 .dock-body pre {
   margin: 0;

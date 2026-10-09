@@ -1,27 +1,25 @@
 import { Trans, version } from "@sepoina/vitetranslate/react";
 import CopyCommand from "./CopyCommand.jsx";
-import { Icon } from "./icons.jsx";
 import { DOCS, NPM, REPO } from "./links.js";
 
+// La banda verde finale e il piè di pagina. La banda è uguale nei due temi.
 export default function Outro() {
   return (
     <>
-      <section className="section outro-sec">
-        <div className="wrap">
-          <div className="outro" data-reveal>
-            <h2>
-              <Trans t="_%_Traduci la tua prima frase <em>in un minuto</em>._%_" />
-            </h2>
-            <p className="lead">
-              <Trans>_%_Un pacchetto, un plugin, una riga nel vite.config. Il resto lo vedi succedere._%_</Trans>
-            </p>
-            <div className="cta-row">
-              <CopyCommand />
-              <a className="btn btn-ghost" href={DOCS}>
-                <Trans>_%_Leggi la documentazione_%_</Trans>
-                <Icon name="arrow" size={18} />
-              </a>
-            </div>
+      <section className="cta">
+        <div className="wrap" data-reveal>
+          <h2>
+            <Trans t="_%_Traduci la tua prima frase <em>in un minuto</em>._%_" />
+          </h2>
+          <p className="cta-text">
+            <Trans>_%_Un pacchetto, un plugin, una riga nel vite.config. Il resto lo vedi succedere._%_</Trans>
+          </p>
+          <div className="cta-row">
+            <CopyCommand tone="ink" />
+            <a className="btn btn-ink" href={DOCS}>
+              <Trans>_%_Leggi la documentazione_%_</Trans>
+              <span aria-hidden="true">→</span>
+            </a>
           </div>
         </div>
       </section>
