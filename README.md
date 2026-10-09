@@ -4,9 +4,7 @@
 
 **A simpler translation workflow for React and Vite.**
 
-Write text naturally in JSX. viteTranslate extracts strings, keeps locale files in sync, and compiles translations as part of your Vite workflow.
-
-No hand-written keys. No separate extraction workflow. No extra runtime dependencies.
+Write text naturally in JSX. viteTranslate extracts strings, keeps locale files in sync, and compiles translations as part of your Vite workflow. <b> No hand-written keys. No separate extraction workflow. No extra runtime dependencies.</b>
 
 [![Vite](https://img.shields.io/badge/Vite-5%20%7C%206%20%7C%207%20%7C%208-646CFF?logo=vite&logoColor=white)](https://vite.dev)
 [![npm version](https://img.shields.io/npm/v/@sepoina/vitetranslate?logo=npm&logoColor=white&label=npm&color=CB3837)](https://www.npmjs.com/package/@sepoina/vitetranslate)
@@ -51,17 +49,18 @@ Keys are generated for you, tables stay in sync: new keys in, stale ones out, an
 
 Fill the tables by hand or let an [LLM](#-llm-auto-translation) do it. Each language compiles to its own chunk, loaded when selected.
 
-[**Try it in the playground →**](https://sepoina.github.io/viteTranslate/playground/) · [StackBlitz](https://stackblitz.com/github/sepoina/viteTranslate/tree/main/demo/Vite_8/minimal?file=locale%2Fit-IT.yml)
+[**Try it in the playground 🡭**](https://sepoina.github.io/viteTranslate/playground/) · [StackBlitz 🡭](https://stackblitz.com/github/sepoina/viteTranslate/tree/main/demo/Vite_8/minimal?file=locale%2Fit-IT.yml)
 
-## ✨ What you get
-
-**Less manual work.** Extraction and sync run inside Vite, not as a separate command to remember.
-
-**A lightweight runtime.** 5 kB gzip, no extra runtime dependencies, and no message parsing at runtime.
-
-**Tools where you need them.** A CLI for sync, CI checks and guarded LLM translation; a VS Code extension showing every string and its status.
-
-**Ready for real interfaces.** [ICU](doc/icu.md) plurals, select, numbers and dates; lazy-loaded locales; the source text as fallback until translated; a safe subset of HTML tags.
+>[!TIP]
+> ##  What you get
+>
+> **Less manual work.** Extraction and sync run inside Vite, not as a separate command to remember.
+>
+>**A lightweight runtime.** 5 kB gzip, no extra runtime dependencies, and no message parsing at runtime.
+>
+>**Tools where you need them.** A CLI for sync, CI checks and guarded LLM translation; a VS Code extension showing every string and its status.
+>
+>**Ready for real interfaces.** [ICU](doc/icu.md) plurals, select, numbers and dates; lazy-loaded locales; the source text as fallback until translated; a safe subset of HTML tags.
 
 ## 🚀 Quick start
 
@@ -100,7 +99,7 @@ import { TransContainer } from "@sepoina/vitetranslate/react";
 Mark text with `Trans`, run `npx vitetranslate` to create the source table, `npx vitetranslate --add fr-FR` to add a language.
 
 <details>
-<summary><b>Next steps: plain strings, plurals, filling tables, switching language</b></summary>
+<summary>🡷 <b>Next steps: plain strings, plurals, filling tables, switching language</b></summary>
 
 <br />
 
@@ -143,7 +142,7 @@ const { proposeNewLanguage } = useTransLanguage();
 </details>
 
 <details>
-<summary><b>CLI commands: sync, add languages, CI check, LLM</b></summary>
+<summary>🡷 <b>CLI commands: sync, add languages, CI check, LLM</b></summary>
 
 <br />
 
@@ -164,19 +163,19 @@ Full reference: **[doc/cli.md](doc/cli.md)**.
 
 </details>
 
-[**Full setup and React API →**](doc/react-api.md)
+[**&nbsp;&nbsp; Full setup and React API 🡭**](doc/react-api.md)
 
 ## VS Code extension
 
 Every marked string with its translation status, locale files opened at the key, Sync and LLM one click away.
 
-[**Install from the Marketplace →**](https://marketplace.visualstudio.com/items?itemName=sepoina.vitetranslate-ide) · [Extension guide](doc/ide-panel.md)
+[**Install from the Marketplace 🡭**](https://marketplace.visualstudio.com/items?itemName=sepoina.vitetranslate-ide) · [Extension guide 🡭](doc/ide-panel.md)
 
 ## LLM auto-translation
 
 `npx vitetranslate --llm-translate` fills missing entries through any OpenAI-compatible API or your own driver. It prints the cost first, respects your budget, validates every result before writing, and never runs during `vite dev`.
 
-[**LLM guide →**](doc/llm.md) · [**Translated restaurant demo →**](https://sepoina.github.io/viteTranslate/llmrestaurant/)
+[**LLM guide 🡭**](doc/llm.md) · [**Translated restaurant demo 🡭**](https://sepoina.github.io/viteTranslate/llmrestaurant/)
 
 ---
 
@@ -202,7 +201,7 @@ Every marked string with its translation status, locale files opened at the key,
 
 <details>
 <summary>
-<b>Notes on the comparison, and what each feature buys you</b>
+🡷 <b>Notes on the comparison, and what each feature buys you</b>
 </summary>
 
 <br />
@@ -223,19 +222,19 @@ Every marked string with its translation status, locale files opened at the key,
 
 </details>
 
----
 
-## Guides
+>[!IMPORTANT]
+> ## Guides
+>
+> - [CLI](doc/cli.md) · [React API](doc/react-api.md) · [Plugin options](doc/plugin-options.md)
+> - [Translation file format](doc/translations.md) · [ICU messages](doc/icu.md) · [LLM translation](doc/llm.md)
+> - [VS Code panel](doc/ide-panel.md) · [Architecture](doc/structure.md) · [Known limitations](doc/limitations.md) · [Requirements](doc/requirements.md) · [Live examples](doc/live-examples.md)
+>
+> ## Links
+>
+> [Live site](https://sepoina.github.io/viteTranslate/) · [Discussions](https://github.com/sepoina/viteTranslate/discussions) · [Issues](https://github.com/sepoina/viteTranslate/issues) · [Provenance](https://docs.npmjs.com/trusted-publishers/) · [Apache-2.0 license](LICENSE)
 
-- [CLI](doc/cli.md) · [React API](doc/react-api.md) · [Plugin options](doc/plugin-options.md)
-- [Translation file format](doc/translations.md) · [ICU messages](doc/icu.md) · [LLM translation](doc/llm.md)
-- [VS Code panel](doc/ide-panel.md) · [Architecture](doc/structure.md) · [Known limitations](doc/limitations.md) · [Requirements](doc/requirements.md) · [Live examples](doc/live-examples.md)
 
-## Links
-
-[Live site](https://sepoina.github.io/viteTranslate/) · [Discussions](https://github.com/sepoina/viteTranslate/discussions) · [Issues](https://github.com/sepoina/viteTranslate/issues) · [Provenance](https://docs.npmjs.com/trusted-publishers/) · [Apache-2.0 license](LICENSE)
-
----
 
 ☕ [PayPal](https://www.paypal.com/paypalme/giancarloghigi) · [Buy Me a Coffee](https://www.buymeacoffee.com/giancarlogy)
 if it saved you a few translation keys.
