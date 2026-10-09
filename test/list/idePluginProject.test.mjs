@@ -103,7 +103,7 @@ console.log("\n== Settings: il logo e VERSION ==");
   eq("la pagina: in testa solo il logo, poi Config, poi Version", [true, false, true],
     [/<header class="testata">\s*<svg class="logo"[^]*?<\/svg>\s*<\/header>\s*<section>\s*<h2>Config/.test(html), html.includes('id="cliVersion"'),
       /<h2>Config<\/h2>[^]*<section id="versions">\s*<h2>Version<\/h2>/.test(html)]);
-  eq("VERSION: quattro righe, nell'ordine", ["VS Code extension", "Project library", "Requested by the extension", "IDE API present/requested"], VERSION_ROWS.map((r) => r.title));
+  eq("VERSION: quattro righe, nell'ordine", ["VS Code extension", "Project library", "Min. required by extension", "IDE API present/required"], VERSION_ROWS.map((r) => r.title));
   eq("…i posti per lo stato e le minime, fisse", [true, true, true, true, true, true],
     [...["extensionVersion", "libraryVersion", "ideVersion", "libraryRow", "ideRow"].map((id) => html.includes(`id="${id}"`)),
       html.includes(`<span class="valore">${LIB_MIN}</span>`) && html.includes(`<span id="ideVersion">—</span>/${IDE_API_MIN}</span>`)]);

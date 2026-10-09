@@ -34,8 +34,8 @@ import { LIB_MIN, IDE_API_MIN } from "../../../probes/markedScan.mjs";
 export const VERSION_ROWS = [
   { icon: "extensions", title: "VS Code extension", value: `<span id="extensionVersion">—</span>`, tip: "The viteTranslate extension you're running." },
   { id: "libraryRow", icon: "package", title: "Project library", value: `<span id="libraryVersion">—</span>` },
-  { icon: "git-branch-conflicts", title: "Requested by the extension", value: LIB_MIN, tip: "The oldest vitetranslate this extension works with." },
-  { id: "ideRow", icon: "plug", title: "IDE API present/requested", value: `<span id="ideVersion">—</span>/${IDE_API_MIN}` },
+  { icon: "git-branch-conflicts", title: "Min. required by extension", value: LIB_MIN, tip: "The oldest vitetranslate this extension works with." },
+  { id: "ideRow", icon: "plug", title: "IDE API present/required", value: `<span id="ideVersion">—</span>/${IDE_API_MIN}` },
 ];
 
 const versionRowHtml = ({ id, icon, title, value, tip }) =>
