@@ -2,13 +2,14 @@
 #      italiano (Italia) (sourceLanguage)
 #       |    code: it-IT
 #       |    missing key: 0
-#       |    processed: 2026-10-09 16:35
+#       |    processed: 2026-10-09 17:21
 #       |    TableVersion: 260905
 #  -------------------------------------------------
 #
 CodeDemo_1w62voa: "La frase resta nel JSX. Per ogni lingua il plugin tiene una tabella YAML; cambiare lingua carica solo quella."
 CodeDemo_xfxax9: "Un sorgente, <em>tante tabelle</em>."
 Compare_13on1a6: "Con strumenti o configurazione aggiuntivi"
+Compare_161gvb5: "Estensione VS Code ufficiale"
 Compare_1adahbh: "Confronto aggiornato a settembre 2026: i18next 26 + react-i18next 17, Lingui 6, FormatJS (react-intl 12)."
 Compare_1e0cis9: "Non offerto dal progetto"
 Compare_1fagnuu: "Nessun parser dei messaggi a runtime"

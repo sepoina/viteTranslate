@@ -5,19 +5,48 @@ import SIZE from "./theme/runtimeSize.json";
 
 const COLUMNS = ["viteTranslate", "i18next", "Lingui", "FormatJS"];
 
+// LINKED-DATA: README.md, tabella di «Why viteTranslate».
 // y = sì, n = no, p = con un'aggiunta ufficiale o configurazione in più. Le righe vengono dalla
 // tabella del README (manca solo la licenza), e le note che giustificano ogni casella stanno lì:
 // una casella cambiata qui si cambia anche là, con la sua nota, e con la data qui sotto.
+// `doc` è la guida del repo che spiega la soluzione di viteTranslate per quella riga: la stessa
+// a cui porta il nome della riga nel README. Le etichette en-US usano le parole del README.
 const ROWS = [
-  { label: "_%_Traduzione automatica con LLM_%_", v: ["y", "p", "n", "n"] },
-  { label: "_%_Estrazione dentro il ciclo di Vite_%_", v: ["y", "n", "n", "n"] },
-  { label: "_%_Zero dipendenze a runtime_%_", v: ["y", "n", "n", "n"] },
-  { label: "_%_Plugin Vite ufficiale_%_", v: ["y", "n", "y", "y"] },
-  { label: "_%_Sintassi senza chiavi_%_", v: ["y", "p", "y", "p"] },
-  { label: "_%_Runtime %s gzip_%_", a: [SIZE.compare], v: ["y", "n", "y", "n"] },
-  { label: "_%_ICU MessageFormat (plurali, select, date)_%_", v: ["y", "p", "y", "y"] },
-  { label: "_%_Nessun parser dei messaggi a runtime_%_", v: ["y", "n", "p", "p"] },
-  { label: "_%_Lingue caricate a richiesta_%_", v: ["y", "y", "y", "y"] },
+  { label: "_%_Traduzione automatica con LLM_%_", doc: "doc/llm.md", v: ["y", "p", "n", "n"] },
+  {
+    label: "_%_Estrazione dentro il ciclo di Vite_%_",
+    doc: "doc/structure.md#auto-sync-at-config-time",
+    v: ["y", "n", "n", "n"],
+  },
+  {
+    label: "_%_Zero dipendenze a runtime_%_",
+    doc: "doc/requirements.md#it-never-reaches-your-bundle",
+    v: ["y", "n", "n", "n"],
+  },
+  { label: "_%_Plugin Vite ufficiale_%_", doc: "doc/plugin-options.md", v: ["y", "n", "y", "y"] },
+  { label: "_%_Estensione VS Code ufficiale_%_", doc: "doc/ide-panel.md", v: ["y", "n", "n", "n"] },
+  {
+    label: "_%_Sintassi senza chiavi_%_",
+    doc: "doc/react-api.md#write-jsx-inside-translate",
+    v: ["y", "p", "y", "p"],
+  },
+  {
+    label: "_%_Runtime %s gzip_%_",
+    a: [SIZE.compare],
+    doc: "doc/structure.md#phase-4--runtime-the-resolution-chain",
+    v: ["y", "n", "y", "n"],
+  },
+  { label: "_%_ICU MessageFormat (plurali, select, date)_%_", doc: "doc/icu.md", v: ["y", "p", "y", "y"] },
+  {
+    label: "_%_Nessun parser dei messaggi a runtime_%_",
+    doc: "doc/structure.md#2b-table-compilation-pre-building-values",
+    v: ["y", "n", "p", "p"],
+  },
+  {
+    label: "_%_Lingue caricate a richiesta_%_",
+    doc: "doc/react-api.md#preloading-suspense-and-the-initial-flash",
+    v: ["y", "y", "y", "y"],
+  },
 ];
 
 const GLYPHS = { y: "✓", p: "–", n: "✕" };
@@ -72,7 +101,9 @@ export default function Compare() {
                 {ROWS.map((row) => (
                   <tr key={row.label}>
                     <th scope="row">
-                      <Trans t={row.label} a={row.a} />
+                      <a href={`${REPO}/blob/main/${row.doc}`}>
+                        <Trans t={row.label} a={row.a} />
+                      </a>
                     </th>
                     {row.v.map((kind, n) => (
                       <td key={COLUMNS[n]} className={n === 0 ? "col-us" : undefined}>

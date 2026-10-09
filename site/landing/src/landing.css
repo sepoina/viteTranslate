@@ -748,6 +748,17 @@ ul {
   text-align: left;
 }
 
+/* Il nome della riga porta alla guida che ne spiega la soluzione: sottolineatura leggera,
+   come i link del testo, che si accende al passaggio. */
+.compare tbody th a {
+  text-decoration: underline;
+  text-decoration-color: var(--link-line);
+}
+
+.compare tbody th a:hover {
+  text-decoration-color: var(--accent);
+}
+
 .compare td {
   text-align: center;
 }

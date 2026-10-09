@@ -2,13 +2,14 @@
 #      中文（中国）
 #       |    code: zh-CN
 #       |    missing key: 0
-#       |    processed: 2026-10-09 16:35
+#       |    processed: 2026-10-09 17:21
 #       |    TableVersion: 260905
 #  -------------------------------------------------
 #
 CodeDemo_1w62voa: "句子留在 JSX 里。插件为每种语言维护一张 YAML 表；切换语言只会加载对应的那一张。"
 CodeDemo_xfxax9: "一份源码，<em>多张表</em>。"
 Compare_13on1a6: "需要额外工具或配置"
+Compare_161gvb5: "官方 VS Code 扩展"
 Compare_1adahbh: "对比截至 2026 年 9 月：i18next 26 + react-i18next 17、Lingui 6、FormatJS（react-intl 12）。"
 Compare_1e0cis9: "项目未提供"
 Compare_1fagnuu: "运行时无需解析消息"

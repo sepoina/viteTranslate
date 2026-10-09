@@ -13,10 +13,10 @@
 
 ## REGOLE DI DOCUMENTAZIONE
 
-- README.md inferiore a 10kb, le sezioni nei tags "details" non contano, usa il codice sotto per calcolare. In caso di esubero segui le regole di compressione della documentazione. 
+- README.md inferiore a 10kb, conta solo il testo che si legge: non contano le sezioni nei tags "details", i commenti HTML e gli indirizzi dei link (il `(url)` di link e immagini markdown, gli attributi `href`/`src` HTML; il testo del link resta). Usa il codice sotto per calcolare. In caso di esubero segui le regole di compressione della documentazione.
 
 ```bash
-node -e "const s=require('fs').readFileSync('README.md','utf8').replace(/<!--[\s\S]*?-->/g,'').replace(/<details[\s\S]*?<\/details>/gi,'');console.log(Buffer.byteLength(s),'bytes',s.split('\n').length,'lines')"
+node -e "const s=require('fs').readFileSync('README.md','utf8').replace(/<!--[\s\S]*?-->/g,'').replace(/<details[\s\S]*?<\/details>/gi,'').replace(/\]\([^)]*\)/g,']').replace(/\s(?:href|src)=\x22[^\x22]*\x22/gi,'');console.log(Buffer.byteLength(s),'bytes',s.split('\n').length,'lines')"
 ```
 
 - ogni file di documentazione deve essere rivolto all'utente, ad incentivo. Discorsività minima per una lettura veloce, elementi essenziali, eventuale ironia.
