@@ -17,7 +17,7 @@ import {
   PLACEHOLDER, TRANSLATE_TEXT_PROPS, mayHaveMarkers, markerSyntaxOf, DEFAULT_MARKERS,
 } from "../../../lib/markerSyntax.js";
 import {
-  patternsFor, macroNames, tsNames, tagOpenRe, taggedTemplateRe, scanLiterals, escapeRe,
+  patternsFor, macroNames, tsNames, tagOpenRe, taggedTemplateRe, scanLiterals, escapeRe, groupSpans,
 } from "./metatagPatterns.mjs";
 
 const PROP_DEL_TESTO = new Set(TRANSLATE_TEXT_PROPS);
@@ -209,9 +209,12 @@ function translate(text, i, nome, sint) {
 }
 
 // ts`…`: il tag e i backtick sono la parte "componente", il contenuto è il messaggio.
+// Offsets from the match itself (no `indices`, see groupSpans): the tag opens the match, the
+// content ends right before the closing backtick, the last character.
 function tagged(text, m, sint) {
-  const [ns] = m.indices[1];
-  const [cs, ce] = m.indices[2];
+  const ns = m.index;
+  const ce = m.index + m[0].length - 1;
+  const cs = ce - m[2].length;
   const [s, e] = senzaSpazi(text, [cs, ce]);
   if (s >= e) return null;
   const delimiters = delimitatoriDentro(text, s, e, sint);
@@ -223,15 +226,15 @@ function tagged(text, m, sint) {
   };
 }
 
-// Le forme in linea: i delimitatori sono i gruppi `a` e `z` della regex.
-function inLinea(form, text, m, a, z, buchiDi) {
-  const apre = m.indices[a];
-  const chiude = m.indices[z];
+// Le forme in linea: i delimitatori sono i gruppi `a` e `z` della regex. `g`: groupSpans of the match.
+function inLinea(form, text, g, a, z, buchiDi) {
+  const apre = g[a];
+  const chiude = g[z];
   const p = parti(text, apre[0], chiude[1], [apre, chiude], buchiDi);
   return {
     form: form === "jsxText" && p.holes.length ? "sentence" : form,
     start: apre[0], end: chiude[1], ...p, delimiters: [apre, chiude], componentTags: [],
-    span: m.indices[0],
+    span: g[0],
   };
 }
 
@@ -307,13 +310,15 @@ export function findMetatags(text, markers = DEFAULT_MARKERS) {
   }
   if (ts.size) {
     for (const m of t.matchAll(taggedTemplateRe(ts))) {
-      const backtick = m.indices[2][0] - 1;
-      if (èLetterale(backtick, m.indices[0][1])) candidati.push(tagged(t, m, sint));
+      const fine = m.index + m[0].length;
+      const backtick = fine - 1 - m[2].length - 1; // the opening one, right before the content
+      if (èLetterale(backtick, fine)) candidati.push(tagged(t, m, sint));
     }
   }
-  for (const m of t.matchAll(TEMPLATE_RE)) if (èLetterale(...m.indices[0])) candidati.push(inLinea("template", t, m, 1, 3, buchiTemplate));
-  for (const m of t.matchAll(STRING_RE)) if (èLetterale(...m.indices[0])) candidati.push(inLinea("string", t, m, 2, 4, null));
-  for (const m of t.matchAll(JSX_TEXT_RE)) if (!inLetterale(m.index)) candidati.push(inLinea("jsxText", t, m, 1, 3, buchiJsx));
+  const intero = (m) => [m.index, m.index + m[0].length];
+  for (const m of t.matchAll(TEMPLATE_RE)) if (èLetterale(...intero(m))) candidati.push(inLinea("template", t, groupSpans(m, 1), 1, 3, buchiTemplate));
+  for (const m of t.matchAll(STRING_RE)) if (èLetterale(...intero(m))) candidati.push(inLinea("string", t, groupSpans(m), 2, 4, null));
+  for (const m of t.matchAll(JSX_TEXT_RE)) if (!inLetterale(m.index)) candidati.push(inLinea("jsxText", t, groupSpans(m), 1, 3, buchiJsx));
   // I presi, in ordine di inizio. Un candidato si confronta solo con quelli che possono toccarlo:
   // da dove si inserirebbe, all'indietro finché un preso comincia prima di (suo inizio − il preso
   // più lungo), e in avanti finché cominciano prima della sua fine.

@@ -15,11 +15,13 @@
 // file js/ts (activationEvents in package.json) e il pannello resta chiuso.
 import * as vscode from "vscode";
 import { findMetatags } from "./metatagScan.mjs";
-import { HIGHLIGHT_OFF, DEFAULT_STYLE, styleById } from "./highlightStyles.mjs";
+import { HIGHLIGHT_OFF, DEFAULT_STYLE, ACCENT_RULER, styleById } from "./highlightStyles.mjs";
 import { PARTS, renderOptionsOf, rangesOf, subtractRanges } from "./decorationPlan.mjs";
 
 /** L'impostazione, nella sezione "vitetranslate". */
 export const HIGHLIGHT_SETTING = "highlightStyle";
+/** The scrollbar mark in the accent color (ACCENT_RULER), same section; on by default. */
+export const RULER_SETTING = "highlightRuler";
 // I linguaggi che legge walkSource (EXT_RE in lib/dev/vite/uty/walkSource.js), come li chiama VS Code.
 const LANGUAGES = new Set(["javascript", "javascriptreact", "typescript", "typescriptreact"]);
 // Quanto aspettare dopo l'ultimo tasto prima di ricolorare.
@@ -41,6 +43,7 @@ export class Highlighter {
     this.log = log;
     this.markers = markers ?? null;
     this.stile = null; // lo stile disegnato adesso (una voce di STYLES), null se spento
+    this.righello = null; // whether the accent scrollbar mark is drawn now (RULER_SETTING)
     this.tipi = null; // parte -> TextEditorDecorationType (o null), dello stile disegnato
     this.anteprima = null; // l'id in prova dal comando di scelta, o null
     this.timer = new Map(); // uri -> la pausa in corso
@@ -51,7 +54,7 @@ export class Highlighter {
       vscode.window.onDidChangeTextEditorSelection((e) => this.selezionato(e.textEditor)),
       vscode.workspace.onDidChangeTextDocument((e) => this.cambiato(e.document)),
       vscode.workspace.onDidChangeConfiguration((e) => {
-        if (e.affectsConfiguration(`vitetranslate.${HIGHLIGHT_SETTING}`)) this.applica();
+        if (e.affectsConfiguration(`vitetranslate.${HIGHLIGHT_SETTING}`) || e.affectsConfiguration(`vitetranslate.${RULER_SETTING}`)) this.applica();
       }),
       // Una lettura arrivata può cambiare i delimitatori di un file: la chiave della lettura lo vede.
       ...(this.markers ? [this.markers.onDidChange(() => this.ridisegna())] : []),
@@ -63,6 +66,11 @@ export class Highlighter {
   get configured() {
     const id = vscode.workspace.getConfiguration("vitetranslate").get(HIGHLIGHT_SETTING, DEFAULT_STYLE);
     return id === HIGHLIGHT_OFF || styleById(id) ? id : DEFAULT_STYLE;
+  }
+
+  /** The accent scrollbar mark: on unless the setting says `false`. */
+  get ruler() {
+    return vscode.workspace.getConfiguration("vitetranslate").get(RULER_SETTING, true) !== false;
   }
 
   /** L'id disegnato adesso: quello in anteprima, o quello delle impostazioni. */
@@ -81,12 +89,16 @@ export class Highlighter {
   applica() {
     const id = this.current;
     const stile = id === HIGHLIGHT_OFF ? null : styleById(id);
-    if (stile === this.stile) return;
+    const righello = this.ruler;
+    if (stile === this.stile && righello === this.righello) return;
     for (const t of Object.values(this.tipi ?? {})) t?.dispose();
     this.stile = stile;
+    this.righello = righello;
     this.tipi = null;
     if (stile) {
-      const opzioni = renderOptionsOf(stile, (c) => new vscode.ThemeColor(c), vscode.OverviewRulerLane);
+      // The accent mark takes the place of the style's own one, if it has one.
+      const disegno = righello ? { ...stile, overviewRuler: ACCENT_RULER } : stile;
+      const opzioni = renderOptionsOf(disegno, (c) => new vscode.ThemeColor(c), vscode.OverviewRulerLane);
       this.tipi = Object.fromEntries(PARTS.map((p) => [p, opzioni[p] ? vscode.window.createTextEditorDecorationType(opzioni[p]) : null]));
     }
     this.ridisegna();

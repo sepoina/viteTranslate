@@ -216,6 +216,9 @@ const imposta = (id) => vscode.workspace.getConfiguration("vitetranslate").updat
   const css = editor(documento(`.a { content: "_%_no_%_"; }`, "css", "a.css"));
   stato.visibleTextEditors = [ed, css];
   stato.config["vitetranslate.highlightStyle"] = "escape-chip";
+  // The accent scrollbar mark off: each style as the catalog describes it (its own ruler, if any).
+  // The default, on, is in the next block.
+  stato.config["vitetranslate.highlightRuler"] = false;
   const h = new Highlighter({ log: () => {} });
   const opzioniDi = (tipo) => Object.fromEntries(Object.entries(tipo.options).map(([k, v]) => [k, v?.id ?? v]));
 
@@ -316,6 +319,34 @@ const imposta = (id) => vscode.workspace.getConfiguration("vitetranslate").updat
   h.dispose();
   delete stato.configWorkspace["vitetranslate.highlightStyle"];
   delete stato.config["vitetranslate.highlightStyle"];
+  delete stato.config["vitetranslate.highlightRuler"];
+}
+
+// The accent scrollbar mark (vitetranslate.highlightRuler): on by default, for every style.
+{
+  const APP = `const A = () => <p title="_%_Ciao_%_">x</p>;\n`;
+  const ed = editor(documento(APP));
+  stato.visibleTextEditors = [ed];
+  const h = new Highlighter({ log: () => {} });
+  const righello = () => h.tipi?.ruler ? Object.fromEntries(Object.entries(h.tipi.ruler.options).map(([k, v]) => [k, v?.id ?? v])) : null;
+  const ACCENTO = { overviewRulerColor: "focusBorder", overviewRulerLane: vscode.OverviewRulerLane.Center };
+  const segnaRighello = (id, valore) => vscode.workspace.getConfiguration("vitetranslate").update(id, valore, vscode.ConfigurationTarget.Global);
+
+  eq("default style, setting unset: the accent mark, center lane", ACCENTO, righello());
+  eq("…on the whole metatag", [[0, 26, 0, 36]], mostra(ed, h).ruler);
+  await imposta("escape-chip");
+  eq("escape-chip: the accent takes the place of its own mark", ACCENTO, righello());
+  await segnaRighello("highlightRuler", false);
+  eq("setting off: escape-chip back to its own mark", { overviewRulerColor: "editorOverviewRuler.infoForeground", overviewRulerLane: vscode.OverviewRulerLane.Right }, righello());
+  await imposta("framed-box");
+  eq("setting off: framed-box has no mark", null, righello());
+  await segnaRighello("highlightRuler", true);
+  eq("back on: the mark returns without changing style", [ACCENTO, "framed-box"], [righello(), h.stile.id]);
+  await imposta("off");
+  eq("highlighting off: no decorations at all, mark included", 0, vivi().length);
+  h.dispose();
+  delete stato.config["vitetranslate.highlightStyle"];
+  delete stato.config["vitetranslate.highlightRuler"];
 }
 
 console.log("\n== 5. attivata da un file js: il pannello aspetta ==");
@@ -421,6 +452,44 @@ console.log("\n== 7. i delimitatori del progetto e i nomi brevi (4.7.0) ==");
   const babel = [];
   extractMarkers(caso, { filename: join(tmpdir(), "src", "Caso.tsx"), table: {}, rewrite: false, baseDir: tmpdir(), hints: {}, markers: FRECCE, warn: () => {}, onMarker: (v) => babel.push(v.form === "attribute" ? "string" : v.form) });
   eq("le forme sono quelle di Babel (stessi delimitatori)", babel.sort(), findMetatags(caso, FRECCE).map((m) => m.form).sort());
+}
+
+console.log("\n== 8. another extension's RegExp polyfill (one extension host for all) ==");
+{
+  // Todo Tree installs the regexp-match-indices shim: every match gets an `indices` getter that
+  // throws "Invalid flags: dg". The scanner must not read `indices`, so the same text gives the
+  // same metatags with the shim on. Simulated here, restored in `finally`.
+  const testo = [
+    IMP,
+    'const a = "_%_Uno_%_";',
+    "const b = `_%_Ciao ${nome}_%_`;",
+    "const c = <h1>_%_Titolo_%_</h1>;",
+    "const d = <p>_%_Ciao <b>{n}</b> bene_%_</p>;",
+    "const e = <Translate>Ciao <b>{n}</b></Translate>;",
+    "const ts = useTranslateToString();\nconst f = ts`Ciao ${n}`;",
+  ].join("\n");
+  const frecce = [
+    'const a = "≼Uno≽";',
+    "const b = `≼Ciao ${nome}≽`;",
+    "const d = <p>≼Ciao <b>{n}</b> bene≽</p>;",
+  ].join("\n");
+  const prima = [findMetatags(testo), findMetatags(frecce, { start: "≼", end: "≽" })];
+  const nativa = RegExp.prototype.exec;
+  let dopo;
+  try {
+    RegExp.prototype.exec = function (s) {
+      const m = nativa.call(this, s);
+      if (m) Object.defineProperty(m, "indices", { get() { throw new SyntaxError("Invalid flags: dg"); } });
+      return m;
+    };
+    dopo = [findMetatags(testo), findMetatags(frecce, { start: "≼", end: "≽" })];
+  } catch (e) {
+    dopo = `throws ${e.message}`;
+  } finally {
+    RegExp.prototype.exec = nativa;
+  }
+  eq("every form is found without the shim", ["ts", "string", "template", "jsxText", "sentence", "translate"].sort(), prima[0].map((m) => m.form).sort());
+  eq("with the shim: same metatags, no exception", prima, dopo);
 }
 
 console.log(fail ? `\n${fail} KO` : "\ntutto ok");

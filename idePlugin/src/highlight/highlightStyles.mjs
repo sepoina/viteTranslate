@@ -30,6 +30,13 @@ export const HIGHLIGHT_OFF = "off";
 /** Lo stile di serie: in cima al catalogo, dopo Off. */
 export const DEFAULT_STYLE = "framed-box";
 
+/**
+ * The scrollbar mark every style gets while `vitetranslate.highlightRuler` is on (the default): the
+ * theme's accent, in the center lane — errors use the right one, git changes the left. It replaces
+ * a style's own mark (Escape chip's), so a metatag never has two.
+ */
+export const ACCENT_RULER = { color: "focusBorder", lane: "Center" };
+
 // I colori che prendono il posto degli scope TextMate dello schema di partenza: niente grammatica,
 // il testo si colora con una decorazione (vedi il piano idePlugin_highlight, "Decisioni").
 // charts.yellow è editorWarning.foreground: un oro che ogni tema definisce. textPreformat.foreground

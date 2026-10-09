@@ -2,7 +2,7 @@
   "name": "vitetranslate-ide",
   "displayName": "viteTranslate",
   "description": "Your viteTranslate setup at a glance, in its own panel, and your marked strings highlighted as you type.",
-  "version": "0.9.2",
+  "version": "0.9.3",
   "preview": true,
   "publisher": "sepoina",
   "author": {
@@ -132,6 +132,11 @@
             "Like selection"
           ],
           "markdownDescription": "How marked strings stand out in `.js`, `.jsx`, `.ts` and `.tsx` files: `_%_…_%_` (or your project's `markerStart`/`markerEnd`), `<Trans>…</Trans>`, `` trans`…` ``. Colors come from your theme. To try them all live, run **viteTranslate: Choose highlight style…** from the Command Palette."
+        },
+        "vitetranslate.highlightRuler": {
+          "type": "boolean",
+          "default": true,
+          "markdownDescription": "Also mark highlighted strings in the scrollbar, where VS Code shows errors: your theme's accent color (`focusBorder`), in the middle lane. Off: only the **Escape chip** style keeps a mark of its own."
         }
       }
     },

@@ -90,6 +90,7 @@ From the panel, or the Command Palette under **viteTranslate:**
 | Setting | Default | Does |
 | --- | --- | --- |
 | `vitetranslate.highlightStyle` | `framed-box` | How marked strings stand out, or `off` |
+| `vitetranslate.highlightRuler` | `true` | Marks them in the scrollbar too, in your theme's accent color |
 | `vitetranslate.detailCommand` | `false` | Terminals also show how the CLI is really launched: folder, runtime, runner, CLI file |
 
 ## 🔒 Safe by design

@@ -26,14 +26,17 @@ const memoria = new Map();
 /**
  * Le regex dei testi marcati per una coppia di delimitatori, costruite una volta per coppia.
  * Sono regex con `/g`; chi le usa con `matchAll` non tocca `lastIndex`, quindi condividerle va bene.
+ * No `d` flag: the offsets come from `groupSpans` (see there why).
  *
  * - STRING_RE: una stringa fra virgolette avvolta per intero (`"_%_ciao_%_"`), anche un attributo JSX
- *   che va a capo. Gruppi: 1 la virgoletta, 2 apre, 3 il contenuto, 4 chiude. Flag `d`: gli offset.
+ *   che va a capo. Gruppi: 1 la virgoletta, 2 apre, 3 il contenuto, 4 chiude. Groups 1–4 are
+ *   contiguous from the start of the match: `groupSpans(m, 0)`.
  * - TEMPLATE_RE: un template literal avvolto per intero, con o senza `${…}`. Gruppi: 1 apre,
- *   2 contenuto, 3 chiude.
+ *   2 contenuto, 3 chiude. Contiguous after the opening backtick: `groupSpans(m, 1)`.
  * - JSX_TEXT_RE: un testo JSX avvolto: comincia dopo un tag o un `{…}`, finisce prima di un tag o di
  *   un `{`. Il primo delimitatore dopo quello che apre è quello che chiude, con tag e valori in mezzo
- *   (la frase della macro). Gruppi: 1 apre, 2 contenuto, 3 chiude.
+ *   (la frase della macro). Gruppi: 1 apre, 2 contenuto, 3 chiude. The lookarounds take no room:
+ *   `groupSpans(m, 0)`.
  *
  * @param {{ start: string, end: string }} [markers] - i delimitatori del progetto; default `_%_`
  */
@@ -44,9 +47,9 @@ export function patternsFor(markers = DEFAULT_MARKERS) {
     const O = escapeRe(markers.start);
     const C = escapeRe(markers.end);
     p = {
-      STRING_RE: new RegExp(String.raw`(["'])(${O})((?:(?!\1)[^\\]|\\[\s\S])*?)(${C})\1`, "gd"),
-      TEMPLATE_RE: new RegExp(String.raw`\x60(${O})(${TEMPLATE_BODY})(${C})\x60`, "gd"),
-      JSX_TEXT_RE: new RegExp(String.raw`(?<=[>}]\s*)(${O})((?:(?!${O})[\s\S])*?)(${C})(?=\s*[<{])`, "gd"),
+      STRING_RE: new RegExp(String.raw`(["'])(${O})((?:(?!\1)[^\\]|\\[\s\S])*?)(${C})\1`, "g"),
+      TEMPLATE_RE: new RegExp(String.raw`\x60(${O})(${TEMPLATE_BODY})(${C})\x60`, "g"),
+      JSX_TEXT_RE: new RegExp(String.raw`(?<=[>}]\s*)(${O})((?:(?!${O})[\s\S])*?)(${C})(?=\s*[<{])`, "g"),
     };
     memoria.set(chiave, p);
   }
@@ -91,9 +94,36 @@ export function tsNames(text, hooks) {
 /** Dove comincia un tag con uno di questi nomi; il resto del tag lo legge fineTag. Gruppo 1: il nome. */
 export const tagOpenRe = (nomi) => new RegExp(String.raw`<(${[...nomi].map(escapeRe).join("|")})(?=[\s/>])`, "g");
 
-/** Un template con uno di questi tag, `ts\`…\``. Gruppi: 1 il tag, 2 il contenuto. */
+/**
+ * Un template con uno di questi tag, `ts\`…\``. Gruppi: 1 il tag, 2 il contenuto. Not contiguous
+ * (spaces may sit between tag and backtick): the content ends one character before the match does.
+ */
 export const taggedTemplateRe = (nomi) =>
-  new RegExp(String.raw`(?<![\w$.])(${[...nomi].map(escapeRe).join("|")})\s*\x60(${TEMPLATE_BODY})\x60`, "gd");
+  new RegExp(String.raw`(?<![\w$.])(${[...nomi].map(escapeRe).join("|")})\s*\x60(${TEMPLATE_BODY})\x60`, "g");
+
+/**
+ * The `[start, end]` of the whole match (index 0) and of each group, like `match.indices` — for
+ * patterns whose groups are contiguous, starting `first` characters after the match.
+ *
+ * Why not the `d` flag and `match.indices`: every extension shares one extension host, and some
+ * install a global polyfill for `indices` that rejects the `d` flag (Todo Tree's
+ * regexp-match-indices shim throws "Invalid flags: dg"). Reading `indices` there broke the
+ * highlighting for every file; summing group lengths depends on nobody.
+ *
+ * @param {RegExpMatchArray} m
+ * @param {number} [first] - characters between the start of the match and group 1
+ * @returns {Array<[number, number]>}
+ */
+export function groupSpans(m, first = 0) {
+  const spans = [[m.index, m.index + m[0].length]];
+  let pos = m.index + first;
+  for (let k = 1; k < m.length; k++) {
+    const end = pos + (m[k]?.length ?? 0);
+    spans.push([pos, end]);
+    pos = end;
+  }
+  return spans;
+}
 
 // I letterali e i commenti del file, in un giro solo da sinistra: una stringa consumata prima non
 // apre un commento ("http://…"), un commento consumato prima non apre una stringa. Le accortezze
