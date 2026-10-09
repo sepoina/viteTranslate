@@ -2,7 +2,7 @@
 #      italiano (Italia) (sourceLanguage)
 #       |    code: it-IT
 #       |    missing key: 0
-#       |    processed: 2026-09-29 02:35
+#       |    processed: 2026-10-09 13:09
 #       |    TableVersion: 260905
 #  -------------------------------------------------
 #
@@ -28,10 +28,7 @@ Compare_yc6fmw: "Le altre librerie fanno bene il loro lavoro. La differenza è q
 CopyCommand_1qgmjg5: "Copia il comando"
 CopyCommand_1r0mqh1: "Copia"
 CopyCommand_gybco4: "Copiato"
-Demos_18mcebe: "Zip per StackBlitz"
 Demos_1hcfygl: "Apri"
-Demos_1oisf1o: "Sorgente"
-Demos_1pkl1tq: "Il progetto della pagina, da importare su stackblitz.com"
 Features_17y2azt: "Caricata con import() solo quando la scegli. Chi legge in italiano non scarica mai il cinese."
 Features_1ag9tjh: "Un comando sincronizza ogni lingua: chiavi nuove aggiunte, obsolete tolte. Una frase spostata si porta dietro la sua traduzione."
 Features_1lai6qf: "Ogni lingua è un file a sé"
@@ -63,12 +60,26 @@ Outro_16gmyec: "Leggi la documentazione"
 Outro_1e9h002: "Un pacchetto, un plugin, una riga nel vite.config. Il resto lo vedi succedere."
 Outro_8zu2qs: "Traduci la tua prima frase <em>in un minuto</em>."
 Outro_pedtx3: "Offrimi un caffè"
+pages_11ub3x1: "Minimale"
+pages_152fu69: "Tradotta da un LLM"
+pages_1h4r6kh: "Delimitatori tuoi"
 pages_1lm0j53: "Una landing intera, 228 frasi, quattro lingue riempite da <code>vitetranslate --llm-translate</code>."
 pages_1t0ndvi: "Ogni forma di chiamata e ogni diagnostica, accanto a ciò che dovrebbe rendere."
 pages_1vpprca: "Edge case"
+pages_4r0twa: "La stessa app minimale sulla coppia più diffusa nei progetti esistenti: il minimo che la libreria supporta."
 pages_f725ta: "Playground"
+pages_fom4py: "Minimale su Vite 7"
 pages_jmgmfq: "Il giro completo, dal vivo: variabili e markup, plurali e date ICU, autoWrap, fino alla traduzione con un LLM."
+pages_nu5ths: "L'italiano scritto nel codice, le altre quattro lingue riempite da un modello con <code>--llm-translate</code>."
+pages_tu8r7m: "La stessa app con le frasi marcate <code>≼così≽</code>: autoWrap fa il resto, senza un <code>Trans</code> attorno."
 pages_vv62gb: "Il ristorante tradotto da un LLM"
+pages_w82y13: "Il setup più piccolo: tre lingue, due file di codice e il cambio lingua con <code>useTransLanguage()</code>."
+ProjectLinks_8ret13: "Il progetto da scaricare: npm install, poi npm run dev"
+ProjectLinks_gizfou: "Sorgente"
+ProjectLinks_tkz1w2: "Il progetto aperto su stackblitz.com: si installa e gira nel browser"
+Starters_12trp1n: "Demo da cui partire"
+Starters_6vy2yj: "Un clic e gira su StackBlitz, nel browser, senza installare niente. Lo zip è lo stesso progetto, da aprire in locale."
+Starters_jx8aky: "Un progetto minimo per ogni idea."
 Steps_13v2590: "Traduci"
 Steps_196we9t: "A mano, da un traduttore, o con un LLM che rispetta segnaposto e tag. Poi pubblichi."
 Steps_1ocrzwe: "Sincronizza"

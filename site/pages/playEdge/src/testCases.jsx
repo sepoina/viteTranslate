@@ -1,4 +1,4 @@
-import { Translate, useTranslateToString } from '@sepoina/vitetranslate/react';
+import { Translate, useTranslateToString, Trans, useTrans } from '@sepoina/vitetranslate/react';
 
 //
 // Un valore qualunque, usato nei template marcati e nella sezione "preprocessore" qui sotto. Fino alla
@@ -13,6 +13,12 @@ const nome = 'Mario';
 function TsRiga() {
   const ts = useTranslateToString();
   return ts`Ciao ${nome}`;
+}
+
+// Lo stesso con il nome breve (4.7.0): useTrans() è useTranslateToString(), e trans`…` si riconosce come ts`…`.
+function TransRiga() {
+  const trans = useTrans();
+  return trans`Ciao ${nome}`;
 }
 
 // Il formato delle righe (e dello stato 'warn' / 'error' in quinta posizione) è descritto in
@@ -177,6 +183,46 @@ const testCases = [
     <TsRiga />,
     'Ciao Mario',
     'function TsRiga() {\n  const ts = useTranslateToString();\n  return ts`Ciao ${nome}`;\n}',
+  ],
+
+  // ============================================================
+  { id: 'aliases', title: '_%_I nomi brevi: Trans, useTrans, TransContainer, useTransLanguage_%_' },
+  // ============================================================
+  [
+    '_%_Translate: il nome esteso_%_',
+    <Translate>Una frase con <b>{nome}</b></Translate>,
+    'Una frase con Mario',
+    '<Translate>Una frase con <b>{nome}</b></Translate>',
+  ],
+  [
+    '_%_Trans: il nome breve, la stessa chiave_%_',
+    <Trans>Una frase con <b>{nome}</b></Trans>,
+    'Una frase con Mario',
+    '<Trans>Una frase con <b>{nome}</b></Trans>',
+  ],
+  [
+    '_%_ts: il nome esteso dell’hook_%_',
+    <TsRiga />,
+    'Ciao Mario',
+    'function TsRiga() {\n  const ts = useTranslateToString();\n  return ts`Ciao ${nome}`;\n}',
+  ],
+  [
+    '_%_trans: il nome breve dell’hook_%_',
+    <TransRiga />,
+    'Ciao Mario',
+    'function TransRiga() {\n  const trans = useTrans();\n  return trans`Ciao ${nome}`;\n}',
+  ],
+  [
+    '_%_Un testo marcato passato a Trans_%_',
+    <Trans t={'_%_Un testo marcato_%_'} />,
+    'Un testo marcato',
+    "<Trans t={'_%_Un testo marcato_%_'} />",
+  ],
+  [
+    '_%_Trans è Translate, non una copia_%_',
+    <code>{String(Trans === Translate)}</code>,
+    'true',
+    'String(Trans === Translate)',
   ],
 
   // ============================================================

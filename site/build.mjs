@@ -7,7 +7,8 @@
 //   node site/build.mjs --root=/altroNome/       # un fork: la CI passa il nome del repo
 //   node site/build.mjs --preview                # dopo la build, vite preview su site/dist
 //
-// In site/dist/zip ci sono anche gli zip delle pagine, per StackBlitz (vedi site/zip.mjs).
+// In site/dist/zip ci sono anche gli zip delle pagine e, in zip/demo, quelli delle demo di demo/
+// (le card della landing, DEMOS di site/landing/src/pages.js): vedi site/zip.mjs.
 //
 // Due configurazioni di vitetranslate() nella stessa build non convivono (il modulo virtuale
 // delle lingue ha un id unico): per questo sono build separate e non un'app sola con le route.
@@ -15,8 +16,9 @@ import { spawnSync } from "node:child_process";
 import { cpSync, existsSync, readdirSync, readFileSync, rmSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
-import { zipPages } from "./zip.mjs";
+import { zipDemos, zipPages } from "./zip.mjs";
 import { syncTheme } from "./syncTheme.mjs";
+import { DEMOS } from "./landing/src/pages.js";
 
 const RADICE = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const ROOT_DEFAULT = "/viteTranslate/";
@@ -88,8 +90,10 @@ function main() {
 
   cpSync(join(RADICE, "site/landing/dist"), dist, { recursive: true });
   for (const { dir, slug } of pagine) cpSync(join(RADICE, dir, "dist"), join(dist, slug), { recursive: true });
-  // Un zip per pagina, da caricare su StackBlitz: site/dist/zip/<slug>.zip, linkato dalle card della landing.
+  // Un zip per pagina e uno per demo, da scaricare: site/dist/zip/<slug>.zip e zip/demo/<slug>.zip,
+  // linkati dalle card della landing.
   for (const z of zipPages(pagine, dist)) console.log(`zip/${z.slug}.zip (${z.files} file, ${(z.bytes / 1024).toFixed(1)} kB)`);
+  for (const z of zipDemos(DEMOS, dist)) console.log(`zip/demo/${z.slug}.zip (${z.files} file, ${(z.bytes / 1024).toFixed(1)} kB)`);
   // Su Pages un URL sbagliato mostra la landing, che lo rimanda altrove se porta un'ancora.
   cpSync(join(dist, "index.html"), join(dist, "404.html"));
   console.log(`\nsito pronto in site/dist (${pagine.length + 1} progetti, root ${root})`);

@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
-import { Translate } from "@sepoina/vitetranslate/react";
+import { Trans } from "@sepoina/vitetranslate/react";
 import { Code } from "./theme/Code.jsx";
 import SectionHead from "./SectionHead.jsx";
 
-// Dati della demo: sono esempi mostrati, non frasi della pagina, quindi niente <Translate>.
+// Dati della demo: sono esempi mostrati, non frasi della pagina, quindi niente <Trans>.
 const DEMO = [
   { tag: "it-IT", label: "IT", text: "Benvenuto in viteTranslate" },
   { tag: "en-US", label: "EN", text: "Welcome to viteTranslate" },
@@ -14,12 +14,12 @@ const DEMO = [
   { tag: "ja-JP", label: "JA", text: "viteTranslateへようこそ" },
 ];
 
-const SOURCE = `import { Translate } from "@sepoina/vitetranslate/react";
+const SOURCE = `import { Trans } from "@sepoina/vitetranslate/react";
 
 export default function App() {
   return (
     <h1>
-      <Translate>Benvenuto in viteTranslate</Translate>
+      <Trans>Benvenuto in viteTranslate</Trans>
     </h1>
   );
 }`;
@@ -74,12 +74,12 @@ export default function CodeDemo() {
     <section className="section code-sec">
       <div className="wrap">
         <SectionHead
-          eyebrow={<Translate>_%_Come si vede_%_</Translate>}
-          title={<Translate t="_%_Un sorgente, <em>tante tabelle</em>._%_" />}
+          eyebrow={<Trans>_%_Come si vede_%_</Trans>}
+          title={<Trans t="_%_Un sorgente, <em>tante tabelle</em>._%_" />}
           text={
-            <Translate>
+            <Trans>
               _%_La frase resta nel JSX. Per ogni lingua il plugin tiene una tabella YAML; cambiare lingua carica solo quella._%_
-            </Translate>
+            </Trans>
           }
         />
         <DemoWindow />

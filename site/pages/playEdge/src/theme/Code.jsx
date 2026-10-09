@@ -1,5 +1,5 @@
 // Codice di esempio colorato a mano: pochi token per tre linguaggi, niente libreria di highlighting.
-// Il testo non passa da <Translate>: sono esempi, non frasi della pagina.
+// Il testo non passa da <Trans>: sono esempi, non frasi della pagina.
 // SORGENTE in site/theme/: la copia in src/theme/ la rigenera `npm run site:theme`.
 
 // Il delimitatore di viteTranslate, composto a runtime: scritto per intero in un sorgente

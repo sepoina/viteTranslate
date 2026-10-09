@@ -93,8 +93,9 @@ Costs, budget caps, the keyring and every flag: **[doc/llm.md](../../../doc/llm.
 
 ## StackBlitz
 
-Import the zip from [stackblitz.com](https://stackblitz.com) (New project > Import). Vite 8 uses
-Rolldown: in WebContainer, the WASM binding is installed automatically. The app boots there too —
+[Open it on StackBlitz](https://stackblitz.com/github/sepoina/viteTranslate/tree/main/demo/Vite_8/llmTranslate?file=src/App.jsx),
+read straight from GitHub, or grab the [zip](https://sepoina.github.io/viteTranslate/zip/demo/vite8-llm-translate.zip)
+and import it (New project > Import). Vite 8 uses Rolldown: in WebContainer, the WASM binding is installed automatically. The app boots there too —
 the translation command needs your key in the WebContainer environment.
 
 Need Vite's row 7, or React 18? The plain app is in [`demo/Vite_7/minimal`](../../Vite_7/minimal).

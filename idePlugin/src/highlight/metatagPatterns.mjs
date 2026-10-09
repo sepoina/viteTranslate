@@ -1,20 +1,19 @@
 // Le regex dei metatag per l'evidenziazione. Si costruiscono dalle costanti di lib/markerSyntax.js:
-// la sintassi la decide la libreria, qui la si traduce in pattern e basta. Nessun "_%_" e nessun
-// "Translate" scritti a mano: se la libreria cambia un delimitatore, l'evidenziazione lo segue alla
-// build successiva. Nessun import di `vscode`.
+// la sintassi la decide la libreria, qui la si traduce in pattern e basta. Nessun `_%_` e nessun nome
+// della macro scritti a mano: i delimitatori sono quelli del progetto (patternsFor), i nomi quelli
+// della libreria; se la libreria cambia un delimitatore, l'evidenziazione lo segue alla build
+// successiva. Nessun import di `vscode`.
 //
 // Le regex sono un'approssimazione dichiarata di quello che fa l'estrazione con Babel
 // (lib/dev/babel/extractMarkers.js, macroForms.js): servono a colorare mentre si scrive, non a
 // decidere le chiavi. Il test idePluginHighlight.test.mjs misura quanto si discostano, sul sito.
 import {
-  SOURCE_OPEN, SOURCE_CLOSE, MACRO_COMPONENT, MACRO_HOOK, RUNTIME_IMPORT_RE,
+  DEFAULT_MARKERS, MACRO_COMPONENTS, MACRO_HOOKS, RUNTIME_IMPORT_RE,
 } from "../../../lib/markerSyntax.js";
 
 /** Un testo qualunque, letterale dentro una regex. */
 export const escapeRe = (s) => s.replace(/[.*+?^${}()|[\]\\/]/g, "\\$&");
 
-const O = escapeRe(SOURCE_OPEN);
-const C = escapeRe(SOURCE_CLOSE);
 const ID = String.raw`[A-Za-z_$][\w$]*`;
 
 // Il corpo di un template literal: escape, `$` sciolti e `${…}` con graffe annidate fino a tre
@@ -22,21 +21,40 @@ const ID = String.raw`[A-Za-z_$][\w$]*`;
 const INTERP = String.raw`\$\{(?:[^{}\x60]|\{(?:[^{}\x60]|\{[^{}\x60]*\})*\})*\}`;
 const TEMPLATE_BODY = String.raw`(?:[^\x60\\$]|\\[\s\S]|\$(?!\{)|${INTERP})*?`;
 
-/**
- * Una stringa fra virgolette avvolta per intero: `"_%_ciao_%_"`, anche un attributo JSX che va a
- * capo. Gruppi: 1 la virgoletta, 2 apre, 3 il contenuto, 4 chiude. Flag `d`: gli offset dei gruppi.
- */
-export const STRING_RE = new RegExp(String.raw`(["'])(${O})((?:(?!\1)[^\\]|\\[\s\S])*?)(${C})\1`, "gd");
-
-/** Un template literal avvolto per intero, con o senza `${…}`. Gruppi: 1 apre, 2 contenuto, 3 chiude. */
-export const TEMPLATE_RE = new RegExp(String.raw`\x60(${O})(${TEMPLATE_BODY})(${C})\x60`, "gd");
+const memoria = new Map();
 
 /**
- * Un testo JSX avvolto: comincia dopo un tag o un `{…}`, finisce prima di un tag o di un `{`. Il
- * primo delimitatore dopo quello che apre è quello che chiude, con tag e valori in mezzo (la frase
- * della macro). Gruppi: 1 apre, 2 contenuto, 3 chiude.
+ * Le regex dei testi marcati per una coppia di delimitatori, costruite una volta per coppia.
+ * Sono regex con `/g`; chi le usa con `matchAll` non tocca `lastIndex`, quindi condividerle va bene.
+ *
+ * - STRING_RE: una stringa fra virgolette avvolta per intero (`"_%_ciao_%_"`), anche un attributo JSX
+ *   che va a capo. Gruppi: 1 la virgoletta, 2 apre, 3 il contenuto, 4 chiude. Flag `d`: gli offset.
+ * - TEMPLATE_RE: un template literal avvolto per intero, con o senza `${…}`. Gruppi: 1 apre,
+ *   2 contenuto, 3 chiude.
+ * - JSX_TEXT_RE: un testo JSX avvolto: comincia dopo un tag o un `{…}`, finisce prima di un tag o di
+ *   un `{`. Il primo delimitatore dopo quello che apre è quello che chiude, con tag e valori in mezzo
+ *   (la frase della macro). Gruppi: 1 apre, 2 contenuto, 3 chiude.
+ *
+ * @param {{ start: string, end: string }} [markers] - i delimitatori del progetto; default `_%_`
  */
-export const JSX_TEXT_RE = new RegExp(String.raw`(?<=[>}]\s*)(${O})((?:(?!${O})[\s\S])*?)(${C})(?=\s*[<{])`, "gd");
+export function patternsFor(markers = DEFAULT_MARKERS) {
+  const chiave = `${markers.start}\u0000${markers.end}`;
+  let p = memoria.get(chiave);
+  if (!p) {
+    const O = escapeRe(markers.start);
+    const C = escapeRe(markers.end);
+    p = {
+      STRING_RE: new RegExp(String.raw`(["'])(${O})((?:(?!\1)[^\\]|\\[\s\S])*?)(${C})\1`, "gd"),
+      TEMPLATE_RE: new RegExp(String.raw`\x60(${O})(${TEMPLATE_BODY})(${C})\x60`, "gd"),
+      JSX_TEXT_RE: new RegExp(String.raw`(?<=[>}]\s*)(${O})((?:(?!${O})[\s\S])*?)(${C})(?=\s*[<{])`, "gd"),
+    };
+    memoria.set(chiave, p);
+  }
+  return p;
+}
+
+/** Quelle di serie, per chi le importa per nome (i test). */
+export const { STRING_RE, TEMPLATE_RE, JSX_TEXT_RE } = patternsFor();
 
 // Un nome dentro le graffe di un import: `Translate`, `Translate as T`, `type Translate`.
 const SPECIFIER_RE = new RegExp(String.raw`^\s*(?:type\s+)?(${ID})(?:\s+as\s+(${ID}))?\s*$`);
@@ -53,8 +71,8 @@ export function macroNames(text) {
     for (const parte of m[1].split(",")) {
       const s = SPECIFIER_RE.exec(parte);
       if (!s) continue;
-      if (s[1] === MACRO_COMPONENT) component.add(s[2] ?? s[1]);
-      if (s[1] === MACRO_HOOK) hook.add(s[2] ?? s[1]);
+      if (MACRO_COMPONENTS.includes(s[1])) component.add(s[2] ?? s[1]);
+      if (MACRO_HOOKS.includes(s[1])) hook.add(s[2] ?? s[1]);
     }
   }
   return { component, hook };

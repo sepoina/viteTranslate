@@ -1,4 +1,4 @@
-/** L'intestazione comune alle sezioni. `eyebrow`, `title` e `text` sono elementi <Translate> già pronti. */
+/** L'intestazione comune alle sezioni. `eyebrow`, `title` e `text` sono elementi <Trans> già pronti. */
 export default function SectionHead({ eyebrow, title, text }) {
   return (
     <div className="section-head" data-reveal>

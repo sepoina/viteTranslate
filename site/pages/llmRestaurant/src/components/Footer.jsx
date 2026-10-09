@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Translate, useTranslateToString, version } from '@sepoina/vitetranslate/react';
+import { Trans, useTrans, version } from '@sepoina/vitetranslate/react';
 import { PHOTOS, UNSPLASH_LICENSE, photoUrl } from '../photos';
 import RestaurantName from './RestaurantName';
 import { siteUrl } from '../siteLinks';
@@ -19,28 +19,28 @@ const SOCIAL = [
 ];
 
 export default function Footer() {
-  const ts = useTranslateToString();
+  const trans = useTrans();
   const [subscribed, setSubscribed] = useState(false);
 
   return (
     <footer className="site-footer">
       <div className="wrap visit">
-        <div className="map" aria-label={ts('_%_Mappa segnaposto del porto di Cala dei Gabbiani_%_')}>
+        <div className="map" aria-label={trans('_%_Mappa segnaposto del porto di Cala dei Gabbiani_%_')}>
           <span className="map__sea" />
           <span className="map__pier" />
           <span className="map__pin"><i className="ph-fill ph-map-pin" aria-hidden="true" /> <RestaurantName /></span>
-          <small className="map__note"><Translate>Mappa segnaposto</Translate></small>
+          <small className="map__note"><Trans>Mappa segnaposto</Trans></small>
         </div>
         <div>
-          <p className="eyebrow eyebrow--light"><Translate>Come arrivare</Translate></p>
-          <h2 className="title"><Translate>In fondo al molo, <i>dove finisce la strada</i></Translate></h2>
+          <p className="eyebrow eyebrow--light"><Trans>Come arrivare</Trans></p>
+          <h2 className="title"><Trans>In fondo al molo, <i>dove finisce la strada</i></Trans></h2>
           <p>
-            <Translate>
+            <Trans>
               Siamo a cinque minuti a piedi dalla stazione, seguendo il lungomare verso il faro.
               In auto, il parcheggio convenzionato di Piazza del Mercato è gratuito per tre ore
               ai nostri ospiti. D'estate si arriva anche dal mare: abbiamo due posti barca
               riservati sul pontile.
-            </Translate>
+            </Trans>
           </p>
         </div>
       </div>
@@ -51,7 +51,7 @@ export default function Footer() {
             <i className="ph ph-wind" aria-hidden="true" />
             <RestaurantName className="brand__name" />
           </div>
-          <p><Translate>Cucina di mare sul porto di Cala dei Gabbiani, dal 1987. Tre generazioni, una regola sola.</Translate></p>
+          <p><Trans>Cucina di mare sul porto di Cala dei Gabbiani, dal 1987. Tre generazioni, una regola sola.</Trans></p>
           <ul className="social">
             {SOCIAL.map((s) => (
               <li key={s.icon}><a href="#top" aria-label={s.label}><i className={`ph ${s.icon}`} aria-hidden="true" /></a></li>
@@ -59,32 +59,32 @@ export default function Footer() {
           </ul>
         </div>
         <div>
-          <h3><Translate>Esplora</Translate></h3>
+          <h3><Trans>Esplora</Trans></h3>
           <ul className="footer__links">
-            <li><a href="#storia"><Translate>La storia</Translate></a></li>
-            <li><a href="#menu"><Translate>Il menù di stagione</Translate></a></li>
-            <li><a href="#degustazione"><Translate>Menù degustazione</Translate></a></li>
-            <li><a href="#eventi"><Translate>Eventi privati</Translate></a></li>
+            <li><a href="#storia"><Trans>La storia</Trans></a></li>
+            <li><a href="#menu"><Trans>Il menù di stagione</Trans></a></li>
+            <li><a href="#degustazione"><Trans>Menù degustazione</Trans></a></li>
+            <li><a href="#eventi"><Trans>Eventi privati</Trans></a></li>
           </ul>
         </div>
         <div>
-          <h3><Translate>Contatti</Translate></h3>
+          <h3><Trans>Contatti</Trans></h3>
           <ul className="footer__links">
-            <li><Translate>Via del Molo Vecchio 14, Cala dei Gabbiani</Translate></li>
+            <li><Trans>Via del Molo Vecchio 14, Cala dei Gabbiani</Trans></li>
             <li><a href="tel:+390100000000">+39 010 000 0000</a></li>
             <li><a href="mailto:tavoli@vitetranslate.example">tavoli@vitetranslate.example</a></li>
           </ul>
         </div>
         <div>
-          <h3><Translate>Il pescato della settimana</Translate></h3>
+          <h3><Trans>Il pescato della settimana</Trans></h3>
           {subscribed ? (
-            <p><Translate>Fatto! Ogni giovedì vi scriviamo cosa è arrivato dal mare.</Translate></p>
+            <p><Trans>Fatto! Ogni giovedì vi scriviamo cosa è arrivato dal mare.</Trans></p>
           ) : (
             <form className="newsletter" onSubmit={(e) => { e.preventDefault(); setSubscribed(true); }}>
-              <p><Translate>Ogni giovedì, una mail con i piatti fuori carta del fine settimana.</Translate></p>
+              <p><Trans>Ogni giovedì, una mail con i piatti fuori carta del fine settimana.</Trans></p>
               <fieldset role="group">
-                <input type="email" required placeholder={ts('_%_La vostra email_%_')} aria-label={ts('_%_La vostra email_%_')} />
-                <button type="submit" aria-label={ts('_%_Iscriviti_%_')}><i className="ph ph-arrow-right" aria-hidden="true" /></button>
+                <input type="email" required placeholder={trans('_%_La vostra email_%_')} aria-label={trans('_%_La vostra email_%_')} />
+                <button type="submit" aria-label={trans('_%_Iscriviti_%_')}><i className="ph ph-arrow-right" aria-hidden="true" /></button>
               </fieldset>
             </form>
           )}
@@ -92,20 +92,20 @@ export default function Footer() {
       </div>
 
       <div className="wrap credits">
-        <h3><Translate>Fonti e crediti</Translate></h3>
+        <h3><Trans>Fonti e crediti</Trans></h3>
         <p>
-          <Translate>
+          <Trans>
             <b><RestaurantName /> è un ristorante immaginario</b>, e il nome non è un caso: è la libreria che traduce
             questa pagina (versione {version}). Nomi, indirizzi, recensioni e prezzi sono inventati. Le foto vengono da
             Unsplash, con licenza{' '}
             <a href={UNSPLASH_LICENSE} target="_blank" rel="noreferrer">Unsplash License</a>: uso libero, anche commerciale.
-          </Translate>
+          </Trans>
         </p>
         <div className="credits__cols">
           <ul>
             {Object.values(PHOTOS).map((p) => (
               <li key={p.id}>
-                <a href={photoUrl(p.id, 2400)} target="_blank" rel="noreferrer">{ts(p.alt)}</a>
+                <a href={photoUrl(p.id, 2400)} target="_blank" rel="noreferrer">{trans(p.alt)}</a>
                 <span> · Unsplash · photo-{p.id}</span>
               </li>
             ))}
@@ -114,12 +114,12 @@ export default function Footer() {
             {RESOURCES.map((r) => (
               <li key={r.name}>
                 <a href={r.url} target="_blank" rel="noreferrer">{r.name}</a>
-                <span> · <Translate t={r.role} /> · {r.license}</span>
+                <span> · <Trans t={r.role} /> · {r.license}</span>
               </li>
             ))}
           </ul>
         </div>
-        <p className="credits__copy">© 2026 <RestaurantName /> · <Translate>Tutti i diritti riservati</Translate> · <a href={siteUrl()}><Translate>Le altre demo di viteTranslate</Translate></a></p>
+        <p className="credits__copy">© 2026 <RestaurantName /> · <Trans>Tutti i diritti riservati</Trans> · <a href={siteUrl()}><Trans>Le altre demo di viteTranslate</Trans></a></p>
       </div>
     </footer>
   );

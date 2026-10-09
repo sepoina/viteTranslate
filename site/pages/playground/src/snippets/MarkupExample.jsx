@@ -1,4 +1,4 @@
-import { Translate } from "@sepoina/vitetranslate/react";
+import { Trans } from "@sepoina/vitetranslate/react";
 
 export default function MarkupExample() {
   const user = "Mario";
@@ -6,10 +6,10 @@ export default function MarkupExample() {
   return (
     <>
       <p>
-        <Translate>Testo in <b>grassetto</b>, in <i>corsivo</i> e <code>codice</code>: una frase sola da tradurre.</Translate>
+        <Trans>Testo in <b>grassetto</b>, in <i>corsivo</i> e <code>codice</code>: una frase sola da tradurre.</Trans>
       </p>
       <p>
-        <Translate>Accesso eseguito come <a href="#markup">{user}</a></Translate>
+        <Trans>Accesso eseguito come <a href="#markup">{user}</a></Trans>
       </p>
     </>
   );

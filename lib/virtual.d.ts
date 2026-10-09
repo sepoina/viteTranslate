@@ -91,6 +91,13 @@ declare module 'virtual:vitetranslate/languages' {
   };
 
   /**
+   * I delimitatori del marcatore sorgente del progetto (`_%_` di serie). Il runtime li usa solo nei
+   * percorsi di degrado: per togliere i delimitatori a un testo che il transform non ha mai visto.
+   */
+  export const markerStart: string;
+  export const markerEnd: string;
+
+  /**
    * Le chiavi che almeno una lingua del progetto non ha ancora tradotto — l'informazione
    * dietro il prefisso `errorSolve.mark.notFullyTranslated`. È globale, quindi vive qui e
    * non nelle singole tabelle: una tabella sa dire cosa manca a sé stessa, non altrove.

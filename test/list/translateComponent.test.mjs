@@ -515,5 +515,28 @@ eq('<Translate a={{ name: "Aldo" }} />', "Aldo", rendi({ t: marcatore("App_nome"
 eq('ts(marcatore, { name: "Aldo" })', "Aldo", ts(marcatore("App_nome"), { name: "Aldo" }, linguaAttiva));
 eq("tupla [marcatore, { name }]: arriva [{ name }]", "Aldo", rendi({ t: [marcatore("App_nome"), { name: "Aldo" }] }, linguaAttiva));
 
+console.log("\n== i delimitatori del progetto nel modulo virtuale (4.7.0) ==");
+{
+  const conMarcatori = `${manifest}export const markerStart = "≼";\nexport const markerEnd = "≽";\n`;
+  const { default: T2 } = await caricaConManifest("Translate.js", conMarcatori);
+  const { useTranslateToString: useTs2 } = await caricaConManifest("useTranslateToString.js", conMarcatori);
+  const rendi2 = (props) => renderToStaticMarkup(h(TranslateContext.Provider, { value: linguaAttiva }, h(T2, props)));
+  const ts2 = (t, a) => {
+    let r;
+    function Sonda() {
+      r = useTs2()(t, a);
+      return null;
+    }
+    renderToStaticMarkup(h(TranslateContext.Provider, { value: linguaAttiva }, h(Sonda)));
+    return r;
+  };
+  eq("<Translate t=\"≼Ciao≽\"> mai compilato rende Ciao", "Ciao", rendi2({ t: "≼Ciao≽" }));
+  eq("…con un argomento", "Ciao Mario", rendi2({ t: "≼Ciao %s≽", a: "Mario" }));
+  eq("ts(\"≼Ciao≽\") rende Ciao", "Ciao", ts2("≼Ciao≽"));
+  eq("…con un argomento", "Ciao Mario", ts2("≼Ciao %s≽", "Mario"));
+  eq("un marcatore compilato si risolve come sempre", "Ciao mondo", rendi2({ t: marcatore("App_saluto") }));
+  eq("senza i due export, _%_Ciao_%_ rende Ciao come oggi", "Ciao", rendi({ t: "_%_Ciao_%_" }, linguaAttiva));
+}
+
 console.log(fail === 0 ? "\nTUTTI OK" : `\n${fail} FALLITI`);
 process.exit(fail === 0 ? 0 : 1);

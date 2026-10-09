@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Translate } from '@sepoina/vitetranslate/react';
+import { Trans } from '@sepoina/vitetranslate/react';
 import LanguageMenu from './LanguageMenu';
 import RestaurantName from './RestaurantName';
 
@@ -30,21 +30,21 @@ export default function Header() {
             <div className="brand">
               <i className="ph ph-wind" aria-hidden="true" />
               <RestaurantName className="brand__name" />
-              <span className="brand__since"><Translate>dal 1987</Translate></span>
+              <span className="brand__since"><Trans>dal 1987</Trans></span>
             </div>
           </li>
         </ul>
         <ul className="site-nav">
           {LINKS.map((l) => (
             <li key={l.href}>
-              <a href={l.href}><Translate t={l.label} /></a>
+              <a href={l.href}><Trans t={l.label} /></a>
             </li>
           ))}
         </ul>
         <ul className="site-actions">
           <li>
             <a href="#prenota" role="button" className="btn-small">
-              <Translate>Prenota</Translate>
+              <Trans>Prenota</Trans>
             </a>
           </li>
           <li>

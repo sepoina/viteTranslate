@@ -2,7 +2,7 @@
 #      American English
 #       |    code: en-US
 #       |    missing key: 0
-#       |    processed: 2026-09-29 02:35
+#       |    processed: 2026-10-09 13:09
 #       |    TableVersion: 260905
 #  -------------------------------------------------
 #
@@ -28,10 +28,7 @@ Compare_yc6fmw: "The other libraries do their job well. The difference is how mu
 CopyCommand_1qgmjg5: "Copy the command"
 CopyCommand_1r0mqh1: "Copy"
 CopyCommand_gybco4: "Copied"
-Demos_18mcebe: "Zip for StackBlitz"
 Demos_1hcfygl: "Open"
-Demos_1oisf1o: "Source"
-Demos_1pkl1tq: "The page's project, ready to import on stackblitz.com"
 Features_17y2azt: "Loaded with import() only when you pick it. Someone reading in Italian never downloads the Chinese."
 Features_1ag9tjh: "One command syncs every language: new keys added, stale ones removed. A sentence that moved takes its translation with it."
 Features_1lai6qf: "Every language is its own file"
@@ -63,12 +60,26 @@ Outro_16gmyec: "Read the documentation"
 Outro_1e9h002: "One package, one plugin, one line in vite.config. You watch the rest happen."
 Outro_8zu2qs: "Translate your first sentence <em>in a minute</em>."
 Outro_pedtx3: "Buy me a coffee"
+pages_11ub3x1: "Minimal"
+pages_152fu69: "Translated by an LLM"
+pages_1h4r6kh: "Your own delimiters"
 pages_1lm0j53: "A whole landing page, 228 sentences, four languages filled in by <code>vitetranslate --llm-translate</code>."
 pages_1t0ndvi: "Every call form and every diagnostic, next to what it should render."
 pages_1vpprca: "Edge cases"
+pages_4r0twa: "The same minimal app on the pairing most existing projects run: the lowest the library supports."
 pages_f725ta: "Playground"
+pages_fom4py: "Minimal on Vite 7"
 pages_jmgmfq: "The full tour, live: variables and markup, ICU plurals and dates, autoWrap, all the way to translating with an LLM."
+pages_nu5ths: "Italian written in the code, the other four languages filled in by a model with <code>--llm-translate</code>."
+pages_tu8r7m: "The same app with sentences marked <code>≼like this≽</code>: autoWrap does the rest, no <code>Trans</code> around them."
 pages_vv62gb: "The restaurant translated by an LLM"
+pages_w82y13: "The smallest setup: three languages, two code files and the language switch with <code>useTransLanguage()</code>."
+ProjectLinks_8ret13: "The project to download: npm install, then npm run dev"
+ProjectLinks_gizfou: "Source"
+ProjectLinks_tkz1w2: "The project opened on stackblitz.com: it installs and runs in the browser"
+Starters_12trp1n: "Demos to start from"
+Starters_6vy2yj: "One click and it runs on StackBlitz, in the browser, nothing to install. The zip is the same project, to open locally."
+Starters_jx8aky: "One minimal project per idea."
 Steps_13v2590: "Translate"
 Steps_196we9t: "By hand, by a translator, or with an LLM that respects placeholders and tags. Then you publish."
 Steps_1ocrzwe: "Sync"

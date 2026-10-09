@@ -35,8 +35,8 @@ All good is green, and the shade tells you how it's written:
 | --- | --- |
 | 🟢 | `"_%_…_%_"` in code |
 | ✅ | marked JSX text or attribute |
-| ❇️ | `<Translate>…</Translate>`, or a marked sentence with tags and values (`autoWrap`) |
-| ✳️ | `` ts`…` ``, or a marked template with `${…}` |
+| ❇️ | `<Trans>…</Trans>`, or a marked sentence with tags and values (`autoWrap`) |
+| ✳️ | `` trans`…` ``, or a marked template with `${…}` |
 
 Hover an entry for the details: which languages are missing, what the extraction said.
 
@@ -61,7 +61,7 @@ Click ⚙ in **Project**. On top, the logo. Then, under **CONFIG**, one row per 
 - **Vite config**: `vite.config`, opened right on the `vitetranslate({…})` options.
 - **Detailed config**: the extension's own settings in VS Code.
 - **Local file status**: what the selected project's files say.
-  - **vitetranslate**: the plugin options as resolved: source language, locale folder, preloaded languages, auto-sync, `autoWrap`, ICU time zone, the `llm` block (model, endpoint, budget, the *name* of the key variable, never the key). Unset: `default`.
+  - **vitetranslate**: the plugin options as resolved: source language, locale folder, preloaded languages, auto-sync, `autoWrap`, `markers` (your delimiters, `_%_ … _%_` when default), ICU time zone, the `llm` block (model, endpoint, budget, the *name* of the key variable, never the key). Unset: `default`.
   - **package.json**: the dependencies that matter (`@sepoina/vitetranslate`, `vite`, …) as *declared → installed*, plus the scripts. Click to open.
   - **vite.config**: plugins in load order, server port and host. Click to open.
 
@@ -87,7 +87,7 @@ No `llm` block in the plugin options? The button reads **LLM ?** and opens **Hel
 
 ## Highlighting
 
-Marked strings stand out as you type, in `.js`, `.jsx`, `.ts` and `.tsx`: `_%_…_%_`, `<Translate>…</Translate>`, `` ts`…` ``. Same rules as the extraction: what lights up gets translated. Comments, and code samples inside strings, stay plain. No panel needed.
+Marked strings stand out as you type, in `.js`, `.jsx`, `.ts` and `.tsx`: `_%_…_%_` (or your project's [`markerStart`/`markerEnd`](plugin-options.md#markers), read from its `vite.config`), `<Trans>…</Trans>`, `` trans`…` `` (and their long names). Same rules as the extraction: what lights up gets translated. Until `vite.config` has been read — or in a library older than 4.7.0, or in Restricted Mode, where it is never run — the default `_%_` is used. The sample in Settings stays on `_%_`: it previews the style, not your project. Comments, and code samples inside strings, stay plain. No panel needed.
 
 ![Highlighted strings in the editor](ide/highlight.png)
 

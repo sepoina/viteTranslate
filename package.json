@@ -1,7 +1,7 @@
 {
   "name": "@sepoina/vitetranslate",
-  "version": "4.6.4",
-  "versionDescription": "JSX inside <Translate> becomes the message — values, tags and links compiled at build time — with stable keys, extraction twice as fast, and an ./ide/scan export for the VS Code extension.",
+  "version": "4.7.0",
+  "versionDescription": "Your own marker delimiters (`markerStart`/`markerEnd`) with a CLI that rewrites the old ones, and short names: `<Trans>`, `useTrans`, `TransContainer`, `useTransLanguage`.",
   "description": "Keyless i18n for React and Vite: write the sentence in JSX, values and tags included, and get YAML tables kept in sync, LLM auto-translation and ICU, compiled at build time into a tiny runtime with zero dependencies.",
   "author": {
     "name": "Giancarlo Ghigi",

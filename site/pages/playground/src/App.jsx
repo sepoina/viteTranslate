@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { Translate, version } from "@sepoina/vitetranslate/react";
+import { Trans, version } from "@sepoina/vitetranslate/react";
 import TopBar from "./playgroundComponents/TopBar.jsx";
 import DocSection from "./playgroundComponents/DocSection.jsx";
 import StrengthsSection from "./playgroundComponents/StrengthsSection.jsx";
@@ -42,51 +42,51 @@ function App() {
       <main className="wrap">
         <section className="page-hero grid-backdrop">
           <p className="eyebrow rise" style={{ "--i": 0 }}>
-            <Translate t={"_%_Playground · v%s_%_"} a={version} />
+            <Trans t={"_%_Playground · v%s_%_"} a={version} />
           </p>
           <h1 className="rise" style={{ "--i": 1 }}>
-            <Translate t={"_%_Tutto viteTranslate, <em>dal vivo</em>_%_"} />
+            <Trans t={"_%_Tutto viteTranslate, <em>dal vivo</em>_%_"} />
           </h1>
           <p className="lead rise" style={{ "--i": 2 }}>
-            <Translate>
+            <Trans>
               _%_Ogni esempio gira in questa pagina: cambia lingua in alto e guardalo tradursi.
               Accanto a ciascuno, il codice che lo produce._%_
-            </Translate>
+            </Trans>
           </p>
           <a className="lead-more rise" style={{ "--i": 3 }} href="#note">
-            <Translate>_%_Cos’è viteTranslate, in breve ↓_%_</Translate>
+            <Trans>_%_Cos’è viteTranslate, in breve ↓_%_</Trans>
           </a>
 
           <nav className="toc rise" style={{ "--i": 4 }}>
             <div className="toc-group">
               <span className="toc-label">
-                <Translate>_%_Esempi_%_</Translate>
+                <Trans>_%_Esempi_%_</Trans>
               </span>
               {snippetList.map(({ id, title }) => (
                 <a key={id} href={`#${id}`}>
-                  <Translate t={title} />
+                  <Trans t={title} />
                 </a>
               ))}
             </div>
             <div className="toc-group">
               <span className="toc-label">
-                <Translate>_%_Installazione_%_</Translate>
+                <Trans>_%_Installazione_%_</Trans>
               </span>
               {installSubsections.map(({ id, title }) => (
                 <a key={id} href={`#${id}`}>
-                  <Translate t={title} />
+                  <Trans t={title} />
                 </a>
               ))}
             </div>
             <div className="toc-group">
               <span className="toc-label">
-                <Translate>_%_Altro_%_</Translate>
+                <Trans>_%_Altro_%_</Trans>
               </span>
               <a href="#strengths">
-                <Translate>_%_Punti di forza_%_</Translate>
+                <Trans>_%_Punti di forza_%_</Trans>
               </a>
               <a href={siteUrl("edge")}>
-                <Translate>_%_Edge case_%_</Translate> ↗
+                <Trans>_%_Edge case_%_</Trans> ↗
               </a>
             </div>
           </nav>
@@ -94,7 +94,7 @@ function App() {
 
         <section id="examples" className="part">
           <h2>
-            <Translate>_%_Esempi dal vivo_%_</Translate>
+            <Trans>_%_Esempi dal vivo_%_</Trans>
           </h2>
           {snippetList.map(({ id, title, description, code, file, Example }) => (
             <DocSection key={id} id={id} title={title} description={description} code={code} file={file}>
@@ -109,25 +109,25 @@ function App() {
 
         <footer id="note" className="notes">
           <h2>
-            <Translate>_%_Cos’è viteTranslate, in breve_%_</Translate>
+            <Trans>_%_Cos’è viteTranslate, in breve_%_</Trans>
           </h2>
           <ul>
             <li>
-              <Translate
-                t={"_%_Plugin Vite per estrarre stringhe dal sorgente (marcatore %s e componente <code>&#60;Translate&#62;</code> ) e generare/sincronizzare le tabelle di traduzione. I file di lingua sono dati (.yml), non moduli JS, e stanno in una cartella tutta loro, indicata da localeDir, caricati pigramente uno alla volta: il cambio lingua a runtime scarica solo il chunk necessario, senza appesantire il bundle iniziale con le lingue non usate._%_"}
+              <Trans
+                t={"_%_Plugin Vite per estrarre stringhe dal sorgente (marcatore %s e componente <code>&#60;Trans&#62;</code> ) e generare/sincronizzare le tabelle di traduzione. I file di lingua sono dati (.yml), non moduli JS, e stanno in una cartella tutta loro, indicata da localeDir, caricati pigramente uno alla volta: il cambio lingua a runtime scarica solo il chunk necessario, senza appesantire il bundle iniziale con le lingue non usate._%_"}
                 a={[MARKER_EXAMPLE]}
               />
             </li>
             <li>
-              <Translate t={"_%_I testi di questa pagina sono scritti in italiano, la lingua sorgente; si parte in inglese, o nell’ultima lingua scelta sul sito. Il selettore in alto cambia lingua a tutto, esempi compresi._%_"} />
+              <Trans t={"_%_I testi di questa pagina sono scritti in italiano, la lingua sorgente; si parte in inglese, o nell’ultima lingua scelta sul sito. Il selettore in alto cambia lingua a tutto, esempi compresi._%_"} />
             </li>
             <li>
-              <Translate t={"_%_Ogni sezione ha un indirizzo suo (<code>#icu-plural</code>, <code>#autowrap</code>, <code>#install-llm</code>…): il <code>#</code> accanto al titolo è il link da condividere. I vecchi indirizzi in italiano portano ancora al posto giusto._%_"} />
+              <Trans t={"_%_Ogni sezione ha un indirizzo suo (<code>#icu-plural</code>, <code>#autowrap</code>, <code>#install-llm</code>…): il <code>#</code> accanto al titolo è il link da condividere. I vecchi indirizzi in italiano portano ancora al posto giusto._%_"} />
             </li>
             <li>
-              <Translate t={"_%_Marcatori rotti, argomenti mancanti, valori che testo non sono: i comportamenti di confine stanno nella pagina dei casi limite, uno per riga._%_"} />{" "}
+              <Trans t={"_%_Marcatori rotti, argomenti mancanti, valori che testo non sono: i comportamenti di confine stanno nella pagina dei casi limite, uno per riga._%_"} />{" "}
               <a href={siteUrl("edge")}>
-                <Translate>_%_Edge case_%_</Translate> ↗
+                <Trans>_%_Edge case_%_</Trans> ↗
               </a>
             </li>
           </ul>

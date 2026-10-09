@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { useTranslateLanguage, useTranslateToString } from '@sepoina/vitetranslate/react';
+import { useTransLanguage, useTrans } from '@sepoina/vitetranslate/react';
 
 // "italiano (Italia)" -> "Italiano (Italia)": l'autonimo arriva minuscolo in molte lingue
 const capitalize = (s) => s.charAt(0).toLocaleUpperCase() + s.slice(1);
@@ -9,8 +9,8 @@ const capitalize = (s) => s.charAt(0).toLocaleUpperCase() + s.slice(1);
 // Si chiude scegliendo, cliccando fuori o con Esc.
 //
 export default function LanguageMenu() {
-  const { id, languages, proposeNewLanguage } = useTranslateLanguage();
-  const ts = useTranslateToString();
+  const { id, languages, proposeNewLanguage } = useTransLanguage();
+  const trans = useTrans();
   const ref = useRef(null);
 
   useEffect(() => {
@@ -39,7 +39,7 @@ export default function LanguageMenu() {
 
   return (
     <details className="dropdown lang-menu" ref={ref}>
-      <summary aria-label={ts('_%_Scegli la lingua_%_')}>
+      <summary aria-label={trans('_%_Scegli la lingua_%_')}>
         <i className="ph ph-globe-hemisphere-west" aria-hidden="true" />
         <span>{(id ?? '').split('-')[0].toUpperCase()}</span>
       </summary>

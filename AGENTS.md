@@ -53,3 +53,7 @@ node -e "const s=require('fs').readFileSync('README.md','utf8').replace(/<!--[\s
 - 5.documentazione. Alla luce delle regole di questo file procedere con i {nomepiano}.necessarydoc.md ed eventuali percorsi extra. Se le lunghezze sono eccessive avvisare l'utente alla fine.
 - 6.pulizia. Tutti i subdocumenti di piano vengono rimossi se non più necessari
 - 7.logDiary. Aggiungi una nota [!TIP] (Verde) nel documento di pianificazione, subito dopo la nota per il revisore umano che riassuma le decisioni prese nel percorso. Sintesi estrema, elenco puntato. Se ci fossero scelte pericolose o avvertimenti usare [!IMPORTANT] (Viola) o [!CAUTION]. Massimo una decina di righe.
+
+## REGOLE DI LINKED SOURCE
+
+- Ove non possibile unificare la fonte di verità (preferibile) ed evitare nel contempo che gli aggiornamenti non si riproducano in altre zone del sorgente, aggiungi commenti nelle due direzioni al codice che conducano l'agente o l'umano a risalire ad altre zone "linkate". Faccio un esempio, nel readme viene mostrata una tabella che è anche nella landing del sito. Il commento dovrebbe tenerle linkate (opcode LINKED-DATA a fini di catalogazione e senso)

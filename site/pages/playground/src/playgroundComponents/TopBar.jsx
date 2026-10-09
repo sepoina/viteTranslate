@@ -1,4 +1,4 @@
-import { Translate } from "@sepoina/vitetranslate/react";
+import { Trans } from "@sepoina/vitetranslate/react";
 import SiteBar from "../theme/SiteBar.jsx";
 import { siteUrl } from "../siteLinks.js";
 
@@ -7,7 +7,7 @@ export default function TopBar() {
   return (
     <SiteBar home={siteUrl()}>
       <a className="bar-back" href={siteUrl()}>
-        ← <Translate>_%_Tutte le demo_%_</Translate>
+        ← <Trans>_%_Tutte le demo_%_</Trans>
       </a>
     </SiteBar>
   );

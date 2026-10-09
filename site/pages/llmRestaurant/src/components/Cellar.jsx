@@ -1,4 +1,4 @@
-import { Translate } from '@sepoina/vitetranslate/react';
+import { Trans } from '@sepoina/vitetranslate/react';
 import Photo from './Photo';
 import { PHOTOS } from '../photos';
 
@@ -14,28 +14,28 @@ export default function Cellar() {
     <section className="section" id="cantina">
       <div className="wrap split split--reverse">
         <div className="prose reveal">
-          <p className="eyebrow"><Translate>La cantina</Translate></p>
+          <p className="eyebrow"><Trans>La cantina</Trans></p>
           <h2 className="title">
-            <Translate>420 etichette, <i>scavate nella roccia</i></Translate>
+            <Trans>420 etichette, <i>scavate nella roccia</i></Trans>
           </h2>
           <p className="lead">
-            <Translate>
+            <Trans>
               La nostra cantina era la grotta dove i pescatori riparavano le reti, scavata nel
               tufo proprio sotto la sala: quattordici gradi tutto l'anno, senza bisogno di
               impianti.
-            </Translate>
+            </Trans>
           </p>
           <p>
-            <Translate>
+            <Trans>
               Custodisce 420 etichette, con una predilezione dichiarata per i bianchi di mare e i
               piccoli produttori della costa. Irene, la nostra sommelier, vi guiderà tra vermentini
               di scogliera, bollicine rifermentate in bottiglia e qualche rarità da tenere da parte
               per le occasioni che se lo meritano.
-            </Translate>
+            </Trans>
           </p>
           <ul className="checklist">
             {POINTS.map((p) => (
-              <li key={p}><i className="ph ph-check" aria-hidden="true" /> <Translate t={p} /></li>
+              <li key={p}><i className="ph ph-check" aria-hidden="true" /> <Trans t={p} /></li>
             ))}
           </ul>
         </div>

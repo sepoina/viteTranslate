@@ -1,4 +1,4 @@
-import { Translate } from "@sepoina/vitetranslate/react";
+import { Trans } from "@sepoina/vitetranslate/react";
 import { Icon } from "./icons.jsx";
 import { REPO } from "./links.js";
 import SectionHead from "./SectionHead.jsx";
@@ -36,12 +36,12 @@ export default function Compare() {
     <section className="section" data-section="compare">
       <div className="wrap">
         <SectionHead
-          eyebrow={<Translate>_%_Confronto_%_</Translate>}
-          title={<Translate t="_%_Stesso problema, <em>meno macchina</em>._%_" />}
+          eyebrow={<Trans>_%_Confronto_%_</Trans>}
+          title={<Trans t="_%_Stesso problema, <em>meno macchina</em>._%_" />}
           text={
-            <Translate>
+            <Trans>
               _%_Le altre librerie fanno bene il loro lavoro. La differenza è quanto devi configurare, e quanto finisce nel bundle._%_
-            </Translate>
+            </Trans>
           }
         />
 
@@ -62,7 +62,7 @@ export default function Compare() {
                 {ROWS.map((row) => (
                   <tr key={row.label}>
                     <th scope="row">
-                      <Translate t={row.label} a={row.a} />
+                      <Trans t={row.label} a={row.a} />
                     </th>
                     {row.v.map((kind, n) => (
                       <td key={COLUMNS[n]} className={n === 0 ? "col-us" : undefined}>
@@ -76,19 +76,19 @@ export default function Compare() {
           </div>
           <p className="compare-note">
             <Icon name="minus" size={14} strokeWidth={2.4} />
-            <Translate>_%_= disponibile con strumenti o configurazione aggiuntivi._%_</Translate>
+            <Trans>_%_= disponibile con strumenti o configurazione aggiuntivi._%_</Trans>
           </p>
           <p className="compare-note">
             <Icon name="x" size={14} strokeWidth={2.4} />
-            <Translate>_%_= non offerto dagli strumenti del progetto: può supplire uno strumento di terzi._%_</Translate>
+            <Trans>_%_= non offerto dagli strumenti del progetto: può supplire uno strumento di terzi._%_</Trans>
           </p>
           <p className="compare-note">
             <span>
-              <Translate>
+              <Trans>
                 _%_Confronto aggiornato a settembre 2026: i18next 26 + react-i18next 17, Lingui 6, FormatJS (react-intl 12)._%_
-              </Translate>{" "}
+              </Trans>{" "}
               <a href={`${REPO}#-why-vitetranslate`}>
-                <Translate>_%_Il perché di ogni casella_%_</Translate> ↗
+                <Trans>_%_Il perché di ogni casella_%_</Trans> ↗
               </a>
             </span>
           </p>

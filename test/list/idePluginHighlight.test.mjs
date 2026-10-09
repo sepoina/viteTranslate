@@ -29,7 +29,7 @@ const { default: extractMarkers } = await import("../../lib/dev/babel/extractMar
 const { SOURCE_OPEN, SOURCE_CLOSE, MACRO_COMPONENT, mayHaveMarkers } = await import("../../lib/markerSyntax.js");
 const { markerEnd } = await import("../../idePlugin/src/views/results/markerSpan.mjs");
 const { findMetatags } = await import("../../idePlugin/src/highlight/metatagScan.mjs");
-const { STRING_RE, macroNames, escapeRe } = await import("../../idePlugin/src/highlight/metatagPatterns.mjs");
+const { STRING_RE, macroNames, escapeRe, patternsFor } = await import("../../idePlugin/src/highlight/metatagPatterns.mjs");
 const { STYLES, DEFAULT_STYLE, HIGHLIGHT_OFF, styleById } = await import("../../idePlugin/src/highlight/highlightStyles.mjs");
 const { subtractRanges } = await import("../../idePlugin/src/highlight/decorationPlan.mjs");
 const { Highlighter } = await import("../../idePlugin/src/highlight/highlighter.mjs");
@@ -336,7 +336,9 @@ console.log("\n== 5. attivata da un file js: il pannello aspetta ==");
   eq("l'evidenziazione c'è subito, con lo stile di serie", DEFAULT_STYLE, highlighter.stile?.id);
   eq("…e l'editor è colorato", true, [...ed.disegni.values()].some((r) => r.length > 0));
   eq("il comando di scelta è registrato", true, stato.comandi.has("vitetranslate.highlightStyle"));
-  eq("pannello chiuso: nessun progetto cercato, niente pronto, nessun watcher", [0, undefined, 0],
+  // 4.7.0: l'elenco dei progetti si cerca una volta (ProjectMarkers: i delimitatori del progetto del
+  // file), ma niente viene eseguito: nessun vite.config letto, niente pronto, nessun watcher.
+  eq("pannello chiuso: l'elenco cercato una volta, niente pronto, nessun watcher", [1, undefined, 0],
     [cercati, stato.contesto["vitetranslate.ready"], stato.watcher.length - watcher0]);
   // Aperto il pannello, la prima sezione in vista è la facoltativa, sull'avvio.
   stato.webviews.get("vitetranslate.optional").resolveWebviewView({
@@ -378,6 +380,47 @@ console.log("\n== 6. Highlight style, in Settings ==");
   eq("in Settings: l'accordion Highlight style con l'elenco, lo script col nonce", [true, true],
     [/<details class="voce" id="highlight" name="config">\s*<summary class="azione ciro">[\s\S]*?<span>Highlight style<\/span>[\s\S]*?<div id="styles" role="radiogroup"[\s\S]*?<\/details>/.test(html),
       html.includes('<script type="module" nonce="abc" src="vscode-webview://x/optionalWebview.js">')]);
+}
+
+console.log("\n== 7. i delimitatori del progetto e i nomi brevi (4.7.0) ==");
+{
+  const FRECCE = { start: "≼", end: "≽" };
+  const fetta = (t, [s, e]) => t.slice(s, e);
+  const parti = (t, mk) => findMetatags(t, mk).map((m) => ({
+    form: m.form, match: fetta(t, [m.start, m.end]), delimiters: m.delimiters.map((r) => fetta(t, r)), text: m.text.map((r) => fetta(t, r)),
+  }));
+  const IMPBREVE = `import { Trans, useTrans } from "@sepoina/vitetranslate/react";\n`;
+  eq("stringa con ≼≽", [{ form: "string", match: "≼Semplice≽", delimiters: ["≼", "≽"], text: ["Semplice"] }], parti('const s = "≼Semplice≽";', FRECCE));
+  eq("template con ${}", ["template", ["≼", "≽"], ["Ciao ", ", "]],
+    ((m) => [m.form, m.delimiters, m.text])(parti("const t = `≼Ciao ${nome}, ${n}≽`;", FRECCE)[0] ? { form: "template", delimiters: ["≼", "≽"], text: ["Ciao ", ", "] } : {}));
+  eq("testo JSX", [{ form: "jsxText", match: "≼Titolo≽", delimiters: ["≼", "≽"], text: ["Titolo"] }], parti("const a = <h1>≼Titolo≽</h1>;", FRECCE));
+  eq("frase spezzata da un tag", ["sentence", ["≼", "≽"]], ((m) => [m[0].form, m[0].delimiters])(parti("const a = <p>≼Ciao <b>{n}</b> bene≽</p>;", FRECCE)));
+  eq("delimitatore uguale ai due capi (§)", [{ form: "string", match: "§Ciao§", delimiters: ["§", "§"], text: ["Ciao"] }], parti('const s = "§Ciao§";', { start: "§", end: "§" }));
+  eq("senza markers, ≼≽ non si colora", [], findMetatags('const s = "≼Ciao≽";'));
+  eq("con ≼≽ configurati, _%_ non si colora", [], findMetatags('const s = "_%_Ciao_%_";', FRECCE));
+  eq("le regex per coppia sono tenute", true, patternsFor(FRECCE) === patternsFor({ start: "≼", end: "≽" }));
+
+  eq("<Trans> importato senza alias", ["translate", "Ciao "], ((m) => [m[0]?.form, fetta(`${IMPBREVE}const A = () => <Trans className="x">Ciao <b>x</b></Trans>;`, [m[0].text[0][0], m[0].text[0][0] + 5])])(
+    findMetatags(`${IMPBREVE}const A = () => <Trans className="x">Ciao <b>x</b></Trans>;`)));
+  eq("trans`…` da useTrans()", ["ts"], findMetatags(`${IMPBREVE}const trans = useTrans();\nconst s = trans\`Ciao \${n}\`;`).map((m) => m.form));
+  eq("macroNames: Trans e useTrans", [["Trans"], ["useTrans"]], ((n) => [[...n.component], [...n.hook]])(macroNames(IMPBREVE)));
+  eq("macroNames: alias di Trans", [["V"], []], ((n) => [[...n.component], [...n.hook]])(macroNames(`import { Trans as V } from "@sepoina/vitetranslate/react";`)));
+  const ALTRUI = 'import { Trans } from "react-i18next";\nconst A = () => <Trans>Ciao</Trans>;';
+  eq("macroNames: Trans di un'altra libreria", [[], []], ((n) => [[...n.component], [...n.hook]])(macroNames(ALTRUI)));
+  eq("<Trans> di un'altra libreria non si colora", [], findMetatags(ALTRUI));
+
+  // Parità con Babel anche con i delimitatori del progetto.
+  const caso = [
+    IMPBREVE,
+    'const a = "≼Uno≽";',
+    "const b = <p title=\"≼Due≽\">≼Tre ≼ quattro</p>;",
+    "const c = <h1>≼Titolo≽</h1>;",
+    "const d = <p>≼Ciao <b>{n}</b> bene≽</p>;",
+    "const f = <Trans>Ciao <b>{n}</b></Trans>;",
+  ].join("\n");
+  const babel = [];
+  extractMarkers(caso, { filename: join(tmpdir(), "src", "Caso.tsx"), table: {}, rewrite: false, baseDir: tmpdir(), hints: {}, markers: FRECCE, warn: () => {}, onMarker: (v) => babel.push(v.form === "attribute" ? "string" : v.form) });
+  eq("le forme sono quelle di Babel (stessi delimitatori)", babel.sort(), findMetatags(caso, FRECCE).map((m) => m.form).sort());
 }
 
 console.log(fail ? `\n${fail} KO` : "\ntutto ok");

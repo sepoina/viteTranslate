@@ -1,4 +1,4 @@
-import { Translate } from "@sepoina/vitetranslate/react";
+import { Trans } from "@sepoina/vitetranslate/react";
 import { Icon } from "./icons.jsx";
 import { scrollToSection } from "./motion.js";
 import { REPO } from "./links.js";
@@ -17,16 +17,16 @@ export default function Nav() {
     >
       <nav className="bar-nav">
         <button type="button" onClick={() => scrollToSection("features")}>
-          <Translate>_%_Funzioni_%_</Translate>
+          <Trans>_%_Funzioni_%_</Trans>
         </button>
         <button type="button" onClick={() => scrollToSection("how")}>
-          <Translate>_%_Come funziona_%_</Translate>
+          <Trans>_%_Come funziona_%_</Trans>
         </button>
         <button type="button" onClick={() => scrollToSection("compare")}>
-          <Translate>_%_Confronto_%_</Translate>
+          <Trans>_%_Confronto_%_</Trans>
         </button>
         <button type="button" onClick={() => scrollToSection("demos")}>
-          <Translate>_%_Demo_%_</Translate>
+          <Trans>_%_Demo_%_</Trans>
         </button>
       </nav>
     </SiteBar>

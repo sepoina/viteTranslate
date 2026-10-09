@@ -1,11 +1,11 @@
-import { Translate, useTranslateLanguage, version } from '@sepoina/vitetranslate/react';
+import { Trans, useTransLanguage, version } from '@sepoina/vitetranslate/react';
 
 export default function App() {
   //
   // hook che legge lo stato del sistema di traduzione, e fornisce la lingua corrente
   // l'elenco delle lingue disponibili e la funzione per cambiare lingua.
   //
-  const { id, languages, proposeNewLanguage } = useTranslateLanguage();
+  const { id, languages, proposeNewLanguage } = useTransLanguage();
   //
   // lingua corrente o "sconosciuta"
   const corrente = languages.find(l => l.tag === id)?.languageName ?? '[lingua sconosciuta]';
@@ -26,35 +26,35 @@ export default function App() {
         <header>
           <h2>
             viteTranslate
-          </h2><small><Translate>{languages.length} lingue · versione&nbsp;<b>{version}</b></Translate></small>
+          </h2><small><Trans>{languages.length} lingue · versione&nbsp;<b>{version}</b></Trans></small>
         </header>
         <p>
-          <Translate>
+          <Trans>
             Questa pagina parla più lingue, ma solo una l'ha scritta una persona:
             le altre sono tabelle con tutte le caselle vuote. Non restano così — le
             riempie il modello in un colpo solo quando lanci
             vitetranslate --llm-translate, e prima di spendere qualsiasi cosa ti
             mostra la stima e ti chiede se procedere.
-          </Translate>
+          </Trans>
         </p>
         <ol>
           <li>
-            <Translate>Il testo si scrive dove serve, nel JSX: nessuna chiave da inventare.</Translate>
+            <Trans>Il testo si scrive dove serve, nel JSX: nessuna chiave da inventare.</Trans>
           </li>
           <li>
-            <Translate>La sincronizzazione crea le tabelle e mette le stringhe nuove a null.</Translate>
+            <Trans>La sincronizzazione crea le tabelle e mette le stringhe nuove a null.</Trans>
           </li>
           <li>
-            <Translate>La CLI stima il costo, chiede conferma, e riempie le caselle vuote.</Translate>
+            <Trans>La CLI stima il costo, chiede conferma, e riempie le caselle vuote.</Trans>
           </li>
           <li>
-            <Translate>Il validatore confronta segnaposto e tag con il sorgente: quello che non passa resta vuoto.</Translate>
+            <Trans>Il validatore confronta segnaposto e tag con il sorgente: quello che non passa resta vuoto.</Trans>
           </li>
         </ol>
         <blockquote>
-          <Translate>La chiave API non entra mai in <b>vite.config.js</b>: lì vive solo il nome della variabile d'ambiente.</Translate>
+          <Trans>La chiave API non entra mai in <b>vite.config.js</b>: lì vive solo il nome della variabile d'ambiente.</Trans>
           <footer>
-            <Translate>- doc/llm.md, la pagina che spiega tutto il resto</Translate>
+            <Trans>- doc/llm.md, la pagina che spiega tutto il resto</Trans>
           </footer>
         </blockquote>
       </article>

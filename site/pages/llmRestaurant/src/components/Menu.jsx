@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Translate, useTranslateToString } from '@sepoina/vitetranslate/react';
+import { Trans, useTrans } from '@sepoina/vitetranslate/react';
 import { useMoney } from '../format';
 
 const TAGS = {
@@ -59,23 +59,23 @@ const MENU = [
 export default function Menu() {
   const [active, setActive] = useState(MENU[0].id);
   const money = useMoney();
-  const ts = useTranslateToString();
+  const trans = useTrans();
   const course = MENU.find((c) => c.id === active);
 
   return (
     <section className="section" id="menu">
       <div className="wrap">
         <header className="section-head section-head--center reveal">
-          <p className="eyebrow"><Translate>Alla carta</Translate></p>
+          <p className="eyebrow"><Trans>Alla carta</Trans></p>
           <h2 className="title">
-            <Translate>Il menù <i>di stagione</i></Translate>
+            <Trans>Il menù <i>di stagione</i></Trans>
           </h2>
           <p className="lead">
-            <Translate>
+            <Trans>
               La carta cambia con le stagioni e, qualche volta, con il meteo. Quella che leggete
               qui è la carta di settembre: chiedete sempre il pescato fuori menù, che arriva
               scritto a mano sulla lavagna.
-            </Translate>
+            </Trans>
           </p>
         </header>
 
@@ -88,7 +88,7 @@ export default function Menu() {
               className={c.id === active ? 'is-active' : ''}
               onClick={() => setActive(c.id)}
             >
-              <Translate t={c.label} />
+              <Trans t={c.label} />
             </button>
           ))}
         </div>
@@ -98,17 +98,17 @@ export default function Menu() {
             <li key={item.name}>
               <div className="menu-item__head">
                 <h3>
-                  <Translate t={item.name} />
+                  <Trans t={item.name} />
                   {item.tags?.map((t) => (
-                    <i key={t} className={`ph ${TAGS[t].icon} menu-tag`} title={ts(TAGS[t].label)} aria-label={ts(TAGS[t].label)} />
+                    <i key={t} className={`ph ${TAGS[t].icon} menu-tag`} title={trans(TAGS[t].label)} aria-label={trans(TAGS[t].label)} />
                   ))}
                 </h3>
                 <span className="menu-item__dots" aria-hidden="true" />
                 <span className="menu-item__price">
-                  {item.unit ? <Translate t={item.unit} a={[money(item.price)]} /> : money(item.price)}
+                  {item.unit ? <Trans t={item.unit} a={[money(item.price)]} /> : money(item.price)}
                 </span>
               </div>
-              <p><Translate t={item.desc} /></p>
+              <p><Trans t={item.desc} /></p>
             </li>
           ))}
         </ul>
@@ -116,11 +116,11 @@ export default function Menu() {
         <footer className="menu-note">
           <ul className="menu-legend">
             {Object.entries(TAGS).map(([key, t]) => (
-              <li key={key}><i className={`ph ${t.icon}`} aria-hidden="true" /> <Translate t={t.label} /></li>
+              <li key={key}><i className={`ph ${t.icon}`} aria-hidden="true" /> <Trans t={t.label} /></li>
             ))}
           </ul>
           <p>
-            <Translate
+            <Trans
               t="_%_Coperto %s · pane, focaccia e grissini fatti in casa. <b>Segnalate sempre allergie e intolleranze</b>: la cucina adatta ogni piatto quando è possibile._%_"
               a={[money(4)]}
             />

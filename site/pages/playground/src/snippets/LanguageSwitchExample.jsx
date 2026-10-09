@@ -1,8 +1,8 @@
 import { useState } from "react";
-import { useTranslateLanguage, Translate } from "@sepoina/vitetranslate/react";
+import { useTransLanguage, Trans } from "@sepoina/vitetranslate/react";
 
 export default function LanguageSwitchExample() {
-  const { id, debug, languages, proposeNewLanguage } = useTranslateLanguage();
+  const { id, debug, languages, proposeNewLanguage } = useTransLanguage();
   const [loading, setLoading] = useState(false);
   const actual = loading ? "…" : `id: ${id ?? "—"} // debug: ${String(debug)}`;
 
@@ -17,7 +17,7 @@ export default function LanguageSwitchExample() {
   return (
     <>
       <p className="status-line">
-        <Translate t="_%_<b>Scegli la tua lingua </b> (%s)_%_" a={actual} />
+        <Trans t="_%_<b>Scegli la tua lingua </b> (%s)_%_" a={actual} />
       </p>
       <div className="chips" role="group">
         {languages.map(entry => (

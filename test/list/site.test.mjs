@@ -12,8 +12,9 @@ import { tmpdir } from "node:os";
 import { dirname, join, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 import { sitePages } from "../../site/build.mjs";
-import { PAGES } from "../../site/landing/src/pages.js";
-import { collectFiles, crc32, makeZip, zipPages } from "../../site/zip.mjs";
+import { DEMOS, PAGES } from "../../site/landing/src/pages.js";
+import { sourceUrl, stackblitzUrl } from "../../site/landing/src/links.js";
+import { collectFiles, crc32, makeZip, zipDemos, zipPages } from "../../site/zip.mjs";
 import { checkTheme, syncTheme, themeTargets } from "../../site/syncTheme.mjs";
 import { demoDirs } from "../syncDemoDeps.mjs";
 
@@ -38,6 +39,21 @@ for (const { slug, source } of PAGES) {
   eq(`card ${slug}: source esiste`, true, existsSync(join(ROOT, source)));
   eq(`card ${slug}: source è la cartella della pagina`, pagine.find((p) => p.slug === slug)?.dir, source);
 }
+
+// 3b. Le card delle demo: una per ogni cartella di demo/<Vite_N>/ con un package.json, slug validi e unici.
+const cartelleDemo = readdirSync(join(ROOT, "demo"), { withFileTypes: true })
+  .filter((d) => d.isDirectory())
+  .flatMap((d) => readdirSync(join(ROOT, "demo", d.name), { withFileTypes: true }).filter((s) => s.isDirectory()).map((s) => `demo/${d.name}/${s.name}`))
+  .filter((dir) => existsSync(join(ROOT, dir, "package.json")))
+  .sort();
+eq("ogni demo di demo/ ha la sua card", cartelleDemo, DEMOS.map((d) => d.source).sort());
+eq("gli slug delle demo sono unici", DEMOS.length, new Set(DEMOS.map((d) => d.slug)).size);
+for (const { slug } of DEMOS) eq(`demo ${slug}: slug valido`, true, /^[a-z0-9-]+$/.test(slug));
+
+// 3c. StackBlitz legge la cartella da GitHub e apre src/App.jsx: deve esistere in ogni progetto con una card.
+eq("stackblitzUrl", "https://stackblitz.com/github/sepoina/viteTranslate/tree/main/demo/Vite_8/minimal?file=src/App.jsx", stackblitzUrl("demo/Vite_8/minimal"));
+eq("sourceUrl", "https://github.com/sepoina/viteTranslate/tree/main/demo/Vite_8/minimal", sourceUrl("demo/Vite_8/minimal"));
+for (const { source } of [...PAGES, ...DEMOS]) eq(`${source}: c'è src/App.jsx`, true, existsSync(join(ROOT, source, "src/App.jsx")));
 
 // 4. Slug non ammessi, su cartelle finte.
 const finta = (slugs) => {
@@ -119,6 +135,9 @@ try {
   const letto = leggiZip(readFileSync(scritti[0].file));
   eq("zip: i contenuti tornano uguali (UTF-8 compreso)", { "src/main.jsx": "ciao — è", "package.json": "{}" }, { "src/main.jsx": letto["src/main.jsx"], "package.json": letto["package.json"] });
   eq("zip: due build danno gli stessi byte", true, makeZip(collectFiles(join(cartellaZip, "p"))).equals(readFileSync(scritti[0].file)));
+  const demo = zipDemos([{ source: "p", slug: "prova" }], join(cartellaZip, "dist"), cartellaZip);
+  eq("zip: le demo vanno in zip/demo/<slug>.zip", join(cartellaZip, "dist/zip/demo/prova.zip"), demo[0].file);
+  eq("zip: lo zip di una demo è lo stesso progetto", true, readFileSync(demo[0].file).equals(readFileSync(scritti[0].file)));
 } finally {
   rmSync(cartellaZip, { recursive: true, force: true });
 }
@@ -206,12 +225,13 @@ for (const [nome, mappa] of [["scuro", scuro], ["chiaro", chiaro]]) {
   eq(`tema ${nome}: ogni coppia di testo passa 4.5:1`, [], sotto);
 }
 
-// 12. Una pagina resta autonoma: nessun import relativo esce dalla sua cartella (lo zip per StackBlitz non lo avrebbe).
+// 12. Una pagina, o una demo, resta autonoma: nessun import relativo esce dalla sua cartella (né lo zip
+// né StackBlitz, che importa solo quella cartella da GitHub, lo avrebbero).
 const sorgenti = (dir) =>
   readdirSync(dir, { withFileTypes: true }).flatMap((e) =>
     e.isDirectory() ? (["node_modules", "dist"].includes(e.name) ? [] : sorgenti(join(dir, e.name))) : /\.(jsx?|mjs|css)$/.test(e.name) ? [join(dir, e.name)] : []
   );
-for (const { dir } of pagine) {
+for (const dir of [...pagine.map((p) => p.dir), ...DEMOS.map((d) => d.source)]) {
   const radicePagina = join(ROOT, dir);
   const fuori = [];
   for (const f of sorgenti(radicePagina)) {

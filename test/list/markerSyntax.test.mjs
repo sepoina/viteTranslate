@@ -8,6 +8,7 @@ import {
   compiledMarker, isCompiledMarker, SOURCE_OPEN, SOURCE_CLOSE, UNTRANSLATED_KEY,
   mayHaveMarkers, SLOT_TAG_RE, RUNTIME_IMPORT,
   MACRO_COMPONENT, MACRO_HOOK, TRANSLATE_TEXT_PROPS, RUNTIME_IMPORT_RE,
+  MACRO_COMPONENTS, MACRO_HOOKS, DEFAULT_MARKERS, markerSyntaxOf,
 } from "../../lib/markerSyntax.js";
 import { markerKey, markerFallback, stripSourceMarker } from "../../lib/react/parseCompiledMarker.js";
 import { markedTextOf, registerMarker } from "../../lib/dev/babel/markerCore.js";
@@ -89,6 +90,63 @@ console.log("\n== la macro: i nomi in un posto solo (piano idePlugin_highlight) 
   eq("RUNTIME_IMPORT_RE: l'elenco fra graffe nel gruppo 1", `${MACRO_COMPONENT} as T, altro`, elenco[0]?.[1].trim());
   eq("…e dice RUNTIME_IMPORT", true, RUNTIME_IMPORT_RE.source.includes(RUNTIME_IMPORT.replace(/\//g, "\\/")));
   eq("TRANSLATE_TEXT_PROPS: le prop del testo", "t,o,a,children,skipMark", TRANSLATE_TEXT_PROPS.join(","));
+}
+
+console.log("\n== i nomi brevi (4.7.0): MACRO_COMPONENTS, MACRO_HOOKS e MACRO_IMPORT_RE d'accordo ==");
+{
+  eq("MACRO_COMPONENTS", "Translate,Trans", MACRO_COMPONENTS.join(","));
+  eq("MACRO_HOOKS", "useTranslateToString,useTrans", MACRO_HOOKS.join(","));
+  const importa = (nomi) => `import { ${nomi} } from "${RUNTIME_IMPORT}";`;
+  for (const n of [...MACRO_COMPONENTS, ...MACRO_HOOKS]) eq(`il pre-filtro riconosce ${n}`, true, mayHaveMarkers(importa(n)));
+  eq("Trans con alias", true, mayHaveMarkers(importa("Trans as T")));
+  eq("TransContainer da solo: no", false, mayHaveMarkers(importa("TransContainer")));
+  eq("useTransLanguage da solo: no", false, mayHaveMarkers(importa("useTransLanguage")));
+  eq("useTranslateLanguage da solo: no", false, mayHaveMarkers(importa("useTranslateLanguage")));
+  eq("TransContainer + Trans: sì", true, mayHaveMarkers(importa("TransContainer, Trans")));
+  // Il nome è lo stesso di react-i18next e di altre librerie: conta l'origine dell'import, non il nome.
+  eq("Trans di un'altra libreria: no", false, mayHaveMarkers('import { Trans, useTranslation } from "react-i18next";'));
+}
+
+console.log("\n== markerSyntaxOf (4.7.0) ==");
+{
+  const serie = markerSyntaxOf();
+  eq("di serie: start/end", "_%_|_%_", `${serie.start}|${serie.end}`);
+  eq("di serie: isDefault", true, serie.isDefault);
+  eq("DEFAULT_MARKERS", "_%_|_%_", `${DEFAULT_MARKERS.start}|${DEFAULT_MARKERS.end}`);
+  eq("di serie: min", 6, serie.min);
+  eq("di serie: wraps", true, serie.wraps("_%_ciao_%_"));
+  eq("di serie: wraps il vuoto", true, serie.wraps("_%__%_"));
+  eq("di serie: un delimitatore solo non avvolge", false, serie.wraps("_%_"));
+  eq("di serie: inner", "ciao", serie.inner("_%_ciao_%_"));
+  eq("di serie: stray", true, serie.stray("a _%_ b"));
+  eq("di serie: stray senza", false, serie.stray("ab"));
+
+  const m = markerSyntaxOf("≼", "≽");
+  eq("personalizzati: isDefault", false, m.isDefault);
+  eq("personalizzati: min", 2, m.min);
+  eq("wraps", true, m.wraps("≼ciao≽"));
+  eq("wraps: il vuoto", true, m.wraps("≼≽"));
+  eq("wraps: solo l'apertura", false, m.wraps("≼ciao"));
+  eq("wraps: i delimitatori di serie no", false, m.wraps("_%_ciao_%_"));
+  eq("inner", "ciao", m.inner("≼ciao≽"));
+  eq("stray: l'apertura", true, m.stray("a ≼ b"));
+  eq("stray: la chiusura", true, m.stray("a ≽ b"));
+  eq("stray: nessuno", false, m.stray("a b"));
+
+  const uguale = markerSyntaxOf("§", "§");
+  eq("uguali: un carattere solo non avvolge", false, uguale.wraps("§"));
+  eq("uguali: wraps", true, uguale.wraps("§a§"));
+  eq("uguali: stray", true, uguale.stray("a § b"));
+}
+
+console.log("\n== mayHaveMarkers con i delimitatori del progetto (4.7.0) ==");
+{
+  const m = { start: "≼", end: "≽" };
+  eq("il delimitatore del progetto", true, mayHaveMarkers('const a = "≼ciao≽";', m));
+  eq("_%_ passa comunque (per l'avviso old-marker)", true, mayHaveMarkers('const a = "_%_ciao_%_";', m));
+  eq("senza markers, un ≼ non basta", false, mayHaveMarkers('const a = "≼ciao≽";'));
+  eq("nessun marcatore", false, mayHaveMarkers('const a = "ciao";', m));
+  eq("l'import della macro", true, mayHaveMarkers(`import { Trans } from "${RUNTIME_IMPORT}";`, m));
 }
 
 console.log("\n== SLOT_TAG_RE: matchAll su piu' slot ==");

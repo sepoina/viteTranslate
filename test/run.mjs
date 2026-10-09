@@ -31,6 +31,8 @@ const OPZIONALI = [
   { file: "autoWrapSSR.test.mjs", richiede: ["react-dom/server", "react", "@babel/core"], come: "npm i -D react react-dom @babel/core @babel/preset-react" },
   // @babel/core in piu' degli altri: il container e' JSX, e va compilato come nel bundle vero.
   { file: "translateContainer.test.mjs", richiede: ["react-dom/server", "react", "@babel/core"], come: "npm i -D react react-dom @babel/core @babel/preset-react" },
+  // piano 4.7.0: l'indice di lib/react si carica davvero (TranslateContainer è JSX, serve Babel).
+  { file: "reactAliases.test.mjs", richiede: ["react", "@babel/core", "@babel/preset-react"], come: "npm i -D react @babel/core @babel/preset-react" },
   { file: "languageList.test.mjs", richiede: ["react-dom/server", "react"], come: "npm i -D react react-dom" },
   { file: "reactBundleSize.test.mjs", richiede: ["rolldown", "@babel/core", "@babel/preset-react"], come: "npm i -D rolldown @babel/core @babel/preset-react" },
   // piano 4.6.4: la macro passa dal preset React vero (macroForms.test.mjs) e devRender confronta

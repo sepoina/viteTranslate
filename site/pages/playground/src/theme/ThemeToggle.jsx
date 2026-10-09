@@ -2,7 +2,7 @@
 // tutto il sito (THEME_KEY, vedi boot.js).
 // SORGENTE in site/theme/: la copia in src/theme/ la rigenera `npm run site:theme`.
 import { useState } from "react";
-import { useTranslateToString } from "@sepoina/vitetranslate/react";
+import { useTrans } from "@sepoina/vitetranslate/react";
 import { THEME_KEY } from "./boot.js";
 
 const SUN = [
@@ -19,7 +19,7 @@ const SUN = [
 const MOON = ["M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"];
 
 export default function ThemeToggle() {
-  const ts = useTranslateToString();
+  const trans = useTrans();
   const [theme, setTheme] = useState(
     () => document.documentElement.dataset.theme ?? (matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark")
   );
@@ -36,7 +36,7 @@ export default function ThemeToggle() {
   };
 
   return (
-    <button type="button" className="icon-btn" onClick={flip} aria-label={ts("_%_Cambia tema_%_")}>
+    <button type="button" className="icon-btn" onClick={flip} aria-label={trans("_%_Cambia tema_%_")}>
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
         {(theme === "dark" ? SUN : MOON).map((d) => (
           <path key={d} d={d} />

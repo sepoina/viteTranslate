@@ -1,4 +1,4 @@
-import { Translate } from '@sepoina/vitetranslate/react';
+import { Trans } from '@sepoina/vitetranslate/react';
 import Photo from './Photo';
 import { PHOTOS } from '../photos';
 
@@ -35,7 +35,7 @@ export default function Story() {
           {STATS.map((s) => (
             <div key={s.value} className="reveal">
               <strong>{s.value}</strong>
-              <span><Translate t={s.label} /></span>
+              <span><Trans t={s.label} /></span>
             </div>
           ))}
         </div>
@@ -48,43 +48,43 @@ export default function Story() {
             <Photo photo={PHOTOS.knife} w={600} className="collage__side" />
             <span className="collage__badge">
               <strong>1987</strong>
-              <Translate>il primo chiosco sul molo</Translate>
+              <Trans>il primo chiosco sul molo</Trans>
             </span>
           </div>
           <div className="prose reveal">
-            <p className="eyebrow"><Translate>La nostra storia</Translate></p>
+            <p className="eyebrow"><Trans>La nostra storia</Trans></p>
             <h2 className="title">
-              <Translate>Da un chiosco di fritture a <i>una tavola sul mare</i></Translate>
+              <Trans>Da un chiosco di fritture a <i>una tavola sul mare</i></Trans>
             </h2>
             <p className="lead">
-              <Translate>
+              <Trans>
                 Nel 1987 nonna Ada friggeva acciughe in un chiosco di legno a dieci metri
                 dall'acqua. Aveva quattro tavoli, una lavagna scritta col gesso e una regola sola:
                 si cucina soltanto quello che il mare ha portato oggi.
-              </Translate>
+              </Trans>
             </p>
             <p>
-              <Translate>
+              <Trans>
                 Trentotto anni dopo i tavoli sono diventati sessantaquattro, la lavagna è ancora
                 appesa accanto alla porta della cucina e la regola non è cambiata di una virgola.
                 Ai fornelli c'è Tommaso, il nipote, tornato a casa dopo dieci anni tra Parigi,
                 San Sebastián e Tokyo con una valigia di tecniche e la stessa fame di semplicità.
-              </Translate>
+              </Trans>
             </p>
             <p>
-              <Translate>
+              <Trans>
                 La nostra è una cucina di sottrazione: pochi ingredienti, cotture precise, sapori
                 che si riconoscono a occhi chiusi. Un piatto è finito quando non c'è più niente da
                 togliere.
-              </Translate>
+              </Trans>
             </p>
             <blockquote className="signature">
-              <Translate>
+              <Trans>
                 «Il pesce buono non ha bisogno di essere convinto. Ha solo bisogno che nessuno
                 lo rovini.»
-              </Translate>
+              </Trans>
               <footer>
-                <cite>Tommaso Ferrando</cite> · <Translate>chef e patron</Translate>
+                <cite>Tommaso Ferrando</cite> · <Trans>chef e patron</Trans>
               </footer>
             </blockquote>
           </div>
@@ -94,17 +94,17 @@ export default function Story() {
       <section className="section section--sand">
         <div className="wrap">
           <header className="section-head reveal">
-            <p className="eyebrow"><Translate>Quello che non cambia</Translate></p>
+            <p className="eyebrow"><Trans>Quello che non cambia</Trans></p>
             <h2 className="title">
-              <Translate>Tre promesse, <i>ogni sera</i></Translate>
+              <Trans>Tre promesse, <i>ogni sera</i></Trans>
             </h2>
           </header>
           <div className="promises">
             {PROMISES.map((p) => (
               <article key={p.icon} className="promise reveal">
                 <span className="promise__icon"><i className={`ph ${p.icon}`} aria-hidden="true" /></span>
-                <h3><Translate t={p.title} /></h3>
-                <p><Translate t={p.text} /></p>
+                <h3><Trans t={p.title} /></h3>
+                <p><Trans t={p.text} /></p>
               </article>
             ))}
           </div>

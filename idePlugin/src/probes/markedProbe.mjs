@@ -5,8 +5,8 @@
 // progetto. Qui non il vite.config ma la libreria installata (vedi markedScan.mjs). Due modi:
 //
 //   - con argv[2]: risponde una volta sola e esce, come probe.mjs (i test, le prove a mano).
-//     argv[2] = JSON { baseDir, srcDir, localeDir, sourceLanguage, autoWrap } come li ha risolti
-//     probe.mjs; baseDir assoluto o relativo alla cwd (la cartella del progetto);
+//     argv[2] = JSON { baseDir, srcDir, localeDir, sourceLanguage, autoWrap, markers } come li ha
+//     risolti probe.mjs (`markers`: i delimitatori del progetto, assente = `_%_`); baseDir assoluto o relativo alla cwd (la cartella del progetto);
 //   - senza argomenti, con il canale IPC: fa da worker per scanWorker.mjs. Riceve
 //     `{ id, input, overlay }`, risponde `{ id, ...risposta, babel }`, una richiesta alla volta,
 //     finché chi l'ha lanciato non lo chiude (o se ne va: `disconnect`). Quanto restare vivo lo

@@ -9,7 +9,10 @@ import { STYLES, HIGHLIGHT_OFF } from "../../../highlight/highlightStyles.mjs";
 import { renderOptionsOf, cssVar } from "../../../highlight/decorationPlan.mjs";
 import { SOURCE_OPEN, SOURCE_CLOSE } from "../../../../../lib/markerSyntax.js";
 
-/** Il campione: il testo tra i delimitatori della libreria. */
+/**
+ * Il campione: il testo tra i delimitatori di serie della libreria. Resta su `_%_` anche in un
+ * progetto con delimitatori suoi: è un'anteprima dello stile, non del progetto (4.7.0).
+ */
 const SAMPLE = { open: SOURCE_OPEN, text: "Hello, world", close: SOURCE_CLOSE };
 
 // Da opzioni di decorazione a CSS inline.

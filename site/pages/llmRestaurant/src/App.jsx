@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { useTranslateLanguage, useTranslateToString } from '@sepoina/vitetranslate/react';
+import { useTransLanguage, useTrans } from '@sepoina/vitetranslate/react';
 import Header from './components/Header';
 import Hero from './components/Hero';
 import Story from './components/Story';
@@ -15,13 +15,13 @@ import Faq from './components/Faq';
 import Footer from './components/Footer';
 
 export default function App() {
-  const { id } = useTranslateLanguage();
-  const ts = useTranslateToString();
+  const { id } = useTransLanguage();
+  const trans = useTrans();
   //
   // anche il titolo della scheda cambia lingua
   useEffect(() => {
-    document.title = ts('_%_viteTranslate — Cucina di mare a Cala dei Gabbiani_%_');
-  }, [ts, id]);
+    document.title = trans('_%_viteTranslate — Cucina di mare a Cala dei Gabbiani_%_');
+  }, [trans, id]);
   //
   // i blocchi .reveal entrano in scena quando arrivano nel viewport (una volta sola).
   // Senza IntersectionObserver, o con "riduci movimento", restano semplicemente visibili.

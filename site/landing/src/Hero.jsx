@@ -1,4 +1,4 @@
-import { Translate, version } from "@sepoina/vitetranslate/react";
+import { Trans, version } from "@sepoina/vitetranslate/react";
 import CopyCommand from "./CopyCommand.jsx";
 import { Icon } from "./icons.jsx";
 import { REPO } from "./links.js";
@@ -6,7 +6,7 @@ import { siteUrl } from "./siteLinks.js";
 import SIZE from "./theme/runtimeSize.json";
 
 // Il comando che si scrive da solo sopra il titolo: la novità della release, da terminale.
-// È codice, non una frase: niente <Translate>.
+// È codice, non una frase: niente <Trans>.
 const LLM_CMD = "npx vitetranslate --llm-translate";
 
 export default function Hero() {
@@ -22,20 +22,20 @@ export default function Hero() {
         </p>
 
         <h1 data-hero>
-          <Translate t="_%_Scrivi il testo <em>una volta</em>.<br>Vite fa il resto._%_" />
+          <Trans t="_%_Scrivi il testo <em>una volta</em>.<br>Vite fa il resto._%_" />
         </h1>
 
         <p className="lead" data-hero>
-          <Translate>
+          <Trans>
             _%_Estrai i testi da tradurre direttamente dal JSX. Nessuna chiave da mantenere, nessun flusso di estrazione a parte,
             nessuna dipendenza a runtime._%_
-          </Translate>
+          </Trans>
         </p>
 
         <div className="cta-row" data-hero>
           <CopyCommand />
           <a className="btn btn-primary" href={siteUrl("playground")}>
-            <Translate>_%_Prova il playground_%_</Translate>
+            <Trans>_%_Prova il playground_%_</Trans>
             <Icon name="arrow" size={16} />
           </a>
         </div>
@@ -47,19 +47,19 @@ export default function Hero() {
               <span data-count={SIZE.gzipBytes}>{SIZE.gzipBytes}</span>
             </p>
             <p className="stat-l">
-              <Translate>_%_byte di runtime, in gzip_%_</Translate>
+              <Trans>_%_byte di runtime, in gzip_%_</Trans>
             </p>
             <p className="stat-d">
-              <Translate t={["_%_%s, misurati dalla suite di test: non una promessa a parole._%_", SIZE.real]} />
+              <Trans t={["_%_%s, misurati dalla suite di test: non una promessa a parole._%_", SIZE.real]} />
             </p>
           </div>
           <div className="stat">
             <p className="stat-n">0</p>
             <p className="stat-l">
-              <Translate>_%_dipendenze a runtime_%_</Translate>
+              <Trans>_%_dipendenze a runtime_%_</Trans>
             </p>
             <p className="stat-d">
-              <Translate>_%_Babel e Vite girano sulla tua macchina e non entrano mai nel bundle; React è quello che la tua app ha già._%_</Translate>
+              <Trans>_%_Babel e Vite girano sulla tua macchina e non entrano mai nel bundle; React è quello che la tua app ha già._%_</Trans>
             </p>
           </div>
         </div>
@@ -69,7 +69,7 @@ export default function Hero() {
         <div className="wrap hero-strip-in">
           <a className="release" href={`${REPO}/releases`}>
             <span className="tag tag-accent">v{version}</span>
-            <Translate>_%_Nuovo: traduzione automatica con LLM_%_</Translate>
+            <Trans>_%_Nuovo: traduzione automatica con LLM_%_</Trans>
             <Icon name="arrow" size={14} />
           </a>
         </div>

@@ -19,7 +19,9 @@ export default defineConfig({
       autoWrap: true,
     }),
     react(),
-    mkcert(),
+    // HTTPS in dev con un certificato locale. Non su StackBlitz: nel WebContainer (che si
+    // riconosce da process.versions.webcontainer) mkcert non può girare, e lì l'HTTPS c'è già.
+    ...(process.versions.webcontainer ? [] : [mkcert()]),
   ],
   // La libreria è linkata (workspace di npm: `"@sepoina/vitetranslate": "^<versione>"` diventa un link alla radice), quindi in build Vite
   // risolve il path reale del suo dist e da lì cerca "react" risalendo le cartelle: se ne

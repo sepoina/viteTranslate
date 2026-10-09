@@ -39,6 +39,7 @@ issue doesn't come up: there, the optimizer goes through the plugin container.
 
 ## StackBlitz
 
-Import the zip from https://stackblitz.com (New project > Import).
-Vite 7 uses Rollup and esbuild, both already available in WebContainer: no WASM binding to
+[Open it on StackBlitz](https://stackblitz.com/github/sepoina/viteTranslate/tree/main/demo/Vite_7/minimal?file=src/App.jsx),
+read straight from GitHub, or grab the [zip](https://sepoina.github.io/viteTranslate/zip/demo/vite7-minimal.zip)
+and import it (New project > Import). Vite 7 uses Rollup and esbuild, both already available in WebContainer: no WASM binding to
 install.

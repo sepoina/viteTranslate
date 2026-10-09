@@ -267,7 +267,9 @@ export class MarkedTree {
     const disegno = this.rendered;
     if (!disegno || disegno.loading) return null;
     const voci = (disegno.files.get(pathKey(file))?.children ?? []).filter((r) => r.open && r.line);
-    return entryAtCursor(voci, testo, line, column);
+    // I delimitatori del progetto (4.7.0), dalla lettura di vite.config; `_%_` se non si sanno.
+    const markers = this.configs?.ready?.(disegno.dir)?.probe?.vitetranslate?.markers ?? undefined;
+    return entryAtCursor(voci, testo, line, column, markers);
   }
 
   /**

@@ -8,16 +8,16 @@
 //   start, end     il metatag: delimitatori + contenuto, o il solo contenuto nella forma
 //                  componente (<Translate>…</Translate>, ts`…`), senza spazi ai capi
 //   inner          [s, e] il contenuto dentro i delimitatori (= [start, end] se non ce ne sono)
-//   delimiters     [[s, e], …] i `_%_`, zero o due
+//   delimiters     [[s, e], …] i delimitatori del progetto (`_%_` di serie), zero o due
 //   componentTags  [[s, e], …] `<Translate …>` e `</Translate>`, o `ts\`` e il backtick che chiude
 //   holes          [[s, e], …] dentro `inner`, quello che non è testo: tag, `{…}`, `${…}`
 //   text           [[s, e], …] il testo da colorare: `inner` meno i buchi, riga per riga
 //   span           [s, e] tutto quello che occupa, tag compresi: per le sovrapposizioni
 import {
-  SOURCE_OPEN, SOURCE_CLOSE, MIN_SOURCE_MARKED, PLACEHOLDER, TRANSLATE_TEXT_PROPS, mayHaveMarkers,
+  PLACEHOLDER, TRANSLATE_TEXT_PROPS, mayHaveMarkers, markerSyntaxOf, DEFAULT_MARKERS,
 } from "../../../lib/markerSyntax.js";
 import {
-  STRING_RE, TEMPLATE_RE, JSX_TEXT_RE, macroNames, tsNames, tagOpenRe, taggedTemplateRe, scanLiterals, escapeRe,
+  patternsFor, macroNames, tsNames, tagOpenRe, taggedTemplateRe, scanLiterals, escapeRe,
 } from "./metatagPatterns.mjs";
 
 const PROP_DEL_TESTO = new Set(TRANSLATE_TEXT_PROPS);
@@ -132,9 +132,9 @@ function testoDi(text, [s, e], buchi) {
 
 // I delimitatori dentro un contenuto già senza spazi ai capi: la forma componente li accetta
 // facoltativi (`<Translate>_%_Ciao_%_</Translate>`, ts`_%_Ciao_%_`).
-function delimitatoriDentro(text, s, e) {
-  if (e - s < MIN_SOURCE_MARKED || !text.startsWith(SOURCE_OPEN, s) || !text.startsWith(SOURCE_CLOSE, e - SOURCE_CLOSE.length)) return [];
-  return [[s, s + SOURCE_OPEN.length], [e - SOURCE_CLOSE.length, e]];
+function delimitatoriDentro(text, s, e, sint) {
+  if (e - s < sint.min || !text.startsWith(sint.start, s) || !text.startsWith(sint.end, e - sint.end.length)) return [];
+  return [[s, s + sint.start.length], [e - sint.end.length, e]];
 }
 
 // Il contenuto dentro i delimitatori (o tutto, se non ce ne sono), coi suoi buchi e il suo testo.
@@ -190,7 +190,7 @@ export function chiusura(text, nome, da) {
 
 // <Translate>…</Translate>: le stesse esclusioni di macroTranslate in macroForms.js (autochiuso,
 // spread, una prop del testo, contenuto vuoto o un'espressione sola, nessun testo).
-function translate(text, i, nome) {
+function translate(text, i, nome, sint) {
   const apre = fineTag(text, i);
   if (!apre || apre.selfClosing) return null;
   const attributi = nomiAttributi(text, i + 1 + nome.length, apre.end - 1);
@@ -199,7 +199,7 @@ function translate(text, i, nome) {
   if (!chiude) return null;
   const [s, e] = senzaSpazi(text, [apre.end, chiude.start]);
   if (s >= e || (text[s] === "{" && fineGraffa(text, s) === e)) return null;
-  const delimiters = delimitatoriDentro(text, s, e);
+  const delimiters = delimitatoriDentro(text, s, e, sint);
   const p = parti(text, s, e, delimiters, buchiJsx);
   if (!p.text.length) return null;
   return {
@@ -209,12 +209,12 @@ function translate(text, i, nome) {
 }
 
 // ts`…`: il tag e i backtick sono la parte "componente", il contenuto è il messaggio.
-function tagged(text, m) {
+function tagged(text, m, sint) {
   const [ns] = m.indices[1];
   const [cs, ce] = m.indices[2];
   const [s, e] = senzaSpazi(text, [cs, ce]);
   if (s >= e) return null;
-  const delimiters = delimitatoriDentro(text, s, e);
+  const delimiters = delimitatoriDentro(text, s, e, sint);
   const p = parti(text, s, e, delimiters, buchiTemplate);
   if (!p.text.length && !delimiters.length) return null;
   return {
@@ -253,14 +253,14 @@ function bilanciati(text, holes) {
 }
 
 // Le forme della macro rifiutano due cose che una frase non può contenere (MOTIVI in macroForms.js):
-// un "%s" e un "_%_" in mezzo. Rifiutata, la macro non estrae niente: non la si colora.
+// un "%s" e un delimitatore in mezzo. Rifiutata, la macro non estrae niente: non la si colora.
 const MACRO = new Set(["translate", "sentence", "ts"]);
 const èMacro = (c) => MACRO.has(c.form) || (c.form === "template" && c.holes.length > 0);
-const rifiutata = (text, c) =>
+const rifiutata = (text, c, sint) =>
   ((c.form === "translate" || c.form === "sentence") && !bilanciati(text, c.holes)) ||
   (èMacro(c) && c.text.some(([s, e]) => {
     const pezzo = text.slice(s, e);
-    return pezzo.includes(PLACEHOLDER) || pezzo.includes(SOURCE_OPEN);
+    return pezzo.includes(PLACEHOLDER) || sint.stray(pezzo);
   }));
 
 /**
@@ -276,10 +276,13 @@ const rifiutata = (text, c) =>
  * dentro un suo buco (`{"_%_…_%_"}` in un <Translate>).
  *
  * @param {string} text
+ * @param {{ start: string, end: string }} [markers] - i delimitatori del progetto; default `_%_`
  * @returns {Array<object>}
  */
-export function findMetatags(text) {
-  if (!mayHaveMarkers(text)) return [];
+export function findMetatags(text, markers = DEFAULT_MARKERS) {
+  if (!mayHaveMarkers(text, markers)) return [];
+  const sint = markerSyntaxOf(markers.start, markers.end);
+  const { STRING_RE, TEMPLATE_RE, JSX_TEXT_RE } = patternsFor(markers);
   const { masked: t, literals } = scanLiterals(text);
   const inizi = new Map(literals.map(([s, e]) => [s, e]));
   const èLetterale = (s, e) => inizi.get(s) === e;
@@ -300,12 +303,12 @@ export function findMetatags(text) {
   const ts = tsNames(t, hook);
   const candidati = [];
   if (component.size) {
-    for (const m of t.matchAll(tagOpenRe(component))) if (!inLetterale(m.index)) candidati.push(translate(t, m.index, m[1]));
+    for (const m of t.matchAll(tagOpenRe(component))) if (!inLetterale(m.index)) candidati.push(translate(t, m.index, m[1], sint));
   }
   if (ts.size) {
     for (const m of t.matchAll(taggedTemplateRe(ts))) {
       const backtick = m.indices[2][0] - 1;
-      if (èLetterale(backtick, m.indices[0][1])) candidati.push(tagged(t, m));
+      if (èLetterale(backtick, m.indices[0][1])) candidati.push(tagged(t, m, sint));
     }
   }
   for (const m of t.matchAll(TEMPLATE_RE)) if (èLetterale(...m.indices[0])) candidati.push(inLinea("template", t, m, 1, 3, buchiTemplate));
@@ -317,7 +320,7 @@ export function findMetatags(text) {
   const presi = [];
   let lunghezzaMax = 0;
   for (const c of candidati) {
-    if (!c || rifiutata(t, c)) continue;
+    if (!c || rifiutata(t, c, sint)) continue;
     let lo = 0;
     let hi = presi.length;
     while (lo < hi) {

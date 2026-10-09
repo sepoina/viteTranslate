@@ -8,25 +8,33 @@
 
 ## At a glance
 
-| Export | Kind | For |
-| :- | :- | :- |
-| [`TranslateContainer`](#translatecontainer) | component | Wraps the app once, at the root: holds the current language, loads the tables |
-| [`<Translate>`](#translate) | component | Translated text in JSX |
-| [`useTranslateToString()`](#usetranslatetostring) | hook | Translated plain strings — `placeholder`, `aria-label`, `title` |
-| [`useTranslateNode()`](#usetranslatenode) | hook | What the `autoWrap` option injects; rarely written by hand |
-| [`jsxArg()`](#jsxarg) | function | What the preprocessor injects around a value; rarely written by hand |
-| [`useTranslateLanguage()`](#usetranslatelanguage) | hook | A language switcher: current language, available ones, [`proposeNewLanguage()`](#proposenewlanguage) |
-| [`basicHtmlToNodes()`](#basichtmltonodes) | function | A string with basic HTML → React nodes, no `dangerouslySetInnerHTML` |
-| [`version`](#version) | string | The installed package version |
+Every example below uses the [short names](#short-names); the full name (its section below) is the same function.
+
+| Short name | Full name | Kind | For |
+| :- | :- | :- | :- |
+| `TransContainer` | [`TranslateContainer`](#translatecontainer) | component | Wraps the app once, at the root: holds the current language, loads the tables |
+| `<Trans>` | [`<Translate>`](#translate) | component | Translated text in JSX |
+| `useTrans()` | [`useTranslateToString()`](#usetranslatetostring) | hook | Translated plain strings — `placeholder`, `aria-label`, `title`. By convention `const trans = useTrans()` |
+| — | [`useTranslateNode()`](#usetranslatenode) | hook | What the `autoWrap` option injects; rarely written by hand |
+| — | [`jsxArg()`](#jsxarg) | function | What the preprocessor injects around a value; rarely written by hand |
+| `useTransLanguage()` | [`useTranslateLanguage()`](#usetranslatelanguage) | hook | A language switcher: current language, available ones, [`proposeNewLanguage()`](#proposenewlanguage) |
+| — | [`basicHtmlToNodes()`](#basichtmltonodes) | function | A string with basic HTML → React nodes, no `dangerouslySetInnerHTML` |
+| — | [`version`](#version) | string | The installed package version |
 
 And how languages load on the first render: [Preloading, Suspense and the initial flash](#preloading-suspense-and-the-initial-flash).
+
+## Short names
+
+`Trans`, `useTrans`, `TransContainer` and `useTransLanguage` are `Translate`, `useTranslateToString`, `TranslateContainer` and `useTranslateLanguage` under a shorter name: **the same function**, not a copy (`Trans === Translate`), so React DevTools shows the full name. Both keep working for good, and the preprocessor reads both (also under an `as` alias). A key never depends on the name or on the delimiters: renaming `<Translate>` to `<Trans>` keeps every translation. The one exception is a text that contains the word `<Translate>` itself — a site about this library — which is a new message. The rest of the API (`useTranslateNode`, `jsxArg`, `basicHtmlToNodes`, `version`) has no short name.
+
+The names will sound familiar from other i18n libraries (`Trans` in react-i18next and Lingui). Mixing them in one project is safe: the preprocessor and the editor extension treat `Trans` as ours only when it is imported from `@sepoina/vitetranslate/react`.
 
 ## `TranslateContainer`
 
 ```jsx
-<TranslateContainer initialLanguage="it-IT">
+<TransContainer initialLanguage="it-IT">
   <App />
-</TranslateContainer>
+</TransContainer>
 ```
 
 | Prop | Type | Default | Description |
@@ -48,8 +56,8 @@ An eagerly bundled initial language renders synchronously; any other makes the c
 Write the sentence where it belongs, values and tags included — the build-time preprocessor turns it into the message and its arguments, no key to invent:
 
 ```jsx
-<Translate>Welcome back, <b>{name}</b>!</Translate>
-<Translate>Ciao <b>{name}</b>, leggi la <a href="/d">guida</a></Translate>
+<Trans>Welcome back, <b>{name}</b>!</Trans>
+<Trans>Ciao <b>{name}</b>, leggi la <a href="/d">guida</a></Trans>
 ```
 
 | Child in JSX | In the message | Why |
@@ -70,10 +78,10 @@ Write the sentence where it belongs, values and tags included — the build-time
 A marked string built at runtime, or handed down as a prop, still works the way it always has:
 
 ```jsx
-<Translate>_%_Welcome_%_</Translate>                                 // as a child
-<Translate t={["_%_Hello %s, how are you?_%_", username]} />         // tuple: [text, ...args]
-<Translate t="_%_Hello %s, how are you?_%_" a={[username]} />        // text and args apart
-<Translate o={{ t: "_%_Hello %s, how are you?_%_", a: [username] }} />  // one packaged value
+<Trans>_%_Welcome_%_</Trans>                                 // as a child
+<Trans t={["_%_Hello %s, how are you?_%_", username]} />         // tuple: [text, ...args]
+<Trans t="_%_Hello %s, how are you?_%_" a={[username]} />        // text and args apart
+<Trans o={{ t: "_%_Hello %s, how are you?_%_", a: [username] }} />  // one packaged value
 ```
 
 🧪 Every form, and the ones that go wrong: [call forms](https://sepoina.github.io/viteTranslate/edge/#call-forms).
@@ -91,8 +99,8 @@ A marked string built at runtime, or handed down as a prop, still works the way 
 ### Markup and placeholders
 
 ```jsx
-<Translate t="_%_<strong>Bold</strong> and <i>italic</i> text_%_" />
-<Translate t={["_%_Signed in as <b>%s</b>_%_", <Link to="/me">{username}</Link>]} />
+<Trans t="_%_<strong>Bold</strong> and <i>italic</i> text_%_" />
+<Trans t={["_%_Signed in as <b>%s</b>_%_", <Link to="/me">{username}</Link>]} />
 ```
 
 - **Markup:** only `<b> <strong> <i> <em> <u> <small> <code> <br> <hr> <wbr>`, compiled at build time — no HTML parser at runtime.
@@ -125,7 +133,7 @@ An unmarked string is not an error: it is how one component accepts both transla
 A number and an element say what they are. A **string** doesn't: unmarked can mean *forgotten marker*, or *a value that will never have one* — a phone number, a URI, a field name from an admin panel, a server message. Only the call site knows which:
 
 ```jsx
-<Translate t={row.label} skipMark />
+<Trans t={row.label} skipMark />
 ```
 
 - Text **not** marked: no `‼️`, no console warning. Everything else is unchanged, `%s` interpolation included.
@@ -142,23 +150,23 @@ The alternative that looks equivalent isn't: `errorSolve.mark.malformed = false`
 For places that need a plain string instead of JSX — `placeholder`, `aria-label`, `title`:
 
 ```jsx
-import { useTranslateToString } from "@sepoina/vitetranslate/react";
+import { useTrans } from "@sepoina/vitetranslate/react";
 
 function SearchInput({ name }) {
-  const ts = useTranslateToString();
-  return <input placeholder={ts`Write to ${name}`} />;
+  const trans = useTrans();
+  return <input placeholder={trans`Write to ${name}`} />;
 }
 ```
 
-The tagged-template form, `` ts`…` ``, works only when `ts` comes from `useTranslateToString()` **in the same file** — the preprocessor looks for the call, not for the name. Passed as a prop, or wrapped in another hook, it reaches the runtime uncompiled and is treated as a plain, unmarked template.
+The tagged-template form, `` trans`…` ``, works only when `trans` comes from `useTrans()` (or `useTranslateToString()`) **in the same file** — the preprocessor looks for the call, not for the name. Passed as a prop, or wrapped in another hook, it reaches the runtime uncompiled and is treated as a plain, unmarked template.
 
-`ts()` also accepts the same call forms as `<Translate>`'s [other forms](#other-forms), with the same [diagnostic prefixes](diagnostics.md) and the same [`⁇` rule](#markup-and-placeholders) for a missing `%s`:
+`trans()` also accepts the same call forms as `<Trans>`'s [other forms](#other-forms), with the same [diagnostic prefixes](diagnostics.md) and the same [`⁇` rule](#markup-and-placeholders) for a missing `%s`:
 
 ```js
-ts("_%_Hello %s_%_", name)
-ts(["_%_Hello %s_%_", name])
-ts({ t: "_%_Hello %s_%_", a: [name] })
-ts(field.label, undefined, { skipMark: true })   // third argument: what are props on <Translate>
+trans("_%_Hello %s_%_", name)
+trans(["_%_Hello %s_%_", name])
+trans({ t: "_%_Hello %s_%_", a: [name] })
+trans(field.label, undefined, { skipMark: true })   // third argument: what are props on <Trans>
 ```
 
 It has to return a primitive string, so a **React element** is the one form it doesn't take: a real error, with a message of its own. Other non-text values (a function, a symbol, an element inside the tuple) return `""` with a console warning in development, as in `<Translate>`.
@@ -203,10 +211,10 @@ Written by hand only when building a compiled marker's arguments yourself; insid
 Everything a language switcher needs:
 
 ```jsx
-import { useTranslateLanguage } from "@sepoina/vitetranslate/react";
+import { useTransLanguage } from "@sepoina/vitetranslate/react";
 
 function LanguageSwitcher() {
-  const { id, languages, proposeNewLanguage } = useTranslateLanguage();
+  const { id, languages, proposeNewLanguage } = useTransLanguage();
 
   return languages.map(({ tag, languageName }) => (
     <button key={tag} disabled={id === tag} onClick={() => proposeNewLanguage({ lang: tag })}>
@@ -233,7 +241,7 @@ function LanguageSwitcher() {
 ### `proposeNewLanguage()`
 
 ```js
-const { proposeNewLanguage } = useTranslateLanguage();
+const { proposeNewLanguage } = useTransLanguage();
 proposeNewLanguage({ lang, onStart, onDone, onError });
 ```
 
@@ -280,9 +288,9 @@ vitetranslate({
 ```
 
 ```jsx
-<TranslateContainer initialLanguage="en-US">  {/* preloaded → synchronous first paint */}
+<TransContainer initialLanguage="en-US">  {/* preloaded → synchronous first paint */}
   <App />
-</TranslateContainer>
+</TransContainer>
 ```
 
 Without `initialLanguage`, the container starts from the first eager language (`preloadedLanguages[0] ?? sourceLanguage`) — the same in dev and in build, on purpose. Starting from a language that isn't eager still works, but costs a round trip before the first paint; it is reported once in the console, in production too (in dev the source language is always eager, so the check would never fire there).

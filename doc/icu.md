@@ -13,7 +13,7 @@
 A text is an ICU message only if it contains an ICU **argument**: `{0}`, `{name}`, or `{n, plural, …}` and friends. `%s` still works exactly as before — the two can coexist in the same table.
 
 ```jsx
-<Translate t="_%_{0, plural, one {# file} other {# files}}_%_" a={[count]} />
+<Trans t="_%_{0, plural, one {# file} other {# files}}_%_" a={[count]} />
 ```
 
 A literal `{` isn't enough on its own — `{ t: null }` stays plain text — but a real argument always triggers ICU parsing, so a curly brace you mean literally needs an entity: `&#123;name}` or `&lbrace;name&rbrace;`. That includes `Press {Enter}`: it reads as an argument now, and without a value it renders `⁇`.
@@ -41,14 +41,14 @@ A literal `{` isn't enough on its own — `{ t: null }` stays plain text — but
 
 | Written | Passed | Reads |
 | :- | :- | :- |
-| `{0}` | `a={[x, y]}`, `t={[text, x, y]}`, `ts(t, [x, y])` | `a[0]` |
+| `{0}` | `a={[x, y]}`, `t={[text, x, y]}`, `trans(t, [x, y])` | `a[0]` |
 | `{0}` | `a="x"` (scalar) | `"x"` for `{0}`, absent for the rest |
-| `{name}` | `a={{ name: "Aldo" }}`, `ts(t, { name })` | `a.name` |
+| `{name}` | `a={{ name: "Aldo" }}`, `trans(t, { name })` | `a.name` |
 | `{name}` and `{1}` | `a={[{ name }, 3]}`, `t={[text, { name }, 3]}` | `a[0].name` and `a[1]` |
 
 `{name}` reads a field of the **arguments object** — the object itself, or the first element when arguments come as an array or tuple. Only a **plain object** counts: a literal, `JSON.parse` output, a `Object.create(null)` — never a class instance, a `Date`, or a React element, which all render as themselves instead. A missing field shows `⁇` (`mark.absentDataInArray`, suppressible the same way as a missing `%s` — see [Diagnostics](diagnostics.md)), and it's never logged as a separate warning.
 
-This is also the rule the [macro](react-api.md#write-jsx-inside-translate) builds its own arguments by: `<Translate>Ciao {name}, hai {count} messaggi</Translate>` compiles `a` exactly as `a={{ name, count: 1 }}` would — an identifier becomes a name, anything else becomes a position, and a numbered tag (a slot) shares the same position counter as `{n}`.
+This is also the rule the [macro](react-api.md#write-jsx-inside-translate) builds its own arguments by: `<Trans>Ciao {name}, hai {count} messaggi</Trans>` compiles `a` exactly as `a={{ name, count: 1 }}` would — an identifier becomes a name, anything else becomes a position, and a numbered tag (a slot) shares the same position counter as `{n}`.
 
 A translation can put the arguments in whatever order the target grammar needs — see the Japanese line in the showcase above — but a name is code, not text: `{name}` stays `{name}` in every language.
 
@@ -110,7 +110,7 @@ The ICU parser (`@formatjs/icu-messageformat-parser`) never reaches a production
 ## Limits
 
 - Names come from plain objects only — not class instances, `Map`s, or anything with its own prototype.
-- ICU syntax needs an expression, so it can't sit directly in JSX text (`{` starts a real JSX expression there) — use `t="..."` or `ts()`.
+- ICU syntax needs an expression, so it can't sit directly in JSX text (`{` starts a real JSX expression there) — use `t="..."` or `trans()`.
 - A markup tag can't open outside a plural/select branch and close inside it, or vice versa.
-- A `Date` passed to a plain `{0}` (or a `%s`) isn't formatted — it passes through as-is, which React won't render as JSX and `ts()` turns into its raw `toString()`. Use `{0, date}` or `{0, time}` whenever the argument is a date.
+- A `Date` passed to a plain `{0}` (or a `%s`) isn't formatted — it passes through as-is, which React won't render as JSX and `trans()` turns into its raw `toString()`. Use `{0, date}` or `{0, time}` whenever the argument is a date.
 - No custom named number formats (`{0, number, price}` defined in config) — only the built-in styles and `::skeleton` syntax.

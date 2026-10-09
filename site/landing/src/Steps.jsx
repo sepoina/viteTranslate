@@ -1,10 +1,10 @@
-import { Translate } from "@sepoina/vitetranslate/react";
+import { Trans } from "@sepoina/vitetranslate/react";
 import { Code } from "./theme/Code.jsx";
 import SectionHead from "./SectionHead.jsx";
 
-const MARK = `<Translate>
+const MARK = `<Trans>
   Benvenuto in viteTranslate
-</Translate>`;
+</Trans>`;
 
 const SYNC = `$ npx vitetranslate
 
@@ -23,18 +23,18 @@ export default function Steps() {
     <section className="section" data-section="how">
       <div className="wrap">
         <SectionHead
-          eyebrow={<Translate>_%_Come funziona_%_</Translate>}
-          title={<Translate t="_%_Tre passi, <em>zero</em> burocrazia._%_" />}
+          eyebrow={<Trans>_%_Come funziona_%_</Trans>}
+          title={<Trans t="_%_Tre passi, <em>zero</em> burocrazia._%_" />}
         />
 
         <ol className="steps" data-stagger>
           <li className="step">
             <span className="step-n">01</span>
             <h3>
-              <Translate>Scrivi la frase</Translate>
+              <Trans>Scrivi la frase</Trans>
             </h3>
             <p>
-              <Translate>Nel JSX, dove serve: variabili e tag compresi. Nessun file di chiavi, nessun nome da inventare.</Translate>
+              <Trans>Nel JSX, dove serve: variabili e tag compresi. Nessun file di chiavi, nessun nome da inventare.</Trans>
             </p>
             <Code code={MARK} lang="jsx" className="step-code" />
           </li>
@@ -42,10 +42,10 @@ export default function Steps() {
           <li className="step">
             <span className="step-n">02</span>
             <h3>
-              <Translate>_%_Sincronizza_%_</Translate>
+              <Trans>_%_Sincronizza_%_</Trans>
             </h3>
             <p>
-              <Translate>_%_Un comando, oppure il server di sviluppo: le tabelle YAML restano allineate al codice._%_</Translate>
+              <Trans>_%_Un comando, oppure il server di sviluppo: le tabelle YAML restano allineate al codice._%_</Trans>
             </p>
             <Code code={SYNC} lang="sh" className="step-code" />
           </li>
@@ -53,10 +53,10 @@ export default function Steps() {
           <li className="step">
             <span className="step-n">03</span>
             <h3>
-              <Translate>_%_Traduci_%_</Translate>
+              <Trans>_%_Traduci_%_</Trans>
             </h3>
             <p>
-              <Translate>_%_A mano, da un traduttore, o con un LLM che rispetta segnaposto e tag. Poi pubblichi._%_</Translate>
+              <Trans>_%_A mano, da un traduttore, o con un LLM che rispetta segnaposto e tag. Poi pubblichi._%_</Trans>
             </p>
             <Code code={TRANSLATE} lang="sh" className="step-code" />
           </li>

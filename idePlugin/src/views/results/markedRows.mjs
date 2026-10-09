@@ -16,6 +16,7 @@
 import path from "node:path";
 import { errorLine } from "../../core/summarize.mjs";
 import { pathKey } from "../../core/pickProject.mjs";
+import { DEFAULT_MARKERS } from "../../../../lib/markerSyntax.js";
 
 // Oltre, l'etichetta di una voce si tronca: il testo intero è nel tooltip.
 const MAX_LABEL = 80;
@@ -156,7 +157,7 @@ export function markedInput(probe) {
   const c = probe.vitetranslate;
   if (!c) return { rows: [{ label: "vitetranslate is not registered in vite.config", icon: "warning" }] };
   return {
-    input: { baseDir: c.baseDir ?? ".", srcDir: c.srcDir ?? "src", localeDir: c.localeDir, sourceLanguage: c.sourceLanguage, autoWrap: c.autoWrap ?? false },
+    input: { baseDir: c.baseDir ?? ".", srcDir: c.srcDir ?? "src", localeDir: c.localeDir, sourceLanguage: c.sourceLanguage, autoWrap: c.autoWrap ?? false, markers: c.markers ?? null },
     glyphs: glyphsOf(c.errorSolve),
   };
 }
@@ -224,7 +225,7 @@ export function markedChildren({ dir, input, marked, filter = "all", search = ""
     return [{
       label: "nothing marked yet",
       description: `${plurale(marked.scanned, "file", "files")} scanned in ${input.srcDir}/`,
-      tooltip: "Wrap a string in _%_…_%_, or use <Translate>, to see it here.",
+      tooltip: `Wrap a string in ${(input.markers ?? DEFAULT_MARKERS).start}…${(input.markers ?? DEFAULT_MARKERS).end}, or use <Trans>, to see it here.`,
       icon: "info",
     }];
   }

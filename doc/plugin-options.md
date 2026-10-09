@@ -18,7 +18,10 @@ vitetranslate(options)
 | `autoSyncDev` | `boolean` | `true` | Sync the tables at dev server startup, using the fast verify: nothing happens, nothing is printed, if nothing changed since the last sync. Makes `predev` unnecessary |
 | `autoSyncBuild` | `boolean` | `true` | Sync the tables before a build, with a full scan instead of the fast verify — a build gets the certainty of freshly rebuilt tables. Makes `prebuild` unnecessary |
 | `includeFallback` | `boolean` | `!isProduction` | Embed the original text as a fallback in the compiled marker (dev only by default) |
-| `autoWrap` | `boolean \| RegExp` | `false` | Makes marked JSX text and attributes render for real instead of showing the compiled marker, by rewriting them into a `<Translate>`/hook call. Also turns on the two preprocessor forms that need somewhere to render into: a `"_%_…_%_"` sentence split across JSX siblings (`<p>_%_hi <b>x</b>_%_</p>`), and the hook form `<Translate>` itself compiles to inside a recognised component. `true` covers every host tag except `script`, `style`, `title` and `textarea` (text-only, handled differently); a `RegExp` narrows further to the tags it matches. See [limitations](limitations.md) for what it doesn't cover |
+| `autoWrap` | `boolean \| RegExp` | `false` | Makes marked JSX text and attributes render for real instead of showing the compiled marker, by rewriting them into a `<Trans>`/hook call. Also turns on the two preprocessor forms that need somewhere to render into: a `"_%_…_%_"` sentence split across JSX siblings (`<p>_%_hi <b>x</b>_%_</p>`), and the hook form `<Trans>` itself compiles to inside a recognised component. `true` covers every host tag except `script`, `style`, `title` and `textarea` (text-only, handled differently); a `RegExp` narrows further to the tags it matches. See [limitations](limitations.md) for what it doesn't cover |
+| `marker` | `string` | `"_%_"` | The delimiter of a marked string, the same at both ends (`"§"` → `"§ciao§"`). See [Markers](#markers) |
+| `markerStart` | `string` | `marker`, or `"_%_"` | The opening delimiter. Wins over `marker` for its end |
+| `markerEnd` | `string` | `marker`, or `"_%_"` | The closing delimiter. Wins over `marker` for its end |
 | `errorSolve` | `object` | see below | On-screen and console diagnostics for strings that didn't arrive where they should — see [Diagnostics](diagnostics.md) |
 | `simpleLog` | `boolean` | `false` | Plain, un-boxed console output for the plugin and the CLI: no label column, no rules, same colors — useful in CI or a narrow terminal. Same as the CLI's `--simpleLog` flag, which always wins over this option |
 | `llm` | `object` | off | Configuration for `npx vitetranslate --llm-translate` — see below. Validated at plugin construction, like `localeDir`; absent means the feature stays off, byte for byte like before this option existed |
@@ -27,6 +30,30 @@ vitetranslate(options)
 Only `false` turns `autoSyncDev` / `autoSyncBuild` off — any other value counts as on. Setting `VITETRANSLATE_NO_SYNC` (to anything non-empty) turns both off without touching `vite.config.*`, which is the only way to reach this from a read-only checkout. Neither one ever runs under Vitest or `vite preview`: a test run shouldn't rewrite your tables, and a preview has no source changes to catch up on.
 
 `autoWrap` is the mirror case: only `true` or a `RegExp` turn it on, any other value (including a typo'd truthy one) leaves it off — a mistake here should fall back to today's behavior, not switch it on by accident. A `RegExp` with the `g` or `y` flag is accepted too — those flags are stripped internally, since a stateful `.test()` would otherwise answer differently for the second tag it checks in the same file. 🎮 Live: [playground/#autowrap](https://sepoina.github.io/viteTranslate/playground/#autowrap); 🧪 ten edge cases: [edge/#autowrap](https://sepoina.github.io/viteTranslate/edge/#autowrap).
+
+## Markers
+
+`_%_` is the default delimiter of a marked string. Pick your own with `marker` (one delimiter, both ends) or `markerStart` / `markerEnd`; the specific one wins:
+
+```js
+vitetranslate({
+  localeDir: "locale",
+  sourceLanguage: "it-IT",
+  markerStart: "≼", // U+227C
+  markerEnd: "≽",   // U+227D
+});
+```
+
+```jsx
+const steps = ["≼Choose≽", "≼Pay≽"]; // same key as "_%_Choose_%_" had
+<input title={trans("≼Filter≽")} />
+```
+
+- **The key never changes.** It comes from the text inside, not from the delimiters (nor from the component name): switching delimiters, or rewriting `_%_x_%_` to `≼x≽`, keeps every translation. [`--rewriteMarker`](cli.md#rewriting-the-markers) does the rewriting for you, and refuses to write if a single key would change.
+- **Not allowed:** spaces, control characters, `<` `>` `{` `}` `"` `'` a backtick, a backslash and `&` (each already means something in JSX, strings or messages), `%s`, and two different delimiters where one contains the other. A bad value stops the plugin at startup, naming the option.
+- **Advice:** at least two characters, or a Unicode symbol that never shows up in real text (`≼ ≽`, `§`). Any string that contains a delimiter without being wrapped by it raises a [warning](diagnostics.md), so a common single character will raise many.
+- **Old markers:** with custom delimiters, a leftover `_%_` in the source raises the `old-marker` warning and extracts nothing. A [macro](react-api.md#short-names) (`<Trans>…</Trans>`) needs no delimiters at all.
+- The demo [`customMarkers`](../demo/Vite_8/customMarkers) shows it working, and the [VS Code extension](ide-panel.md) highlights your delimiters (it reads them from `vite.config`).
 
 ## `errorSolve`
 
@@ -80,4 +107,4 @@ vitetranslate({
 | :- | :- | :- |
 | `timeZone` | `string` | An IANA zone name (`"Europe/Rome"`, `"UTC"`, …). Validated at plugin construction — an unknown zone is a build-time error, not a silent fallback |
 
-Lowest of three precedences: a calendar date (`"YYYY-MM-DD"`) is always UTC regardless of this option; the `timeZone` prop of `<TranslateContainer>` wins over it; with neither, the message uses whatever zone the runtime itself is in. See [ICU messages](icu.md#dates-and-time-zones), 🎮 [live](https://sepoina.github.io/viteTranslate/playground/#icu-format).
+Lowest of three precedences: a calendar date (`"YYYY-MM-DD"`) is always UTC regardless of this option; the `timeZone` prop of `<TransContainer>` (`TranslateContainer`) wins over it; with neither, the message uses whatever zone the runtime itself is in. See [ICU messages](icu.md#dates-and-time-zones), 🎮 [live](https://sepoina.github.io/viteTranslate/playground/#icu-format).

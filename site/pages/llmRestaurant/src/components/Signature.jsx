@@ -1,4 +1,4 @@
-import { Translate } from '@sepoina/vitetranslate/react';
+import { Trans } from '@sepoina/vitetranslate/react';
 import Photo from './Photo';
 import { PHOTOS } from '../photos';
 
@@ -27,16 +27,16 @@ export default function Signature() {
       <div className="wrap">
         <header className="section-head section-head--row reveal">
           <div>
-            <p className="eyebrow eyebrow--light"><Translate>I piatti firma</Translate></p>
+            <p className="eyebrow eyebrow--light"><Trans>I piatti firma</Trans></p>
             <h2 className="title">
-              <Translate>Tre piatti che <i>non togliamo mai</i> dalla carta</Translate>
+              <Trans>Tre piatti che <i>non togliamo mai</i> dalla carta</Trans>
             </h2>
           </div>
           <p>
-            <Translate>
+            <Trans>
               Li abbiamo provati a togliere, una volta. Per tre settimane gli ospiti li hanno
               chiesti lo stesso, e sono tornati al loro posto.
-            </Translate>
+            </Trans>
           </p>
         </header>
         <div className="dishes">
@@ -44,8 +44,8 @@ export default function Signature() {
             <article key={d.name} className="dish reveal">
               <Photo photo={d.photo} w={900} h={1100} className="dish__photo" />
               <span className="dish__num">0{i + 1}</span>
-              <h3><Translate t={d.name} /></h3>
-              <p><Translate t={d.text} /></p>
+              <h3><Trans t={d.name} /></h3>
+              <p><Trans t={d.text} /></p>
             </article>
           ))}
         </div>

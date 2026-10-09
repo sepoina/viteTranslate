@@ -1,4 +1,4 @@
-import { Translate } from '@sepoina/vitetranslate/react';
+import { Trans } from '@sepoina/vitetranslate/react';
 
 // Ospiti inventati come il resto del ristorante: lo dice anche il piè di pagina.
 const REVIEWS = [
@@ -24,9 +24,9 @@ export default function Reviews() {
     <section className="section section--sand">
       <div className="wrap">
         <header className="section-head section-head--center reveal">
-          <p className="eyebrow"><Translate>Dicono di noi</Translate></p>
+          <p className="eyebrow"><Trans>Dicono di noi</Trans></p>
           <h2 className="title">
-            <Translate>Le parole <i>dei nostri ospiti</i></Translate>
+            <Trans>Le parole <i>dei nostri ospiti</i></Trans>
           </h2>
         </header>
         <div className="reviews">
@@ -35,10 +35,10 @@ export default function Reviews() {
               <div className="review__stars" aria-hidden="true">
                 {[1, 2, 3, 4, 5].map((n) => <i key={n} className="ph-fill ph-star" />)}
               </div>
-              <blockquote><Translate t={r.quote} /></blockquote>
+              <blockquote><Trans t={r.quote} /></blockquote>
               <figcaption>
                 <strong>{r.who}</strong>
-                <span><Translate t={r.where} /></span>
+                <span><Trans t={r.where} /></span>
               </figcaption>
             </figure>
           ))}

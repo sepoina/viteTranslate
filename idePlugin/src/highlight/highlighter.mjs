@@ -8,6 +8,9 @@
 // una selezione (a ogni suo cambio, solo quella parte), così si vede come sempre. Cornice e righello
 // restano (decorationPlan.mjs, "La selezione").
 //
+// I delimitatori sono quelli del progetto che contiene il file (ProjectMarkers, 4.7.0): `_%_` finché
+// non si sanno (lettura in corso, Restricted Mode, libreria più vecchia).
+//
 // Non dipende dal pannello: parte con l'estensione, anche quando l'ha attivata l'apertura di un
 // file js/ts (activationEvents in package.json) e il pannello resta chiuso.
 import * as vscode from "vscode";
@@ -32,9 +35,11 @@ export class Highlighter {
   /**
    * @param {object} p
    * @param {(riga: string) => void} p.log
+   * @param {import("./projectMarkers.mjs").ProjectMarkers} [p.markers] - assente nei test: allora sempre `_%_`
    */
-  constructor({ log }) {
+  constructor({ log, markers }) {
     this.log = log;
+    this.markers = markers ?? null;
     this.stile = null; // lo stile disegnato adesso (una voce di STYLES), null se spento
     this.tipi = null; // parte -> TextEditorDecorationType (o null), dello stile disegnato
     this.anteprima = null; // l'id in prova dal comando di scelta, o null
@@ -48,6 +53,8 @@ export class Highlighter {
       vscode.workspace.onDidChangeConfiguration((e) => {
         if (e.affectsConfiguration(`vitetranslate.${HIGHLIGHT_SETTING}`)) this.applica();
       }),
+      // Una lettura arrivata può cambiare i delimitatori di un file: la chiave della lettura lo vede.
+      ...(this.markers ? [this.markers.onDidChange(() => this.ridisegna())] : []),
     ];
     this.applica();
   }
@@ -100,13 +107,15 @@ export class Highlighter {
     }, PAUSA_MS));
   }
 
-  // I metatag di un documento, letti una volta per versione: due editor sullo stesso file, o uno
-  // stile cambiato, non rileggono niente.
+  // I metatag di un documento, letti una volta per versione e per coppia di delimitatori: due editor
+  // sullo stesso file, o uno stile cambiato, non rileggono niente.
   lettura(doc) {
+    const mk = this.markers?.markersFor(doc.uri.fsPath) ?? null;
+    const k = mk ? `${mk.start}\u0000${mk.end}` : "";
     const prima = this.letti.get(doc);
-    if (prima?.version === doc.version) return prima;
+    if (prima?.version === doc.version && prima.k === k) return prima;
     const text = doc.getText();
-    const lettura = { version: doc.version, text, metatags: text.length > MAX_CHARS ? [] : findMetatags(text) };
+    const lettura = { version: doc.version, k, text, metatags: text.length > MAX_CHARS ? [] : findMetatags(text, mk ?? undefined) };
     this.letti.set(doc, lettura);
     return lettura;
   }

@@ -35,7 +35,7 @@ It doesn't re-implement anything: **Results** asks the library installed in *you
 
 - **🔍 Every marked string, at a glance.** File by file, in source order. One glyph says how each one is doing: ‼️ malformed, 🔄 not synced, 🔸 untranslated, 🔹 partly translated, green when all is well. Filter, search (no case, no accents), click to jump.
 - **🌍 Language files, one click away.** Pick an entry, then a language: the file opens right on that key, cursor on the translation.
-- **🖍️ Highlighting as you type.** `_%_…_%_`, `<Translate>…</Translate>` and `` ts`…` `` stand out in `.js`, `.jsx`, `.ts` and `.tsx`, with the extraction's own rules: what lights up gets translated. Fifteen styles, all in your theme's colors.
+- **🖍️ Highlighting as you type.** `_%_…_%_` (or your project's own delimiters), `<Trans>…</Trans>` and `` trans`…` `` stand out in `.js`, `.jsx`, `.ts` and `.tsx`, with the extraction's own rules: what lights up gets translated. Fifteen styles, all in your theme's colors.
 - **🤖 Sync and LLM, without typing.** **Sync** and every `--llm-*` action run the project's own CLI in a terminal. The LLM page first answers "can I go?": where the API key is (never what), which model, and whether it replies.
 - **⚙️ Your setup, resolved.** Plugin options, the dependencies that matter (*declared → installed*), Vite plugins in load order, library and extension versions.
 - **📁 Monorepos welcome.** Every Vite project in the workspace, and the panel follows the file you're editing.

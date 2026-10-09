@@ -1,4 +1,4 @@
-import { Translate } from '@sepoina/vitetranslate/react';
+import { Trans } from '@sepoina/vitetranslate/react';
 import Photo from './Photo';
 import { PHOTOS } from '../photos';
 
@@ -28,30 +28,30 @@ export default function Events() {
           <Photo photo={PHOTOS.events} w={1100} className="wide" />
         </div>
         <div className="prose reveal">
-          <p className="eyebrow"><Translate>Eventi privati</Translate></p>
+          <p className="eyebrow"><Trans>Eventi privati</Trans></p>
           <h2 className="title">
-            <Translate>Una tavola lunga <i>per i giorni importanti</i></Translate>
+            <Trans>Una tavola lunga <i>per i giorni importanti</i></Trans>
           </h2>
           <p>
-            <Translate>
+            <Trans>
               Compleanni, cene aziendali, matrimoni intimi: costruiamo il menù insieme a voi,
               partendo dal pescato della settimana e da quello che vi piace. Pensiamo noi anche ai
               fiori, alla musica e alla torta.
-            </Translate>
+            </Trans>
           </p>
           <ul className="rooms">
             {ROOMS.map((r) => (
               <li key={r.icon}>
                 <i className={`ph ${r.icon}`} aria-hidden="true" />
                 <div>
-                  <strong><Translate t={r.name} /></strong>
-                  <span><Translate t={r.text} /></span>
+                  <strong><Trans t={r.name} /></strong>
+                  <span><Trans t={r.text} /></span>
                 </div>
               </li>
             ))}
           </ul>
           <a href="mailto:eventi@vitetranslate.example" role="button" className="outline">
-            <i className="ph ph-envelope-simple" aria-hidden="true" /> <Translate>Richiedi un preventivo</Translate>
+            <i className="ph ph-envelope-simple" aria-hidden="true" /> <Trans>Richiedi un preventivo</Trans>
           </a>
         </div>
       </div>

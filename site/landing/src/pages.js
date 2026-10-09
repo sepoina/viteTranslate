@@ -24,3 +24,38 @@ export const PAGES = [
     source: "site/pages/llmRestaurant",
   },
 ];
+
+// Una card per demo di demo/: progetti minimi senza una pagina nel sito, quindi la card li apre su
+// StackBlitz. `source` è la cartella della demo (ognuna deve avere la sua card: lo controlla
+// test/list/site.test.mjs); `slug` dà il nome allo zip, che site/build.mjs scrive in zip/demo/<slug>.zip.
+// `stack` è un dato, non si traduce.
+export const DEMOS = [
+  {
+    slug: "vite8-minimal",
+    stack: "Vite 8 · React 19",
+    title: "_%_Minimale_%_",
+    text: "_%_Il setup più piccolo: tre lingue, due file di codice e il cambio lingua con <code>useTransLanguage()</code>._%_",
+    source: "demo/Vite_8/minimal",
+  },
+  {
+    slug: "vite8-custom-markers",
+    stack: "Vite 8 · React 19",
+    title: "_%_Delimitatori tuoi_%_",
+    text: "_%_La stessa app con le frasi marcate <code>≼così≽</code>: autoWrap fa il resto, senza un <code>Trans</code> attorno._%_",
+    source: "demo/Vite_8/customMarkers",
+  },
+  {
+    slug: "vite8-llm-translate",
+    stack: "Vite 8 · React 19",
+    title: "_%_Tradotta da un LLM_%_",
+    text: "_%_L'italiano scritto nel codice, le altre quattro lingue riempite da un modello con <code>--llm-translate</code>._%_",
+    source: "demo/Vite_8/llmTranslate",
+  },
+  {
+    slug: "vite7-minimal",
+    stack: "Vite 7 · React 18",
+    title: "_%_Minimale su Vite 7_%_",
+    text: "_%_La stessa app minimale sulla coppia più diffusa nei progetti esistenti: il minimo che la libreria supporta._%_",
+    source: "demo/Vite_7/minimal",
+  },
+];

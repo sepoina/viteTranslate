@@ -4,7 +4,7 @@
 // produce di rado: errori, libreria senza righe, testi lunghi o ripetuti.
 //
 //   node test/list/idePluginMarked.test.mjs
-import { mkdtempSync, mkdirSync, rmSync, symlinkSync, writeFileSync, existsSync } from "node:fs";
+import { mkdtempSync, mkdirSync, rmSync, symlinkSync, writeFileSync, existsSync, statSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
@@ -12,6 +12,7 @@ import { spawnSync } from "node:child_process";
 import runProbe from "../../idePlugin/src/probes/runProbe.mjs";
 import { ScanWorker } from "../../idePlugin/src/probes/scanWorker.mjs";
 import { IDE_API } from "../../lib/ide/scan.js";
+import { writeMarkerIndex } from "../../lib/dev/vite/uty/markerIndex.js";
 import { markedInput, markedChildren, markedSummary, glyphsOf, filterItems, PASSED, loadingRow, frozenRows, searchFiles, shownCount } from "../../idePlugin/src/views/results/markedRows.mjs";
 import { pathKey } from "../../idePlugin/src/core/pickProject.mjs";
 
@@ -94,6 +95,42 @@ console.log("\n== sonda: IDE_API sotto il minimo ==");
   const r = await sonda("troppoVecchia", { baseDir: ".", srcDir: "src", localeDir: "locale", sourceLanguage: "it-IT", autoWrap: false });
   eq("TOO_OLD, con la versione nel messaggio", [false, "TOO_OLD", true], [r.ok, r.code, String(r.error).includes("9.0.0")]);
   eq("…e l'IDE_API che dichiara: lo mostra VERSION", 0, r.ideApi);
+}
+
+console.log("\n== sonda: i delimitatori del progetto (4.7.0) ==");
+{
+  conLibreria("frecce");
+  scrivi("frecce/src/A.jsx", 'export const A = () => (<div><p title="≼Titolo≽">≼Ciao≽</p><p>_%_Vecchio_%_</p><p>{"_%_Altro_%_"}</p></div>);\n');
+  const FRECCE = { start: "≼", end: "≽" };
+  const input = { srcDir: "src", localeDir: "locale", sourceLanguage: "it-IT", autoWrap: false };
+  const r = await sonda("frecce", { ...input, markers: FRECCE });
+  eq("ok", true, r.ok);
+  eq("le voci coi delimitatori del progetto", ["Titolo", "Ciao"], r.files[0].entries.filter((e) => e.id).map((e) => e.text));
+  eq("…e il marcatore vecchio è una voce a sé, senza chiave, malformed", true,
+    r.files[0].entries.some((e) => e.id === null && e.problems[0].kind === "malformed" && /old marker/.test(e.problems[0].detail)));
+  // Senza markers (la sonda del 4.6.4) valgono quelli di serie.
+  const serie = await sonda("frecce", input);
+  eq("senza markers: i delimitatori di serie", ["Vecchio", "Altro"], serie.files[0].entries.filter((e) => e.id).map((e) => e.text));
+
+  // L'indice scritto con altri delimitatori non vale; uno scritto con quelli giusti, sì.
+  const A = join(radice, "frecce/src/A.jsx");
+  const st = statSync(A);
+  const finta = { id: "Finta_1", text: "voce dell'indice", line: 1, column: 1, form: "string" };
+  const scriviIndice = (markers) => writeMarkerIndex(join(radice, "frecce"), {
+    srcDir: "src", localeDir: "locale", autoWrap: false, markers,
+    files: { "src/A.jsx": [st.mtimeMs, st.size] },
+    marked: { "src/A.jsx": { hash: 1, entries: [finta], warnings: [] } },
+  });
+  mkdirSync(join(radice, "frecce/node_modules/.viteTranslate"), { recursive: true });
+  scriviIndice({ start: "_%_", end: "_%_" });
+  const scartato = await sonda("frecce", { ...input, markers: FRECCE });
+  eq("indice con altri delimitatori: scartato, il file si rilegge", ["Titolo", "Ciao"], scartato.files[0].entries.filter((e) => e.id !== null).map((e) => e.text));
+  scriviIndice(FRECCE);
+  const buono = await sonda("frecce", { ...input, markers: FRECCE });
+  eq("indice con gli stessi delimitatori: vale", ["voce dell'indice"], buono.files[0].entries.map((e) => e.text));
+  scriviIndice(undefined);
+  const dueSerie = await sonda("frecce", input);
+  eq("indice senza markers + input senza markers: vale", ["voce dell'indice"], dueSerie.files[0].entries.map((e) => e.text));
 }
 
 console.log("\n== sonda: i problemi di ogni voce ==");
@@ -221,7 +258,7 @@ console.log("\n== righe: ingresso dalla sonda del vite.config ==");
   eq("Restricted Mode", ["Restricted Mode"], markedInput({ ok: false, untrusted: true }).rows.map((r) => r.label));
   eq("vite.config non letto", "vite.config not read", markedInput({ ok: false, error: "boom\nstack" }).rows[0].label);
   eq("plugin assente", "vitetranslate is not registered in vite.config", markedInput({ ok: true, vitetranslate: null }).rows[0].label);
-  eq("default di baseDir e srcDir", { baseDir: ".", srcDir: "src", localeDir: "locale", autoWrap: false },
+  eq("default di baseDir e srcDir", { baseDir: ".", srcDir: "src", localeDir: "locale", autoWrap: false, markers: null },
     markedInput({ ok: true, vitetranslate: { localeDir: "locale" } }).input);
 }
 

@@ -1,4 +1,4 @@
-import { Translate } from '@sepoina/vitetranslate/react';
+import { Trans } from '@sepoina/vitetranslate/react';
 import Photo from './Photo';
 import RestaurantName from './RestaurantName';
 import { PHOTOS } from '../photos';
@@ -18,16 +18,16 @@ export default function Gallery() {
       <div className="wrap">
         <header className="section-head section-head--row reveal">
           <div>
-            <p className="eyebrow"><Translate>Atmosfera</Translate></p>
+            <p className="eyebrow"><Trans>Atmosfera</Trans></p>
             <h2 className="title">
-              <Translate>Una sera <i>da <RestaurantName /></i></Translate>
+              <Trans>Una sera <i>da <RestaurantName /></i></Trans>
             </h2>
           </div>
           <p>
-            <Translate>
+            <Trans>
               Due sale, una terrazza e una cucina a vista dove il fuoco non si spegne mai prima
               di mezzanotte. Venite presto: il tramonto, da qui, dura più a lungo.
-            </Translate>
+            </Trans>
           </p>
         </header>
         <div className="gallery">

@@ -1,6 +1,6 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import { TranslateContainer, useTranslateLanguage } from "@sepoina/vitetranslate/react";
+import { TransContainer, useTransLanguage } from "@sepoina/vitetranslate/react";
 import App from "./App.jsx";
 import { siteUrl } from "./siteLinks.js";
 import { pickLanguage, RememberLanguage } from "./siteLanguage.js";
@@ -10,12 +10,12 @@ import "./landing.css";
 
 // L'inglese è la lingua d'avvio precaricata; l'ultima scelta sul sito, se c'è tra le tabelle, ha la precedenza.
 function Root() {
-  const { languages } = useTranslateLanguage();
+  const { languages } = useTransLanguage();
   return (
-    <TranslateContainer initialLanguage={pickLanguage(languages, "en-US")}>
+    <TransContainer initialLanguage={pickLanguage(languages, "en-US")}>
       <RememberLanguage />
       <App />
-    </TranslateContainer>
+    </TransContainer>
   );
 }
 

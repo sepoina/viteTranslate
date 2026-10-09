@@ -1,4 +1,4 @@
-import { Translate } from '@sepoina/vitetranslate/react';
+import { Trans } from '@sepoina/vitetranslate/react';
 import { useMoney } from '../format';
 
 const MENUS = [
@@ -32,45 +32,45 @@ export default function Tasting() {
     <section className="section section--sand" id="degustazione">
       <div className="wrap">
         <header className="section-head section-head--center reveal">
-          <p className="eyebrow"><Translate>Menù degustazione</Translate></p>
+          <p className="eyebrow"><Trans>Menù degustazione</Trans></p>
           <h2 className="title">
-            <Translate>Lasciatevi <i>portare al largo</i></Translate>
+            <Trans>Lasciatevi <i>portare al largo</i></Trans>
           </h2>
           <p className="lead">
-            <Translate>
+            <Trans>
               Tre rotte diverse, un'unica regola: vi fidate di noi e noi non vi facciamo mai
               mangiare due volte la stessa cosa. Ogni percorso si chiude con la piccola
               pasticceria e il caffè.
-            </Translate>
+            </Trans>
           </p>
         </header>
         <div className="tasting">
           {MENUS.map((m) => (
             <article key={m.name} className={`tasting__card reveal${m.featured ? ' is-featured' : ''}`}>
               {m.featured && (
-                <span className="tasting__badge"><Translate>Il più scelto</Translate></span>
+                <span className="tasting__badge"><Trans>Il più scelto</Trans></span>
               )}
-              <p className="tasting__courses"><Translate t="_%_%s portate_%_" a={[m.courses]} /></p>
-              <h3><Translate t={m.name} /></h3>
+              <p className="tasting__courses"><Trans t="_%_%s portate_%_" a={[m.courses]} /></p>
+              <h3><Trans t={m.name} /></h3>
               <p className="tasting__price">
                 {money(m.price)}
-                <small><Translate>a persona</Translate></small>
+                <small><Trans>a persona</Trans></small>
               </p>
-              <p><Translate t={m.text} /></p>
+              <p><Trans t={m.text} /></p>
               <p className="tasting__pairing">
-                <i className="ph ph-wine" aria-hidden="true" /> <Translate t="_%_Abbinamento vini: + {0, number, ::currency/EUR precision-integer}_%_" a={[m.pairing]} />
+                <i className="ph ph-wine" aria-hidden="true" /> <Trans t="_%_Abbinamento vini: + {0, number, ::currency/EUR precision-integer}_%_" a={[m.pairing]} />
               </p>
               <a href="#prenota" role="button" className={m.featured ? '' : 'outline'}>
-                <Translate>Prenota questo percorso</Translate>
+                <Trans>Prenota questo percorso</Trans>
               </a>
             </article>
           ))}
         </div>
         <p className="fine-print">
-          <Translate>
+          <Trans>
             I menù degustazione sono serviti all'intero tavolo e si possono ordinare fino alle
             21:30. Varianti vegetariane su richiesta, con un giorno di preavviso.
-          </Translate>
+          </Trans>
         </p>
       </div>
     </section>

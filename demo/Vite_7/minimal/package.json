@@ -1,5 +1,5 @@
 {
-  "name": "vite7-react18-js",
+  "name": "demo-minimal-vite7-react18",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -12,7 +12,7 @@
   "dependencies": {
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "@sepoina/vitetranslate": "4.0.5"
+    "@sepoina/vitetranslate": "^4.7.0"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

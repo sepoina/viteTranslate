@@ -51,6 +51,9 @@ export class EventEmitter {
   fire(valore) {
     for (const f of this.ascoltatori) f(valore);
   }
+  dispose() {
+    this.ascoltatori = [];
+  }
 }
 
 export const TreeItemCollapsibleState = { None: 0, Collapsed: 1, Expanded: 2 };

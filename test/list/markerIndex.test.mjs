@@ -4,7 +4,7 @@
 // manca dall'indice ma l'indice c'è (a differenza di scan.json); --status non scrive niente.
 //
 //   node test/list/markerIndex.test.mjs
-import { mkdtempSync, rmSync, writeFileSync, mkdirSync, existsSync, statSync } from "node:fs";
+import { mkdtempSync, rmSync, writeFileSync, mkdirSync, existsSync, statSync, readFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { spawnSync } from "node:child_process";
 import { dirname, join, resolve } from "node:path";
@@ -80,6 +80,28 @@ console.log("\n== --status non scrive, autoWrap come RegExp ==");
   lancia(radice);
   eq("autoWrap RegExp: la sua forma testuale", "/^p$/i", readMarkerIndex(radice)?.autoWrap);
   eq("autoWrapKey", [false, true, false, "/a/g"], [autoWrapKey(false), autoWrapKey(true), autoWrapKey("x"), autoWrapKey(/a/g)]);
+}
+
+console.log("\n== i delimitatori nell'indice e in scan.json (4.7.0) ==");
+{
+  const serie = progetto();
+  writeFileSync(join(serie, "src", "App.jsx"), 'export const a = "_%_Ciao_%_";\n');
+  lancia(serie);
+  eq("di serie: il campo markers", { start: "_%_", end: "_%_" }, readMarkerIndex(serie)?.markers);
+  eq("…anche in scan.json", { start: "_%_", end: "_%_" }, JSON.parse(readFileSync(scanPath(serie), "utf8")).markers);
+
+  const frecce = progetto('{ localeDir: "locale", sourceLanguage: "it-IT", markerStart: "≼", markerEnd: "≽" }');
+  writeFileSync(join(frecce, "src", "App.jsx"), 'export const a = "≼Ciao≽";\nexport const b = "_%_Vecchio_%_";\n');
+  lancia(frecce);
+  const indice = readMarkerIndex(frecce);
+  eq("personalizzati: il campo markers", { start: "≼", end: "≽" }, indice?.markers);
+  eq("…la voce con i suoi delimitatori", ["Ciao"], indice?.marked["src/App.jsx"].entries.map((e) => e.text));
+  eq("…e l'avviso del marcatore vecchio", ["old-marker"], indice?.marked["src/App.jsx"].warnings.map((w) => w.kind));
+  eq("…in scan.json", { start: "≼", end: "≽" }, JSON.parse(readFileSync(scanPath(frecce), "utf8")).markers);
+  // Un config cambiato fa rifare il giro lungo anche a --fastverify (la firma del vite.config), e il
+  // record non vale più per un expect con altri delimitatori (fastVerify.test.mjs).
+  writeMarkerIndex(frecce, { srcDir: "src", localeDir: "locale", autoWrap: false, files: {}, marked: {} });
+  eq("scritto senza markers: vale `_%_`", { start: "_%_", end: "_%_" }, readMarkerIndex(frecce)?.markers);
 }
 
 console.log("\n== lettura e scrittura sicure ==");

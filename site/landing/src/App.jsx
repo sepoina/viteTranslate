@@ -2,7 +2,7 @@
 // hash al playground (i vecchi link con l'ancora), quindi un'ancora qui non arriverebbe mai.
 // La navigazione interna passa da scrollToSection() (data-section), non da un hash.
 import { useEffect, useRef } from "react";
-import { useTranslateLanguage } from "@sepoina/vitetranslate/react";
+import { useTransLanguage } from "@sepoina/vitetranslate/react";
 import Compare from "./Compare.jsx";
 import CodeDemo from "./CodeDemo.jsx";
 import Demos from "./Demos.jsx";
@@ -11,12 +11,13 @@ import Hero from "./Hero.jsx";
 import Marquee from "./Marquee.jsx";
 import Nav from "./Nav.jsx";
 import Outro from "./Outro.jsx";
+import Starters from "./Starters.jsx";
 import Steps from "./Steps.jsx";
 import { initMotion } from "./motion.js";
 
 export default function App() {
   const root = useRef(null);
-  const { id } = useTranslateLanguage();
+  const { id } = useTransLanguage();
 
   // <html lang> segue la lingua scelta: conta per lettori di schermo e per l'ortografia del browser.
   useEffect(() => {
@@ -36,6 +37,7 @@ export default function App() {
         <Features />
         <Steps />
         <Compare />
+        <Starters />
         <Outro />
       </main>
     </div>

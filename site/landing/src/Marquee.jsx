@@ -1,4 +1,4 @@
-import { Translate } from "@sepoina/vitetranslate/react";
+import { Trans } from "@sepoina/vitetranslate/react";
 
 // Gli endonimi delle lingue: un elenco mostrato, non frasi da tradurre.
 const LANGUAGES = [
@@ -27,7 +27,7 @@ export default function Marquee() {
     <section className="marquee-sec" data-reveal>
       <div className="wrap marquee-in">
         <p className="marquee-cap">
-          <Translate>_%_Una sola sorgente. Tutte le lingue che vuoi._%_</Translate>
+          <Trans>_%_Una sola sorgente. Tutte le lingue che vuoi._%_</Trans>
         </p>
         <div className="marquee" aria-hidden="true">
           <div className="marquee-track">

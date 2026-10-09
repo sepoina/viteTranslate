@@ -2,7 +2,7 @@
   "name": "vitetranslate-ide",
   "displayName": "viteTranslate",
   "description": "Your viteTranslate setup at a glance, in its own panel, and your marked strings highlighted as you type.",
-  "version": "0.0.8",
+  "version": "0.9.1",
   "preview": true,
   "publisher": "sepoina",
   "author": {
@@ -131,7 +131,7 @@
             "Left accent bar",
             "Like selection"
           ],
-          "markdownDescription": "How marked strings stand out in `.js`, `.jsx`, `.ts` and `.tsx` files: `_%_…_%_`, `<Translate>…</Translate>`, `` ts`…` ``. Colors come from your theme. To try them all live, run **viteTranslate: Choose highlight style…** from the Command Palette."
+          "markdownDescription": "How marked strings stand out in `.js`, `.jsx`, `.ts` and `.tsx` files: `_%_…_%_` (or your project's `markerStart`/`markerEnd`), `<Trans>…</Trans>`, `` trans`…` ``. Colors come from your theme. To try them all live, run **viteTranslate: Choose highlight style…** from the Command Palette."
         }
       }
     },

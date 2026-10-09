@@ -1,4 +1,4 @@
-import { Translate } from '@sepoina/vitetranslate/react';
+import { Trans } from '@sepoina/vitetranslate/react';
 import Photo from './Photo';
 import { PHOTOS } from '../photos';
 
@@ -15,31 +15,31 @@ export default function Hero() {
       <div className="hero__shade" aria-hidden="true" />
       <div className="wrap hero__content">
         <p className="eyebrow eyebrow--light">
-          <Translate>Cucina di mare · Cala dei Gabbiani</Translate>
+          <Trans>Cucina di mare · Cala dei Gabbiani</Trans>
         </p>
         <h1 className="hero__title">
-          <Translate>Il mare arriva in tavola<br /><i>prima del tramonto</i></Translate>
+          <Trans>Il mare arriva in tavola<br /><i>prima del tramonto</i></Trans>
         </h1>
         <p className="hero__lead">
-          <Translate>
+          <Trans>
             Ogni mattina alle sei le barche di Cala dei Gabbiani rientrano in porto. Alle sette
             il nostro chef è già sul molo a scegliere il pescato: quello che trovate nel piatto la
             sera, la notte prima nuotava ancora a due miglia dalla costa.
-          </Translate>
+          </Trans>
         </p>
         <div className="hero__cta">
           <a href="#prenota" role="button">
-            <Translate>Prenota un tavolo</Translate> <i className="ph ph-arrow-right" aria-hidden="true" />
+            <Trans>Prenota un tavolo</Trans> <i className="ph ph-arrow-right" aria-hidden="true" />
           </a>
           <a href="#menu" role="button" className="outline contrast">
-            <Translate>Sfoglia il menù</Translate>
+            <Trans>Sfoglia il menù</Trans>
           </a>
         </div>
         <dl className="hero__facts">
           {FACTS.map((f) => (
             <div key={f.icon}>
-              <dt><i className={`ph ${f.icon}`} aria-hidden="true" /> <Translate t={f.label} /></dt>
-              <dd><Translate t={f.value} /></dd>
+              <dt><i className={`ph ${f.icon}`} aria-hidden="true" /> <Trans t={f.label} /></dt>
+              <dd><Trans t={f.value} /></dd>
             </div>
           ))}
         </dl>

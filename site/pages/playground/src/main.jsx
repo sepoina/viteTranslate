@@ -1,7 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App.jsx";
-import { TranslateContainer, useTranslateLanguage } from "@sepoina/vitetranslate/react";
+import { TransContainer, useTransLanguage } from "@sepoina/vitetranslate/react";
 import { pickLanguage, RememberLanguage } from "./siteLanguage.js";
 import { applySavedTheme } from "./theme/boot.js";
 import "./theme/theme.css";
@@ -9,12 +9,12 @@ import "./playground.css";
 
 // Lingua della visualizzazione iniziale: l'ultima scelta sul sito, se c'è tra queste tabelle; altrimenti en-US.
 function Root() {
-  const { languages } = useTranslateLanguage();
+  const { languages } = useTransLanguage();
   return (
-    <TranslateContainer initialLanguage={pickLanguage(languages, "en-US")} debug>
+    <TransContainer initialLanguage={pickLanguage(languages, "en-US")} debug>
       <RememberLanguage />
       <App />
-    </TranslateContainer>
+    </TransContainer>
   );
 }
 

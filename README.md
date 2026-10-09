@@ -11,7 +11,7 @@ No translation keys to maintain. No separate extraction workflow. No runtime dep
 [![runtime size](https://img.shields.io/badge/runtime-5%20kB%20gzip-4c1)](#-why-vitetranslate)
 [![VS Code](https://img.shields.io/badge/VS%20Code-extension-007ACC?logo=visualstudiocode&logoColor=white)](https://marketplace.visualstudio.com/items?itemName=sepoina.vitetranslate-ide)
 
-[**Site**](https://sepoina.github.io/viteTranslate/) · [**Playground**](https://sepoina.github.io/viteTranslate/playground/) · [**StackBlitz**](https://stackblitz.com/edit/vitejs-vite-aa9rcqtt?file=locale%2Fit-IT.yml) · [**Showcase**](https://sepoina.github.io/viteTranslate/llmrestaurant/) · [Quick start](#-quick-start) · [VS Code](#-vs-code-extension) · [LLM](#-llm-auto-translation) · [Guides](#-guides)
+[**Site**](https://sepoina.github.io/viteTranslate/) · [**Playground**](https://sepoina.github.io/viteTranslate/playground/) · [**StackBlitz**](https://stackblitz.com/github/sepoina/viteTranslate/tree/main/demo/Vite_8/minimal?file=locale%2Fit-IT.yml) · [**Showcase**](https://sepoina.github.io/viteTranslate/llmrestaurant/) · [Quick start](#-quick-start) · [VS Code](#-vs-code-extension) · [LLM](#-llm-auto-translation) · [Guides](#-guides)
 
 <a href="https://youtu.be/pNM9ybG0uO4">
   <img src="doc/youplay.png" alt="Watch viteTranslate in action" width="60%" />
@@ -26,7 +26,7 @@ No translation keys to maintain. No separate extraction workflow. No runtime dep
 Write the sentence where it belongs — values and tags included:
 
 ```jsx
-<Translate>Welcome back, <b>{name}</b>!</Translate>
+<Trans>Welcome back, <b>{name}</b>!</Trans>
 ```
 
 Get a table to hand to a translator, kept in sync for you:
@@ -73,7 +73,7 @@ Every library in this table solves the same problem. They differ in how much mac
 - **Official VS Code extension:** [viteTranslate's](#-vs-code-extension) lists every marked string with its translation status, opens the language file right on the key, runs Sync and the LLM in one click, and highlights marked strings as you type. It asks the library installed in your project, so the panel and the CLI never disagree. Still in preview. None of the others ships one of its own: i18next and react-intl rely on third-party extensions, such as Lokalise's [i18n Ally](https://marketplace.visualstudio.com/items?itemName=lokalise.i18n-ally) or inlang's [Sherlock](https://marketplace.visualstudio.com/items?itemName=inlang.vs-code-extension) (i18next only); neither lists Lingui among its supported libraries.
 - **³ Keyless syntax:** the sentence you write in JSX is the source — values, tags and links included — and its key is generated at build time and resolved against the current table at runtime: no key to invent, nothing to keep in sync by hand. 🎮 [Live](https://sepoina.github.io/viteTranslate/playground/#static-text). Lingui does the same with its macros; FormatJS generates IDs through its Babel/SWC plugins or `@formatjs/unplugin`. i18next can use the sentence as the key (`keySeparator: false`, `nsSeparator: false`): possible, say its docs, but not recommended.
 - **ICU MessageFormat:** plurals, `select`, numbers and dates — compiled at build time, same as everything else. One deliberate deviation: an apostrophe is always an apostrophe, never ICU quoting. i18next has its own plural and context syntax built in; ICU needs the official `i18next-icu` plugin. See [the ICU guide](doc/icu.md) — 🎮 [plurals](https://sepoina.github.io/viteTranslate/playground/#icu-plural), [select](https://sepoina.github.io/viteTranslate/playground/#icu-select), [dates](https://sepoina.github.io/viteTranslate/playground/#icu-format), 🧪 [edge cases](https://sepoina.github.io/viteTranslate/edge/#icu).
-- **⁴ Runtime size:** viteTranslate's browser runtime weighs 5 kB gzip — `5814 bytes` exactly: 4727 B for the React runtime plus 1087 B for the ICU helpers, which ship only when a table uses ICU. Measured by `npm run estimateSize`, the source of truth for this number, on the whole API. The others, with the same tools (rolldown, minified, gzip, React left out) on what a basic app imports — provider, component, hook — in September 2026: Lingui 3 kB (smaller, yes), react-intl 13 kB (6 kB with its `no-parser` alias), i18next + react-i18next 19 kB. Imports, plugins and polyfills move every figure: read them as orders of magnitude.
+- **⁴ Runtime size:** viteTranslate's browser runtime weighs 5 kB gzip — `5890 bytes` exactly: 4804 B for the React runtime plus 1087 B for the ICU helpers, which ship only when a table uses ICU. Measured by `npm run estimateSize`, the source of truth for this number, on the whole API. The others, with the same tools (rolldown, minified, gzip, React left out) on what a basic app imports — provider, component, hook — in September 2026: Lingui 3 kB (smaller, yes), react-intl 13 kB (6 kB with its `no-parser` alias), i18next + react-i18next 19 kB. Imports, plugins and polyfills move every figure: read them as orders of magnitude.
 - **⁵ No message parsing at runtime:** tables are compiled at build time into ready-made values. In a production build `<Translate>` parses nothing, neither ICU nor HTML — which is also why it renders server-side. Lingui precompiles ICU, but splits the `<0>…</0>` component tags of the translated string with a regular expression at every render (`formatElements`). FormatJS pre-parses with `formatjs compile --ast`, and drops the parser only if you alias it to its `no-parser` build. i18next interpolates at runtime, and `i18next-icu` parses there too.
 - **Lazy-loaded locales:** each language is its own chunk, `import()`-ed only when selected — no loader to write. 🎮 [Live](https://sepoina.github.io/viteTranslate/playground/#language-switch). The others load catalogs through their API, from an `import()` you write, or a backend plugin for i18next.
 - **Dev fallback, always visible:** until a translation exists you get the original text. Never a blank, never a crash — and a [mark](doc/diagnostics.md) says so, in development only.
@@ -110,40 +110,42 @@ export default defineConfig({
 });
 ```
 
-**3. Wrap your app** in `TranslateContainer`, once, at the root:
+**3. Wrap your app** in `TransContainer`, once, at the root:
 
 ```jsx
 // main.jsx
 import ReactDOM from "react-dom/client";
-import { TranslateContainer } from "@sepoina/vitetranslate/react";
+import { TransContainer } from "@sepoina/vitetranslate/react";
 import App from "./App.jsx";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
-  <TranslateContainer initialLanguage="en-US">
+  <TransContainer initialLanguage="en-US">
     <App />
-  </TranslateContainer>,
+  </TransContainer>,
 );
 ```
 
-**4. Write sentences** inside `<Translate>` — values, tags and links included — and plain strings with `` ts`…` ``. Live in the [playground](https://sepoina.github.io/viteTranslate/playground/):
+**4. Write sentences** inside `<Trans>` — values, tags and links included — and plain strings with `` trans`…` ``. Live in the [playground](https://sepoina.github.io/viteTranslate/playground/):
 
 ```jsx
 // App.jsx
-import { Translate, useTranslateToString } from "@sepoina/vitetranslate/react";
+import { Trans, useTrans } from "@sepoina/vitetranslate/react";
 
 function App({ name }) {
-  const ts = useTranslateToString();
+  const trans = useTrans();
   return (
     <>
-      <Translate>Welcome to our site</Translate>
-      <Translate>Nice to meet you, <b>{name}</b></Translate>
-      <input placeholder={ts`Write to ${name}`} />
+      <Trans>Welcome to our site</Trans>
+      <Trans>Nice to meet you, <b>{name}</b></Trans>
+      <input placeholder={trans`Write to ${name}`} />
     </>
   );
 }
 ```
 
-Plurals and dates go in a string marked `_%_…_%_`: see **[ICU messages](doc/icu.md)**. That is the whole authoring workflow.
+`Trans`, `useTrans`, `TransContainer`, `useTransLanguage` are the short names of `Translate`, `useTranslateToString`, `TranslateContainer`, `useTranslateLanguage`: same functions, both work.
+
+Plurals and dates go in a string marked `_%_…_%_`: see **[ICU messages](doc/icu.md)**. Prefer other delimiters? `markerStart`/`markerEnd` — see [plugin options](doc/plugin-options.md#markers). That is the whole authoring workflow.
 
 **5. Build the tables** and add a language:
 
@@ -157,7 +159,7 @@ From then on the tables sync themselves when `vite dev` starts and before every 
 **6. Let users switch**; each language loads as its own chunk ([React API](doc/react-api.md#usetranslatelanguage)):
 
 ```jsx
-const { proposeNewLanguage } = useTranslateLanguage();
+const { proposeNewLanguage } = useTransLanguage();
 <button onClick={() => proposeNewLanguage({ lang: "fr-FR" })}>Français</button>
 ```
 
@@ -219,7 +221,7 @@ Everything past "hello world" lives in `doc/`:
 | Guide | Covers |
 | :- | :- |
 | [**CLI**](doc/cli.md) | `vitetranslate` flags, `--status`, migrating from 3.x |
-| [**React API**](doc/react-api.md) | `<Translate>`, `useTranslateToString`, `useTranslateLanguage`, `TranslateContainer`, preloading & Suspense |
+| [**React API**](doc/react-api.md) | `<Trans>`, `useTrans`, `useTransLanguage`, `TransContainer` (and their long names), preloading & Suspense |
 | [**Plugin options**](doc/plugin-options.md) | Full `vitetranslate(options)` reference, `errorSolve` and its on-screen [diagnostics](doc/diagnostics.md) included |
 | [**Translation file format**](doc/translations.md) | The `.yml` layout, adding a new language by its [BCP 47 code](doc/bcp47.md) |
 | [**ICU messages**](doc/icu.md) | Plurals, `select`, numbers, dates — the syntax and what checks it |

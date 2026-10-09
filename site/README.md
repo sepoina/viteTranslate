@@ -44,12 +44,21 @@ Working on the theme with a dev server open: `node site/syncTheme.mjs --watch` i
 Need something dark on a light page (like the source panel of the edge page)? Put `data-theme="dark"` on it: its whole
 subtree keeps the dark tokens.
 
-## StackBlitz zips
+## Cards: Source, StackBlitz, Zip
 
-`site:build` also writes one zip per page to `site/dist/zip/<slug>.zip` (published at `/viteTranslate/zip/<slug>.zip`),
-linked from the cards of the landing. Each is the page's folder as it is, ready to import on
-[stackblitz.com](https://stackblitz.com): it installs from npm, so no `node_modules`, no `dist`, no lockfile, and never
-a `.env` (only `.env.example`). Written by [`zip.mjs`](zip.mjs), with no dependency; the same content gives the same bytes.
+The landing has two rows of cards: the site pages right under the hero (a click opens the page) and, at the
+bottom, a scrolling gallery of the projects in [`demo/`](../demo) (a click opens StackBlitz). Every card ends with the same three buttons:
+
+- **Source** — the folder on GitHub.
+- **StackBlitz** — `stackblitz.com/github/sepoina/viteTranslate/tree/main/<folder>`: StackBlitz reads the folder
+  straight from GitHub's `main`, so it shows the code as it is now, not as it was at the last site build.
+- **Zip** — `site:build` writes one per page to `site/dist/zip/<slug>.zip` and one per demo to
+  `site/dist/zip/demo/<slug>.zip`. The folder as it is: it installs from npm, so no `node_modules`, no `dist`,
+  no lockfile, and never a `.env` (only `.env.example`). Written by [`zip.mjs`](zip.mjs), no dependency; the same
+  content gives the same bytes.
+
+Both StackBlitz and the zip see the folder alone: the test fails on an import that leaves it, and on a project
+without `src/App.jsx` (the file StackBlitz opens).
 
 ## Add a page
 
@@ -62,6 +71,9 @@ a `.env` (only `.env.example`). Written by [`zip.mjs`](zip.mjs), with no depende
 
 `test/list/site.test.mjs` checks that the slugs and the cards are the same set and that the copies of
 `siteLinks.js` are identical. `npm run sync:demos` keeps every `@sepoina/vitetranslate` range aligned.
+
+A new folder in `demo/<Vite_N>/` needs its card too: add it to `DEMOS` in the same file (the test fails without),
+with a `slug` for its zip and a `stack` label like `Vite 8 · React 19`.
 
 ## Card previews
 

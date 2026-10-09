@@ -77,7 +77,8 @@ export interface TranslateProps {
 }
 
 /**
- * Rende una stringa marcata con `_%_..._%_`, risolvendola nella lingua corrente.
+ * Rende una stringa marcata con `_%_..._%_` (o con i delimitatori del progetto), risolvendola
+ * nella lingua corrente. Nome breve: `Trans`.
  *
  * ```tsx
  * <Translate>Ciao <b>{nome}</b>, leggi la <a href="/d">guida</a></Translate>
@@ -187,7 +188,7 @@ export interface TranslateToStringOptions {
 }
 
 /**
- * Restituisce `ts(t, args?, options?)`, che risolve una stringa marcata in una **stringa** —
+ * Nome breve: `useTrans`. Restituisce `ts(t, args?, options?)` (per convenzione `trans`), che risolve una stringa marcata in una **stringa** —
  * per le prop DOM che non accettano nodi (`placeholder`, `aria-label`, `title`). Un'eventuale
  * voce con markup viene appiattita a solo testo.
  *
@@ -223,3 +224,12 @@ export declare function basicHtmlToNodes(text: string, args?: TranslateArgs): Re
 
 /** Versione del pacchetto installato, inlineata a build time. */
 export declare const version: string;
+
+/** Nome breve di {@link Translate}: lo stesso componente. */
+export declare const Trans: typeof Translate;
+/** Nome breve di {@link TranslateContainer}: lo stesso componente. */
+export declare const TransContainer: typeof TranslateContainer;
+/** Nome breve di {@link useTranslateToString}: lo stesso hook. Per convenzione: `const trans = useTrans()`. */
+export declare const useTrans: typeof useTranslateToString;
+/** Nome breve di {@link useTranslateLanguage}: lo stesso hook. */
+export declare const useTransLanguage: typeof useTranslateLanguage;

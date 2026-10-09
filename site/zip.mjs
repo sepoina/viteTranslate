@@ -124,9 +124,24 @@ export function makeZip(files) {
  * @returns {{ slug: string, file: string, files: number, bytes: number }[]}
  */
 export function zipPages(pagine, dist, radice = RADICE) {
-  const cartella = join(dist, "zip");
+  return zipFolders(pagine, join(dist, "zip"), radice);
+}
+
+/**
+ * Scrive uno zip per demo di demo/ in `<dist>/zip/demo/<slug>.zip`: una cartella a parte, così
+ * lo slug di una demo non può coprire quello di una pagina.
+ * @param {{ source: string, slug: string }[]} demos come DEMOS di site/landing/src/pages.js
+ * @param {string} dist la cartella del sito pubblicato
+ * @param {string} [radice] la radice del repo
+ * @returns {{ slug: string, file: string, files: number, bytes: number }[]}
+ */
+export function zipDemos(demos, dist, radice = RADICE) {
+  return zipFolders(demos.map(({ source, slug }) => ({ dir: source, slug })), join(dist, "zip/demo"), radice);
+}
+
+function zipFolders(voci, cartella, radice) {
   mkdirSync(cartella, { recursive: true });
-  return pagine.map(({ dir, slug }) => {
+  return voci.map(({ dir, slug }) => {
     const files = collectFiles(join(radice, dir));
     if (!files.some((f) => f.name === "package.json")) throw new Error(`${dir}: senza package.json non è un progetto da caricare`);
     const zip = makeZip(files);

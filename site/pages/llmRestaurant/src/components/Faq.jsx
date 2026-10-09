@@ -1,4 +1,4 @@
-import { Translate } from '@sepoina/vitetranslate/react';
+import { Trans } from '@sepoina/vitetranslate/react';
 
 const QUESTIONS = [
   {
@@ -32,22 +32,22 @@ export default function Faq() {
     <section className="section">
       <div className="wrap faq">
         <header className="reveal">
-          <p className="eyebrow"><Translate>Domande frequenti</Translate></p>
+          <p className="eyebrow"><Trans>Domande frequenti</Trans></p>
           <h2 className="title">
-            <Translate>Prima di <i>sedervi a tavola</i></Translate>
+            <Trans>Prima di <i>sedervi a tavola</i></Trans>
           </h2>
           <p>
-            <Translate>
+            <Trans>
               Non trovate la risposta che cercate? Scriveteci o chiamateci: in sala c'è sempre
               qualcuno felice di raccontarvi il ristorante.
-            </Translate>
+            </Trans>
           </p>
         </header>
         <div className="faq__list reveal">
           {QUESTIONS.map((item, i) => (
             <details key={item.q} open={i === 0}>
-              <summary><Translate t={item.q} /></summary>
-              <p><Translate t={item.a} /></p>
+              <summary><Trans t={item.q} /></summary>
+              <p><Trans t={item.a} /></p>
             </details>
           ))}
         </div>

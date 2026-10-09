@@ -1,13 +1,13 @@
-import { Translate } from "@sepoina/vitetranslate/react";
+import { Trans } from "@sepoina/vitetranslate/react";
 import { Code, M } from "./theme/Code.jsx";
 import { Icon } from "./icons.jsx";
 import SectionHead from "./SectionHead.jsx";
 
-const KEYLESS = `<Translate t={["${M}Ciao %s, come stai?${M}", nome]} />
+const KEYLESS = `<Trans t={["${M}Ciao %s, come stai?${M}", nome]} />
 
-<Translate>
+<Trans>
   ${M}<b>Benvenuto</b> nel sito${M}
-</Translate>`;
+</Trans>`;
 
 const TABLE = `# missing key: 0
 Hero_1q8xz4: "Bienvenue"
@@ -21,13 +21,13 @@ export default function Features() {
     <section className="section" data-section="features">
       <div className="wrap">
         <SectionHead
-          eyebrow={<Translate>_%_Perché viteTranslate_%_</Translate>}
-          title={<Translate t="_%_Tutto ciò che serve. <em>Niente</em> di ciò che pesa._%_" />}
+          eyebrow={<Trans>_%_Perché viteTranslate_%_</Trans>}
+          title={<Trans t="_%_Tutto ciò che serve. <em>Niente</em> di ciò che pesa._%_" />}
           text={
-            <Translate>
+            <Trans>
               _%_Ogni libreria di questa categoria risolve lo stesso problema. Cambia quanta macchina devi far girare, e quanta ne spedisci ai
               tuoi utenti._%_
-            </Translate>
+            </Trans>
           }
         />
 
@@ -38,13 +38,13 @@ export default function Features() {
                 <Icon name="braces" />
               </span>
               <h3>
-                <Translate>_%_Niente chiavi da inventare_%_</Translate>
+                <Trans>_%_Niente chiavi da inventare_%_</Trans>
               </h3>
               <p>
-                <Translate>
+                <Trans>
                   _%_Scrivi la frase dove serve, tra i delimitatori. La chiave la genera il plugin: non devi inventarla, e non devi tenerla
                   d'occhio._%_
-                </Translate>
+                </Trans>
               </p>
             </div>
             <Code code={KEYLESS} lang="jsx" className="tile-code" />
@@ -56,13 +56,13 @@ export default function Features() {
                 <Icon name="sync" />
               </span>
               <h3>
-                <Translate>_%_Tabelle YAML sempre allineate_%_</Translate>
+                <Trans>_%_Tabelle YAML sempre allineate_%_</Trans>
               </h3>
               <p>
-                <Translate>
+                <Trans>
                   _%_Un comando sincronizza ogni lingua: chiavi nuove aggiunte, obsolete tolte. Una frase spostata si porta dietro la sua
                   traduzione._%_
-                </Translate>
+                </Trans>
               </p>
             </div>
             <Code code={TABLE} lang="yaml" className="tile-code" />
@@ -74,10 +74,10 @@ export default function Features() {
                 <Icon name="sparkle" />
               </span>
               <h3>
-                <Translate>_%_Un LLM, ma con il paracadute_%_</Translate>
+                <Trans>_%_Un LLM, ma con il paracadute_%_</Trans>
               </h3>
               <p>
-                <Translate t="_%_<code>--llm-translate</code> riempie le chiavi mancanti con il modello che configuri. Il validatore scarta ciò che si romperebbe a runtime._%_" />
+                <Trans t="_%_<code>--llm-translate</code> riempie le chiavi mancanti con il modello che configuri. Il validatore scarta ciò che si romperebbe a runtime._%_" />
               </p>
             </div>
             <ul className="verdicts">
@@ -98,13 +98,13 @@ export default function Features() {
                 <Icon name="server" />
               </span>
               <h3>
-                <Translate>_%_Compilato in build, nessun parser a runtime_%_</Translate>
+                <Trans>_%_Compilato in build, nessun parser a runtime_%_</Trans>
               </h3>
               <p>
-                <Translate>
+                <Trans>
                   _%_Le tabelle diventano valori già pronti al momento della build. Niente parser HTML nel browser, e per questo il testo tradotto
                   si rende anche lato server._%_
-                </Translate>
+                </Trans>
               </p>
             </div>
             <div className="flow" aria-hidden="true">
@@ -124,10 +124,10 @@ export default function Features() {
                 <Icon name="layers" />
               </span>
               <h3>
-                <Translate>_%_Ogni lingua è un file a sé_%_</Translate>
+                <Trans>_%_Ogni lingua è un file a sé_%_</Trans>
               </h3>
               <p>
-                <Translate>_%_Caricata con import() solo quando la scegli. Chi legge in italiano non scarica mai il cinese._%_</Translate>
+                <Trans>_%_Caricata con import() solo quando la scegli. Chi legge in italiano non scarica mai il cinese._%_</Trans>
               </p>
             </div>
             <div className="chunks" aria-hidden="true">

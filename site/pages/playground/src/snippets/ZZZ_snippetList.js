@@ -37,7 +37,7 @@ const snippetList = [
     id: "static-text",
     title: "_%_Traduzione statica_%_",
     description:
-      "_%_Il testo si scrive dove serve, dentro <code>&lt;Translate&gt;</code>: l'id di traduzione e il testo di riserva li genera il build, senza nessun marcatore da scrivere a mano._%_",
+      "_%_Il testo si scrive dove serve, dentro <code>&lt;Trans&gt;</code>: l'id di traduzione e il testo di riserva li genera il build, senza nessun marcatore da scrivere a mano._%_",
     file: "BasicExample.jsx",
     code: basicCode,
     Example: BasicExample,
@@ -45,7 +45,7 @@ const snippetList = [
   {
     id: "dynamic-text",
     title: "_%_Traduzione dinamica_%_",
-    description: "_%_Le variabili si scrivono come JSX, <code>&#123;nome}</code>, dentro <code>&lt;Translate&gt;</code>: la stessa sintassi di sempre._%_",
+    description: "_%_Le variabili si scrivono come JSX, <code>&#123;nome}</code>, dentro <code>&lt;Trans&gt;</code>: la stessa sintassi di sempre._%_",
     file: "DynamicExample.jsx",
     code: dynamicCode,
     Example: DynamicExample,
@@ -63,7 +63,7 @@ const snippetList = [
     id: "attributes",
     title: "_%_Placeholder e attributi_%_",
     description:
-      "_%_<code>&lt;Translate&gt;</code> restituisce nodi React: non può essere usato in attributi HTML che richiedono una stringa semplice, come <code>placeholder</code>, <code>aria-label</code> o <code>title</code>. In questi casi serve l'hook <code>useTranslateToString()</code>, chiamato come template — <code>ts&#96;Scrivi a $&#123;nome}&#96;</code> — che risolve la stessa traduzione ma restituisce una stringa primitiva. Questi attributi non sono visibili come testo a schermo: per vederli tradotti ispeziona l'elemento con F12._%_",
+      "_%_<code>&lt;Trans&gt;</code> restituisce nodi React: non può essere usato in attributi HTML che richiedono una stringa semplice, come <code>placeholder</code>, <code>aria-label</code> o <code>title</code>. In questi casi serve l'hook <code>useTrans()</code>, chiamato come template — <code>trans&#96;Scrivi a $&#123;nome}&#96;</code> — che risolve la stessa traduzione ma restituisce una stringa primitiva. Questi attributi non sono visibili come testo a schermo: per vederli tradotti ispeziona l'elemento con F12._%_",
     file: "PlaceholderExample.jsx",
     code: placeholderCode,
     Example: PlaceholderExample,
@@ -72,7 +72,7 @@ const snippetList = [
     id: "language-switch",
     title: "_%_Cambio lingua_%_",
     description:
-      "_%_L'hook useTranslateLanguage() espone in un colpo solo la lingua corrente (id), i tag BCP 47 trovati in localeDir (nessun caricamento, solo l'elenco), il flag debug e proposeNewLanguage per richiedere il caricamento pigro di un'altra lingua a runtime, con callback onStart/onDone/onError per seguirne l'esito._%_",
+      "_%_L'hook useTransLanguage() espone in un colpo solo la lingua corrente (id), i tag BCP 47 trovati in localeDir (nessun caricamento, solo l'elenco), il flag debug e proposeNewLanguage per richiedere il caricamento pigro di un'altra lingua a runtime, con callback onStart/onDone/onError per seguirne l'esito._%_",
     file: "LanguageSwitchExample.jsx",
     code: languageSwitchCode,
     Example: LanguageSwitchExample,
@@ -99,7 +99,7 @@ const snippetList = [
     id: "icu-format",
     title: "_%_Numeri, valute e date (ICU)_%_",
     description:
-      "_%_Numeri, valute, date e ore nel formato della lingua corrente, senza librerie: cambia lingua e guarda separatori e nomi dei giorni. Il fuso orario si fissa con la prop <code>timeZone</code> di <code>TranslateContainer</code>, o con l’opzione <code>icu.timeZone</code> del plugin._%_",
+      "_%_Numeri, valute, date e ore nel formato della lingua corrente, senza librerie: cambia lingua e guarda separatori e nomi dei giorni. Il fuso orario si fissa con la prop <code>timeZone</code> di <code>TransContainer</code>, o con l’opzione <code>icu.timeZone</code> del plugin._%_",
     file: "FormatExample.jsx",
     code: formatCode,
     Example: FormatExample,
@@ -108,7 +108,7 @@ const snippetList = [
     id: "autowrap",
     title: "_%_autoWrap: marcatori senza componente_%_",
     description:
-      "_%_Con l’opzione <code>autoWrap</code> accesa non serve nemmeno <code>&lt;Translate&gt;</code>: un testo marcato — anche con un tag o un valore in mezzo — diventa da solo la chiamata giusta, niente <code>ts()</code> a mano. I casi che non copre sono nella pagina dei casi limite._%_",
+      "_%_Con l’opzione <code>autoWrap</code> accesa non serve nemmeno <code>&lt;Trans&gt;</code>: un testo marcato — anche con un tag o un valore in mezzo — diventa da solo la chiamata giusta, niente <code>trans()</code> a mano. I casi che non copre sono nella pagina dei casi limite._%_",
     file: "AutoWrapExample.jsx",
     code: autoWrapCode,
     Example: AutoWrapExample,

@@ -55,6 +55,13 @@ function autoWrapDa(valore) {
   return valore === true;
 }
 
+// I delimitatori di serie (4.7.0). Scritti QUI e non importati: le sonde non importano niente da lib/
+// del repo, usano la libreria installata nel progetto (lo controlla ideScanEntry.test.mjs). È l'unico
+// `_%_` a mano ammesso nel codice dell'estensione. Una libreria della 4.6.4 ignora il parametro
+// `markers`, e non può avere delimitatori personalizzati: nessun IDE_API nuovo.
+const DEFAULT = { start: "_%_", end: "_%_" };
+const stessiMarcatori = (a, b) => a.start === b.start && a.end === b.end;
+
 const stessoStat = (stat, entry) => Array.isArray(stat) && stat[0] === entry.mtimeMs && stat[1] === entry.size;
 
 // La versione del contratto `./ide/scan` che questa estensione richiede (IDE_API in
@@ -140,8 +147,8 @@ export function createScanner() {
   }
 
   /**
-   * @param {object} opzioni - { baseDir, srcDir, localeDir, sourceLanguage, autoWrap } come li ha
-   *   risolti probe.mjs; baseDir assoluto o relativo alla cwd (la cartella del progetto)
+   * @param {object} opzioni - { baseDir, srcDir, localeDir, sourceLanguage, autoWrap, markers } come li
+   *   ha risolti probe.mjs (`markers`: `{ start, end }`, assente per una libreria più vecchia della 4.7.0); baseDir assoluto o relativo alla cwd (la cartella del progetto)
    * @param {Record<string, object>} [overlay] - quello restituito dalla scansione precedente
    * @returns {Promise<object>} `{ ok, version, ideApi, scanned, languages, files, warnings, overlay,
    *   origin, index }`, o `{ ok: false, code, error }`; mai un rifiuto
@@ -209,12 +216,14 @@ export function createScanner() {
 
       // L'indice della sync vale solo per questa libreria e per lo stesso input.
       const autoWrap = autoWrapDa(opzioni.autoWrap);
+      const markers = opzioni.markers ?? undefined;
       const letto = L.indice.readMarkerIndex(baseDir);
       const valido = !!letto
         && letto.pkgVersion === version
         && typeof letto.srcDir === "string" && path.join(baseDir, letto.srcDir) === srcRoot
         && typeof letto.localeDir === "string" && path.join(baseDir, letto.localeDir) === localeDir
-        && letto.autoWrap === L.indice.autoWrapKey(autoWrap);
+        && letto.autoWrap === L.indice.autoWrapKey(autoWrap)
+        && stessiMarcatori(letto.markers ?? DEFAULT, markers ?? DEFAULT);
       const indice = valido ? letto : null;
       const precedente = overlay ?? {};
       const nuovo = {};
@@ -242,7 +251,7 @@ export function createScanner() {
             files.push({ rel: entry.rel, path: entry.path, entries: [], error: error.message });
             continue;
           }
-          if (!L.mayHaveMarkers(code)) {
+          if (!L.mayHaveMarkers(code, markers)) {
             nuovo[entry.rel] = { stat, none: true };
             continue;
           }
@@ -260,7 +269,7 @@ export function createScanner() {
             const avvisi = [];
             try {
               extractMarkers(code, {
-                filename: entry.path, table, rewrite: false, baseDir, autoWrap, hints: {},
+                filename: entry.path, table, rewrite: false, baseDir, autoWrap, markers, hints: {},
                 warn: (message, kind = "marker") => avvisi.push({ kind, message }),
                 onMarker: (voce) => entries.push(voce),
               });

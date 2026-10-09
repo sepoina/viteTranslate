@@ -1,11 +1,11 @@
-import { Translate, useTranslateLanguage, version } from '@sepoina/vitetranslate/react';
+import { Trans, useTransLanguage, version } from '@sepoina/vitetranslate/react';
 
 export default function App() {
   //
   // hook che legge lo stato del sistema di traduzione, e fornisce la lingua corrente
   // l'elenco delle lingue disponibili e la funzione per cambiare lingua.
   //
-  const { id, languages, proposeNewLanguage } = useTranslateLanguage();
+  const { id, languages, proposeNewLanguage } = useTransLanguage();
   //
   // lingua corrente o "sconosciuta"
   const corrente = languages.find(l => l.tag === id)?.languageName ?? '[lingua sconosciuta]';
@@ -26,23 +26,23 @@ export default function App() {
         <header>
           <h2>
             viteTranslate
-          </h2><small><Translate>versione&nbsp;<b>{version}</b></Translate></small>
+          </h2><small><Trans>versione&nbsp;<b>{version}</b></Trans></small>
         </header>
         <p>
-          <Translate>
+          <Trans>
             Il buon carattere è invisibile finché non fallisce. Un paragrafo
             composto bene accompagna l'occhio lungo la pagina senza mai chiedere
             attenzione, bilanciando giustezza, interlinea e contrasto finché il
             lettore dimentica che una scelta sia mai stata fatta.
-          </Translate>
+          </Trans>
         </p>
         <blockquote>
-          <Translate>
+          <Trans>
             "Il carattere è un bel gruppo di lettere, non un gruppo di belle
             lettere. Lo spazio che le separa conta quanto la loro forma."
-          </Translate>
+          </Trans>
           <footer>
-            <Translate>- Mira Halvorsen, La pagina silenziosa</Translate>
+            <Trans>- Mira Halvorsen, La pagina silenziosa</Trans>
           </footer>
         </blockquote>
       </article>

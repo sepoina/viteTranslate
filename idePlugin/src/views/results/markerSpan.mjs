@@ -6,7 +6,7 @@
 // Nessun import di `vscode`. I delimitatori vengono da lib/markerSyntax.js, impacchettato qui alla
 // build: mai riscritti a mano (invariante 14 in doc/structure.md). Dove finiscono tag e template lo
 // dicono le stesse funzioni dell'evidenziazione (metatagScan.mjs, metatagPatterns.mjs).
-import { SOURCE_OPEN, SOURCE_CLOSE } from "../../../../lib/markerSyntax.js";
+import { DEFAULT_MARKERS } from "../../../../lib/markerSyntax.js";
 import { fineTag, chiusura } from "../../highlight/metatagScan.mjs";
 import { fineTemplate } from "../../highlight/metatagPatterns.mjs";
 
@@ -42,9 +42,10 @@ function fineElemento(testo, inizio) {
  *
  * @param {string} testo
  * @param {number} inizio
+ * @param {{ start: string, end: string }} [markers] - i delimitatori del progetto; default `_%_`
  * @returns {number | null}
  */
-export function markerEnd(testo, inizio) {
+export function markerEnd(testo, inizio, markers = DEFAULT_MARKERS) {
   const c = testo[inizio];
   if (c === undefined) return null;
   if (c === "<") return fineElemento(testo, inizio);
@@ -59,9 +60,9 @@ export function markerEnd(testo, inizio) {
   }
   // Un testo marcato (`_%_…_%_`, anche quello che autoWrap avvolge con i suoi tag e valori in
   // mezzo): fino al `_%_` che lo chiude. Un testo JSX qualunque: fino al primo tag o `{`.
-  if (testo.startsWith(SOURCE_OPEN, inizio)) {
-    const chiude = testo.indexOf(SOURCE_CLOSE, inizio + SOURCE_OPEN.length);
-    return chiude === -1 ? null : chiude + SOURCE_CLOSE.length;
+  if (testo.startsWith(markers.start, inizio)) {
+    const chiude = testo.indexOf(markers.end, inizio + markers.start.length);
+    return chiude === -1 ? null : chiude + markers.end.length;
   }
   const fine = testo.slice(inizio).search(/[<{]/);
   return fine === -1 ? testo.length : inizio + fine;
@@ -81,8 +82,9 @@ const RISALITA = 10;
  * @param {string | null} testo - il testo del documento; senza, solo il punto 1
  * @param {number} line
  * @param {number} column
+ * @param {{ start: string, end: string }} [markers] - i delimitatori del progetto; default `_%_`
  */
-export function entryAtCursor(voci, testo, line, column) {
+export function entryAtCursor(voci, testo, line, column, markers = DEFAULT_MARKERS) {
   const sullaRiga = voci.filter((r) => r.line === line);
   if (sullaRiga.length) return sullaRiga.filter((r) => (r.column ?? 1) <= column).at(-1) ?? sullaRiga[0];
   if (typeof testo !== "string") return null;
@@ -92,7 +94,7 @@ export function entryAtCursor(voci, testo, line, column) {
   for (const r of sopra) {
     const inizio = offsetDi(testo, r.line, r.column ?? 1);
     if (inizio === null) continue;
-    const fine = markerEnd(testo, inizio);
+    const fine = markerEnd(testo, inizio, markers);
     if (fine !== null && cursore < fine) return r;
   }
   return null;

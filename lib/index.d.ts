@@ -139,6 +139,19 @@ export interface VitetranslateOptions {
    */
   autoWrap?: boolean | RegExp;
   /**
+   * Il delimitatore del marcatore, uguale ai due capi (`"§"` → `"§ciao§"`). Default `"_%_"`.
+   * `markerStart` e `markerEnd`, se presenti, lo correggono per il loro capo.
+   *
+   * Vietati: spazi, caratteri di controllo, `< > { } " ' \` \ &` e `%s`. Consiglio: almeno due
+   * caratteri, oppure un simbolo Unicode che nel testo non compare mai (`≼`, `≽`): ogni stringa che
+   * lo contiene senza esserne avvolta produce un avviso.
+   */
+  marker?: string;
+  /** Il delimitatore d'apertura. Default: `marker`, o `"_%_"`. */
+  markerStart?: string;
+  /** Il delimitatore di chiusura. Default: `marker`, o `"_%_"`. */
+  markerEnd?: string;
+  /**
    * Diagnostica a schermo e in console per le stringhe che non arrivano dove dovevano.
    * Ogni campo è facoltativo; omettere l'opzione lascia tutti i default.
    */
@@ -153,7 +166,7 @@ export interface VitetranslateOptions {
 }
 
 /**
- * Plugin Vite: estrae i marcatori `_%_..._%_`, compila i file di lingua e serve il modulo
+ * Plugin Vite: estrae i marcatori (`_%_…_%_` di serie), compila i file di lingua e serve il modulo
  * virtuale `virtual:vitetranslate/languages`. Restituisce **due** plugin, da inserire così
  * com'è nell'array `plugins` (Vite appiattisce gli array annidati).
  *

@@ -40,6 +40,7 @@ import { SelectorView, SELECTOR_VIEW_ID } from "./webViews/selector/selectorView
 import { ProjectView, PROJECT_VIEW_ID } from "./webViews/project/projectView.mjs";
 import { OptionalView, OPTIONAL_VIEW_ID } from "./webViews/optional/optionalView.mjs";
 import { Highlighter } from "./highlight/highlighter.mjs";
+import { ProjectMarkers } from "./highlight/projectMarkers.mjs";
 import { pickHighlightStyle } from "./highlight/stylePicker.mjs";
 
 export function activate(context) {
@@ -53,8 +54,11 @@ export function activate(context) {
   // In VERSION, nella pagina Settings.
   const extensionVersion = context.extension?.packageJSON?.version ?? null;
 
-  const highlighter = new Highlighter({ log });
   const projects = new Projects({ probePath: sonda("probe.mjs"), log, state });
+  // I delimitatori del progetto di ogni file aperto (4.7.0): l'evidenziazione li chiede anche a
+  // pannello chiuso, e ProjectMarkers avvia la lettura del progetto se manca.
+  const projectMarkers = new ProjectMarkers({ projects });
+  const highlighter = new Highlighter({ log, markers: projectMarkers });
   const results = new ResultsView({ projects, probePath: sonda("markedProbe.mjs"), log, state });
   const cli = new CliTasks({ runner: sonda("cliRunner.mjs"), runAsNodeCmd: sonda("runAsNode.cmd"), projects, log });
   const startup = new Startup({ projects, marked: results.tree, log });
@@ -97,6 +101,7 @@ export function activate(context) {
 
   context.subscriptions.push(
     canale,
+    projectMarkers,
     highlighter,
     results,
     cli,

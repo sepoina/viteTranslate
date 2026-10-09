@@ -4,7 +4,7 @@
 // localStorage può mancare o lanciare (navigazione privata, dati del sito bloccati): in quel
 // caso si parte come alla prima visita, senza errori.
 import { useEffect, useRef } from "react";
-import { useTranslateLanguage } from "@sepoina/vitetranslate/react";
+import { useTransLanguage } from "@sepoina/vitetranslate/react";
 
 const KEY = "viteTranslate.site.language";
 
@@ -28,7 +28,7 @@ function save(tag) {
  * La lingua da cui partire: quella ricordata, se questa pagina ce l'ha fra le sue tabelle
  * (ogni pagina ha un insieme di lingue suo, e una lingua tolta da locale/ non deve rompere
  * l'avvio); altrimenti `fallback`.
- * @param {{ tag: string }[]} languages l'elenco di useTranslateLanguage(), valido anche fuori dal container
+ * @param {{ tag: string }[]} languages l'elenco di useTransLanguage(), valido anche fuori dal container
  * @param {string} fallback
  */
 export function pickLanguage(languages, fallback) {
@@ -37,12 +37,12 @@ export function pickLanguage(languages, fallback) {
 }
 
 /**
- * Da mettere dentro il TranslateContainer: ricorda ogni lingua che arriva davvero sullo schermo
+ * Da mettere dentro il TransContainer: ricorda ogni lingua che arriva davvero sullo schermo
  * (se il chunk non carica, `id` non cambia e non si salva niente). La lingua d'avvio non si salva:
  * chi non ha mai scelto non ha una preferenza.
  */
 export function RememberLanguage() {
-  const { id } = useTranslateLanguage();
+  const { id } = useTransLanguage();
   const seen = useRef(id);
   useEffect(() => {
     if (id && id !== seen.current) {

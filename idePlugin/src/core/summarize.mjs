@@ -149,6 +149,7 @@ function vitetranslateRow(probe, dir) {
     opt("autoSyncBuild", onOff(c.autoSyncBuild !== false), c.autoSyncBuild !== false),
     opt("includeFallback", c.includeFallback === undefined ? "dev only" : onOff(c.includeFallback), c.includeFallback === undefined),
     opt("autoWrap", c.autoWrap?.$regexp ?? onOff(c.autoWrap === true), !c.autoWrap),
+    opt("markers", c.markers ? `${c.markers.start} … ${c.markers.end}` : "_%_ … _%_", !c.markers || (c.markers.start === "_%_" && c.markers.end === "_%_")),
     opt("icu.timeZone", c.icu?.timeZone ?? "runtime", !c.icu?.timeZone),
     opt("errorSolve", c.errorSolve ? "custom" : "built-in", !c.errorSolve, c.errorSolve ? { tooltip: JSON.stringify(c.errorSolve, null, 2) } : {}),
     opt("simpleLog", onOff(c.simpleLog === true), c.simpleLog !== true),

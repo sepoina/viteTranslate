@@ -10,7 +10,7 @@ npx vitetranslate
 >
 > **Renamed in 4.1.** The command used to be `vitetranslate-prepare-translation-table`. That name is still registered and keeps working, so a `prebuild` script you already wrote does not break — but `vtranslate-cli` (what `vitetranslate` runs under the hood) is the one to use, and the only one the messages mention.
 
-Reads the `vitetranslate` config from `vite.config.*` in the current working directory, scans `srcDir` for `_%_..._%_` markers and `<Translate>`/`` ts`…` `` calls, and syncs every language file in `localeDir`: adds new keys, removes stale ones — carrying over the translation when a key was only renamed, and when the rename also changed how the placeholders are written (`%s` to `{name}`, converting a marker to the preprocessor): the old translation's `%s`s or `{token}`s are rewritten into the new ones, in order, and only kept if the count matches — otherwise the new key is left `null` rather than risk showing the wrong argument — and reports what's left untranslated. The plugin runs this for you now, at dev server startup and before every build (see [plugin options](plugin-options.md)); this command is what you reach for when you want it on purpose — `--add`, `--status`, `--migrate`, or a check in CI.
+Reads the `vitetranslate` config from `vite.config.*` in the current working directory, scans `srcDir` for marked strings (`_%_..._%_` by default, or your own [delimiters](plugin-options.md#markers)) and `<Trans>`/`` trans`…` `` calls, and syncs every language file in `localeDir`: adds new keys, removes stale ones — carrying over the translation when a key was only renamed, and when the rename also changed how the placeholders are written (`%s` to `{name}`, converting a marker to the preprocessor): the old translation's `%s`s or `{token}`s are rewritten into the new ones, in order, and only kept if the count matches — otherwise the new key is left `null` rather than risk showing the wrong argument — and reports what's left untranslated. The plugin runs this for you now, at dev server startup and before every build (see [plugin options](plugin-options.md)); this command is what you reach for when you want it on purpose — `--add`, `--status`, `--migrate`, or a check in CI.
 
 🎮 **[Live walkthrough](https://sepoina.github.io/viteTranslate/playground/#install-sync)** — the sync and `--status`, then [`--add`](https://sepoina.github.io/viteTranslate/playground/#install-new-language) and [`--llm-translate`](https://sepoina.github.io/viteTranslate/playground/#install-llm), each with the files it writes.
 
@@ -74,6 +74,37 @@ vitetranslate --migrate
 ```
 
 One-off conversion of 3.x language files (`<tag>.js`) to the 4.0 format (`<tag>.yml`) — see [migrating from 3.x](#migrating-from-3x) below. It only converts and exits; nothing else runs.
+
+```bash
+vitetranslate --rewriteMarkerDryRun [start] [end]
+vitetranslate --rewriteMarker [start] [end]
+```
+
+## Rewriting the markers
+
+Changed your [delimiters](plugin-options.md#markers) in `vite.config`? These two rewrite the source from the old ones to the new ones. The arguments are the markers **now in your source**: none means `_%_`, one means the same at both ends, two mean start and end. The target is always the markers of `vite.config`. Only `srcDir` is touched, through the syntax tree: comments and imports stay as they are, and only the delimiters change, never the text inside.
+
+| Setup in `vite.config` | Arguments | What happens |
+| :- | :- | :- |
+| custom (`≼ ≽`) | none | `_%_` → `≼ ≽`: the first switch |
+| custom (`≼ ≽`) | `"§"` | `§` → `≼ ≽`: from one custom pair to another |
+| custom (`≼ ≽`) | `"≼" "≽"` | nothing to rewrite (exit 1) |
+| default (`_%_`) | none | nothing to rewrite (exit 1) |
+| default (`_%_`) | `"≼" "≽"` | `≼ ≽` → `_%_`: back to the default |
+
+The decision comes from the setup and the arguments alone, before any file is read: the command never guesses from your code.
+
+`--rewriteMarkerDryRun` runs the whole check and writes nothing; it prints the translation status with the current markers and with the rewritten ones. `--rewriteMarker` runs **the same check on every file** and only then writes: all or nothing. If a single key would change (a macro whose text contains the new delimiter, for example), or a file that holds old markers cannot be parsed, it writes nothing, lists the culprits and exits `1`. If a write fails halfway (permissions, a file locked by another program) it stops and lists what was and wasn't rewritten; the keys are the same either way, so running the same command again finishes the job. No sync runs afterwards: tables and caches catch up on your next one.
+
+A shell may need quotes: `"≼"`. In `cmd.exe`, a `%` can be read as a variable. Can't be combined with `--add`, `--status`, `--migrate`, `--fastverify` or any `--llm-*` flag.
+
+```text
+::: rewrite              ║  _%_…_%_  →  ≼…≽          (dry run)
+::: files                ║  12 to change, 47 markers
+::: before               ║  42 keys · en-US 40/42 · zh-CN 42/42
+::: after                ║  42 keys · en-US 40/42 · zh-CN 42/42
+::: ok                   ║  same keys, same status — run without DryRun to write
+```
 
 ```bash
 vitetranslate --fastverify

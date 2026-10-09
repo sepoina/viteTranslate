@@ -213,6 +213,49 @@ console.log("\n== la macro senza _%_ (4.6.4) ==");
   eq("motivo: source-changed", "source-changed", esito.reason);
 }
 
+console.log("\n== delimitatori del progetto (4.7.0) ==");
+{
+  const FRECCE = { start: "≼", end: "≽" };
+  const baseDir = progetto();
+  const record = JSON.parse(readFileSync(scanPath(baseDir), "utf8"));
+  eq("il record porta i delimitatori di serie", "_%_|_%_", `${record.markers?.start}|${record.markers?.end}`);
+  eq("expect di serie: fresh", true, fastVerify({ baseDir, expect: { srcDir: "src", localeDir: "locale", sourceLanguage: "it-IT", markers: { start: "_%_", end: "_%_" } } }).fresh);
+  eq("expect senza markers (config vecchia): fresh", true, fastVerify({ baseDir, expect: { srcDir: "src", localeDir: "locale", sourceLanguage: "it-IT" } }).fresh);
+  const diverso = fastVerify({ baseDir, expect: { srcDir: "src", localeDir: "locale", sourceLanguage: "it-IT", markers: FRECCE } });
+  eq("expect con altri delimitatori: non fresh", false, diverso.fresh);
+  eq("…motivo config-mismatch", "config-mismatch", diverso.reason);
+
+  // Un record scritto con altri delimitatori contro un expect di serie.
+  writeFileSync(scanPath(baseDir), JSON.stringify({ ...record, markers: FRECCE }), "utf8");
+  eq("record con ≼≽ contro un expect di serie: non fresh", false, fastVerify({ baseDir, expect: { srcDir: "src", localeDir: "locale", sourceLanguage: "it-IT" } }).fresh);
+  eq("record con ≼≽ contro un expect ≼≽: fresh", true, fastVerify({ baseDir, expect: { srcDir: "src", localeDir: "locale", sourceLanguage: "it-IT", markers: FRECCE } }).fresh);
+
+  // Un record SENZA il campo è di prima della 4.7.0: delimitatori di serie, niente da invalidare.
+  const { markers, ...senza } = record;
+  writeFileSync(scanPath(baseDir), JSON.stringify(senza), "utf8");
+  eq("record senza markers + expect di serie: fresh", true, fastVerify({ baseDir, expect: { srcDir: "src", localeDir: "locale", sourceLanguage: "it-IT" } }).fresh);
+}
+{
+  // Il pre-filtro dello stadio 2 legge con i delimitatori DEL RECORD: un file con ≼…≽ è marcato.
+  const FRECCE = { start: "≼", end: "≽" };
+  const baseDir = progetto({ conRecord: false });
+  writeFileSync(join(baseDir, "src", "Marked.jsx"), 'export const a = "≼ciao≽";\n', "utf8");
+  const localeAbs = join(baseDir, "locale");
+  const entries = walkSource(join(baseDir, "src"), localeAbs, baseDir);
+  const marked = {};
+  for (const e of entries) {
+    const code = readFileSync(e.path, "utf8");
+    if (mayHaveMarkers(code, FRECCE)) marked[e.rel] = hash(code);
+  }
+  writeScan(baseDir, buildScanRecord({
+    baseDir, srcDir: "src", localeDir: "locale", sourceLanguage: "it-IT", simpleLog: false,
+    keys: 1, warnings: 0, entries, marked, markers: FRECCE,
+  }));
+  eq("registrato con ≼≽: fresh", true, fastVerify({ baseDir }).fresh);
+  writeFileSync(join(baseDir, "src", "Marked.jsx"), 'export const a = "≼ciao mondo≽";\n', "utf8");
+  eq("file ≼≽ modificato: source-changed (il pre-filtro usa i markers del record)", "source-changed", fastVerify({ baseDir }).reason);
+}
+
 for (const dir of temporanee) rmSync(dir, { recursive: true, force: true });
 
 console.log(fail ? `\n${fail} asserzioni fallite` : "\ntutto ok");
