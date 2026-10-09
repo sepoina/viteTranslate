@@ -2,7 +2,7 @@
 #      American English
 #       |    code: en-US
 #       |    missing key: 0
-#       |    processed: 2026-10-09 13:09
+#       |    processed: 2026-10-09 14:56
 #       |    TableVersion: 260905
 #  -------------------------------------------------
 #
@@ -70,10 +70,10 @@ pages_4r0twa: "The same minimal app on the pairing most existing projects run: t
 pages_f725ta: "Playground"
 pages_fom4py: "Minimal on Vite 7"
 pages_jmgmfq: "The full tour, live: variables and markup, ICU plurals and dates, autoWrap, all the way to translating with an LLM."
+pages_kx1rbt: "The smallest setup: three languages, no TypeScript and the language switch with <code>useTransLanguage()</code>."
 pages_nu5ths: "Italian written in the code, the other four languages filled in by a model with <code>--llm-translate</code>."
 pages_tu8r7m: "The same app with sentences marked <code>≼like this≽</code>: autoWrap does the rest, no <code>Trans</code> around them."
 pages_vv62gb: "The restaurant translated by an LLM"
-pages_w82y13: "The smallest setup: three languages, two code files and the language switch with <code>useTransLanguage()</code>."
 ProjectLinks_8ret13: "The project to download: npm install, then npm run dev"
 ProjectLinks_gizfou: "Source"
 ProjectLinks_tkz1w2: "The project opened on stackblitz.com: it installs and runs in the browser"

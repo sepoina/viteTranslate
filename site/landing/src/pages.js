@@ -34,7 +34,7 @@ export const DEMOS = [
     slug: "vite8-minimal",
     stack: "Vite 8 · React 19",
     title: "_%_Minimale_%_",
-    text: "_%_Il setup più piccolo: tre lingue, due file di codice e il cambio lingua con <code>useTransLanguage()</code>._%_",
+    text: "_%_Il setup più piccolo: tre lingue, niente TypeScript e il cambio lingua con <code>useTransLanguage()</code>._%_",
     source: "demo/Vite_8/minimal",
   },
   {

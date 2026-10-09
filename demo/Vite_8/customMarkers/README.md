@@ -15,11 +15,12 @@ vitetranslate({
 });
 ```
 
-[`src/App.jsx`](src/App.jsx) has **no `<Trans>` around its sentences**: you write `<p>≼like this≽</p>`, even with a
-tag or a value in the middle (`≼version <b>{version}</b>≽`), and `autoWrap` does the rest. Same keys as the
-`<Trans>` version, so no translation was touched. What is left: a list of texts kept as data
-(`<Trans t={note} />`, the only `<Trans>` in the file), an attribute (`title={trans('≼…≽')}`) and, for contrast,
-a `` trans`…` `` template, which needs no delimiters.
+[`src/App.jsx`](src/App.jsx) and its two components have **no `<Trans>` around their sentences**: you write
+`<p>≼like this≽</p>`, even with a tag or a value in the middle (`≼version <b>{version}</b>≽`, in
+[`ShowVersion.jsx`](src/ShowVersion.jsx)), and `autoWrap` does the rest. Same keys as the `<Trans>` version, so no
+translation was touched. What is left: a list of texts kept as data (`<Trans t={note} />`, the only `<Trans>` in the
+project), an attribute in [`RotateLanguageButton.jsx`](src/RotateLanguageButton.jsx) (`title={trans('≼…≽')}`) and,
+for contrast, a `` trans`…` `` template, which needs no delimiters.
 
 ## Why ≼ and ≽
 
@@ -70,6 +71,8 @@ npm run lint     # ESLint
 
 This folder is a member of the repo's npm workspaces: from the repo root it's
 `npm run dev -w demo/Vite_8/customMarkers`. Copied out on its own, it installs exactly what it declares.
+On StackBlitz, [`.stackblitzrc`](.stackblitzrc) sets `NODE_OPTIONS=--no-warnings`, so Node's warnings stay out
+of the terminal; everywhere else `npm run dev` is plain `vite`.
 
 ## Where to find the rest
 

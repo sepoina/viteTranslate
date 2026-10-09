@@ -2,7 +2,7 @@
 #      italiano (Italia) (sourceLanguage)
 #       |    code: it-IT
 #       |    missing key: 0
-#       |    processed: 2026-10-09 11:58
+#       |    processed: 2026-10-09 14:53
 #       |    TableVersion: 260905
 #  -------------------------------------------------
 #
@@ -10,7 +10,7 @@ App_19xh4q: "- doc/llm.md, la pagina che spiega tutto il resto"
 App_1ff9ley: "La chiave API non entra mai in <b>vite.config.js</b>: lì vive solo il nome della variabile d'ambiente."
 App_1h2ew8b: "La sincronizzazione crea le tabelle e mette le stringhe nuove a null."
 App_1tmvrrb: "Il validatore confronta segnaposto e tag con il sorgente: quello che non passa resta vuoto."
-App_2oq162: "{1} lingue · versione&nbsp;<b>{version}</b>"
 App_7dfaq2: "Questa pagina parla più lingue, ma solo una l'ha scritta una persona: le altre sono tabelle con tutte le caselle vuote. Non restano così — le riempie il modello in un colpo solo quando lanci vitetranslate --llm-translate, e prima di spendere qualsiasi cosa ti mostra la stima e ti chiede se procedere."
 App_h9n9tx: "Il testo si scrive dove serve, nel JSX: nessuna chiave da inventare."
 App_prwil0: "La CLI stima il costo, chiede conferma, e riempie le caselle vuote."
+ShowVersion_1poaz4y: "{1} lingue · versione&nbsp;<b>{version}</b>"

@@ -97,5 +97,7 @@ Costs, budget caps, the keyring and every flag: **[doc/llm.md](../../../doc/llm.
 read straight from GitHub, or grab the [zip](https://sepoina.github.io/viteTranslate/zip/demo/vite8-llm-translate.zip)
 and import it (New project > Import). Vite 8 uses Rolldown: in WebContainer, the WASM binding is installed automatically. The app boots there too —
 the translation command needs your key in the WebContainer environment.
+[`.stackblitzrc`](.stackblitzrc) sets `NODE_OPTIONS=--no-warnings` there, so Node's warnings stay out of the
+terminal; everywhere else `npm run dev` is plain `vite`.
 
 Need Vite's row 7, or React 18? The plain app is in [`demo/Vite_7/minimal`](../../Vite_7/minimal).

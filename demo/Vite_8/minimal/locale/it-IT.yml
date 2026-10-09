@@ -2,11 +2,11 @@
 #      italiano (Italia) (sourceLanguage)
 #       |    code: it-IT
 #       |    missing key: 0
-#       |    processed: 2026-10-09 11:58
+#       |    processed: 2026-10-09 14:52
 #       |    TableVersion: 260905
 #  -------------------------------------------------
 #
 App_15nio20: "- Mira Halvorsen, La pagina silenziosa"
-App_1jztuw0: "versione&nbsp;<b>{version}</b>"
 App_1u2wczc: "Il buon carattere è invisibile finché non fallisce. Un paragrafo composto bene accompagna l'occhio lungo la pagina senza mai chiedere attenzione, bilanciando giustezza, interlinea e contrasto finché il lettore dimentica che una scelta sia mai stata fatta."
 App_1vgk6pt: "\"Il carattere è un bel gruppo di lettere, non un gruppo di belle lettere. Lo spazio che le separa conta quanto la loro forma.\""
+ShowVersion_j6oyc8: "versione&nbsp;<b>{version}</b>"

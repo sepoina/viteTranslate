@@ -2,7 +2,7 @@
 #      italiano (Italia) (sourceLanguage)
 #       |    code: it-IT
 #       |    missing key: 0
-#       |    processed: 2026-10-09 13:09
+#       |    processed: 2026-10-09 14:56
 #       |    TableVersion: 260905
 #  -------------------------------------------------
 #
@@ -70,10 +70,10 @@ pages_4r0twa: "La stessa app minimale sulla coppia più diffusa nei progetti esi
 pages_f725ta: "Playground"
 pages_fom4py: "Minimale su Vite 7"
 pages_jmgmfq: "Il giro completo, dal vivo: variabili e markup, plurali e date ICU, autoWrap, fino alla traduzione con un LLM."
+pages_kx1rbt: "Il setup più piccolo: tre lingue, niente TypeScript e il cambio lingua con <code>useTransLanguage()</code>."
 pages_nu5ths: "L'italiano scritto nel codice, le altre quattro lingue riempite da un modello con <code>--llm-translate</code>."
 pages_tu8r7m: "La stessa app con le frasi marcate <code>≼così≽</code>: autoWrap fa il resto, senza un <code>Trans</code> attorno."
 pages_vv62gb: "Il ristorante tradotto da un LLM"
-pages_w82y13: "Il setup più piccolo: tre lingue, due file di codice e il cambio lingua con <code>useTransLanguage()</code>."
 ProjectLinks_8ret13: "Il progetto da scaricare: npm install, poi npm run dev"
 ProjectLinks_gizfou: "Sorgente"
 ProjectLinks_tkz1w2: "Il progetto aperto su stackblitz.com: si installa e gira nel browser"
