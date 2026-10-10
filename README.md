@@ -20,7 +20,7 @@ Write text naturally in JSX. viteTranslate extracts strings, keeps locale files 
 
 </div>
 
-<br />
+<br /><br /><br />
 
 ## 🚀 Quick start
 
@@ -188,7 +188,7 @@ Full reference: **[doc/cli.md](doc/cli.md)**.
 
 </details>
 
-<br />
+<br /><br />
 
 ## 🔖 What you get
 
@@ -200,7 +200,7 @@ Full reference: **[doc/cli.md](doc/cli.md)**.
 
 - **Ready for real interfaces.** [ICU](doc/icu.md) plurals, select, numbers and dates; lazy-loaded locales; the source text as fallback until translated; a safe subset of HTML tags.
 
-<br />
+<br /><br />
 
 ## 🔮 VS Code extension
 
@@ -208,7 +208,7 @@ Every marked string with its translation status, locale files opened at the key,
 
 [**Install from the Marketplace 🡭**](https://marketplace.visualstudio.com/items?itemName=sepoina.vitetranslate-ide) · [Extension guide 🡭](doc/ide-panel.md)
 
-<br />
+<br /><br />
 
 ## 📟 LLM auto-translation
 
@@ -216,7 +216,7 @@ Every marked string with its translation status, locale files opened at the key,
 
 [**LLM guide 🡭**](doc/llm.md) · [**Translated restaurant demo 🡭**](https://sepoina.github.io/viteTranslate/llmrestaurant/)
 
-<br />
+<br /><br />
 
 ## ⚡ Why viteTranslate
 
@@ -261,7 +261,7 @@ Every marked string with its translation status, locale files opened at the key,
 
 </details>
 
-<br />
+<br /><br />
 
 ## 📚 Guides
 
@@ -275,13 +275,13 @@ Every marked string with its translation status, locale files opened at the key,
 
  More: [Architecture](doc/structure.md) · [Known limitations](doc/limitations.md) · [Requirements](doc/requirements.md) · [Live examples](doc/live-examples.md)
 
-<br />
+<br /><br />
 
  ## 🎐 Links
 
  [Live site](https://sepoina.github.io/viteTranslate/) · [Discussions](https://github.com/sepoina/viteTranslate/discussions) · [Issues](https://github.com/sepoina/viteTranslate/issues) · [Provenance](https://docs.npmjs.com/trusted-publishers/) · [Apache-2.0 license](LICENSE)
 
-<br />
+<br /><br />
 
 ☕ [PayPal](https://www.paypal.com/paypalme/giancarloghigi) · [Buy Me a Coffee](https://www.buymeacoffee.com/giancarlogy)
 if it saved you a few translation keys.
