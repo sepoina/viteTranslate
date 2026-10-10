@@ -136,7 +136,8 @@ const { proposeNewLanguage } = useTransLanguage();
 
 `npm run build`: each language compiles to its own chunk, loaded when selected ([React API](doc/react-api.md#usetranslatelanguage)).
 
-[**Try it in the playground 🡭**](https://sepoina.github.io/viteTranslate/playground/) · [StackBlitz 🡭](https://stackblitz.com/github/sepoina/viteTranslate/tree/main/demo/Vite_8/minimal?file=locale%2Fit-IT.yml)
+<!-- LINKED-DATA: demo/Vite_8/quickApp is this quick start, finished; its card in site/landing/src/pages.js (DEMOS, slug vite8-quick-app) names the zip. Change a step here, change the demo too. -->
+[**Download quickApp, finished 🡭**](https://sepoina.github.io/viteTranslate/zip/demo/vite8-quick-app.zip) · [Open it on StackBlitz 🡭](https://stackblitz.com/github/sepoina/viteTranslate/tree/main/demo/Vite_8/quickApp?file=src/App.jsx)
 
 <details>
 <summary>🡷 <b>Next steps: plain strings, short names, plurals and dates</b></summary>

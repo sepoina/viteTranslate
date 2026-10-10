@@ -2,7 +2,7 @@
 #      italiano (Italia) (sourceLanguage)
 #       |    code: it-IT
 #       |    missing key: 0
-#       |    processed: 2026-10-09 17:21
+#       |    processed: 2026-10-10 11:18
 #       |    TableVersion: 260905
 #  -------------------------------------------------
 #
@@ -64,6 +64,7 @@ Outro_8zu2qs: "Traduci la tua prima frase <em>in un minuto</em>."
 Outro_pedtx3: "Offrimi un caffè"
 pages_11ub3x1: "Minimale"
 pages_152fu69: "Tradotta da un LLM"
+pages_19j7mis: "Il risultato dei sei passi del README: una frase, l'inglese come sorgente, il francese tradotto a mano."
 pages_1h4r6kh: "Delimitatori tuoi"
 pages_1lm0j53: "Una landing intera, 228 frasi, quattro lingue riempite da <code>vitetranslate --llm-translate</code>."
 pages_1t0ndvi: "Ogni forma di chiamata e ogni diagnostica, accanto a ciò che dovrebbe rendere."
@@ -72,6 +73,7 @@ pages_4r0twa: "La stessa app minimale sulla coppia più diffusa nei progetti esi
 pages_f725ta: "Playground"
 pages_fom4py: "Minimale su Vite 7"
 pages_jmgmfq: "Il giro completo, dal vivo: variabili e markup, plurali e date ICU, autoWrap, fino alla traduzione con un LLM."
+pages_jn9low: "Il quick start, finito"
 pages_kx1rbt: "Il setup più piccolo: tre lingue, niente TypeScript e il cambio lingua con <code>useTransLanguage()</code>."
 pages_nu5ths: "L'italiano scritto nel codice, le altre quattro lingue riempite da un modello con <code>--llm-translate</code>."
 pages_tu8r7m: "La stessa app con le frasi marcate <code>≼così≽</code>: autoWrap fa il resto, senza un <code>Trans</code> attorno."
@@ -85,8 +87,10 @@ sections_lijk3t: "Come funziona"
 sections_q2tajl: "Confronto"
 sections_qqqkuc: "Perché viteTranslate"
 sections_sf5vqh: "Come si vede"
+Starters_135p9nt: "Demo precedenti"
 Starters_6vy2yj: "Un clic e gira su StackBlitz, nel browser, senza installare niente. Lo zip è lo stesso progetto, da aprire in locale."
 Starters_jx8aky: "Un progetto minimo per ogni idea."
+Starters_mtvbi5: "Demo successive"
 Steps_13v2590: "Traduci"
 Steps_196we9t: "A mano, da un traduttore, o con un LLM che rispetta segnaposto e tag. Poi pubblichi."
 Steps_1c2u998: "Passo %s"

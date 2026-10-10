@@ -810,34 +810,111 @@ ul {
 }
 
 /* ---------- 06 Demo da cui partire ---------- */
-/* Quattro colonne, due o una secondo il contenitore: mai tre più una. */
+/* Una galleria che scorre di lato, a scatti: una, due o tre card intere secondo il contenitore, più
+   un pezzo della successiva, che dice che la fila continua. Le frecce stanno sotto (Starters.jsx). */
 .starters-box {
   container-type: inline-size;
 }
 
 .starters {
-  display: grid;
-  grid-template-columns: 1fr;
+  display: flex;
   gap: 16px;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  /* Spazio per l'anello del focus, che overflow taglierebbe. */
+  padding: 4px;
+  margin: -4px;
+  scroll-padding-inline: 4px;
+}
+
+.starters::-webkit-scrollbar {
+  display: none;
+}
+
+.starter-card {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  flex: 0 0 calc(85cqw - 8px);
+  flex-direction: column;
+  min-width: 0;
+  overflow: hidden;
+  scroll-snap-align: start;
+  /* Il glifo si misura sulla card: font-size in cqw. */
+  container-type: inline-size;
 }
 
 @container (min-width: 540px) {
-  .starters {
-    grid-template-columns: repeat(2, 1fr);
+  .starter-card {
+    flex-basis: calc((100cqw - 2 * 16px) / 2.25);
   }
 }
 
 @container (min-width: 1040px) {
-  .starters {
-    grid-template-columns: repeat(4, 1fr);
+  .starter-card {
+    flex-basis: calc((100cqw - 3 * 16px) / 3.3);
   }
 }
 
-.starter-card {
+/* Il fondo dice la versione di Vite: una velatura dall'angolo del glifo, sotto il contenuto. */
+.starter-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(200deg, var(--starter-wash) 0%, transparent 65%);
+  pointer-events: none;
+}
+
+.starter-card[data-vite="8"] {
+  --starter-wash: var(--vite8-wash);
+  --starter-glyph: var(--vite8-glyph);
+}
+
+.starter-card[data-vite="7"] {
+  --starter-wash: var(--vite7-wash);
+  --starter-glyph: var(--vite7-glyph);
+}
+
+/* Il glifo della demo: metà larghezza e metà altezza della card, in alto a destra, dietro il testo. */
+.starter-glyph {
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: -1;
+  display: grid;
+  place-items: center;
+  width: 50%;
+  height: 50%;
+  color: var(--starter-glyph);
+  font-family: var(--font);
+  font-size: 50cqw;
+  font-variant-emoji: text;
+  line-height: 1;
+  pointer-events: none;
+  user-select: none;
+}
+
+.starters-nav {
   display: flex;
-  flex-direction: column;
-  min-width: 0;
-  overflow: hidden;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.starters-nav .icon-btn {
+  width: 40px;
+  height: 40px;
+  font-size: 1.5rem;
+  line-height: 1;
+}
+
+.starters-nav .icon-btn:disabled {
+  opacity: 0.35;
+  cursor: default;
+  pointer-events: none;
 }
 
 .starter-main {

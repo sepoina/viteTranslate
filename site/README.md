@@ -51,7 +51,8 @@ subtree keeps the dark tokens.
 ## Cards: Source, StackBlitz, Zip
 
 The landing has two rows of cards: the site pages right under the hero (a click opens the page) and, at the
-bottom, a grid of the projects in [`demo/`](../demo) (a click opens StackBlitz). Every card ends with the same three buttons:
+bottom, a sliding gallery of the projects in [`demo/`](../demo) (a click opens StackBlitz; the background tells
+the Vite version, the big glyph what the demo is about). Every card ends with the same three buttons:
 
 - **Source** — the folder on GitHub.
 - **StackBlitz** — `stackblitz.com/github/sepoina/viteTranslate/tree/main/<folder>`: StackBlitz reads the folder
@@ -77,7 +78,10 @@ without `src/App.jsx` (the file StackBlitz opens).
 `siteLinks.js` are identical. `npm run sync:demos` keeps every `@sepoina/vitetranslate` range aligned.
 
 A new folder in `demo/<Vite_N>/` needs its card too: add it to `DEMOS` in the same file (the test fails without),
-with a `slug` for its zip and a `stack` label like `Vite 8 · React 19`.
+with a `slug` for its zip, a `stack` label like `Vite 8 · React 19` and a `glyph`: one Unicode symbol, never an
+emoji, that says what the demo is about. The background colour comes from the folder (`Vite_8`, `Vite_7`): a new
+Vite version needs its two `--viteN-*` tokens in [`theme/tokens.css`](theme/tokens.css) and its `data-vite` rule in
+[`landing.css`](landing/src/landing.css).
 
 ## Card previews
 

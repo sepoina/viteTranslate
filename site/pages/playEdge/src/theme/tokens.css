@@ -78,6 +78,13 @@
   --logo-filter: brightness(2.1); /* il logo è grigio (#78788a): qui si schiarisce */
   --bar-bg: rgba(11, 15, 13, 0.86);
 
+  /* Le demo da cui partire (landing): fondo e glifo della card secondo la versione di Vite. Vite 8
+     ha il verde del sito, Vite 7 un ambra: si distinguono a colpo d'occhio, senza un'etichetta. */
+  --vite8-wash: rgba(74, 222, 128, 0.12);
+  --vite8-glyph: rgba(74, 222, 128, 0.16);
+  --vite7-wash: rgba(251, 191, 36, 0.11);
+  --vite7-glyph: rgba(251, 191, 36, 0.16);
+
   /* Sfondo dell'hero. */
   --grid: #141b17;
   --glow: rgba(74, 222, 128, 0.13);
@@ -144,6 +151,10 @@
     --chip-dashed: #c9cbc3;
     --logo-filter: brightness(0.35);
     --bar-bg: rgba(246, 245, 240, 0.88);
+    --vite8-wash: rgba(20, 122, 58, 0.09);
+    --vite8-glyph: rgba(20, 122, 58, 0.13);
+    --vite7-wash: rgba(180, 83, 9, 0.08);
+    --vite7-glyph: rgba(180, 83, 9, 0.13);
     --grid: #e8e7e0;
     --glow: rgba(74, 222, 128, 0.2);
     --code-bg: #ffffff;
@@ -191,6 +202,10 @@
   --chip-dashed: #c9cbc3;
   --logo-filter: brightness(0.35);
   --bar-bg: rgba(246, 245, 240, 0.88);
+  --vite8-wash: rgba(20, 122, 58, 0.09);
+  --vite8-glyph: rgba(20, 122, 58, 0.13);
+  --vite7-wash: rgba(180, 83, 9, 0.08);
+  --vite7-glyph: rgba(180, 83, 9, 0.13);
   --grid: #e8e7e0;
   --glow: rgba(74, 222, 128, 0.2);
   --code-bg: #ffffff;
