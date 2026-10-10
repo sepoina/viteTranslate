@@ -27,7 +27,10 @@ Write text naturally in JSX. viteTranslate extracts strings, keeps locale files 
 ### 1. Install and register the plugin
 
 ```sh
-npm install @sepoina/vitetranslate   # React 18/19, Node 18+
+# New project? This creates the tree: Vite + React, JSX, no TypeScript
+npm create vite@latest quickApp -- --template react --no-interactive && cd quickApp
+
+npm install @sepoina/vitetranslate   # React 18/19 components & Vite 5–8 plugin
 ```
 
 ```js
