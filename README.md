@@ -12,7 +12,7 @@ Write text naturally in JSX. viteTranslate extracts strings, keeps locale files 
 [![runtime size](https://img.shields.io/badge/runtime-5%20kB%20gzip-4c1)](#-why-vitetranslate)
 [![VS Code](https://img.shields.io/badge/VS%20Code-extension-007ACC?logo=visualstudiocode&logoColor=white)](https://marketplace.visualstudio.com/items?itemName=sepoina.vitetranslate-ide)
 
-[**Playground**](https://sepoina.github.io/viteTranslate/playground/) · [**Quick start**](#-quick-start) · [**VS Code**](#vs-code-extension) · [**Guides**](#Guides)
+[**Playground**](https://sepoina.github.io/viteTranslate/playground/) · [**Quick start**](#-quick-start) · [**VS Code**](#-vs-code-extension) · [**Guides**](#-guides)
 
 <a href="https://youtu.be/pNM9ybG0uO4">
   <img src="doc/youplay.png" alt="Watch viteTranslate in action" width="60%" />
@@ -20,7 +20,7 @@ Write text naturally in JSX. viteTranslate extracts strings, keeps locale files 
 
 </div>
 
----
+<br />
 
 ## 🚀 Quick start
 
@@ -188,7 +188,7 @@ Full reference: **[doc/cli.md](doc/cli.md)**.
 
 </details>
 
----
+<br />
 
 ## 🔖 What you get
 
@@ -200,7 +200,7 @@ Full reference: **[doc/cli.md](doc/cli.md)**.
 
 - **Ready for real interfaces.** [ICU](doc/icu.md) plurals, select, numbers and dates; lazy-loaded locales; the source text as fallback until translated; a safe subset of HTML tags.
 
----
+<br />
 
 ## 🔮 VS Code extension
 
@@ -208,7 +208,7 @@ Every marked string with its translation status, locale files opened at the key,
 
 [**Install from the Marketplace 🡭**](https://marketplace.visualstudio.com/items?itemName=sepoina.vitetranslate-ide) · [Extension guide 🡭](doc/ide-panel.md)
 
----
+<br />
 
 ## 📟 LLM auto-translation
 
@@ -216,7 +216,7 @@ Every marked string with its translation status, locale files opened at the key,
 
 [**LLM guide 🡭**](doc/llm.md) · [**Translated restaurant demo 🡭**](https://sepoina.github.io/viteTranslate/llmrestaurant/)
 
----
+<br />
 
 ## ⚡ Why viteTranslate
 
@@ -261,7 +261,7 @@ Every marked string with its translation status, locale files opened at the key,
 
 </details>
 
----
+<br />
 
 ## 📚 Guides
 
@@ -275,13 +275,13 @@ Every marked string with its translation status, locale files opened at the key,
 
  More: [Architecture](doc/structure.md) · [Known limitations](doc/limitations.md) · [Requirements](doc/requirements.md) · [Live examples](doc/live-examples.md)
 
----
+<br />
 
  ## 🎐 Links
 
  [Live site](https://sepoina.github.io/viteTranslate/) · [Discussions](https://github.com/sepoina/viteTranslate/discussions) · [Issues](https://github.com/sepoina/viteTranslate/issues) · [Provenance](https://docs.npmjs.com/trusted-publishers/) · [Apache-2.0 license](LICENSE)
 
----
+<br />
 
 ☕ [PayPal](https://www.paypal.com/paypalme/giancarloghigi) · [Buy Me a Coffee](https://www.buymeacoffee.com/giancarlogy)
 if it saved you a few translation keys.
