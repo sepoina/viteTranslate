@@ -2,30 +2,31 @@
 #      American English
 #       |    code: en-US
 #       |    missing key: 0
-#       |    processed: 2026-10-10 11:18
+#       |    processed: 2026-10-10 22:05
 #       |    TableVersion: 260905
 #  -------------------------------------------------
 #
 CodeDemo_1w62voa: "The sentence stays in the JSX. The plugin keeps one YAML table per language; switching language loads only that one."
 CodeDemo_xfxax9: "One source, <em>many tables</em>."
-Compare_13on1a6: "With additional tooling or configuration"
 Compare_161gvb5: "Official VS Code extension"
-Compare_1adahbh: "Compared as of September 2026: i18next 26 + react-i18next 17, Lingui 6, FormatJS (react-intl 12)."
 Compare_1e0cis9: "Not offered by the project"
 Compare_1fagnuu: "No message parsing at runtime"
-Compare_1kahvi7: "= available with additional tooling or configuration."
 Compare_1nn8wh6: "Tiny runtime (%s gzip)"
 Compare_1v1fl2d: "Keyless / Natural text syntax"
 Compare_1v6jhcq: "Extraction inside the Vite lifecycle"
 Compare_1wjx71n: "Why each mark"
+Compare_1xux8rq: "Partial support, official add-on or extra setup"
 Compare_2msczb: "Lazy-loaded locales"
 Compare_5g1454: "Available"
+Compare_a2jghz: "= partial support, official add-on or extra setup."
 Compare_d3nw0g: "LLM auto-translation"
 Compare_dw2pxz: "Same problem, <em>less machinery</em>."
+Compare_jyfzn2: "Documentation checked on October 10, 2026: Lingui 6, FormatJS (react-intl 12), i18next 26 + react-i18next 17."
 Compare_lyqtwv: "Official Vite plugin"
 Compare_myi979: "ICU MessageFormat (plurals, select, dates)"
 Compare_nphnkf: "Zero runtime dependencies"
 Compare_o0affp: "= not offered by the project's own tooling; a third-party tool may fill the gap."
+Compare_sp5xtn: "Native support; application code may be required. Sizes use 1024-byte units (KiB)."
 Compare_yc6fmw: "The other libraries do their job well. The difference is how much you have to configure, and how much ends up in your bundle."
 CopyCommand_1qgmjg5: "Copy the command"
 CopyCommand_1r0mqh1: "Copy"

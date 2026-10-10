@@ -3,16 +3,19 @@ import { REPO } from "./links.js";
 import SectionHead from "./SectionHead.jsx";
 import SIZE from "./theme/runtimeSize.json";
 
-const COLUMNS = ["viteTranslate", "i18next", "Lingui", "FormatJS"];
+const COLUMNS = ["viteTranslate", "Lingui", "FormatJS", "i18next"];
 
 // LINKED-DATA: README.md, tabella di «Why viteTranslate».
-// y = sì, n = no, p = con un'aggiunta ufficiale o configurazione in più. Le righe vengono dalla
+// y = native support; n = unavailable; p = partial support, official add-on or extra setup.
+// Le righe vengono dalla
 // tabella del README (manca solo la licenza), e le note che giustificano ogni casella stanno lì:
 // una casella cambiata qui si cambia anche là, con la sua nota, e con la data qui sotto.
 // `doc` è la guida del repo che spiega la soluzione di viteTranslate per quella riga: la stessa
 // a cui porta il nome della riga nel README. Le etichette en-US usano le parole del README.
+// Prima le righe dove nessun rivale ha ✓, poi quelle dove qualcuno lo pareggia; dentro ogni
+// gruppo, dal vantaggio più netto (✕ = 0, – = ½, ✓ = 1 sommati sui rivali) al più sottile; a
+// parità, prima la riga con meno rivali a ✓.
 const ROWS = [
-  { label: "_%_Traduzione automatica con LLM_%_", doc: "doc/llm.md", v: ["y", "p", "n", "n"] },
   {
     label: "_%_Estrazione dentro il ciclo di Vite_%_",
     doc: "doc/structure.md#auto-sync-at-config-time",
@@ -23,25 +26,26 @@ const ROWS = [
     doc: "doc/requirements.md#it-never-reaches-your-bundle",
     v: ["y", "n", "n", "n"],
   },
-  { label: "_%_Plugin Vite ufficiale_%_", doc: "doc/plugin-options.md", v: ["y", "n", "y", "y"] },
   { label: "_%_Estensione VS Code ufficiale_%_", doc: "doc/ide-panel.md", v: ["y", "n", "n", "n"] },
+  { label: "_%_Traduzione automatica con LLM_%_", doc: "doc/llm.md", v: ["y", "n", "n", "p"] },
   {
-    label: "_%_Sintassi senza chiavi_%_",
-    doc: "doc/react-api.md#write-jsx-inside-translate",
-    v: ["y", "p", "y", "p"],
+    label: "_%_Nessun parser dei messaggi a runtime_%_",
+    doc: "doc/structure.md#2b-table-compilation-pre-building-values",
+    v: ["y", "p", "p", "n"],
   },
   {
     label: "_%_Runtime %s gzip_%_",
     a: [SIZE.compare],
     doc: "doc/structure.md#phase-4--runtime-the-resolution-chain",
-    v: ["y", "n", "y", "n"],
+    v: ["y", "y", "n", "n"],
   },
-  { label: "_%_ICU MessageFormat (plurali, select, date)_%_", doc: "doc/icu.md", v: ["y", "p", "y", "y"] },
   {
-    label: "_%_Nessun parser dei messaggi a runtime_%_",
-    doc: "doc/structure.md#2b-table-compilation-pre-building-values",
-    v: ["y", "n", "p", "p"],
+    label: "_%_Sintassi senza chiavi_%_",
+    doc: "doc/react-api.md#write-jsx-inside-translate",
+    v: ["y", "y", "p", "p"],
   },
+  { label: "_%_Plugin Vite ufficiale_%_", doc: "doc/plugin-options.md", v: ["y", "y", "y", "n"] },
+  { label: "_%_ICU MessageFormat (plurali, select, date)_%_", doc: "doc/icu.md", v: ["y", "y", "y", "p"] },
   {
     label: "_%_Lingue caricate a richiesta_%_",
     doc: "doc/react-api.md#preloading-suspense-and-the-initial-flash",
@@ -67,7 +71,7 @@ export default function Compare() {
   const trans = useTrans();
   const labels = {
     y: trans("_%_Disponibile_%_"),
-    p: trans("_%_Con strumenti o configurazione aggiuntivi_%_"),
+    p: trans("_%_Supporto parziale, strumenti ufficiali o configurazione aggiuntivi_%_"),
     n: trans("_%_Non offerto dal progetto_%_"),
   };
 
@@ -117,10 +121,14 @@ export default function Compare() {
           </div>
           <div className="compare-notes">
             <p>
+              <span className="mk mk-y" aria-hidden="true">✓</span>{" "}
+              <Trans>_%_Supporto nativo; può richiedere codice applicativo. Pesi in unità da 1024 byte (KiB)._%_</Trans>
+            </p>
+            <p>
               <span className="mk mk-p" aria-hidden="true">
                 –
               </span>{" "}
-              <Trans>_%_= disponibile con strumenti o configurazione aggiuntivi._%_</Trans>
+              <Trans>_%_= supporto parziale, strumenti ufficiali o configurazione aggiuntivi._%_</Trans>
             </p>
             <p>
               <span className="mk mk-n" aria-hidden="true">
@@ -130,7 +138,7 @@ export default function Compare() {
             </p>
             <p>
               <Trans>
-                _%_Confronto aggiornato a settembre 2026: i18next 26 + react-i18next 17, Lingui 6, FormatJS (react-intl 12)._%_
+                _%_Documentazione verificata il 10 ottobre 2026: Lingui 6, FormatJS (react-intl 12), i18next 26 + react-i18next 17._%_
               </Trans>{" "}
               <a href={`${REPO}#-why-vitetranslate`}>
                 <Trans>_%_Il perché di ogni casella_%_</Trans> ↗

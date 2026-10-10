@@ -2,30 +2,31 @@
 #      中文（中国）
 #       |    code: zh-CN
 #       |    missing key: 0
-#       |    processed: 2026-10-10 11:18
+#       |    processed: 2026-10-10 22:05
 #       |    TableVersion: 260905
 #  -------------------------------------------------
 #
 CodeDemo_1w62voa: "句子留在 JSX 里。插件为每种语言维护一张 YAML 表；切换语言只会加载对应的那一张。"
 CodeDemo_xfxax9: "一份源码，<em>多张表</em>。"
-Compare_13on1a6: "需要额外工具或配置"
 Compare_161gvb5: "官方 VS Code 扩展"
-Compare_1adahbh: "对比截至 2026 年 9 月：i18next 26 + react-i18next 17、Lingui 6、FormatJS（react-intl 12）。"
 Compare_1e0cis9: "项目未提供"
 Compare_1fagnuu: "运行时无需解析消息"
-Compare_1kahvi7: "= 需要额外工具或配置才能使用。"
 Compare_1nn8wh6: "运行时 %s（gzip）"
 Compare_1v1fl2d: "无键语法"
 Compare_1v6jhcq: "提取集成在 Vite 生命周期中"
 Compare_1wjx71n: "每个标记的依据"
+Compare_1xux8rq: "部分支持、官方附加工具或额外配置"
 Compare_2msczb: "按需加载语言"
 Compare_5g1454: "支持"
+Compare_a2jghz: "= 部分支持、官方附加工具或额外配置。"
 Compare_d3nw0g: "LLM 自动翻译"
 Compare_dw2pxz: "同样的问题，<em>更少的机器</em>。"
+Compare_jyfzn2: "文档核查日期为 2026 年 10 月 10 日：Lingui 6、FormatJS（react-intl 12）、i18next 26 + react-i18next 17。"
 Compare_lyqtwv: "官方 Vite 插件"
 Compare_myi979: "ICU MessageFormat（复数、select、日期）"
 Compare_nphnkf: "零运行时依赖"
 Compare_o0affp: "= 项目自身的工具未提供；第三方工具或可弥补。"
+Compare_sp5xtn: "原生支持；可能需要应用代码。大小使用 1024 字节单位（KiB）。"
 Compare_yc6fmw: "其他库都做得很好。区别在于你需要配置多少，以及有多少最终进入你的包。"
 CopyCommand_1qgmjg5: "复制命令"
 CopyCommand_1r0mqh1: "复制"

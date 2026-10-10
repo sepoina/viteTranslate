@@ -2,30 +2,31 @@
 #      italiano (Italia) (sourceLanguage)
 #       |    code: it-IT
 #       |    missing key: 0
-#       |    processed: 2026-10-10 11:18
+#       |    processed: 2026-10-10 22:05
 #       |    TableVersion: 260905
 #  -------------------------------------------------
 #
 CodeDemo_1w62voa: "La frase resta nel JSX. Per ogni lingua il plugin tiene una tabella YAML; cambiare lingua carica solo quella."
 CodeDemo_xfxax9: "Un sorgente, <em>tante tabelle</em>."
-Compare_13on1a6: "Con strumenti o configurazione aggiuntivi"
 Compare_161gvb5: "Estensione VS Code ufficiale"
-Compare_1adahbh: "Confronto aggiornato a settembre 2026: i18next 26 + react-i18next 17, Lingui 6, FormatJS (react-intl 12)."
 Compare_1e0cis9: "Non offerto dal progetto"
 Compare_1fagnuu: "Nessun parser dei messaggi a runtime"
-Compare_1kahvi7: "= disponibile con strumenti o configurazione aggiuntivi."
 Compare_1nn8wh6: "Runtime %s gzip"
 Compare_1v1fl2d: "Sintassi senza chiavi"
 Compare_1v6jhcq: "Estrazione dentro il ciclo di Vite"
 Compare_1wjx71n: "Il perché di ogni casella"
+Compare_1xux8rq: "Supporto parziale, strumenti ufficiali o configurazione aggiuntivi"
 Compare_2msczb: "Lingue caricate a richiesta"
 Compare_5g1454: "Disponibile"
+Compare_a2jghz: "= supporto parziale, strumenti ufficiali o configurazione aggiuntivi."
 Compare_d3nw0g: "Traduzione automatica con LLM"
 Compare_dw2pxz: "Stesso problema, <em>meno macchina</em>."
+Compare_jyfzn2: "Documentazione verificata il 10 ottobre 2026: Lingui 6, FormatJS (react-intl 12), i18next 26 + react-i18next 17."
 Compare_lyqtwv: "Plugin Vite ufficiale"
 Compare_myi979: "ICU MessageFormat (plurali, select, date)"
 Compare_nphnkf: "Zero dipendenze a runtime"
 Compare_o0affp: "= non offerto dagli strumenti del progetto: può supplire uno strumento di terzi."
+Compare_sp5xtn: "Supporto nativo; può richiedere codice applicativo. Pesi in unità da 1024 byte (KiB)."
 Compare_yc6fmw: "Le altre librerie fanno bene il loro lavoro. La differenza è quanto devi configurare, e quanto finisce nel bundle."
 CopyCommand_1qgmjg5: "Copia il comando"
 CopyCommand_1r0mqh1: "Copia"
