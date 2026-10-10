@@ -32,7 +32,7 @@ vitetranslate --add fr-FR de-DE
 Adds one or more languages, syncs as usual — so the new files come out already filled with every key to translate (`null`) — and closes with the `--status` report, where the languages just added show up with their missing counts. Tags must be in the `<language>-<REGION>` form and name a real language and region ([supported list](bcp47.md)); every tag is validated before anything is written, and a language already present is left untouched.
 
 > [!TIP]
-> This is also the fix for `vite dev` refusing to start on a brand new project: without a readable `sourceLanguage` file in `localeDir`, the dev server prints what's missing and stops instead of starting anyway and failing later on the first page load. Running `npx vitetranslate --add <sourceLanguage>` is exactly the command it points you to.
+> A brand new project doesn't need it for the source language: the first `vite dev` creates that table by itself. With auto-sync off (`autoSyncDev: false`, or `VITETRANSLATE_NO_SYNC` set) nobody creates it, so without a readable `sourceLanguage` file in `localeDir` the dev server prints what's missing and stops, instead of starting anyway and failing on the first page load. `npx vitetranslate --add <sourceLanguage>` is exactly the command it points you to.
 
 ```bash
 vitetranslate --status
