@@ -277,7 +277,7 @@ Every marked string with its translation status, locale files opened at the key,
 
 <br /><br />
 
- ## 🎐 Links
+ ## 🎐 Links 
 
  [Live site](https://sepoina.github.io/viteTranslate/) · [Discussions](https://github.com/sepoina/viteTranslate/discussions) · [Issues](https://github.com/sepoina/viteTranslate/issues) · [Provenance](https://docs.npmjs.com/trusted-publishers/) · [Apache-2.0 license](LICENSE)
 
