@@ -3,9 +3,10 @@
 // (webview.mjs, projectWebview.mjs, optionalWebview.mjs) con installTooltips().
 //   - Ogni `title`, scritto nell'HTML o messo dallo script, diventa data-tip appena compare (un
 //     MutationObserver): il tooltip nativo non parte. Un title vuoto toglie il tooltip.
-//   - Al passaggio del mouse, o col focus, dopo una breve attesa come uno nativo, il fumetto
-//     mostra il testo dell'elemento più interno che ne ha uno; un elemento `.suggerito` col suo
-//     fumetto dentro (tooltipHtml) mostra quello, righe impaginate e rilievo compresi.
+//   - Al passaggio del mouse, o col focus della tastiera (focusShowsTip), dopo una breve attesa come
+//     uno nativo, il fumetto mostra il testo dell'elemento più interno che ne ha uno; un elemento
+//     `.suggerito` col suo fumetto dentro (tooltipHtml) mostra quello, righe impaginate e rilievo
+//     compresi. Si spegne quando la webview perde il focus.
 //   - Sta sotto l'elemento, o sopra se sotto non c'è posto (la barra dei comandi è in fondo),
 //     dentro la finestra (placeTooltip).
 //   - Agli screen reader il testo resta: aria-description.
@@ -30,6 +31,23 @@ export function placeTooltip(anchor, size, viewport) {
   const sopra = anchor.top - DISTANZA - size.height;
   const above = sotto + size.height > viewport.height - MARGINE && sopra >= MARGINE;
   return { left, top: above ? sopra : sotto, above };
+}
+
+/**
+ * Il focus accende il fumetto solo se è quello che si vede, della tastiera (Tab, le frecce di un
+ * albero), e la pagina ce l'ha davvero. Non quello che un clic, o la pagina che ridisegna le sue
+ * righe, sposta da sé su un'altra voce: il fumetto di una riga mai indicata comparirebbe dal nulla
+ * (e, con la webview già senza focus, resterebbe lì).
+ * @param {{ hasFocus(): boolean }} doc
+ * @param {{ matches(selettore: string): boolean }} el - il bersaglio del focusin
+ */
+export function focusShowsTip(doc, el) {
+  if (!doc.hasFocus()) return false;
+  try {
+    return el.matches(":focus-visible");
+  } catch {
+    return true; // un browser senza :focus-visible: come prima
+  }
 }
 
 /**
@@ -112,8 +130,11 @@ export function installTooltips(doc = document) {
 
   doc.addEventListener("pointerover", (e) => punta(bersaglio(e.target)));
   doc.addEventListener("pointerout", (e) => !bersaglio(e.relatedTarget) && nascondi());
-  doc.addEventListener("focusin", (e) => punta(bersaglio(e.target)));
+  doc.addEventListener("focusin", (e) => focusShowsTip(doc, e.target) && punta(bersaglio(e.target)));
   doc.addEventListener("focusout", nascondi);
+  // Il focus che esce dalla webview (l'editor, un'altra sezione) qui dentro non dà focusout: lo dice
+  // la finestra. Senza, un fumetto acceso, o in attesa, restava sopra al pannello.
+  doc.defaultView?.addEventListener("blur", nascondi);
   doc.addEventListener("pointerdown", nascondi);
   doc.addEventListener("keydown", (e) => e.key === "Escape" && nascondi());
   doc.addEventListener("scroll", nascondi, true);

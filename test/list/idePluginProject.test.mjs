@@ -16,7 +16,7 @@ import { wrapsBelow } from "../../idePlugin/src/webViews/commandBar/commandBarSc
 import { accordionHtml, ACCORDION_CSS } from "../../idePlugin/src/webViews/accordion/accordion.mjs";
 import { rememberAccordions } from "../../idePlugin/src/webViews/accordion/accordionScript.mjs";
 import { TOOLTIP_CSS, tooltipHtml } from "../../idePlugin/src/webViews/tooltip/tooltip.mjs";
-import { placeTooltip, adoptTitle } from "../../idePlugin/src/webViews/tooltip/tooltipScript.mjs";
+import { placeTooltip, adoptTitle, focusShowsTip } from "../../idePlugin/src/webViews/tooltip/tooltipScript.mjs";
 import { selectorHtml } from "../../idePlugin/src/webViews/selector/selectorPage.mjs";
 import { helpHtml, LLM_DOC_URL } from "../../idePlugin/src/webViews/optional/help/helpPage.mjs";
 import { inspectorState, versionsState, olderThan } from "../../idePlugin/src/webViews/optional/settings/inspectorState.mjs";
@@ -220,6 +220,17 @@ console.log("\n== il tooltip ==");
   svuotato.a.set("data-tip", "vecchio");
   adoptTitle(svuotato);
   eq("…un title vuoto toglie il tooltip", [], [...svuotato.a]);
+
+  // Il focus accende il fumetto solo se è della tastiera e la pagina ha il focus: non quello che un
+  // clic o un ridisegno spostano da sé (il fumetto di en-US restava sopra Project dopo il clic su fr-FR).
+  const pagina = (focus) => ({ hasFocus: () => focus });
+  const voce = (visibile) => ({ matches: (s) => s === ":focus-visible" && visibile });
+  eq("focusShowsTip: focus della tastiera, pagina col focus: sì", true, focusShowsTip(pagina(true), voce(true)));
+  eq("…focus spostato da un clic o da un ridisegno: no", false, focusShowsTip(pagina(true), voce(false)));
+  eq("…la webview senza focus (è passato all'editor): no", false, focusShowsTip(pagina(false), voce(true)));
+  eq("…un browser senza :focus-visible: come prima, sì", true, focusShowsTip(pagina(true), { matches: () => { throw new Error("no"); } }));
+  eq("…e il fumetto si spegne quando la webview perde il focus", true,
+    /defaultView\?\.addEventListener\("blur", nascondi\)/.test(readFileSync(new URL("../../idePlugin/src/webViews/tooltip/tooltipScript.mjs", import.meta.url), "utf8")));
 
   // In ogni pagina: lo stile, e lo script che lo installa.
   const p = { scriptUri: "vscode-webview://x/s.js", codiconsUri: "vscode-webview://x/codicon.css", cspSource: "vscode-webview://x", nonce: "abc" };

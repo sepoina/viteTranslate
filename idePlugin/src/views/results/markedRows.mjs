@@ -31,6 +31,8 @@ const plurale = (n, uno, tanti) => `${n} ${n === 1 ? uno : tanti}`;
 // I default di errorSolve.mark (lib/errorSolve.js, ERROR_SOLVE_DEFAULTS): se la libreria li
 // cambia, vanno cambiati anche qui. `notSynced` non è di errorSolve — a schermo una voce mai
 // sincronizzata non esiste ancora — ed è solo del pannello.
+// LINKED-DATA: i video di site/video aspettano le righe come `<glifo> <frase>` (site/video/README.md
+// § "On stage"): glifi o forma dell'etichetta cambiati, cambia anche lì.
 const GLYPHS = { malformed: "‼️", notSynced: "🔄", untranslated: "🔸", notFullyTranslated: "🔹" };
 
 // Il glifo verde di una voce a posto, per forma (il `form` di onMarker in extractMarkers.js).

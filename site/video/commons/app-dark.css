@@ -1,0 +1,43 @@
+/* Stage dress for the small demo apps (demo/*), injected by the recorder as app.style: the app
+   stays as it is, only the look is the site's (colors from site/theme/tokens.css). */
+html,
+body {
+  height: 100%;
+  margin: 0;
+}
+body {
+  display: grid;
+  place-items: center;
+  background: radial-gradient(120% 90% at 50% 0%, #18201c 0%, #0b0f0d 60%);
+  color: #eef2ef;
+  font: 400 24px/1.35 "Segoe UI", system-ui, sans-serif;
+}
+#root {
+  text-align: center;
+  padding: 0 6vw;
+}
+#root p {
+  margin: 0 0 0.9em;
+  font-size: clamp(24px, 4.4vw, 46px);
+  letter-spacing: -0.01em;
+}
+#root p + p {
+  color: #c3ccc6;
+  font-size: clamp(20px, 3.4vw, 34px);
+}
+#root b {
+  color: #4ade80;
+}
+#root button {
+  margin: 0.6em 0.3em 0;
+  padding: 0.45em 1.1em;
+  font: 600 20px "Segoe UI", system-ui, sans-serif;
+  color: #eef2ef;
+  background: #1c2521;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 999px;
+}
+#root button:hover {
+  border-color: #4ade80;
+  background: #232d28;
+}

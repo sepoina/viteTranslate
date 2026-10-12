@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>viteTranslate — closing card</title>
+    <style>
+      /* Colors from site/theme/tokens.css (dark). Played live by the recorder: 1920x1080. */
+      html,
+      body {
+        height: 100%;
+        margin: 0;
+      }
+      body {
+        display: grid;
+        place-items: center;
+        background: radial-gradient(90% 80% at 50% 10%, #18201c 0%, #0b0f0d 55%, #050706 100%);
+        color: #eef2ef;
+        font-family: "Segoe UI", system-ui, sans-serif;
+        overflow: hidden;
+      }
+      main {
+        text-align: center;
+      }
+      img {
+        width: 760px;
+        filter: brightness(2.1);
+      }
+      ul {
+        display: grid;
+        gap: 22px;
+        margin: 64px 0 0;
+        padding: 0;
+        list-style: none;
+        font-size: 40px;
+        color: #c3ccc6;
+      }
+      /* The entrance starts with the clip, not on load: see clock.js. */
+      html:not(.go) img,
+      html:not(.go) li,
+      html:not(.go) footer {
+        opacity: 0;
+      }
+      .go img {
+        animation: su 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+      }
+      .go li {
+        animation: su 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+      }
+      li:nth-child(1) {
+        animation-delay: 0.35s;
+      }
+      li:nth-child(2) {
+        animation-delay: 0.6s;
+      }
+      li:nth-child(3) {
+        animation-delay: 0.85s;
+      }
+      code {
+        padding: 6px 18px;
+        font: 600 38px Consolas, "Cascadia Mono", monospace;
+        color: #4ade80;
+        background: #18201c;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 10px;
+      }
+      /* The music credits, small at the bottom: shown only when the video has music. */
+      footer {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 54px;
+        display: grid;
+        gap: 4px;
+        text-align: center;
+        font-size: 22px;
+        line-height: 1.35;
+        color: #8b968f;
+      }
+      .go footer {
+        animation: su 0.9s 1.1s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+      }
+      footer[hidden] {
+        display: none;
+      }
+      footer p {
+        margin: 0;
+      }
+      footer p:first-child {
+        color: #b9c3bc;
+      }
+      @keyframes su {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <img src="../../theme/logo.svg" alt="viteTranslate" />
+      <ul>
+        <li><code>npm i @sepoina/vitetranslate</code></li>
+        <li>VS Code Marketplace: <b>viteTranslate</b></li>
+        <li>github.com/sepoina/viteTranslate</li>
+      </ul>
+    </main>
+    <footer id="credits" hidden></footer>
+    <script src="clock.js"></script>
+    <script>
+      // params: { credits } from the recorder: the music credits, one line each (commons/bkmusic/credits.md).
+      const credits = card.param("credits");
+      if (credits) {
+        const footer = document.getElementById("credits");
+        for (const line of credits.split("\n")) footer.append(Object.assign(document.createElement("p"), { textContent: line }));
+        footer.hidden = false;
+      }
+    </script>
+  </body>
+</html>

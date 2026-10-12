@@ -1,0 +1,11 @@
+# Everything a run regenerates. Kept in git: storyboard.md, storyboard.yaml, the .srt, credits.txt, poster.jpg.
+.cache/
+projects/*/capture/
+projects/*/preview/
+projects/*/audio/
+projects/*/log/
+projects/*/output/*.mp4
+
+# Background music: the tracks stay local (download them again from the links in credits.md).
+commons/bkmusic/*
+!commons/bkmusic/credits.md

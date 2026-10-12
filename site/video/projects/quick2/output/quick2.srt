@@ -1,0 +1,47 @@
+1
+00:00:00,400 --> 00:00:05,966
+viteTranslate. Translations for React and
+Vite, written right where the text lives.
+
+2
+00:00:07,367 --> 00:00:11,125
+Here's a small React app. One
+click, and it speaks French.
+
+3
+00:00:12,933 --> 00:00:17,768
+Need a new sentence? Write it in the JSX,
+the way it reads. No keys to invent.
+
+4
+00:00:17,768 --> 00:00:19,814
+Save, and the extension spots it.
+
+5
+00:00:23,067 --> 00:00:26,649
+The page is already up to
+date. Not translated yet?
+
+6
+00:00:26,649 --> 00:00:30,371
+French shows the English
+text instead. Never a blank.
+
+7
+00:00:31,767 --> 00:00:36,174
+One click on Sync, and the new
+key lands in every language file.
+
+8
+00:00:36,174 --> 00:00:38,102
+In French, it waits as null.
+
+9
+00:00:40,400 --> 00:00:45,099
+Write the translation and save. The page
+reloads, and the French is all there.
+
+10
+00:00:48,367 --> 00:00:53,174
+viteTranslate. On npm, and
+in the VS Code Marketplace.

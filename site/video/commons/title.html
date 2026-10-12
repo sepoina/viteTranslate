@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>viteTranslate — title card</title>
+    <style>
+      /* Shared opening card. Colors from site/theme/tokens.css (dark). Played live by the recorder: 1920x1080. */
+      html,
+      body {
+        height: 100%;
+        margin: 0;
+      }
+      body {
+        display: grid;
+        place-items: center;
+        background: radial-gradient(90% 80% at 50% 10%, #18201c 0%, #0b0f0d 55%, #050706 100%);
+        color: #eef2ef;
+        font-family: "Segoe UI", system-ui, sans-serif;
+        overflow: hidden;
+      }
+      main {
+        text-align: center;
+      }
+      img {
+        width: 980px;
+        filter: brightness(2.1);
+      }
+      p {
+        margin: 56px 0 0;
+        font-size: 52px;
+        color: #c3ccc6;
+      }
+      /* The entrance starts with the clip, not on load: see clock.js. */
+      html:not(.go) img,
+      html:not(.go) p {
+        opacity: 0;
+      }
+      .go img {
+        animation: su 1s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+      }
+      .go p {
+        animation: su 1s 0.45s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+      }
+      b {
+        color: #4ade80;
+        font-weight: 600;
+      }
+      @keyframes su {
+        from {
+          opacity: 0;
+          transform: translateY(24px);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <img src="../../theme/logo.svg" alt="viteTranslate" />
+      <p><span id="line">Write the sentence.</span> <b id="accent">Get the translation.</b></p>
+    </main>
+    <script src="clock.js"></script>
+    <script>
+      // params: { line, accent } from the scene in storyboard.yaml, as a query string.
+      for (const id of ["line", "accent"]) {
+        const text = card.param(id, null);
+        if (text !== null) document.getElementById(id).textContent = text;
+      }
+    </script>
+  </body>
+</html>

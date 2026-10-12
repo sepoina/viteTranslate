@@ -1,0 +1,13 @@
+#  -------------------------------------------------
+#      American English (sourceLanguage)
+#       |    code: en-US
+#       |    missing key: 2
+#       |    processed: 2026-10-12 18:05
+#       |    TableVersion: 260905
+#  -------------------------------------------------
+#
+App_zn6492: "Welcome back, <b>{name}</b>!"
+
+#  ----to be translated------------------------------------------
+App_1u7bpa9: "Need a hand? We reply within a day."
+App_ljmn1v: "Your messages stay here for 30 days."

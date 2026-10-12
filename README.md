@@ -136,7 +136,7 @@ const { proposeNewLanguage } = useTransLanguage();
 
 `npm run build`: each language compiles to its own chunk, loaded when selected ([React API](doc/react-api.md#usetranslatelanguage)).
 
-<!-- LINKED-DATA: demo/Vite_8/quickApp is this quick start, finished; its card in site/landing/src/pages.js (DEMOS, slug vite8-quick-app) names the zip. Change a step here, change the demo too. -->
+<!-- LINKED-DATA: demo/Vite_8/quickApp is this quick start, finished; its card in site/landing/src/pages.js (DEMOS, slug vite8-quick-app) names the zip; site/video/projects/quickstart films it (storyboard.md, storyboard.yaml). Change a step here, change the demo too. -->
 [**Download zip 🡭**](https://sepoina.github.io/viteTranslate/zip/demo/vite8-quick-app.zip) · [Open it on StackBlitz 🡭](https://stackblitz.com/github/sepoina/viteTranslate/tree/main/demo/Vite_8/quickApp?file=src/App.jsx) · [**Read React API 🡭**](doc/react-api.md)
 
 <details>

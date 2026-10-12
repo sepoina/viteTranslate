@@ -1,4 +1,4 @@
-<!-- LINKED-DATA: README.md § Quick start shows these files step by step. Change a step there, change this demo too. -->
+<!-- LINKED-DATA: README.md § Quick start shows these files step by step. Change a step there, change this demo too. The video site/video/projects/quickstart films this folder: its storyboard.yaml types at line numbers of src/App.jsx and finds texts of locale/fr-FR.yml. -->
 
 # viteTranslate — quickApp · Vite 8 + React 19
 

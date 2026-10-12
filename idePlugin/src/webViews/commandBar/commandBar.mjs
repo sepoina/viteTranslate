@@ -14,6 +14,8 @@ import { escape } from "../pageCommon.mjs";
  * I bottoni di Project. `cmd` è il messaggio che manda il clic. LLM è sempre cliccabile, e parte
  * "da configurare" (icona `?`, tooltip LLM_OFF): se il progetto ha `llm` lo stato gli dà la
  * freccia del sottomenu (LLM_ICON).
+ * LINKED-DATA: i video di site/video cliccano questi bottoni come `vscode-button[data-cmd="…"]`
+ * (site/video/README.md § "On stage"): un `cmd` cambiato rompe le riprese.
  */
 export const ACTIONS = [
   { cmd: "sync", label: "Sync", title: "Run the sync: bring the language files in line with the source" },

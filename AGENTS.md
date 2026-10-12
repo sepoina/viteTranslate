@@ -57,3 +57,9 @@ node -e "const s=require('fs').readFileSync('README.md','utf8').replace(/<!--[\s
 ## REGOLE DI LINKED SOURCE
 
 - Ove non possibile unificare la fonte di verità (preferibile) ed evitare nel contempo che gli aggiornamenti non si riproducano in altre zone del sorgente, aggiungi commenti nelle due direzioni al codice che conducano l'agente o l'umano a risalire ad altre zone "linkate". Faccio un esempio, nel readme viene mostrata una tabella che è anche nella landing del sito. Il commento dovrebbe tenerle linkate (opcode LINKED-DATA a fini di catalogazione e senso)
+
+## REGOLE DI SITE/VIDEO
+
+- Ciò che avviene dentro `site/video` (soggetti, storyboard, pipeline in `uty/`, riprese e montaggio) è comandato da `site/video/README.md`: va letto prima di agire nella cartella, e per quella cartella è il riferimento che comanda.
+- Chi cambia il comportamento della pipeline (`site/video/uty/`) aggiorna `site/video/README.md` nello stesso intervento.
+- `site/video/README.md` è soggetto solo alla regola della sua funzionalità completa: deve descrivere per intero come funziona la cartella. Le regole di peso e di compressione della documentazione (10 kB, esternalizzazione in doc/) valgono per il README.md della radice, non per questo.
