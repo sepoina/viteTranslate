@@ -60,6 +60,6 @@ node -e "const s=require('fs').readFileSync('README.md','utf8').replace(/<!--[\s
 
 ## REGOLE DI SITE/VIDEO
 
-- Ciò che avviene dentro `site/video` (soggetti, storyboard, pipeline in `uty/`, riprese e montaggio) è comandato da `site/video/README.md`: va letto prima di agire nella cartella, e per quella cartella è il riferimento che comanda.
-- Chi cambia il comportamento della pipeline (`site/video/uty/`) aggiorna `site/video/README.md` nello stesso intervento.
+- Ciò che avviene dentro `site/video` (soggetti, storyboard, pipeline in `commons/cli/`, riprese e montaggio) è comandato da `site/video/README.md`: va letto prima di agire nella cartella, e per quella cartella è il riferimento che comanda.
+- Chi cambia il comportamento della pipeline (`site/video/commons/cli/`) aggiorna `site/video/README.md` nello stesso intervento.
 - `site/video/README.md` è soggetto solo alla regola della sua funzionalità completa: deve descrivere per intero come funziona la cartella. Le regole di peso e di compressione della documentazione (10 kB, esternalizzazione in doc/) valgono per il README.md della radice, non per questo.

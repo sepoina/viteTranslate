@@ -1,0 +1,362 @@
+/* The forge's tokens. Colors are the site's own (site/theme/tokens.css); sizes come from a few
+   knobs, so one change reaches every prototype. `look` in the YAML sets any knob or token.
+   LINKED-DATA: commons/layout/darkStyle.md § "Knobs and scales" describes each one; layout.js sets --fit;
+   motion.js reads --tempo and --accent. Change one, change the others. */
+@import url("../../../theme/tokens.css");
+
+:root {
+  --density: 1; /* every space, times this */
+  --space-base: 8px; /* step 0 of the space scale */
+  --space-ratio: 1.5; /* from a step to the next */
+  --type-scale: 1; /* every type size, times this */
+  --type-base: 34px; /* step 0 of the type scale: text in a column */
+  --type-ratio: 1.25;
+  --type-min: 26px; /* nothing smaller: still readable on a phone */
+  --fit: 1; /* layout.js lowers it on the body when the content is too much */
+  --tempo: 1; /* motion.js: every effect's duration, times this */
+  --cols-max: 4; /* the most items on a row of a grid */
+  --measure: 1680px; /* the widest a block of content gets */
+  --safe-x: 120px; /* the frame's margins */
+  --safe-y: 96px;
+  --radius: 28px; /* a tile; a chip has a third of it */
+  --logo: 900px;
+  --qr-size: 172px; /* the QR's side: a phone reads it from across the room */
+  --font-mono: Consolas, "Cascadia Mono", monospace;
+}
+
+/* The scales, derived from the knobs. Declared again on .knobs: a custom property resolves where
+   it's declared, so a knob set on an element (the body's --fit) reaches the scales only there. */
+:root,
+.knobs {
+  --space-2xs: calc(var(--space-base) * pow(var(--space-ratio), -1) * var(--density) * var(--fit)); /*  5 */
+  --space-xs: calc(var(--space-base) * var(--density) * var(--fit)); /*  8 */
+  --space-s: calc(var(--space-base) * pow(var(--space-ratio), 1) * var(--density) * var(--fit)); /* 12 */
+  --space-m: calc(var(--space-base) * pow(var(--space-ratio), 2) * var(--density) * var(--fit)); /* 18 */
+  --space-l: calc(var(--space-base) * pow(var(--space-ratio), 3) * var(--density) * var(--fit)); /* 27 */
+  --space-xl: calc(var(--space-base) * pow(var(--space-ratio), 4) * var(--density) * var(--fit)); /* 40 */
+  --space-2xl: calc(var(--space-base) * pow(var(--space-ratio), 5) * var(--density) * var(--fit)); /* 61 */
+  --space-3xl: calc(var(--space-base) * pow(var(--space-ratio), 6) * var(--density) * var(--fit)); /* 91 */
+  --type-fine: calc(var(--type-base) * pow(var(--type-ratio), -2) * var(--type-scale) * var(--fit)); /*  22 */
+  --type-small: calc(var(--type-base) * pow(var(--type-ratio), -1) * var(--type-scale) * var(--fit)); /* 27 */
+  --type-text: calc(var(--type-base) * var(--type-scale) * var(--fit)); /*  34 */
+  --type-body: calc(var(--type-base) * pow(var(--type-ratio), 1) * var(--type-scale) * var(--fit)); /*  42 */
+  --type-lead: calc(var(--type-base) * pow(var(--type-ratio), 2) * var(--type-scale) * var(--fit)); /*  53 */
+  --type-heading: calc(var(--type-base) * pow(var(--type-ratio), 4) * var(--type-scale) * var(--fit)); /* 83 */
+  --type-display: calc(var(--type-base) * pow(var(--type-ratio), 5) * var(--type-scale) * var(--fit)); /* 104 */
+  --type-hero: calc(var(--type-base) * pow(var(--type-ratio), 6) * var(--type-scale) * var(--fit)); /* 130 */
+}
+
+/* ------------------------------------------------------------------ the frame */
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+}
+body {
+  background: radial-gradient(90% 80% at 50% 10%, var(--surface) 0%, var(--bg) 55%, var(--bg-deep) 100%);
+  color: var(--text);
+  font-family: "Segoe UI", system-ui, sans-serif;
+  overflow: hidden;
+}
+.frame {
+  box-sizing: border-box;
+  height: 100%;
+  padding: var(--safe-y) var(--safe-x);
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto; /* head, body, foot */
+}
+.frame-head:empty,
+.frame-foot:empty {
+  display: none;
+}
+.frame-head,
+.frame-foot {
+  text-align: center;
+}
+/* Each region in its own row: an empty head, hidden, mustn't send the body to the auto row. */
+.frame-head {
+  grid-row: 1;
+  margin-bottom: var(--space-xl); /* margins, not a gap: an empty row would keep its gap */
+}
+.frame-foot {
+  grid-row: 3;
+  margin-top: var(--space-xl);
+}
+.frame-body {
+  grid-row: 2;
+  container-type: size; /* what's inside can size itself on the body (cqi, cqb) */
+  display: grid;
+  place-items: safe center; /* "safe": too much content overflows downwards, where it's measured */
+  min-height: 0;
+}
+.frame-over {
+  /* stamp, QR: over the card, they move nothing. Closer to the edge than the safe margins, in
+     the corner the content leaves free. */
+  position: absolute;
+  inset: var(--space-2xl);
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: flex-end;
+  gap: var(--space-2xl);
+}
+/* The `corner` param (parts.js): bottom right unless told otherwise. */
+.frame-over[data-corner^="top"] {
+  justify-content: flex-start;
+}
+.frame-over[data-corner$="left"] {
+  align-items: flex-start;
+}
+
+/* ------------------------------------------------------------------ primitives */
+
+/* A centered column; text wraps within --measure. */
+.stack {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--gap, var(--space-2xl));
+  width: 100%;
+  max-width: var(--measure);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  text-align: center;
+}
+.stack > * {
+  max-width: 100%;
+  margin: 0;
+}
+.stack > .grid {
+  align-self: stretch;
+}
+
+/* A row that wraps, centered. */
+.cluster {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: var(--gap, var(--space-xl));
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* Items in balanced rows, at most --cols-max a row. layout.js sets --cols, --tracks (two per
+   column: a short last row is centered by starting it half a column in) and --rows (the inner
+   rows of each item, for the subgrid). */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(var(--tracks, 6), minmax(0, 1fr));
+  gap: var(--gap, var(--space-xl));
+  width: 100%;
+}
+.grid > * {
+  grid-column-end: span 2;
+}
+
+/* A tile on the surface; a container, so its text can size itself on it. In a grid its inner rows
+   line up with its neighbours' (subgrid). */
+.tile {
+  box-sizing: border-box;
+  container-type: inline-size;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr); /* the tile's width, whatever the text: a long line can be measured */
+  align-content: center;
+  row-gap: var(--space-s);
+  padding: var(--pad, var(--space-xl));
+  background: var(--surface-2);
+  border: 2px solid var(--line-soft);
+  border-radius: var(--radius);
+}
+/* In a grid it isn't a container: container-type brings layout containment, and a contained
+   element can't be a subgrid (its rows fall back to none). Its text sizes on the body instead. */
+.grid > .tile {
+  container-type: normal;
+  grid-row: span var(--rows, 1);
+  grid-template-rows: subgrid;
+}
+
+/* Type roles: as large as the role, as the container allows, never under --type-min.
+   <k> (the cqi factor) is the share of the container's width a role may take: full size from a
+   container about 12 em of it wide for the display roles, 8 em for the text ones, which wrap
+   anyway (beats' tiles, four in a row, keep their body text at full size). */
+.t-fine { --role: var(--type-fine); --k: 12.5cqi; }
+.t-small { --role: var(--type-small); --k: 12.5cqi; }
+.t-text { --role: var(--type-text); --k: 12.5cqi; }
+.t-body { --role: var(--type-body); --k: 12.5cqi; }
+.t-lead { --role: var(--type-lead); --k: 10cqi; }
+.t-heading { --role: var(--type-heading); --k: 8.3cqi; }
+.t-display { --role: var(--type-display); --k: 8.3cqi; }
+.t-hero { --role: var(--type-hero); --k: 8.3cqi; }
+:is(.t-fine, .t-small, .t-text, .t-body, .t-lead, .t-heading, .t-display, .t-hero) {
+  font-size: max(var(--type-min), min(var(--role), var(--k)));
+}
+/* One line, as large as its box allows: layout.js starts from the role's full size and goes down. */
+[data-fit] {
+  font-size: max(var(--type-min), var(--role));
+  white-space: nowrap;
+}
+
+/* ------------------------------------------------------------------ parts (parts.js) */
+
+.logo {
+  display: block;
+  width: min(var(--logo), 100%);
+  filter: var(--logo-filter);
+}
+.headline {
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+  color: var(--text-hi);
+  text-wrap: balance;
+}
+.lead {
+  line-height: 1.3;
+  color: var(--lead);
+  text-wrap: balance;
+}
+.lead b {
+  font-weight: 600;
+  color: var(--accent);
+}
+.chip {
+  display: inline-block;
+  box-sizing: border-box;
+  max-width: 100%;
+  padding: var(--space-2xs) var(--space-l);
+  font-family: var(--font-mono);
+  font-weight: 600;
+  color: var(--accent);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: calc(var(--radius) / 3);
+}
+.big {
+  font-weight: 700;
+  line-height: 1.05;
+  color: var(--accent);
+}
+.small {
+  font-weight: 500;
+  line-height: 1.25;
+  color: var(--code-text);
+}
+.small:empty {
+  display: none;
+}
+.word {
+  font-weight: 600;
+  color: var(--accent);
+  opacity: 0.08; /* waiting barely visible: pop lights it */
+}
+.dot {
+  font-size: 0.7em;
+  color: var(--marquee-dim);
+  opacity: 0; /* light brings it in */
+}
+.group {
+  justify-items: start;
+  text-align: left;
+}
+.group h2 {
+  margin: 0;
+  font-weight: 700;
+  color: var(--accent);
+}
+.group .stack {
+  align-items: stretch;
+  text-align: left;
+}
+.group li {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: var(--space-s);
+  align-items: start;
+  line-height: 1.25;
+}
+/* The tick: drawn, not an emoji, in the accent (the ✓ of the landing's comparison). */
+.tick {
+  display: grid;
+  place-items: center;
+  width: 1.3em;
+  height: 1.3em;
+  border-radius: 50%;
+  background: var(--accent-soft);
+}
+.tick svg {
+  width: 0.76em;
+  height: 0.76em;
+  stroke: var(--accent);
+  stroke-width: 3.2;
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 30; /* draw runs the offset from 30 to 0 */
+}
+.lines li {
+  color: var(--lead);
+}
+.lines b {
+  color: var(--text);
+}
+.note {
+  margin: 0;
+  color: var(--faint);
+}
+.credits {
+  display: grid;
+  gap: var(--space-2xs);
+  line-height: 1.35;
+  color: var(--quiet);
+}
+.credits p {
+  margin: 0;
+}
+.credits p:first-child {
+  color: var(--muted);
+}
+
+/* The stamp: ink with gaps and ragged edges (the #ink filter); the stamp effect tilts it. */
+.stamp {
+  display: grid;
+  justify-items: center;
+  gap: var(--space-2xs);
+  padding: var(--space-m) var(--space-xl) var(--space-s);
+  color: var(--accent);
+  border: 6px solid currentColor;
+  border-radius: calc(var(--radius) / 1.75);
+  outline: 3px solid currentColor;
+  outline-offset: 6px;
+  font-size: var(--type-lead);
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  filter: url(#ink);
+}
+.stamp small {
+  font-size: 0.38em;
+  font-weight: 700;
+  letter-spacing: 0.32em;
+}
+
+/* The QR: dark on white, the way every phone reads it. */
+.qr {
+  display: grid;
+  justify-items: center;
+  gap: var(--space-s);
+  margin: 0;
+  color: var(--lead);
+}
+.qr img {
+  width: var(--qr-size);
+  padding: var(--space-m);
+  background: #fff; /* not a token: a QR reads on white, in any theme */
+  border-radius: calc(var(--radius) / 2);
+}

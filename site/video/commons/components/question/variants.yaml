@@ -1,0 +1,20 @@
+# question: the variants. The sheet shows them, the tests check them, the gallery draws them.
+- name: default
+  note: the prototype's own defaults
+- name: hook
+  note: as in compare's `hook`
+  params: { question: Another i18n library?, words: "JSX\nVite\nVS Code", at: "1.6, 2.2, 2.8" }
+- name: four-words
+  note: four words, still one row
+  params: { question: Where do translations live?, words: "JSX\nVite\nVS Code\nCI" }
+- name: long
+  note: a question on two lines; words that wrap on two rows
+  params:
+    question: Why should translations live anywhere else than in your code?
+    words: "Right in your JSX\nIn the Vite build\nIn the VS Code panel\nIn production"
+- name: too-much
+  note: the limit, written down
+  params:
+    question: Why on earth should every single translation of every single sentence live anywhere else than right in the code you are already writing every day?
+    words: "Right in your JSX\nIn the Vite build\nIn the VS Code panel\nIn production\nIn the CLI\nIn the LLM\nIn the playground\nIn the restaurant\nIn the edge cases\nOn npm\nOn GitHub\nEverywhere at once"
+  expect: error

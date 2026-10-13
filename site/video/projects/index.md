@@ -6,7 +6,7 @@
 > - `site/video` turns a story into a narrated mp4: `storyboard.md` (Italian, source of truth) → `storyboard.yaml` (English, written by the editor's LLM per [README.md](../README.md)) → TTS → scripted takes → ffmpeg cut.
 > - `stamp`/`check` tie the two files scene by scene: when the `.md` changes, every production step stops until the YAML is adapted.
 > - Playwright drives the installed Chrome: the app (`vite dev` of a copied demo) and VS Code via `code serve-web`, isolated in `.cache/`, with the repo's extension.
-> - Layout: `projects/` (one folder per video, with its `log/`, and this file), `commons/` (shared cards and CSS), `uty/` (the pipeline). Standalone package, not a workspace.
+> - Layout: `projects/` (one folder per video, with its `log/`, and this file), `commons/` (the machinery: `cli/` the pipeline, `layout/` the card forge, `components/` its prototypes, `test/`, `bkmusic/`). Standalone package, not a workspace.
 > - This file is the travel log: one entry per working session, newest first, and the state of every project at the top.
 
 > [!IMPORTANT]
@@ -18,33 +18,106 @@
 
 | | |
 | :- | :- |
-| Pipeline (`uty/`) | check, stamp, tts, record, preview, compose working end to end; voice levelled to -16 LUFS in `compose`; hand-drawn marks (`mark`, `unmark`, `all` for a table column); background music ducked under the voice, credits on the closing card, `toEnd` to close on the track's own ending (never looping), `delay` for a later entrance; the video's `fade` from the YAML; stages `split-panel` (terminal under both pages) and any web page in the app (`url`, `anchor`, `storage`, `preload`), `scroll` (`ease: sine` for a whole page); the final encoded once in two passes, up to `output.mbPerMinute`; subtitles broken on pauses; `--silent` keeps the real lines still valid; every run followed live (`live.mjs`, the VS Code task **video: live**); partial takes from the first changed scene, a strip of frames per scene |
+| Pipeline (`commons/cli/`) | check, stamp, tts, record, preview, compose working end to end; voice levelled to -16 LUFS in `compose`; hand-drawn marks (`mark`, `unmark`, `all` for a table column); background music ducked under the voice, credits on the closing card, `toEnd` to close on the track's own ending (never looping), `delay` for a later entrance; the video's `fade` from the YAML; stages `split-panel` (terminal under both pages) and any web page in the app (`url`, `anchor`, `storage`, `preload`), `scroll` (`ease: sine` for a whole page); the final encoded once in two passes, up to `output.mbPerMinute`; subtitles broken on pauses; `--silent` keeps the real lines still valid; every run followed live (`live.mjs`, the VS Code task **video: live**); partial takes from the first changed scene, a strip of frames per scene; **the card forge** (`commons/layout/card.html`: knobs, the site's tokens, adaptive layout, GSAP on one timeline; five prototypes in `commons/components/` with their sheets and variants; `card: <name>`, `look`, `anim`; `node commons/cli/card.mjs` and its gallery); **probes** in every frame, webviews included (`log/probe.jsonl`, warnings under the scene, `--probe`, `--strict`) |
 | [quickstart](quickstart/storyboard.md) | the README quick start in 7 scenes, about 55 s: YAML stamped, recorded at 1920×1080, 30 fps; voice still mute |
-| [quick2](quick2/storyboard.md) | born as a blind conversion of quickstart's `.md`: real voice, six marks (each whole for 1.5 s at least), music under the voice with a 4 s close, credits on the closing card, 54.8 s. Its next take wears the new look of Ada's app (`app-dark.css`) |
-| [compare](compare/storyboard.md) | "Why viteTranslate", 19 scenes, real voice, cut in `output/`: 181.2 s, ending with the track (which comes in at 2 s); the coffee afterthought with a stamp and a QR on the closing card. 91 MB, near-lossless. Waiting for the user's viewing |
+| [quick2](quick2/storyboard.md) | converted again from its `.md` (the YAML had been deleted) on the forge's `title` and `outro`, Ada's app with the buttons under the sentences. Real voice, six marks, music with a 4 s close, cut in `output/` at 1920×1080 captured at device pixels: **57.8 s**, no warnings. Waiting for the user's viewing |
+| [compare](compare/storyboard.md) | "Why viteTranslate", 19 scenes, real voice, cut in `output/`: 181.2 s, ending with the track (which comes in at 2 s); the coffee afterthought with a stamp and a QR on the closing card. 91 MB, near-lossless. Waiting for the user's viewing. The takes and `preview/` now wear the forge's cards (181.2 s); `output/` is still the old cut |
+| [compare2](compare2/storyboard.md) | compare on the forge's cards, with `{name}` in the new sentence, voila's round trip EN → FR, the stamp top right and no QR. Real voice (compare's lines, same text), cut in `output/` at **1920×1080 captured at device pixels** (no upscaling): 188.2 s, 28 MB a minute, 7.0 s past the track (llm-preview took 9.3 s). No warnings. Waiting for the user's viewing |
 | Real voice | works: the key is in `site/video/.env` (git-ignored) |
-| Tests | none for `uty/` yet; checked by running it and reading frames |
+| Tests | `npm test`: storyboard (`card`, `look`, `anim`), the forge in Chrome (scales, knobs, tempo, every variant, grids, subgrid, still, anim, repeatability), the probes. The rest of `commons/cli/` is checked by running it and reading frames |
 
 ## Next
 
+- [ ] **The first forging:** compare again with the new prototypes, looked at and tuned card by card (`node commons/cli/card.mjs <project> <scene>`), then a new cut. quick2: done.
+- [ ] **compare2's fixture is gone from the working tree:** its YAML points at `site/video/projects/compare/fixture`, deleted with the rest of `projects/compare/`. Its next `record` fails until the fixture moves (into `projects/compare2/fixture`, say) and `fixture:` follows.
+- [ ] More prototypes as the stories ask for them (a numbered `steps` took 9 lines in the review).
+- [ ] The user watches `compare2/output/compare2.mp4`: the `{name}` sentence, voila's round trip, the stamp top right, the silence at the end.
+- [ ] The probe on `key Enter` in a new terminal warns in about half the takes with the keys arriving (compare2's `build`): find why it doesn't always hear xterm's input.
+- [ ] The probes' overlay selectors not met yet in a take: `.find-widget.visible`, the context menu.
 - [ ] The user watches `compare/output/compare.mp4`: code and page in step, the restaurant's scroll, the coffee line's tone, the stamp.
-- [ ] Scan the coffee QR from the screen with a phone (`commons/coffee-qr.svg`: it should open buymeacoffee.com/giancarlogy).
-- [ ] quick2's next take: `app-dark.css` no longer lifts the buttons, so they show up where its JSX has them, in the middle.
+- [ ] Scan the coffee QR from the screen with a phone (`commons/components/outro/coffee-qr.svg`: it should open buymeacoffee.com/giancarlogy).
 - [ ] The site scenes hang on the published site and the network: a change to the site can move what they click (README § "On stage" lists it).
 - [ ] `tts` warns "0.9 words/s" on `voila`, one word: the sampleRate check could skip lines under three words.
 - [ ] Check that **video: live** starts with the folder: reopen the repo, and if VS Code asks, allow automatic tasks.
-- [ ] Listen to `quick2/output/quick2.mp4`: the music levels (`max`, `min`), and whether six marks are too many.
-- [ ] Listen to `quick2/output/quick2.mp4` against the user's copy of the first real-voice cut (`quick2 - Copia.mp4`): levels, clicks, timing.
+- [ ] Watch `quick2/output/quick2.mp4` (57.8 s, a little over the 55 asked): the music levels (`max`, `min`), whether six marks are too many, and against the user's copies (`quick2 - Copia*.mp4`).
 - [ ] Less mechanical joins between lines, one try at a time: direction notes and punctuation in the conversion; then the neighbouring lines as context (a `voice.context` option); last, the whole narration in one call, cut on its silences.
-- [ ] Real voice for `quickstart`: `node uty/run.mjs quickstart all`, then re-time its waits as done for `quick2`.
+- [ ] Real voice for `quickstart`: `node commons/cli/run.mjs quickstart all`, then re-time its waits as done for `quick2`.
 - [ ] Split scenes cut long code lines on the right: try `split: 0.66` or a lower `zoom.vscode`.
 - [ ] Swap the YouTube video in the root README once the cut is approved (`doc/youplay.png` could become `poster.jpg`).
-- [ ] Small node tests for `subject.mjs` (parse, check, stamp), `storyboard.mjs` (validation), `tts.mjs` (WAV header, trim) and the SRT builder.
+- [ ] Small node tests for `subject.mjs` (parse, check, stamp), the rest of `storyboard.mjs`'s validation, `tts.mjs` (WAV header, trim) and the SRT builder.
 - [ ] Phase 2: translate the narration with viteTranslate itself and render the video per language.
 
 ## Log
 
 Newest first. An entry: what was done, what was decided and why, what is left. Warnings in **bold**.
+
+### 2026-10-13 · quick2 converted again and cut
+
+- The user's request: generate the video following the README. quick2's `storyboard.yaml` (and `audio/`) had been deleted: `check` said "no storyboard.yaml yet", so a full conversion. **Not blind:** the agent saw the old YAML in git while reading the folder; the new one follows the README and § "On stage", and ends up close to it.
+- New against the old YAML: the cards are the forge's prototypes (`card: title`, `card: outro`), `app.style` is `@commons/layout/app-dark.css`, the setup waits for Project's Sync button (60 s) as compare2's does, `app` waits for "Bon retour" before its hold.
+- Silent rehearsal, 58.6 s: one warning, `null` circled 1.3 s in `sync`, `hold` 1.6. `translate`'s box touched the buttons under the sentence (they now follow the JSX): `pad: 14`.
+- Real voice at the user's request (7 lines, 45.4 s of speech), then the waits re-timed on its pauses (`silencedetect`): app 1.9, write 1.8, fallback 4.4, sync 1.5.
+- `all`: every scene shot again (every line's voice changed, so every fingerprint), no warnings; write and sync's actions run 0.4 and 0.7 s past the voice, on their marks. `output/quick2.mp4` 57.8 s, 12 MB; `.srt`, `poster.jpg`, `credits.txt` written.
+- **compare2's fixture** (`projects/compare/fixture`) is deleted in the working tree: in "Next".
+
+### 2026-10-13 · compare2 back to Full HD, at device pixels
+
+- The user's choice after the 2K take: 1920×1080, captured directly, no upscaling. compare2's `output` line removed.
+- Full take with no warning at all (no short marks, no `key Enter`). Visibly sharper than compare's old 1080p (same crop of `fallback`: no halos around the letters). 86.8 MB for 188.2 s: **28 MB a minute**.
+- README § Resolution recommends 1920×1080 at device pixels (the user's choice): sharp, the tuned pace, 28 MB a minute. Not written as "sharper than 2K": that pair was never compared with both captured right.
+- 7.0 s past the track: llm-preview 9.3 s (7.8 in the best take), extension 0.8 s longer than with the old capture. A faster LLM take (`record --from llm-preview`) would bring it to about 5.5 s.
+
+### 2026-10-13 · Capture at device pixels
+
+- The user saw no gain from 2K and suspected the capture. Measured: with the scale factor only emulated by Playwright, Chrome's screencast sends CSS-sized frames (VS Code at zoom 1.2: 1600×900), which the recorder upscaled, at 1080p as at 2K. Compression was a small loss next to that.
+- Fix (user's choice, 2K kept for now): a Chrome per page with `--force-device-scale-factor` = its scale, and the same `deviceScaleFactor` in the context (with the flag alone `devicePixelRatio` read 1). The recorder crops the pixel of rounding and gives the screencast a margin, so nothing is resampled.
+- compare2 at 2K: code and app visibly sharper (same crops, old vs new); scrolls as smooth (restaurant 261 distinct frames, 235 before); **33 MB a minute** (46 before: the blurry upscale compressed worse).
+- **The cost:** actions slower at 2K, 1–2 s more in write, extension, translate, restaurant: two marks under 1.5 s (`write`'s row, `build`'s `fr-FR-` box) and a 191.9 s video, 10.7 s past the track (llm-preview 10.1 s too). Not re-timed yet: first decide 2K or 1080p at device pixels.
+- **Every project's next `record` shoots everything** (the pipeline changed): compare and quick2 get the sharper capture at 1080p too, and their timings may shift a little.
+
+### 2026-10-13 · 2K output, same layout
+
+- The user's request: compare2 in 2K rather than Full HD, proportions unchanged, 30–60 MB a minute.
+- Every video is drawn on a 1920×1080 frame (`FRAME` in `storyboard.mjs`); a bigger 16:9 `output` multiplies each page's deviceScaleFactor by `output.width / 1920` (`k` in `director.mjs`) and leaves its CSS viewport as it was. Marks and `offset` stay in frame px, so they grow with the rest. Any other shape stops the YAML; two tests.
+- compare2 at 2560×1440: full take with no new warning, scrolls as smooth as at 1080p (same count of distinct frames), the layout identical (frames checked). 141 MB for 185.9 s: **46 MB a minute**, under the 60 ceiling. `compose` 3 min instead of 2.
+- README: § Resolution, and the frame named where sizes were "video px". **`record` of compare2 now shoots everything** whenever `output` changes.
+- `build`'s `key Enter` probe warning came back (2 takes of 4): still a false alarm, the build ran.
+
+### 2026-10-13 · compare2: stamp top right, no QR, a sentence with a value; the `corner` param
+
+- The user's request on compare2's `storyboard.md`: no QR at the end, the "open source" stamp top right. The `.md` was edited at their request.
+- The forge couldn't move the stamp: it gained a common param, `corner` (`bottom-right` by default, `top-right`, `bottom-left`, `top-left`; anything else stops the card), in `parts.js` and `card.css`. Sheets updated, outro's variant `stamp-top`, two tests. Other videos don't move.
+- New README rule 11, "Parametrize, don't patch": what a story asks of a card becomes a param of the components, the old behavior as default.
+- compare2's new sentence: `<b>{name}</b>, you have new messages.` instead of "You have three new messages.". A number in words read as "translate it all, word for word"; `{name}` (the prop the app already has) shows a value coming in from outside, untouched in French. No count, so no plurals to explain. The narration of `write` stays as it is (the user's choice).
+- compare2's `voila`: after the French, a round trip English → French, each language still for 1.5 s and the pointer seen travelling (~0.5 s): about 6 s, to win back from other scenes' waits, since the video still ends with the track.
+- **compare2 forged.** The YAML is compare's, scenes the `.md` didn't change kept as tuned; changed: `write`, `fallback`, `translate` (the `{name}` sentence: Results rows matched with their glyph, so the editor's line doesn't match too), `voila` (the round trip), `coffee` (`corner: top-right`, no `qr`). Fixture: compare's own, shared. `audio/` copied from compare: same lines, real voice at no cost.
+- `write`'s circle lands 0.2 s earlier or later, as the panel shows the row: `hold: 1.1` keeps it whole 1.5 s.
+- **Time.** The round trip adds ~4 s and compare had 0.3 s of slack. The agent first proposed `music.start: 4`, wrongly: `start` shortens the track, `delay` would lengthen it. The user chose to leave the music as it is: a short silence at the end, under the fade. The `.md`'s Durata and voila note say so now.
+- **The LLM's pace moves the end:** llm-preview took 7.7, 11.9 and 7.8 s in three takes; with 11.9 the video ran 8.4 s past the track. A slow take is worth re-shooting `--from llm-preview`.
+- `build` warned once `key Enter: no key reached the page`, while the build ran (strip checked): a probe false alarm in the terminal, not in the two takes before.
+- The coffee link can go in the YouTube description.
+
+### 2026-10-13 · compare2: a copy of compare's story
+
+- The user's request: `projects/compare2/` with compare's `storyboard.md` only; another session converts it and builds the rest. Its fixture can be compare's own copy, `site/video/projects/compare/fixture` (the `.md` asks for "a copy of its own" of the quick start, with the language buttons first).
+
+### 2026-10-13 · Tidy up: everything shared under commons/
+
+- The user's request: `site/video` holds `commons/` (the machinery) and `projects/` (the videos). `uty/` → `commons/cli/`, `test/` → `commons/test/`, the whole forge (`card.html`, `card.css`, its four scripts, `darkStyle.md`) and `app-dark.css` → `commons/layout/`. Nothing was unused, nothing removed. The user picked the whole forge in `layout/` over splitting its css/html from its scripts.
+- Commands are now `node commons/cli/run.mjs …`; `npm run video`, `npm test` and the task **video: live** follow. The YAMLs' `app.style` is `@commons/layout/app-dark.css`: **the next `record` of compare and quick2 shoots everything** (the stage's fingerprint holds the app settings).
+- Older entries below keep the old paths: they tell what happened then.
+
+### 2026-10-13 · The card forge, and probes in every frame
+
+Plan: [video_gsap_probes.md](../../../doc/ImplementationPlans/subplans/video_gsap_probes.md). The user: "we're working on the forge; we'll forge later."
+
+- **The forge.** One page, `commons/card.html`, plays every card. Sizes come from a few knobs (`card.css`), colors from the site's tokens, motion from GSAP 3.15 on one timeline started by the take and seekable to any instant. Text follows its container, wraps, grids add balanced rows, the body tightens down to 0.7; what still doesn't fit stops the take before it starts. The manual: `commons/darkStyle.md`.
+- **Five prototypes** (title, question, beats, together, outro) in `commons/components/`, each a short composition of shared parts, with a sheet and variants (one past its limit). `card: beats` in the YAML; `look` and `anim` (the user picked the shape: `{ fx | set | to | from | fromTo, target, at }`). The old `*.html` cards are gone; the coffee QR lives with outro.
+- **`node uty/card.mjs`**: a scene, a prototype, or the gallery of every variant (exit 1 if one doesn't give its outcome). The user looked at the gallery: go.
+- **Probes**: a listener in every frame, the extension's webviews included. The director checks each filmed action (click landed, keys reached an editor, line, selection, save, palette, mark still) and warns under the scene. **Found:** the webviews write themselves with `document.open`, which wipes listeners: the probe re-arms. **Found:** a `removeAttribute` on a detached locator waited 30 s (the restaurant took 69 s): no probe read waits now, and a take lasts as before (±0.4 s).
+- **True positive, fixed:** `llm-preview` opened on a tab's tooltip: after dragging the panel's border, `pannello()` put the real mouse back on the tab clicked in `translate`. Now it goes to the corner, there and at every cut. A `--strict` take of compare runs to the end.
+- Learned: a container can't be a subgrid (a tile in a grid isn't one); a hidden grid item frees its row.
+- Rehearsals: compare and quick2 shot whole on the forge, previews cut; `npm test` 65 green.
 
 ### 2026-10-13 · compare: code and page in step, a stamp, a QR, near-lossless
 

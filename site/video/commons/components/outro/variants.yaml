@@ -1,0 +1,36 @@
+# outro: the variants. The sheet shows them, the tests check them, the gallery draws them.
+- name: default
+  note: the prototype's own defaults, as in quick2's `outro`
+- name: credits
+  note: as in compare's `outro`, with the music credits the recorder adds
+  params:
+    credits: "Chris Haugen - Mirage (YouTube Audio Library)\nMusic: YouTube Audio Library, free to use"
+- name: coffee
+  note: as in compare's `coffee`, already composed, with a stamp and the QR
+  params:
+    still: 1
+    stamp: Free|Open source|Apache-2.0
+    stampAt: 1
+    qr: coffee-qr.svg
+    qrLabel: ☕ Buy me a coffee
+    qrAt: 1.5
+    credits: "Chris Haugen - Mirage (YouTube Audio Library)\nMusic: YouTube Audio Library, free to use"
+- name: stamp-top
+  note: as in compare2's `coffee`, the stamp top right and no QR
+  params:
+    still: 1
+    stamp: Free|Open source|Apache-2.0
+    stampAt: 1
+    corner: top-right
+    credits: "Chris Haugen - Mirage (YouTube Audio Library)\nMusic: YouTube Audio Library, free to use"
+- name: more-lines
+  note: five lines; one line plain, one a stamp
+  params:
+    lines: "`npm i @sepoina/vitetranslate`\nVS Code Marketplace: **viteTranslate**\ngithub.com/sepoina/viteTranslate\nsepoina.github.io/viteTranslate\nApache-2.0"
+    stamp: Thanks!
+- name: too-much
+  note: the limit, written down
+  params:
+    lines: "`npm i @sepoina/vitetranslate`\nVS Code Marketplace: **viteTranslate**\ngithub.com/sepoina/viteTranslate\nsepoina.github.io/viteTranslate\nThe playground: sepoina.github.io/viteTranslate/playground\nThe edge cases: sepoina.github.io/viteTranslate/edge\nThe restaurant: sepoina.github.io/viteTranslate/restaurant\nApache-2.0, free and open source\nIssues and ideas welcome on GitHub\nBuy my author a coffee\nOne more line\nAnd another one\nsepoina.github.io/viteTranslate\nThe playground: sepoina.github.io/viteTranslate/playground\nThe edge cases: sepoina.github.io/viteTranslate/edge\nThe restaurant: sepoina.github.io/viteTranslate/restaurant\nApache-2.0, free and open source\nIssues and ideas welcome on GitHub\nBuy my author a coffee\nOne more line\nAnd another one"
+    credits: "Chris Haugen - Mirage (YouTube Audio Library)\nMusic: YouTube Audio Library, free to use"
+  expect: error

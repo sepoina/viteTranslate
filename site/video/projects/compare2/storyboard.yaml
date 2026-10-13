@@ -1,0 +1,352 @@
+# Generated from storyboard.md (the source of truth) following site/video/README.md.
+# Content (scenes, order, what is said) lives in storyboard.md; tune the technique here.
+# Run from site/video: `node commons/cli/run.mjs compare2 tts record preview --silent` to rehearse.
+# Born as a copy of compare's YAML: the scenes the .md doesn't change keep compare's tuning.
+#
+# LINKED-DATA: the fixture is compare's own fixture/ (projects/compare/fixture), shared: demo/Vite_8/quickApp with the language
+# buttons first in the JSX (the page follows the code's order), plus two sentences left untranslated
+# (for llm-preview) and an `llm` block (OpenRouter, a DeepSeek model). `goto: 11` is the closing
+# </p> of the first paragraph in its src/App.jsx. The build prints one chunk per
+# non-source language (fr-FR-….js): en-US is preloaded in the main bundle. Panel selectors:
+# idePlugin/src/webViews (commandBar data-cmd, Settings `.stile[data-value]`, Project `#langs` rows
+# with data-open, the LLM page's `.azione[data-value]`). The site scenes (playground … compare) open
+# the published site: its pages remember the language in localStorage "viteTranslate.site.language"
+# (site/landing/src/siteLanguage.js), edge and restaurant fall back to Italian; the landing's table
+# is site/landing/src/Compare.jsx (`.col-us`); the restaurant's language menu is a <details> with a
+# globe icon. coffee's stamp says the license of package.json (Apache-2.0), top right, no QR.
+# The new sentence carries the `name` prop App already gets from main.jsx (Ada). Change those, check this.
+
+title: Why viteTranslate
+fixture: site/video/projects/compare/fixture
+app:
+  port: 5199
+  style: "@commons/layout/app-dark.css"
+# The app at 1.25, not 1.6: the landing's comparison table (677 CSS px) fits whole, header included,
+# and Ada's app has room in the split.
+zoom: { app: 1.25 }
+vscode:
+  settings:
+    # DOM renderer: the terminal's text can be found by `waitFor` and `mark` (WebGL draws pixels).
+    "terminal.integrated.gpuAcceleration": "off"
+    # split-panel: one terminal in view, no tab list on the right of the strip.
+    "terminal.integrated.tabs.enabled": false
+  env: [OPENROUTER_API_KEY] # for llm-preview's --llm-translate, run from the panel's terminal
+tail: 0.4 # shorter silence after each line: the video stays near 2:50
+panel: 0.3 # split-panel: the terminal strip under code and page
+fade: [0.5, 2.5] # "il video sfuma al nero negli ultimi 2 secondi almeno"
+poster: { scene: together, at: 9 } # the list complete, its ticks just glowed
+
+voice:
+  model: google/gemini-3.8-flash-lite-tts
+  voice: Leda
+  instructions: >-
+    Someone who built the tool and is glad of it, without bragging: telling a choice, not selling.
+    Lively pace, a smile in the voice. One voice and one tone from the first word to the last: never
+    switch to another character, not even for a question.
+
+# "Presente": louder under the voice. "Entra piano": a slow fade in. "Fino alla fine del brano":
+# toEnd holds the closing card until Mirage ends by itself; delay: it comes in 2 s after the start,
+# so it ends at 3:01 (it fades out on its own from ~2:52, under coffee).
+music: { track: Chris Haugen - Mirage, max: -4, min: -20, fade: [3, 4], delay: 2, toEnd: true }
+
+# Not recorded: the stage as the first VS Code scene finds it.
+setup:
+  - click: { selector: '.activitybar [aria-label^="viteTranslate"]' } # the panel on the left
+  - waitFor: { selector: 'vscode-button[data-cmd="sync"]', timeout: 60 } # Project loaded: its gear is in `extension`
+  - wait: 2 # the webviews take the focus as they load
+  - open: src/App.jsx
+  - wait: 3
+
+scenes:
+  - id: hook
+    stage: card
+    card: question
+    params:
+      question: Another i18n library?
+      words: |
+        JSX
+        Vite
+        VS Code
+      at: 9.1, 10.0, 11.0 # "In your JSX, in Vite, in VS Code" (real voice: 8.7–11.9 s)
+    say: "Another internationalization library? It's a fair question, with a simple answer: translation belongs where you already work. In your JSX, in Vite, in VS Code. It's your own ecosystem that should be helping you."
+    instructions: The question and its answer come from the same person in the same breath, a light half smile across the whole line. Nothing acted out.
+    hold: 1 # a breath: the words stay lit, the music rises
+
+  - id: title
+    stage: card
+    card: title
+    params: { line: Write the sentence., accent: Get the translation. }
+    say: That's why viteTranslate lives in all three. Write the sentence, get the translation.
+    hold: 0.4
+
+  - id: write
+    stage: vscode
+    say: "Write the sentence in JSX, just as it reads. The key? viteTranslate makes it: nothing to manage."
+    do:
+      - wait: 0.6
+      - goto: 11 # end of the first paragraph's </p>, under the buttons
+      - key: Enter
+      - type: <p><Trans><b>{name}</b>, you have new messages.</Trans></p> # typed in full, no cuts; {name} is a value, not text
+      - save
+      - waitFor: { text: "🔄 <b>{name}</b>, you have new messages.", exact: false } # Results: not synced (the glyph: not the editor's line)
+      - mark: { text: "🔄 <b>{name}</b>, you have new messages.", exact: false } # its row
+    hold: 1.1 # the circle stays whole 1.5 s: it lands 0.2 s earlier or later, as the panel shows the row
+
+  - id: extension
+    stage: vscode
+    say: And here's VS Code. An official extension brings translation into the editor. Every sentence with its status, highlighted the way you like.
+    do:
+      - wait: 1.4
+      - click: { selector: 'vscode-icon[data-cmd="settings"]' } # Project's gear, on "An official extension" (real voice: ~2.3 s)
+      - wait: 1.2
+      - click: { selector: "details#highlight > summary" } # open Highlight style
+      - wait: 1
+      - click: { selector: '.stile[data-value="badge"]' } # from "Every sentence with its status" (~6.1 s)
+      - wait: 0.4
+      - click: { selector: '.stile[data-value="escape-chip"]' }
+      - wait: 0.4
+      - click: { selector: '.stile[data-value="keyword-mark"]' } # on "highlighted the way you like" (~8 s): it stays. Not Highlighter: faint on a dark theme (⚠ in Settings)
+      - wait: 0.7
+      - click: { selector: 'vscode-button[data-cmd="close"]' } # Back: Results and Project again
+    hold: 0.4
+
+  - id: fallback
+    stage: split
+    say: "Not in French yet? You get the English, with a marker only developers see: it never reaches production. Never a blank, never a crash."
+    do:
+      - wait: 0.3
+      - click: { page: app, text: Français } # on "Not in French yet?", right away
+      - waitFor: { page: app, text: Bon retour, exact: false }
+      - mark: { page: app, text: you have new messages., exact: false, shape: underline } # "You get the English": "Ada, you have new messages."
+      - wait: 1 # "with a marker"
+      - mark: { page: app, text: you have new messages., exact: false, tight: "🔸", dim: 1 } # "a marker": the glyph before that sentence; the underline stays
+    hold: 0.6
+
+  - id: build
+    stage: vscode
+    say: "Time for a build. The Vite plugin brings every language file back in sync, on its own: extraction is part of Vite's lifecycle, no extra command to remember. And French gets a chunk of its own, loaded only when it's needed."
+    do:
+      - key: Control+Backquote # a terminal: faster than the palette, and npm takes ~3 s to print anything
+      - wait: 0.6 # the new terminal takes the focus a moment later: it would close the palette
+      - command: "View: Toggle Maximized Panel" # room for the whole output: marks don't follow a scroll
+      - wait: 0.3 # PowerShell buffers what's typed before its prompt
+      - type: npm run build
+      - key: Enter
+      - waitFor: { text: "key(s) missing", exact: false, timeout: 30 } # viteTranslate's block, ~1.2 s after Enter
+      - mark: { text: "key(s) missing", exact: false } # one circle only: French's missing keys, on "every language file"
+      - waitFor: { text: "built in", exact: false, timeout: 30 } # the build is over in ~2.2 s
+      - wait: 3.8 # to "And French gets a chunk" (real voice: ~10.2 s)
+      - mark: { text: "fr-FR-", exact: false, shape: box } # the circle goes, the box stays to the cut
+    hold: 0.6
+
+  - id: bundle
+    stage: card
+    card: beats
+    params:
+      title: In production
+      beats: |
+        0|runtime dependencies
+        5 kB|gzip
+        Precompiled|no message parsing at runtime
+      at: 2.9, 4.75, 8.0 # "Zero", "five", "precompiled" (real voice)
+      note: "ICU plurals, select, numbers and dates: compiled at build time"
+      noteAt: 6.5 # "ICU"
+    say: And in production, it travels light. Zero runtime dependencies, five kilobytes gzipped. ICU plurals and dates come precompiled, so the browser gets values ready to use.
+    do: # unseen, behind the card: the build's terminal goes, so llm-preview's strip opens clean
+      - command: "View: Toggle Maximized Panel"
+      - command: "Terminal: Kill All Terminals"
+    hold: 0.4
+
+  - id: translate
+    stage: split
+    say: The panel already knows what's waiting for a translation. Click the new one, then French, and the file opens right on the key. Type, save, and there it is, in French.
+    do:
+      - waitFor: { text: "🔸 <b>{name}</b>, you have new messages.", exact: false } # untranslated, after the build's sync
+      - wait: 2.8
+      - click: { text: "🔸 <b>{name}</b>, you have new messages.", exact: false } # "Click the new one" (real voice: ~3.5 s)
+      - click: { selector: '#langs vscode-tree-item[data-open$="fr-FR.yml"]' } # "then French"
+      - waitFor: { selector: '.tabs-container .tab.active:has-text("fr-FR.yml")' } # open, the cursor on the key's value
+      # The focus is still in the panel's webview. A click on the tab gives it to the editor and
+      # leaves the cursor where the extension put it: on the new key's null, among three.
+      - click: { selector: ".tabs-container .tab.active" }
+      - key: Control+D # selects the word under the cursor: that null
+      - mark: selection # "right on the key" (~6.6 s)
+      - wait: 1 # the circle stays: typing starts on "Type" (real voice: ~7.8 s)
+      - type: '"<b>{name}</b>, vous avez de nouveaux messages."' # {name} stays as it is: only the text around it is translated
+      - save
+      - waitFor: { page: app, text: Welcome back, exact: false } # in English: the build's sync reloaded it already
+      - wait: 0.3 # the save's reload, then French (the old wait: 1.5 showed it ~2 s late)
+      - click: { page: app, text: Français } # on "in French"
+      - waitFor: { page: app, text: vous avez de nouveaux messages., exact: false } # "Ada, vous avez de nouveaux messages."
+      - mark: { page: app, text: vous avez de nouveaux messages., exact: false, shape: box } # "in French"
+    hold: 2 # the box on words to read stays whole 2 s
+
+  - id: llm
+    stage: card
+    card: beats
+    params:
+      title: LLM auto-translation
+      code: npx vitetranslate --llm-translate
+      beats: |
+        💰|Cost first
+        ✋|Asks before spending
+        🛡️|Every result validated
+      at: 5.0, 6.4, 8.4 # "shows the cost", "asks before spending", "checks every result" (real voice)
+    say: A thousand keys? viteTranslate works with an LLM too, whichever one you like. It shows the cost, asks before spending, and checks every result.
+    hold: 0.3
+
+  - id: llm-preview
+    # The real thing: --llm-translate from the panel, on the two sentences fixture/ leaves
+    # untranslated. OpenRouter, deepseek/deepseek-v4.1-flash: a fraction of a cent a take, every
+    # take, fast-forwards included. costGuard (fixture/vite.config.js) keeps it from asking.
+    # split-panel: the terminal runs under code and page, full width, so the LLM's lines don't wrap.
+    stage: split-panel
+    say: Sometimes, simple is better.
+    instructions: Dry and ironic, a raised eyebrow, in the same voice as the rest.
+    do:
+      - wait: 0.6
+      - click: { selector: 'vscode-button[data-cmd="llm"]' } # the LLM page, in Results' place
+      - wait: 1.5 # its checks: the key, the settings, a ping
+      - click: { selector: '#actions .azione[data-value="translate"]' } # runs in the strip, under code and page
+      - waitFor: { text: "Full translate!", exact: false, timeout: 90 } # fr-FR.yml fills in, above
+      - wait: 1.5 # the last write reloads the page, back in English
+
+  - id: voila
+    stage: split-panel # the same frame: the cut doesn't show
+    say: Voilà!
+    instructions: Bright and amused, a little flourish, in the same voice as the rest.
+    do:
+      - click: { page: app, text: Français, after: 0 } # the sentences that were waiting, in French, under "Voilà!"
+      - waitFor: { page: app, text: Bon retour, exact: false }
+      # A round trip, to show it's real, at the eye's pace: each language still 1.5 s (time to read
+      # a line), the pointer seen gliding between the buttons (the click's glide, ~0.6–1.3 s).
+      - wait: 1.5
+      - click: { page: app, text: English }
+      - waitFor: { page: app, text: Welcome back, exact: false }
+      - wait: 1.5
+      - click: { page: app, text: Français }
+      - waitFor: { page: app, text: Bon retour, exact: false }
+    hold: 1.5 # French again, still, before the cut
+
+  - id: site
+    stage: card
+    card: beats
+    params:
+      title: See it live
+      code: sepoina.github.io/viteTranslate
+      beats: |
+        🎮|Playground
+        🧪|Edge cases
+        🍽️|Restaurant
+      at: 2.8, 3.1, 3.4 # "three live pages" (real voice: 2.7–3.8 s)
+    say: Want to see it in action? The site has three live pages.
+    hold: 0.5
+
+  - id: playground
+    stage: app
+    url: https://sepoina.github.io/viteTranslate/playground/
+    storage: { "viteTranslate.site.language": en-US } # every site scene starts in English
+    say: "The Playground: every feature, live, right next to its code."
+    do:
+      - wait: 0.8
+      - scroll: { selector: "#static-text", time: 1.2 } # the first examples: live result left, code right
+      - wait: 1.2
+      - click: { selector: '.lang-switch button:has-text("ZH")' } # on "its code": results change, the code stays
+    hold: 0.9
+
+  - id: edge
+    stage: app
+    url: https://sepoina.github.io/viteTranslate/edge/
+    storage: { "viteTranslate.site.language": en-US }
+    say: "Edge cases: one row per case, mistakes included."
+    do:
+      - wait: 0.5
+      - scroll: { selector: "#call-forms", time: 1 } # case, result, expected
+      - wait: 0.6
+      - click: { selector: '.lang-switch button:has-text("FR")' } # the results column goes French
+    hold: 0.9
+
+  - id: restaurant
+    stage: app
+    url: https://sepoina.github.io/viteTranslate/llmrestaurant/
+    storage: { "viteTranslate.site.language": en-US }
+    preload: true # 14 lazy images, 39 blocks that slide in once: all done before the clip
+    say: "And a whole restaurant: two hundred and twenty-eight sentences, four languages, translated by the LLM."
+    do:
+      - wait: 0.4
+      - click: { selector: "summary:has(.ph-globe-hemisphere-west)" } # the globe: its label is translated too
+      - click: { selector: 'details[open] a:has-text("Français")' } # on "a whole restaurant"
+      - wait: 0.5
+      - scroll: { selector: ".site-footer", time: 3.9, ease: sine } # the whole page in French, ~17,000 CSS px: the sentences go by
+      - click: { selector: "summary:has(.ph-globe-hemisphere-west)" } # the bar stays on top
+      - click: { selector: 'details[open] a:has-text("日本語")' } # on "translated by the LLM"
+    hold: 0.9
+
+  - id: compare
+    stage: app
+    url: https://sepoina.github.io/viteTranslate/ # no #compare: the landing sends every hash to the playground
+    anchor: '[data-section="compare"]' # opens there instead
+    storage: { "viteTranslate.site.language": en-US }
+    say: "Lingui, FormatJS and i18next are great libraries. The difference isn't any single feature: it's having all of them, built to work together."
+    do:
+      - wait: 1.8 # the heading first: "Same problem, less machinery"
+      - scroll: { selector: '[data-section="compare"] table', offset: 110, time: 1.2 } # the whole table, under the top bar
+      - wait: 2.8
+      - mark: { page: app, selector: '[data-section="compare"] .col-us', all: true, shape: box } # "having all of them": the viteTranslate column
+    hold: 0.9
+
+  - id: together
+    stage: card
+    card: together
+    params:
+      groups: |
+        In your JSX|Keyless, natural text|ICU plurals, select, dates
+        In VS Code|Official extension|LLM auto-translation
+        In Vite|Official Vite plugin|Extraction in the Vite lifecycle|Lazy-loaded locales
+        In production|Zero runtime dependencies|5 kB gzip runtime|No message parsing at runtime
+      at: 3.4, 4.6, 5.6, 6.6 # "in your JSX", "in VS Code", "in Vite", "in production" (real voice)
+      beat: 0.25
+    say: "Ten features, one package: in your JSX, in VS Code, in Vite, and in production. All in one place, right where you write."
+    hold: 1.1 # a breath on the full list, the music rises
+
+  - id: outro
+    stage: card
+    card: outro
+    say: "viteTranslate. On npm, in the VS Code Marketplace, and on GitHub. You write the sentence: viteTranslate does the rest."
+    hold: 0.5 # a beat: coffee comes as an afterthought
+
+  - id: coffee
+    stage: card
+    card: outro # outro's card, already composed (still): the cut doesn't show
+    params:
+      still: 1
+      stamp: Free|Open source|Apache-2.0
+      stampAt: 2.9 # lands on "open source" (real voice: 2.74 s + lead)
+      corner: top-right # away from the logo and the music credits; no QR
+    say: "Oh, I almost forgot: it's free and open source. Buy my author a coffee, if you like!"
+    instructions: A playful afterthought, as if just remembered, with a grin and a wink, in the same voice as the rest.
+    hold: 2 # fade takes it to black. The video runs ~3.6 s past the track (voila's round trip): a short silence, accepted by the user
+
+# ── source: storyboard.md at the last `node commons/cli/run.mjs compare2 stamp`. Written by the tool, not by hand.
+source:
+  header: "c4d183c8f7"
+  scenes:
+    hook: "8bd1da0a68"
+    title: "eca2c7037f"
+    write: "430fb5b9df"
+    extension: "f7bd2bbb0b"
+    fallback: "cd7459f448"
+    build: "2b19f2aa67"
+    bundle: "8588d6ebe5"
+    translate: "52769b899d"
+    llm: "9eacfe67e4"
+    llm-preview: "60280425df"
+    voila: "60736d5224"
+    site: "3533918ef4"
+    playground: "19f058aa5d"
+    edge: "8910ed9310"
+    restaurant: "87af8f4b4b"
+    compare: "0295b5f721"
+    together: "2ea0606c44"
+    outro: "57362b79b5"
+    coffee: "f199826902"

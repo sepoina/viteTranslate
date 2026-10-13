@@ -4,7 +4,7 @@ Scripted, reproducible demo videos of viteTranslate. A story written in Italian 
 
 Change a sentence, run it again: only that line is re-voiced, everything is re-shot the same way.
 
-**This file commands `site/video`.** Whatever happens in this folder (stories, storyboards, the pipeline in `uty/`, takes and cuts) follows it, and `AGENTS.md` sends every agent here. It speaks to whoever writes a story, whoever runs the pipeline, and the editor's LLM (Claude Code, Copilot, any agent in VS Code) that converts one. Where each video stands, and how it got there: [projects/index.md](projects/index.md).
+**This file commands `site/video`.** Whatever happens in this folder (stories, storyboards, the pipeline in `commons/cli/`, takes and cuts) follows it, and `AGENTS.md` sends every agent here. It speaks to whoever writes a story, whoever runs the pipeline, and the editor's LLM (Claude Code, Copilot, any agent in VS Code) that converts one. Where each video stands, and how it got there: [projects/index.md](projects/index.md).
 
 ## How a video is made
 
@@ -13,9 +13,9 @@ Change a sentence, run it again: only that line is re-voiced, everything is re-s
    > Convert `site/video/projects/<project>/storyboard.md` into `storyboard.yaml` following `site/video/README.md`.
 
    It writes `storyboard.yaml` (English, executable), touching only the scenes that changed, and stamps it: see [Converting](#converting).
-3. **Rehearse** for free: `node uty/run.mjs <project> tts record preview --silent`, then look at `preview/contact.jpg` and `preview/<project>.mp4`. Whoever starts it, the run shows live in VS Code: see [Watching a run](#watching-a-run).
+3. **Rehearse** for free: `node commons/cli/run.mjs <project> tts record preview --silent`, then look at `preview/contact.jpg` and `preview/<project>.mp4`. Whoever starts it, the run shows live in VS Code: see [Watching a run](#watching-a-run).
 4. **Tune** at the level you need. Content (a sentence, a scene, the order) → `storyboard.md`, then back to step 2. Technique (a wait, a selector, a hold) → `storyboard.yaml`, directly.
-5. **Final cut** with the real voice: `node uty/run.mjs <project>`. The mp4 goes to YouTube; the repo keeps the `.srt` and `poster.jpg`.
+5. **Final cut** with the real voice: `node commons/cli/run.mjs <project>`. The mp4 goes to YouTube; the repo keeps the `.srt` and `poster.jpg`.
 
 ## Rules for agents
 
@@ -25,10 +25,11 @@ Change a sentence, run it again: only that line is re-voiced, everything is re-s
 4. **Rehearse with `--silent`.** The real voice spends the user's OpenRouter credit: run it only when they ask. A `--silent` run keeps the real lines whose text and voice haven't changed, and writes silence only for the others.
 5. **The user watches every run live.** Run the commands as usual, and `run.mjs` makes sure they see it ([Watching a run](#watching-a-run)). Say what a run does before starting it. Give it a long timeout, and never start two runs at once.
 6. **Nothing generated goes in git.** `audio/`, `capture/`, `preview/`, `log/` and the mp4 are rebuilt by a run; the repo keeps `projects/index.md`, the two storyboards, the `.srt`, `credits.txt` and `poster.jpg`. The tracks of `commons/bkmusic` stay local too; its `credits.md` goes in.
-7. **Change the pipeline, change this file.** A change in `uty/` that alters keys, actions, steps or commands updates this file in the same go.
-8. **Something failed?** Start from the project's `log/`: what's in it is under [The pipeline](#the-pipeline).
+7. **Change the pipeline, change this file.** A change in `commons/cli/` that alters keys, actions, steps or commands updates this file in the same go.
+8. **Something failed?** Start from the project's `log/`: what's in it is under [The pipeline](#the-pipeline). A `!` under a scene is a probe warning ([Probes](#probes)): either a real defect (fix the YAML or the director) or a false alarm (fix the probe). Don't leave it unexplained.
 9. **Keep the travel log.** A session that changes something here (a project, the pipeline, this file) ends with an entry at the top of the log in [projects/index.md](projects/index.md): the date, what was done, what was decided and why, what is left. Update its table and its "Next" list in the same go.
 10. **Write down what you learned.** A trap, a measure, a trick that saved a run: it goes in [Field notes](#field-notes), so the next session starts from it. Stage facts (selectors, what the app does) go in [On stage](#on-stage).
+11. **Parametrize, don't patch.** A change a story asks of a card (a position, a size, a timing, a part shown or not) that another video could want becomes a param of its prototype, or of every prototype in `commons/layout/`: the old behavior stays the default, so the other videos don't move. It goes in the sheet (and in [Cards](#cards) when it's common), with a variant and a test. Never a one-off `look`, `anim` or CSS in a single YAML for what a param could do.
 
 ## Two files, one boss
 
@@ -88,10 +89,10 @@ The pipeline enforces it. `stamp` records, at the bottom of the YAML, a fingerpr
 
 The LLM, step by step. From `site/video`:
 
-1. **`node uty/run.mjs <project> check`.** It says which scenes are new, changed or gone, and whether the header changed. "Never stamped" means a full conversion.
+1. **`node commons/cli/run.mjs <project> check`.** It says which scenes are new, changed or gone, and whether the header changed. "Never stamped" means a full conversion.
 2. **Touch only what `check` lists.** Copy every other scene as it is: it carries tuning someone paid for. A changed header means reviewing the top keys (title, voice, fixture, poster).
 3. **Map** each scene of the `.md` to one of the YAML, same id, same order:
-   - **Scena** → `stage`. A `card` uses the shared cards in `commons/` unless the `.md` asks for something else; with an `app`, `split` or `split-panel` stage, `app.style` is `@commons/app-dark.css` on the same terms. Pick the card that fits what **Si vede** describes, and put what it shows *on a word* in its `at`: see [Cards](#cards). A page other than the fixture's app goes in the scene's `url`.
+   - **Scena** → `stage`. A `card` uses the shared prototypes in `commons/components/` unless the `.md` asks for something else; with an `app`, `split` or `split-panel` stage, `app.style` is `@commons/layout/app-dark.css` on the same terms. Pick the prototype from the gallery and the sheets ([Cards](#cards)), and put what it shows *on a word* in its `at`. Content past a sheet's limit is a question for the user, not a `look` at random; `anim` only when the `.md` asks for a movement the prototype doesn't make. A page other than the fixture's app goes in the scene's `url`.
    - **Si dice** → `say`, in English. Adapt, don't translate: spoken register, short sentences, contractions welcome, same meaning and same beats. About 2.6 words a second (the real Leda ran at 2.75): check the total against **Durata**. Names of products, code and keys stay as written. Never promise what the root `README.md` and `doc/` don't describe.
    - **Si vede** → `do`. Open the fixture's files to find the real line numbers and texts (`goto`, `find`, `click`); what the panel and the app show is in [On stage](#on-stage). Start with a short `wait` so the viewer can read the screen; let the voice lead, the hands follow.
    - **Timing.** The voice starts `lead` (0.4 s) into the scene: the word *n* falls at about 0.4 + n / 2.6 s. Once the real voice is in, use its own pace: words over the line's `duration` in `audio/manifest.json`. Put each action on its word, and budget the list with the times in the [action table](#storyboardyaml).
@@ -99,8 +100,8 @@ The LLM, step by step. From `site/video`:
    - **Marks** (*si cerchia*, *si sottolinea*, *una freccia indica*…) → `mark`, with the words of the [table](#storyboardmd) and the keys of [Marks](#marks). The mark lands on the word that names the thing, and comes before the hand acts on it (mark, then click). A mark the `.md` doesn't ask for is content: don't add it. To mark something that is about to show up, `waitFor` it first. Once drawn, a mark stays whole long enough for the eye to find it: see [Marks](#marks).
    - **Voce** → `voice.voice` and `voice.instructions` (in English). **Progetto filmato** → `fixture`. **Copertina** → `poster`. **Titolo** → `title`.
    - **Musica** → `music`: the track's file name in `track`. *Discreta*: the defaults; *appena percettibile*: `max: -14, min: -32`; *presente*: `max: -4, min: -20`. Other words about it (*entra piano*, *si ferma prima della chiusura*) go to the keys of [Music](#music).
-4. **`node uty/run.mjs <project> stamp`.** It refuses if the YAML's scene ids or order differ from the `.md`.
-5. **Rehearse:** `node uty/run.mjs <project> tts record preview --silent`, then look at `preview/contact.jpg` (one frame per scene) and `log/`. The user watches it live: [For an agent](#watching-a-run) has the timeouts. Fix the technique in the YAML; technique alone needs no new `stamp`.
+4. **`node commons/cli/run.mjs <project> stamp`.** It refuses if the YAML's scene ids or order differ from the `.md`.
+5. **Rehearse:** `node commons/cli/run.mjs <project> tts record preview --silent`, then look at `preview/contact.jpg` (one frame per scene) and `log/`. The user watches it live: [For an agent](#watching-a-run) has the timeouts. Fix the technique in the YAML; technique alone needs no new `stamp`.
    - `contact.jpg` shows the middle of each scene. To see how a scene ends, pull a frame from `preview/<project>.mp4` at its start + duration (`capture/takes.json`) with the `ffmpeg-static` binary of `node_modules`.
    - With `--silent` each line lasts an estimate. Once the real voice is in, re-time the actions tied to a word.
    - Check each scene as it lands, in `capture/strips/`. One to fix: fix it and run `record` again, which starts from there ([Partial takes](#partial-takes)).
@@ -110,13 +111,13 @@ The [rules for agents](#rules-for-agents) hold throughout: the `.md` is never ed
 
 ## storyboard.yaml
 
-<!-- LINKED-DATA: the keys, defaults and actions below are what uty/storyboard.mjs (DEFAULTS, ACTIONS, loadProject) accepts and uty/director.mjs runs, the action times included (its pauses and delays). Change one, change the other. -->
+<!-- LINKED-DATA: the keys, defaults and actions below are what commons/cli/storyboard.mjs (DEFAULTS, ACTIONS, loadProject) accepts and commons/cli/director.mjs runs, the action times included (its pauses and delays). Change one, change the other. -->
 
 ```yaml
 # Generated from storyboard.md (the source of truth) following site/video/README.md.
 title: viteTranslate quick start
 fixture: demo/Vite_8/quickApp          # copied fresh before every take
-app: { port: 5199, style: "@commons/app-dark.css" }
+app: { port: 5199, style: "@commons/layout/app-dark.css" }
 poster: { scene: fallback, at: 2.5 }
 voice: { model: google/gemini-3.8-flash-lite-tts, voice: Leda, instructions: Relaxed and clear. }
 setup:                                 # played before recording
@@ -125,7 +126,7 @@ setup:                                 # played before recording
 scenes:
   - id: title
     stage: card
-    card: "@commons/title.html"
+    card: title                        # a prototype of commons/components
     params: { line: Write the sentence., accent: Get the translation. }
     say: viteTranslate. Translations for React and Vite, written right where the text lives.
   - id: write
@@ -140,13 +141,13 @@ scenes:
 # ── source: … written by `stamp`, never by hand
 ```
 
-**Top level** — `title`; `fixture` (a repo folder with a `package.json`); `app.port`, `app.style` (CSS injected in the app); `vscode.settings` (merged over the defaults in `uty/director.mjs`), `vscode.style` (CSS), `vscode.env` (names of environment variables handed to VS Code and its terminals, such as a key for `--llm-translate`: the values are looked up like the voice's key, never written in the YAML); `output` (`width`, `height`, `fps`, default 1920×1080×30; `mbPerMinute` 60, the most the final mp4 may weigh, in MB per minute as Windows counts them, about 8 Mbit/s: changing it needs `compose` only); `zoom` (`vscode` 1.2, `app` 1.6, `card` 1); `voice` (`model`, `voice`, `instructions`, `sampleRate` 24000, `apiKeyEnv` `OPENROUTER_API_KEY`); `lead` 0.4 and `tail` 0.6 seconds of silence around each line; `split` 0.62 (VS Code's share of a split, and of the top of a split-panel); `panel` 0.3 (the share of the height of VS Code's panel in a split-panel); `fade` `[0.5, 0.7]` (seconds of the video's fade from black at the start, to black at the end); `typeDelay` 55 ms per key; `mark` (the defaults of every mark in the video, with the keys of the [Marks](#marks) table); `music` (the background music: see [Music](#music)); `poster`; `setup`; `scenes`; `source` (written by `stamp`).
+**Top level** — `title`; `fixture` (a repo folder with a `package.json`); `app.port`, `app.style` (CSS injected in the app); `vscode.settings` (merged over the defaults in `commons/cli/director.mjs`), `vscode.style` (CSS), `vscode.env` (names of environment variables handed to VS Code and its terminals, such as a key for `--llm-translate`: the values are looked up like the voice's key, never written in the YAML); `output` (`width`, `height`, `fps`, default 1920×1080×30; a bigger 16:9, such as 2560×1440 (2K) or 3840×2160, keeps the layout and adds pixels: see [Resolution](#resolution); `mbPerMinute` 60, the most the final mp4 may weigh, in MB per minute as Windows counts them, about 8 Mbit/s: changing it needs `compose` only); `zoom` (`vscode` 1.2, `app` 1.6, `card` 1: a page's CSS viewport is 1920×1080 / zoom, at any `output`); `voice` (`model`, `voice`, `instructions`, `sampleRate` 24000, `apiKeyEnv` `OPENROUTER_API_KEY`); `lead` 0.4 and `tail` 0.6 seconds of silence around each line; `split` 0.62 (VS Code's share of a split, and of the top of a split-panel); `panel` 0.3 (the share of the height of VS Code's panel in a split-panel); `fade` `[0.5, 0.7]` (seconds of the video's fade from black at the start, to black at the end); `typeDelay` 55 ms per key; `mark` (the defaults of every mark in the video, with the keys of the [Marks](#marks) table); `music` (the background music: see [Music](#music)); `look` (the cards' knobs and tokens for the whole video: see [Cards](#cards)); `poster`; `setup`; `scenes`; `source` (written by `stamp`).
 
-**Scene** — `id`, `stage` (`vscode`, `app`, `split`, `split-panel`, `card`), `card` and `params` (for `stage: card`), `url` (a stage with the app: the page it shows, loaded before the clip starts), `storage` (with `url`: localStorage entries written on that page's origin before it loads, such as a site's remembered language), `anchor` (with `url`: a CSS selector the page opens scrolled to, its entrance animations done; use it instead of a `#hash`, which a site may route elsewhere), `preload` (with `url`: `true` scrolls the page through once before the clip, top to bottom and back, so its lazy images are loaded and its once-only entrance animations done; for a scene that scrolls far), `say`, `instructions` (voice direction for this line, added to `voice.instructions`), `do`, `hold`. A scene lasts `max(actions, lead + voice + tail) + hold`.
+**Scene** — `id`, `stage` (`vscode`, `app`, `split`, `split-panel`, `card`), `card`, `params`, `look` and `anim` (for `stage: card`: see [Cards](#cards)), `url` (a stage with the app: the page it shows, loaded before the clip starts), `storage` (with `url`: localStorage entries written on that page's origin before it loads, such as a site's remembered language), `anchor` (with `url`: a CSS selector the page opens scrolled to, its entrance animations done; use it instead of a `#hash`, which a site may route elsewhere), `preload` (with `url`: `true` scrolls the page through once before the clip, top to bottom and back, so its lazy images are loaded and its once-only entrance animations done; for a scene that scrolls far), `say`, `instructions` (voice direction for this line, added to `voice.instructions`), `do`, `hold`. A scene lasts `max(actions, lead + voice + tail) + hold`.
 
 **split-panel** — VS Code fills the frame, and the app covers its top right corner (`split` of the width to VS Code, as in a split) down to VS Code's panel. The panel (the terminal) stays uncovered below, full width, `panel` of the height: long lines, like an LLM's run, don't wrap. Before the clip, the panel is opened if closed and its border dragged to that height.
 
-**Files** — `@commons/…` is `site/video/commons/`; anything else is relative to the project folder. The shared cards are in [Cards](#cards); `@commons/app-dark.css` is the `app.style` of the demo apps.
+**Files** — `@commons/…` is `site/video/commons/`; anything else is relative to the project folder. `card` takes a prototype by name instead (`card: beats`, `card: ./components/<name>`): see [Cards](#cards). `@commons/layout/app-dark.css` is the `app.style` of the demo apps.
 
 | Action | Does | Takes about |
 | :- | :- | :- |
@@ -161,17 +162,36 @@ scenes:
 | `click: { text: Sync }` | glide the fake pointer there and click; also `selector`, `role` + `name`, `page`, `exact: false`, `after` | 0.7–1.3 s |
 | `waitFor: { text: …, page: app }` | wait for something to show up (default 15 s) | until it shows |
 | `reload: app` | reload a page | until the network is idle |
-| `scroll: { selector: "#call-forms" }` | the page glides to the target, easing in and out; also `text`, `page`, `block: center`, `offset` (video px left above it, for a fixed top bar), `time`, `ease` (`cubic`; `sine` for a long run, such as a whole page: at its fastest 1.6 times the average speed, not 3, so it glides instead of jumping) | `time` (1 s) |
+| `scroll: { selector: "#call-forms" }` | the page glides to the target, easing in and out; also `text`, `page`, `block: center`, `offset` (px of the 1920 × 1080 frame left above it, for a fixed top bar), `time`, `ease` (`cubic`; `sine` for a long run, such as a whole page: at its fastest 1.6 times the average speed, not 3, so it glides instead of jumping) | `time` (1 s) |
 | `mark: { text: Sync }` · `mark: selection` | draw a hand-drawn mark around the target: see [Marks](#marks) | its `draw` (0.6 s) |
 | `unmark` · `unmark: 0.8` | fade every mark out, in seconds | 0.4 s, or as written |
 
 Clicks, marks and waits search the page and every frame in it, the extension's webviews included. Default page: `app` on app stages, `vscode` elsewhere.
 
+### Resolution
+
+<!-- LINKED-DATA: FRAME and the output check in commons/cli/storyboard.mjs; the factor `k` and the Chrome per page in commons/cli/director.mjs (apri, palco's dimensiona, pannello); the crop and the screencast margin in commons/cli/recorder.mjs. Change one, change the others. -->
+
+Every video is drawn on a **1920 × 1080 frame**: zoom, splits, marks, offsets, cards. `output` only says how many pixels it gets.
+
+> [!TIP]
+> **Recommended: 1920×1080**, the default. Captured at device pixels it's sharp (no upscaling), the actions keep the pace they were tuned at, and it weighs about 28 MB a minute. 2K adds pixels but slows the actions down, and every scene's timing has to be tuned again (compare2, October 2026).
+
+```yaml
+output: { width: 2560, height: 1440 } # 2K: the same video, 4/3 sharper
+```
+
+- **Same layout.** Each page keeps a CSS viewport of 1920×1080 / zoom; Chrome draws it with `zoom × output.width / 1920` pixels per CSS px. The same lines of code fit, the same cards, the marks in the same place, only sharper. Nothing in the YAML changes but `output`.
+- **Captured at device pixels.** Every page has its own Chrome, launched with `--force-device-scale-factor` at its scale (and the same `deviceScaleFactor` in its context, so `devicePixelRatio` stays right for canvases). With the scale only emulated, Chrome's screencast sends frames the size of the CSS viewport: VS Code at zoom 1.2 came as 1600×900 and was upscaled. Now no frame is upscaled; a pixel of rounding is cropped.
+- **16:9 only**, even, and at least 1920×1080: 2560×1440, 3840×2160. Anything else stops the YAML (another shape would change the layout).
+- **Weight.** `mbPerMinute` stays the ceiling (60, about 8 Mbit/s). compare2 at 2K weighs 33 MB a minute: sharp text on flat backgrounds compresses well (the upscaled frames of before took 46). YouTube takes it as 1440p.
+- **Cost.** Scrolls as smooth as at 1080p. At 2K the actions slow down: typing and clicks in VS Code took 1–2 s more in some of compare2's scenes, so the timings tuned at 1080p shift (marks shorter than 1.5 s, a longer video). At 1080p, captured at device pixels, they stay close to before (a few tenths, extension 0.8 s). `compose` takes about 3 minutes instead of 2. A changed `output` shoots everything.
+
 ### Marks
 
-<!-- LINKED-DATA: these keys and defaults are MARK_TARGET and MARK_STYLE in uty/storyboard.mjs, opzioniSegno in uty/director.mjs and DEFAULTS in uty/marker.js. The engine was born in the "Stage Marker Lab" prototype. Change one, change the others. -->
+<!-- LINKED-DATA: these keys and defaults are MARK_TARGET and MARK_STYLE in commons/cli/storyboard.mjs, opzioniSegno in commons/cli/director.mjs and DEFAULTS in commons/cli/marker.js. The engine was born in the "Stage Marker Lab" prototype. Change one, change the others. -->
 
-A hand-drawn highlighter over the page (`uty/marker.js`). The pen lands, presses and tapers off; the line trembles a little, like hand-drawn animation. It's drawn above everything, the extension's webviews included, and below the pointer.
+A hand-drawn highlighter over the page (`commons/cli/marker.js`). The pen lands, presses and tapers off; the line trembles a little, like hand-drawn animation. It's drawn above everything, the extension's webviews included, and below the pointer.
 
 ```yaml
 - mark: { text: Sync }                                    # a green circle: the defaults
@@ -184,7 +204,7 @@ A hand-drawn highlighter over the page (`uty/marker.js`). The pen lands, presses
 
 **Where.** Like `click`: `text` (with `exact: false` for a part), `selector`, `role` + `name`, `page`, `timeout`. Or `selection` (`mark: selection`, or `selection: true` among other keys): the editor's selection, after a `find`. Code is split into many small pieces on screen, and a text search on it doesn't hold. A block, such as a paragraph, is as wide as its column: the mark goes around its text. Buttons and inline elements keep their own box. `all: true` goes around every visible match together: the cells of a table column, which no single element holds. `after` is the seconds before the next action (default: the draw time).
 
-**How.** Sizes are pixels of the 1920 × 1080 video, at any page zoom.
+**How.** Sizes are pixels of the 1920 × 1080 frame, at any page zoom and any `output`: at 2K they grow with the rest.
 
 | Key | Default | What it does |
 | :- | :- | :- |
@@ -210,9 +230,9 @@ Marks don't follow the page. A mark is drawn where its target is at that moment,
 
 ### Music
 
-<!-- LINKED-DATA: these keys and defaults are MUSIC_DEFAULTS in uty/music.mjs. Change one, change the other. -->
+<!-- LINKED-DATA: these keys and defaults are MUSIC_DEFAULTS in commons/cli/music.mjs. Change one, change the other. -->
 
-A track of `commons/bkmusic` under the voice, the way a voice-over does it: it goes down just before every line, nearly disappears while the voice speaks, and comes back up in the pauses. Nothing chases the voice: the times of the lines are known, so the volume curve is written exactly (`uty/music.mjs`). The track is measured and brought to its level, whatever its master, and it loops if it's shorter than the video (never with `toEnd`).
+A track of `commons/bkmusic` under the voice, the way a voice-over does it: it goes down just before every line, nearly disappears while the voice speaks, and comes back up in the pauses. Nothing chases the voice: the times of the lines are known, so the volume curve is written exactly (`commons/cli/music.mjs`). The track is measured and brought to its level, whatever its master, and it loops if it's shorter than the video (never with `toEnd`).
 
 ```yaml
 music: { track: Chris Haugen - Mirage }                       # the defaults
@@ -238,24 +258,26 @@ The tracks stay out of git; `credits.md` is in, with the links to get them again
 
 ### Cards
 
-<!-- LINKED-DATA: params and defaults below are read by each card's own script in commons/ (title, outro, question, beats, together); the clock is commons/clock.js, its take is ciak() in uty/director.mjs, called by uty/record.mjs right after the recorders start. Change one, change the others. -->
+<!-- LINKED-DATA: the prototypes and their params are commons/components/<name>/ (the .js reads them, the .md describes them, variants.yaml shows them); the forge is commons/layout/card.html, card.css, motion.js, clock.js, layout.js, parts.js, described by commons/layout/darkStyle.md; the URL is urlCard() in commons/cli/director.mjs, the take is ciak(), called by commons/cli/record.mjs right after the recorders start; `card`, `look` and `anim` are checked in commons/cli/storyboard.mjs. Change one, change the others. -->
 
-A card is a full-screen page between the screens of the app: a title, a question, a few figures, a list. It's an HTML file played live by the recorder at 1920 × 1080 (zoom 1), so it can animate. A scene uses one with `stage: card`, `card` (its path) and `params`. The shared ones are in `commons/`, in the site's colors; reuse them before writing a new one.
+A card is a full-screen page between the screens of the app: a title, a question, a few figures, a list. It's played live by the recorder on a 1920 × 1080 frame (sharper with a bigger `output`, same layout), so it animates. Every card is a **prototype** of the forge: a short script in `commons/components/<name>/` that one page, `commons/layout/card.html`, plays. Sizes come from a few knobs, colors from the site, motion from GSAP on one timeline; text wraps and shrinks to its box like a web page, and what still doesn't fit stops the take before it starts. The forge's manual, for whoever makes a prototype, is [commons/layout/darkStyle.md](commons/layout/darkStyle.md).
 
-| Card | Shows | Good for | Timed with `at` |
-| :- | :- | :- | :- |
-| `@commons/title.html` | the logo, a line with a green half | the opening | no |
-| `@commons/outro.html` | logo, npm command, Marketplace, GitHub; music credits at the bottom; a stamp and a QR, if asked | the closing, and a last word after it | `stampAt`, `qrAt` |
-| `@commons/question.html` | a big question, then a few words lighting up below it | a hook; a question and its answer in keywords | yes |
-| `@commons/beats.html` | a title, a command, then 2 to 4 tiles landing one by one | three facts, three figures, three steps | yes |
-| `@commons/together.html` | columns of ticked items, filling one after another | a summary: what's in, grouped | yes |
+| Prototype | Shows | Good for |
+| :- | :- | :- |
+| [`title`](commons/components/title/title.md) | the logo, a line with a green half | the opening |
+| [`question`](commons/components/question/question.md) | a big question, then a few words lighting up below it | a hook; a question and its answer in keywords |
+| [`beats`](commons/components/beats/beats.md) | a title, a command, then tiles landing one by one | three facts, three figures, three steps |
+| [`together`](commons/components/together/together.md) | columns of ticked items, filling one after another | a summary: what's in, grouped |
+| [`outro`](commons/components/outro/outro.md) | logo, npm, Marketplace, GitHub; music credits at the bottom | the closing, and a last word after it |
 
-**Params.** They reach the card as a query string, every value a string. A list holds one item per line, and `|` splits an item into its parts: write it as a YAML block scalar. Times are seconds, comma-separated. A param left out takes its default; the recorder also adds `clock` and, with music, `credits` to every card, and a card ignores what it doesn't read.
+Each sheet has the prototype's params, how it adapts and where its limit is, its timeline, the selectors `anim` can aim at, and its variants.
+
+**In the YAML.** `stage: card`, `card` (a prototype by name: `card: beats`; one of the project's own: `card: ./components/<name>`, in `projects/<p>/components/<name>/<name>.js`) and `params`. Params reach the card as a query string, every value a string. A list holds one item per line, and `|` splits an item into its parts: write it as a YAML block scalar. Times are seconds, comma-separated. A param left out takes its default; the recorder also adds `credits` when the video has music.
 
 ```yaml
 - id: bundle
   stage: card
-  card: "@commons/beats.html"
+  card: beats
   params:
     title: In production
     beats: |
@@ -268,86 +290,59 @@ A card is a full-screen page between the screens of the app: a title, a question
   say: And in production, it travels light. Zero runtime dependencies, five kilobytes gzipped. …
 ```
 
-**Timing on the voice.** Every shared card starts from zero when its clip starts, not on load (about a second earlier): the recorder adds `clock=take` to the URL and fires a `take` event on the page as soon as it's filming, and the card waits for it (`commons/clock.js`). Title and outro just enter then. The others take `at`, in the same seconds as an action, since the voice starts at `lead`: the word *n* falls at about `lead` + *n* / 2.6, on the real voice's pace once it's in. Put each entrance on the word that names it. Times left out follow the last one at the card's own step.
-
-#### title.html
+**Params every prototype has.**
 
 | Param | Default | |
 | :- | :- | :- |
-| `line` | `Write the sentence.` | the white half |
-| `accent` | `Get the translation.` | the green half, after it |
-
-About 40 characters in all keep the line as wide as the logo; one line holds up to about 80.
-
-#### outro.html
-
-`credits` comes from the recorder: the lines of the video's track in `commons/bkmusic/credits.md`, shown at the bottom only when the video has music. The three lines (npm, Marketplace, GitHub) are written in the file: change them there, for every video. With no params from the scene, it's the plain closing.
-
-| Param | Default | |
-| :- | :- | :- |
-| `still` | none | any value: the card is already composed on the first frame, no entrance. For a scene that carries on the one before on the same card: the cut doesn't show |
-| `stamp` | none | a rubber stamp pressed on the card, bottom right, with a thud: one line, or `small|BIG|small` |
-| `stampAt` | `1` | when it lands |
-| `qr` | none | an image beside the stamp, on white: a file next to the card, such as `coffee-qr.svg` (buymeacoffee.com/giancarlogy, as in `.github/FUNDING.yml`) |
-| `qrLabel` | none | a line under the QR |
-| `qrAt` | `1.5` | when it comes in |
-
-Stamp and QR keep to the right-hand column: the music credits, centered at the bottom, are owed and stay readable. A new QR: `npx qrcode@1.5.4 -t svg -e M -q 0 -d "#0b0f0d" -l "#ffffff" -o commons/<name>.svg "<url>"`, then a phone to check it reads.
-
-#### question.html
-
-| Param | Default | |
-| :- | :- | :- |
-| `question` | `Another i18n library?` | white, 128 px: about 30 characters on a line |
-| `words` | `JSX`, `Vite`, `VS Code` | one per line, in a row under the question, dots between them. They wait barely visible, then light up in green with a small pop. Three or four short ones |
-| `at` | from 1.6, every 0.6 | one per word |
-
-The question and the waiting words come in at zero.
-
-#### beats.html
-
-| Param | Default | |
-| :- | :- | :- |
-| `title` | `LLM auto-translation` | white, 88 px |
-| `code` | none | a command under the title, monospace, green |
-| `beats` | 💰, ✋, 🛡️ with *Cost first*, *Asks before spending*, *Every result validated* | one tile per line: `big`, or `big\|small`. `big` is green and as large as its tile allows (128 px down to 48): a number or an emoji stays big, a long word shrinks. `small` wraps under it |
-| `at` | from 1.5, every 1.2 | one per tile: it lands with a small hit and a green flash |
 | `note` | none | a small grey line at the bottom |
-| `noteAt` | 0.8 | when the note shows |
+| `noteAt` | 1 (together: after the last item) | when it shows |
+| `stamp` | none | a rubber stamp pressed over the card, in its `corner`, with a thud: one line, or `small\|BIG\|small` |
+| `stampAt` | 1 | when it lands |
+| `qr` | none | an image on white, under the stamp: a file next to the prototype, such as outro's `coffee-qr.svg` |
+| `qrLabel`, `qrAt` | none, 1.5 | a line under the QR; when it comes in |
+| `corner` | `bottom-right` | where stamp and QR sit: `bottom-right`, `top-right`, `bottom-left`, `top-left` |
+| `still` | none | any value: the card is already composed on the first frame, no entrance (stamp and QR still come in). For a scene that carries on the one before on the same card: the cut doesn't show |
 
-Three tiles is the sweet spot; four fit. Title and command come in at zero.
+Stamp and QR sit over the card and move nothing; the card stops if they'd cover its content.
 
-#### together.html
+**A new param.** What a card can't do yet, but a story asks, is added to the prototype (or to the forge, for all of them) as a param, with the old behavior as its default: the components grow with every video ([rule 11](#rules-for-agents)).
 
-| Param | Default | |
-| :- | :- | :- |
-| `title` | none | a heading above the columns |
-| `groups` | the ten features of the root README's comparison, in four groups (JSX, VS Code, Vite, production) | one column per line: `Heading\|item\|item…`. Each item gets a drawn ✓ |
-| `at` | from 0.8, every 1.4 | one per column: when it comes in; its items follow 0.25 s later |
-| `beat` | 0.3 | seconds between two items of a column |
-| `note` | none | a small grey line at the bottom |
-| `noteAt` | 1 s after the last item | when the note shows |
+**`look`**: the forge's knobs and the site's tokens, by name without `--` ([darkStyle.md § Knobs and scales](commons/layout/darkStyle.md#knobs-and-scales)). At the top of the YAML for every card of the video, in a card scene for that card only (merged over the top).
 
-0.7 s after the last item every tick glows once: a good frame for the poster. Four columns hold items of about 30 characters on two lines, up to four items each; fewer columns, more room.
+```yaml
+look: { type-scale: 0.92, tempo: 1.1 }   # top level: a calmer, slightly smaller video
+- id: llm
+  stage: card
+  card: beats
+  look: { cols-max: 3, accent: "#fbbf24" }  # this card: three tiles a row, in amber
+```
 
-#### A new card
+A name that isn't a knob or a token stops the take.
 
-Reuse first: a param often does it. When none fits:
+**`anim`**: movement the prototype doesn't do, on its timeline. Each entry has one of `fx` (an effect of [darkStyle.md § Motion](commons/layout/darkStyle.md#motion), its other keys are its config), `set`, `to`, `from` (GSAP vars), `fromTo` (`[from vars, to vars]`), plus `target` (a CSS selector: the sheet lists them) and `at` (seconds, default 0).
 
-1. **Where.** Shared, for more than one video: `commons/`, and a row in the table above with its params. One video only: in the project folder, as `card: cards/<name>.html`.
-2. **The page.** 1920 × 1080 CSS pixels, `overflow: hidden`, the background of the other cards, colors from `site/theme/tokens.css` (dark), Segoe UI and Consolas: system fonts, nothing from the network. The logo is `../../theme/logo.svg` from `commons/`, with `filter: brightness(2.1)`.
-3. **The params.** Read them from `location.search`, with a default for each, so the card shows something sensible on its own.
-4. **On the voice.** Load `clock.js` (`<script src="clock.js">` from `commons/`, `../../commons/clock.js` from a project) and use what it puts on `window.card`:
+```yaml
+anim:
+  - { fx: glow, target: .tile, at: 6.5 }
+  - { to: { opacity: 0.4, duration: 0.6 }, target: .note, at: 9 }
+  - { fromTo: [{ x: -40 }, { x: 0, duration: 0.5 }], target: h1, at: 0 }
+```
 
-   | | |
-   | :- | :- |
-   | `card.param(name, fallback)` | a param, or its fallback |
-   | `card.list(name, fallback)` | a list param: one array per line, its parts split on `\|` |
-   | `card.times(count, { name, first, step })` | `count` times from the param `name` (default `at`); the missing ones from `first`, every `step` seconds |
-   | `card.at(seconds, fn)` | runs `fn` that many seconds after zero |
+A wrong shape stops the YAML (`check`); an unknown effect or a selector that matches nothing stops the take.
 
-   At zero, `<html>` gets the class `go`: hide the entrances under `html:not(.go)` and start them under `.go`, so nothing moves before the clip.
-5. **Look at it.** Open the file in Chrome with its params in the URL: it starts on load. With `clock=take` in the URL it waits, until `dispatchEvent(new Event("take"))` in the console. Then a `--silent` rehearsal, and its `contact.jpg`.
+**Timing on the voice.** Every card starts from zero when its clip starts, not on load (about a second earlier): the recorder adds `clock=take` to the URL and fires a `take` event on the page as soon as it's filming. Title and outro just enter then. The others take `at`, in the same seconds as an action, since the voice starts at `lead`: the word *n* falls at about `lead` + *n* / 2.6, on the real voice's pace once it's in. Put each entrance on the word that names it. Times left out follow the last one at the prototype's own step.
+
+**Looking at cards** without shooting, from `site/video`:
+
+| Command | Does |
+| :- | :- |
+| `node commons/cli/card.mjs <project> <scene> [--at 0.5,1,2.4]` | a scene as the YAML has it: frames and a `contact.jpg` in `projects/<p>/preview/cards/<scene>/` |
+| `node commons/cli/card.mjs <prototype> [<variant>] [--at …]` | a prototype, with one of its variants: in `.cache/cards/<prototype>/<variant>/` |
+| `node commons/cli/card.mjs --gallery [--open]` | every variant of every prototype at the end of its timeline, in `.cache/gallery/index.html`; a click shows one live. Exits with 1 if a variant doesn't give the outcome it declares |
+
+Without `--at`, a frame every 0.5 s to the end of the timeline. Frames are taken by stopping the timeline at that instant: the same every time.
+
+**A new prototype.** Reuse first: a param, a `look`, an `anim` often do it. When none fits, follow [darkStyle.md § Forging](commons/layout/darkStyle.md#forging): a folder, a short script made of the shared parts, its variants (one past the limit), the gallery, its sheet and a row in the table above. Shared for more than one video, in `commons/components/`; one video only, in the project.
 
 ## On stage
 
@@ -377,7 +372,7 @@ What the `.md` shows, and where it comes from: the fixture for lines and texts, 
   - The restaurant is about 18,000 CSS px tall, with 14 lazy images and blocks that slide in once as they come into view: `preload: true` before scrolling it. Its bottom is `.site-footer`; the bar with the globe stays on top.
   - The comparison table is `[data-section="compare"] table`, 677 CSS px tall: whole on screen only with `zoom.app` about 1.3 or less. Its viteTranslate column is `.col-us`, marked with `all: true`.
   - `app.style` doesn't reach these pages: it dresses the fixture's own app only.
-- **The pointer** stays where it last clicked, hover included, until the next click on that page.
+- **The pointer** (the drawn one) stays where it last clicked until the next click on that page. The real mouse, and its hover, leave for the corner at every cut.
 
 ## Commands
 
@@ -385,11 +380,11 @@ From `site/video`, after a one-off `npm install` (a standalone package, not a wo
 
 | Command | Does |
 | :- | :- |
-| `node uty/run.mjs <project> check` | does `storyboard.yaml` match `storyboard.md`? Which scenes don't |
-| `node uty/run.mjs <project> stamp` | declares it does (after adapting it); refuses if the scenes differ |
-| `node uty/run.mjs <project>` | `tts`, `record`, `compose` |
-| `node uty/run.mjs <project> all` | `tts`, `record`, `preview`, `compose` |
-| `node uty/run.mjs <project> tts record preview` | just those steps, in that order |
+| `node commons/cli/run.mjs <project> check` | does `storyboard.yaml` match `storyboard.md`? Which scenes don't |
+| `node commons/cli/run.mjs <project> stamp` | declares it does (after adapting it); refuses if the scenes differ |
+| `node commons/cli/run.mjs <project>` | `tts`, `record`, `compose` |
+| `node commons/cli/run.mjs <project> all` | `tts`, `record`, `preview`, `compose` |
+| `node commons/cli/run.mjs <project> tts record preview` | just those steps, in that order |
 | `--silent` | mute voice of the estimated length: no key, no cost. Real lines still valid stay |
 | `--force` | re-voice every line, cache or not |
 | `--headed` | watch Chrome while it records |
@@ -398,15 +393,19 @@ From `site/video`, after a one-off `npm install` (a standalone package, not a wo
 | `--full` | `record` shoots every scene, even those that match their take |
 | `--from <scene>` | `record` shoots from that scene, keeping the clips before it as they are: [Partial takes](#partial-takes) |
 | `--to <scene>` | `record` stops after that scene: shoot only what you're checking |
-| `node uty/live.mjs` | follow every run live: what the VS Code task and the window run |
+| `--probe` | `record` writes, under each scene, what the probes saw for each action: where the click landed, when the page reacted and settled ([Probes](#probes)) |
+| `--strict` | `record` stops at the first probe warning |
+| `node commons/cli/card.mjs …` | look at a scene's card, a prototype, or the gallery of them all, without shooting: [Cards](#cards) |
+| `npm test` | the tests of the forge, the storyboard and the probes (`commons/test/`, Chrome as in a take) |
+| `node commons/cli/live.mjs` | follow every run live: what the VS Code task and the window run |
 
 Needs Node 18+, Chrome and VS Code installed (its `code serve-web` runs the editor; your own VS Code profile is never touched), and an [OpenRouter](https://openrouter.ai) key in `OPENROUTER_API_KEY`, looked up in this order: environment, `site/video/.env.local`, `site/video/.env` (both git-ignored), the keyring via `npx vitetranslate --llm-key-set`. The first `record` downloads the VS Code server into `.cache/` (a minute, once).
 
 ## Watching a run
 
-<!-- LINKED-DATA: uty/live.mjs (the view, its heartbeat, the window), uty/run.mjs (when it opens one), the task "video: live" in .vscode/tasks.json at the repo root. Change one, change the others. -->
+<!-- LINKED-DATA: commons/cli/live.mjs (the view, its heartbeat, the window), commons/cli/run.mjs (when it opens one), the task "video: live" in .vscode/tasks.json at the repo root. Change one, change the others. -->
 
-Every run shows live, line by line: the steps (`▶`), each line voiced, each scene shot, warnings in yellow, the error that stopped it in red. It's `uty/live.mjs` following the `log/run.log` of every project. Opened halfway through a run, it starts from that run's first line.
+Every run shows live, line by line: the steps (`▶`), each line voiced, each scene shot, warnings in yellow, the error that stopped it in red. It's `commons/cli/live.mjs` following the `log/run.log` of every project. Opened halfway through a run, it starts from that run's first line.
 
 - **In VS Code** it's the task **video: live** (`.vscode/tasks.json` at the repo root), a tab of the Terminal panel. It starts with the folder if VS Code allows automatic tasks (it may ask once; the setting is `task.allowAutomaticTasks`). If it didn't start, use Terminal › Run Task › video: live.
 - **Nobody following?** When `tts`, `record`, `preview` or `compose` start and no live view is on, `run.mjs` opens one in a Windows Terminal window (a plain console if there's no Windows Terminal) and says so in its first line. Later runs find it and reuse it. A live view counts as on if it has touched `.cache/live.beat` in the last 3 s.
@@ -419,10 +418,14 @@ Every run shows live, line by line: the steps (`▶`), each line voiced, each sc
 ```text
 site/video/
   README.md             this file
-  uty/                  the pipeline (run.mjs is the entry point)
-  commons/              shared pieces: the cards (clock.js times those on the voice), app stage CSS, the coffee QR
+  commons/              the machinery every video shares
+    cli/                the pipeline (run.mjs is the entry point; card.mjs looks at cards; probe.js/.mjs the probes)
+    test/               npm test
+    layout/             the card forge (card.html, card.css and its scripts, darkStyle.md), app-dark.css for the demo apps
+    components/<name>/  a prototype: <name>.js, its sheet <name>.md, variants.yaml, its files (outro: the coffee QR)
     bkmusic/            background music: the tracks (local only) and credits.md
-  .cache/               VS Code server, extension, settings: the "controlled copy"; live.beat (a live view is on)
+  .cache/               VS Code server, extension, settings: the "controlled copy"; live.beat (a live view is on);
+                        cards/ and gallery/ (card.mjs)
   projects/index.md     where each video stands, what's next, and the travel log
   projects/<project>/
     storyboard.md       the story, in Italian: the source of truth
@@ -431,7 +434,8 @@ site/video/
     capture/            the copied app, raw clips per scene, strips/ (a frame a second per scene), takes.json (with fingerprints)
     preview/            960x540 cut + contact.jpg (one frame per scene)
     output/             <project>.mp4, <project>.srt, poster.jpg, credits.txt (with music)
-    log/                run.log (every run, timed), vscode.log, app.log, error-*.png
+    components/         the project's own card prototypes, if any (card: ./components/<name>)
+    log/                run.log (every run, timed), vscode.log, app.log, card.log, probe.jsonl, error-*.png
 ```
 
 What git keeps is in [rule 6](#rules-for-agents); everything else is rebuilt by a run.
@@ -441,17 +445,17 @@ What git keeps is in [rule 6](#rules-for-agents); everything else is rebuilt by 
 1. **tts** — each `say` becomes `audio/<scene>.wav` (OpenRouter `/audio/speech`, PCM wrapped in WAV). Cached by text + voice. The silence around the line is trimmed, keeping 0.15 s before the first word (the breath) and 0.1 s after the last. The take as received stays in `<scene>.raw.wav`, and every run trims again from it: the margins can be tuned without paying for the voice again. With `--silent`, a line already voiced for real, with the same text and voice, keeps its voice.
 2. **record** — copies the `fixture` into `capture/`, starts its `vite dev` and an isolated VS Code with the repo's extension, then plays the scenes in one session. Each scene lasts at least as long as its line. It shoots from the first scene that changed since the last take: see [Partial takes](#partial-takes).
 3. **preview** — a quick low-res cut and a contact sheet.
-4. **compose** — the final cut: scenes in a row, each page in its place (side by side in a split, the app over VS Code's corner in a split-panel), voice in place, fade in and out (`fade`), subtitles, poster. A subtitle holds two lines of about 42 characters, and breaks where the voice pauses: after a full stop, then after a comma or a colon, never after an article or a preposition; two sentences share a cue only if the line breaks between them on a pause. Every line is brought to -16 LUFS (generated one by one, they come out louder or softer), its peaks limited to -1.5 dB, with 10 ms fades at its edges against clicks. Then the [music](#music), if any, goes under the voice, ducked around every line, and its credits go to `output/credits.txt`. The scenes are cut as near-lossless intermediates (CRF 10); the final video is encoded once from them, in two passes at the bitrate `output.mbPerMinute` asks for (60 MB a minute: about 8 Mbit/s, AAC 192 kbit/s), so the bits go to scrolls and fades rather than to still cards. A screen that doesn't move costs nothing at any quality: when the video can't use the bits, x264 stops at near-lossless (an average QP under 1, and a harmless "2pass curve failed to converge") and the file comes out lighter. compare weighs about 29 MB a minute. The preview copies the segments as they are, fast.
+4. **compose** — the final cut: scenes in a row, each page in its place (side by side in a split, the app over VS Code's corner in a split-panel), voice in place, fade in and out (`fade`), subtitles, poster. A subtitle holds two lines of about 42 characters, and breaks where the voice pauses: after a full stop, then after a comma or a colon, never after an article or a preposition; two sentences share a cue only if the line breaks between them on a pause. Every line is brought to -16 LUFS (generated one by one, they come out louder or softer), its peaks limited to -1.5 dB, with 10 ms fades at its edges against clicks. Then the [music](#music), if any, goes under the voice, ducked around every line, and its credits go to `output/credits.txt`. The scenes are cut as near-lossless intermediates (CRF 10); the final video is encoded once from them, in two passes at the bitrate `output.mbPerMinute` asks for (60 MB a minute: about 8 Mbit/s, AAC 192 kbit/s), so the bits go to scrolls and fades rather than to still cards. A screen that doesn't move costs nothing at any quality: when the video can't use the bits, x264 stops at near-lossless (an average QP under 1, and a harmless "2pass curve failed to converge") and the file comes out lighter. compare weighs about 29 MB a minute at 1920×1080; compare2, captured at device pixels, about 28 at 1920×1080 and 33 at 2560×1440. The preview copies the segments as they are, fast.
 
-Something broke? Start from `log/`: `run.log` has every run with timestamps, `error-*.png` shows each page at the moment it failed, `vscode.log` and `app.log` hold the servers' output.
+Something broke? Start from `log/`: `run.log` has every run with timestamps, `error-*.png` shows each page at the moment it failed, `vscode.log` and `app.log` hold the servers' output, `card.log` the cards' console errors, `probe.jsonl` what the probes heard ([Probes](#probes)).
 
 ## Partial takes
 
-<!-- LINKED-DATA: this is impronte(), piano() and the scene loop in uty/record.mjs, the --full/--from/--to options in uty/run.mjs, and the scenes check at the top of uty/compose.mjs. Change one, change the others. -->
+<!-- LINKED-DATA: this is impronte(), piano() and the scene loop in commons/cli/record.mjs, the --full/--from/--to options in commons/cli/run.mjs, and the scenes check at the top of commons/cli/compose.mjs. Change one, change the others. -->
 
 A scene to fix shouldn't cost the whole take. `record` keeps what still holds and shoots the rest.
 
-- **Fingerprints.** `takes.json` keeps one for the *stage*: the fixture's files, the settings, the setup, zoom, lead and tail, the extension's `.vsix`, the pipeline's code. And one per scene, chained: the scene's YAML, its voice, its card file, and the fingerprint of the scene before. A changed scene changes all those after it too, since they inherit its state.
+- **Fingerprints.** `takes.json` keeps one for the *stage*: the fixture's files, the settings, the setup, zoom, lead and tail, the extension's `.vsix`, the pipeline's code (the probes included). And one per scene, chained: the scene's YAML, its voice, its card (the prototype's folder, the forge in `commons/`, the site's tokens, the GSAP version, the music credits, the video's `look`), and the fingerprint of the scene before. A changed scene changes all those after it too, since they inherit its state.
 - **From the first change.** `record` keeps every scene up to the first changed one, and shoots from there to the end. A changed stage shoots everything. Nothing changed: nothing to shoot, at once.
 - **Fast-forward.** The servers and the setup still start (about 40 s). The kept scenes are played without filming, to rebuild the state: their actions and waits, no marks, no voice time. Only the last one before the cut plays at full length, so what runs on the clock (a reload, Sync's terminal closing after 10 s) reaches the first filmed scene as in a full take. Their clips stay.
 - **Saved as it goes.** `takes.json` is written after every filmed scene. A run that stops halfway, an error or `--to`, picks up from there next time.
@@ -460,6 +464,32 @@ A scene to fix shouldn't cost the whole take. `record` keeps what still holds an
 - **Partial takes and the cut.** `preview` cuts what there is, with a warning. `compose` refuses until the takes cover every scene of the YAML.
 
 On `compare` (11 scenes): a full take 172 s; from scene 8 on, 131 s; scene 9 alone (`--from llm --to llm`), 91 s.
+
+## Probes
+
+<!-- LINKED-DATA: the events are commons/cli/probe.js (in every frame) and commons/cli/probe.mjs (Sonde: the log, the summary); the checks are in commons/cli/director.mjs (avvisa, the a_* actions, fuoco, igiene, ciak), wired by commons/cli/record.mjs; --probe and --strict are in commons/cli/run.mjs. The overlay selectors (SOPRA, APERTI in probe.js) are facts of On stage. Change one, change the others. -->
+
+A take doesn't only film: it listens. A small script in every frame of every page, the extension's webviews included, hears what really happens (clicks, focus, keys, the page changing, tooltips, layout shifts) and writes it to `log/probe.jsonl`. After each action the director asks it whether the action did what it should. It never acts and never draws: a warning goes under the scene with a `!`, and the take goes on.
+
+| Action | Checks | Warning |
+| :- | :- | :- |
+| `click` | nothing covers the target; the click lands on it; the drawn pointer sits where the real one clicked | `the target is covered by …` · `no click reached the page` · `landed on …, not on the target` · `the drawn pointer is N px from the real one` |
+| `type` | the focus is in an editor; the keys reach one | `the focus is on … not in an editor` · `N of M keys reached an editor` |
+| `key` | the keys reach the page | `no key reached the page` |
+| `goto` | the status bar's line (and column) | `the cursor is on line N` |
+| `find` | a selection as long as the text | `nothing selected` · `N characters selected, expected M` |
+| `save` | the active tab isn't dirty any more, within 1 s | `the file still has unsaved changes` |
+| `command` | the palette has closed, within 1 s | `the palette is still open` |
+| `mark` | the target is still while drawn, and on screen | `the target moved N px while drawn` · `partly off screen` |
+| card | the take started the card | `the take didn't start the card` |
+| the cut | no tooltip during the clip; nothing left open | `a tooltip showed up: …` · `at the cut: still open: …` |
+
+Checks run only on what's filmed (never in fast-forward), and read the page after the action, in a pause that's there anyway: a take lasts as long as without them (a tenth or two more on scenes full of clicks). Warnings after the setup print as `! setup: …`.
+
+- **`--strict`**: the first warning stops the take, with its error screenshots.
+- **`--probe`**: under each scene, a line per action from the log, computed after the cut: `· click {"text":"Sync"} · hit vscode-button[data-cmd="sync"] · reaction 35 ms · still at 640 ms`. *Reaction*: the page's first change after the action; *still*: when it stopped changing.
+
+Each warning is either a real defect (fix the YAML or the director) or a false alarm (fix the probe). The webviews write themselves with `document.open`, which wipes a page's listeners: the probe notices and listens again.
 
 ## Field notes
 
@@ -475,7 +505,7 @@ What earlier sessions learned the hard way. Stage facts are in [On stage](#on-st
   node -e "const f=require('ffmpeg-static'),{spawnSync}=require('child_process');spawnSync(f,['-y','-ss','87.4','-i','projects/<p>/output/<p>.mp4','-frames:v','1','-vf','scale=960:-1','frame.jpg'])"
   ```
 
-- **Look for what nobody asked for.** Tooltips, suggestion popups, a find box, a panel left open: they don't fail a run, only the frames show them.
+- **Look for what nobody asked for.** Tooltips, suggestion popups, a find box, a panel left open: they don't fail a run. The probes warn about them under the scene ([Probes](#probes)); the frames show what they look like.
 
 **Timing on the real voice.**
 
@@ -487,15 +517,20 @@ What earlier sessions learned the hard way. Stage facts are in [On stage](#on-st
 
 - A click takes 0.6–1.3 s from its `wait` to the click: the pointer glides first. Start the glide a little before the word.
 - "Actions ran past the voice" by a second or two is fine where the screen still has something to show; otherwise trim the `wait`s.
+- Sharpness is decided at the capture, not at the encode: Chrome's screencast follows the browser's scale factor, not the one Playwright emulates. Measure a frame's size before tuning bitrates.
+- A live LLM's run varies from take to take (compare2's llm-preview: 7.7 to 11.9 s), and with `music.toEnd` it moves the end. Read `the video runs N s past the track` after each take; a slow one is worth `record --from` that scene. To give the video more music, `delay` (the track comes in later); `start` cuts the track's head, so it ends sooner.
 
 **Cards.**
 
-- Look at a new card before shooting it. Open its `file://` URL with params and `clock=take` in headless Chrome (`playwright-core` from `node_modules`, `channel: "chrome"`), `dispatchEvent(new Event("take"))`, then take screenshots at the `at` times.
-- Grid tiles with `1fr` grow with their text: use `minmax(0, 1fr)`, or measuring overflow finds nothing to shrink.
+- Look at a card with `node commons/cli/card.mjs`, not with Chrome by hand: it stops the timeline at the instants you ask, the same every time, and says what doesn't fit.
+- A box with `1fr` grows with its text: use `minmax(0, 1fr)`, or measuring overflow finds nothing to shrink.
+- An element with `container-type` can't be a subgrid: its rows fall back to `none`. That's why a tile in a grid isn't a container.
+- A hidden grid item frees its row: an empty head sent the body to an `auto` row, 0 px tall. Place regions on their rows.
 
 **Traps met on stage.** Details in [On stage](#on-stage).
 
 - Clicking a panel row leaves the focus in its webview: keys go nowhere until a click in the editor.
+- The real mouse resting on a clicked tab shows its tooltip (the file's full path) a moment later. The probes caught it opening compare's llm-preview: after dragging the panel's border, `pannello()` put the real mouse back where the drawn one was, on the tab. Now the real mouse goes to the corner at every cut and after that drag; the drawn one stays.
 - `find` on the word the cursor is in does nothing, since the search box comes seeded with it: `key: Control+D`.
 - The palette's lists cover the top of the editor.
 - The terminal's text is invisible to `waitFor` and `mark` unless the GPU renderer is off.
@@ -503,4 +538,4 @@ What earlier sessions learned the hard way. Stage facts are in [On stage](#on-st
 - **The panel stays empty, Settings' gear isn't found:** VS Code is in Restricted Mode, where the extension doesn't run, because the user settings (the ones that turn trust off) didn't save. It happened now and then. `preparaVscode` checks the status bar after the reload, writes them again up to three times, then stops with that reason. The setup waits for Project's Sync button (`waitFor`, 60 s), so a panel that never loads stops the run before the first take.
 - This VS Code opens the user settings in a modal editor, and calls the theme "Dark Modern" (with the old "Default Dark Modern" the server rewrites the file on its own).
 - **Durations:** count the real voice at the pace of the estimate. In `compare` the real lines came out within a few percent of `--silent`'s, some longer. Fit the video to its music with the real voice in.
-- Changing anything in `uty/` changes the stage: the next `record` shoots everything. Use `--from` when the change can't touch the scenes before.
+- Changing anything in `commons/cli/` changes the stage: the next `record` shoots everything. Use `--from` when the change can't touch the scenes before.

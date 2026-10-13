@@ -1,0 +1,23 @@
+# together: the variants. The sheet shows them, the tests check them, the gallery draws them.
+- name: default
+  note: the prototype's own defaults (the root README's comparison), as in compare's `together`
+- name: titled
+  note: a title above, a note below
+  params:
+    title: Ten features, one package
+    beat: 0.25
+    note: Apache-2.0, free and open source
+- name: six
+  note: six columns, two rows of three
+  params:
+    groups: "JSX|Keyless text|ICU plurals\nVS Code|Extension|Panel\nVite|Plugin|Lazy locales\nCLI|Sync|Check\nLLM|Cost first|Validated\nProduction|0 dependencies|5 kB gzip"
+- name: long-items
+  note: items long enough to wrap on two lines
+  params:
+    groups: "In your JSX|Keyless, natural text that reads as it is written|ICU plurals, select, numbers and dates\nIn VS Code|The official extension, with its own panel|LLM auto-translation, cost shown first\nIn Vite|The official Vite plugin, zero configuration|Lazy-loaded locales, one chunk each"
+- name: too-much
+  note: the limit, written down
+  params:
+    title: Every feature of viteTranslate, all of them, in one card that cannot hold them all
+    groups: "In your JSX|Keyless, natural text that reads exactly as it is written|ICU plurals, select, numbers and dates in the sentence|Rich text with components inside the sentence|Context for the same words in different places\nIn VS Code|The official extension, with its own panel on the left|LLM auto-translation, with the cost shown before spending|Results that list every sentence and its state|Settings for the highlight style of the editor\nIn Vite|The official Vite plugin, with zero configuration at all|Extraction that runs inside the Vite lifecycle|Lazy-loaded locales, one chunk for each language|Hot updates that keep the current language\nIn production|Zero runtime dependencies of any kind|A runtime of five kilobytes gzipped|No message parsing at runtime, ever|Precompiled ICU messages for every locale\nIn the CLI|Sync that adds and removes keys everywhere|Checks that fail the build on a broken message|An LLM translation that asks before spending|A keyring for the provider's key\nIn the docs|A playground to try it live in the browser|Edge cases with every corner of ICU|A restaurant site translated end to end|A comparison with the other libraries"
+  expect: error

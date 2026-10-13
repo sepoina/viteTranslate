@@ -1,0 +1,20 @@
+# title: the variants. The sheet shows them, the tests check them, the gallery draws them.
+- name: default
+  note: the prototype's own defaults, as in compare and quick2
+- name: other-words
+  note: another line, about as long
+  params: { line: Write it once., accent: Read it everywhere. }
+- name: long-line
+  note: about 80 characters still hold on one line
+  params: { line: "Write the sentence right where the text lives,", accent: get the translation everywhere. }
+- name: two-lines
+  note: longer, it wraps on two balanced lines
+  params:
+    line: Write the sentence right where the text lives, in your JSX, in Vite and in VS Code,
+    accent: and get the translation for every language you ship, without a single key to manage.
+- name: too-much
+  note: the limit, written down
+  params:
+    line: "A whole paragraph is not a title. It goes on and on, explaining what the video is going to show, why it matters, who it is for, what it costs, how long it takes, and what the viewer should remember once it is over, which is far too much for a card that opens a video and that the viewer reads in two seconds at most, while the voice is already talking about something else. And it keeps going, with a second paragraph that says the same things again in other words, in case the first one was not clear enough, and then a third one, longer still, that nobody will ever read on a phone held at arm's length. A whole paragraph is not a title. It goes on and on, explaining what the video is going to show, why it matters, who it is for, what it costs, how long it takes, and what the viewer should remember once it is over, which is far too much for a card that opens a video and that the viewer reads in two seconds at most, while the voice is already talking about something else. And it keeps going, with a second paragraph that says the same things again in other words, in case the first one was not clear enough, and then a third one, longer still, that nobody will ever read on a phone held at arm's length. Then, as if that were not enough, it starts all over again from the top: a whole paragraph is not a title, it goes on and on, explaining what the video is going to show, why it matters, who it is for, what it costs, how long it takes, and what the viewer should remember once it is over, with the second and the third paragraphs right behind it, word for word."
+    accent: "Then the accent repeats it all once more, in green, in case anyone missed it the first time round, and it adds a list of features, a list of languages and the full text of the license, so that the card can never fit."
+  expect: error

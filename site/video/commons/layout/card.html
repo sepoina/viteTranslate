@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <title>viteTranslate — card</title>
+    <!-- The page that plays every prototype (components/<name>/<name>.js, named by ?proto=).
+         1920x1080, played live by the recorder. The flow: commons/layout/darkStyle.md § "The frame". -->
+    <link rel="stylesheet" href="card.css" />
+  </head>
+  <body>
+    <div class="frame">
+      <header class="frame-head"></header>
+      <main class="frame-body knobs"></main>
+      <footer class="frame-foot"></footer>
+    </div>
+    <div class="frame-over"></div>
+    <script src="../../node_modules/gsap/dist/gsap.min.js"></script>
+    <script src="../../node_modules/gsap/dist/CustomEase.min.js"></script>
+    <script src="motion.js"></script>
+    <script src="clock.js"></script>
+    <script src="layout.js"></script>
+    <script src="parts.js"></script>
+    <script>
+      card.boot();
+    </script>
+  </body>
+</html>

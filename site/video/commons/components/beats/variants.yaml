@@ -1,0 +1,43 @@
+# beats: the variants. The sheet shows them, the tests check them, the gallery draws them.
+- name: default
+  note: the prototype's own defaults
+- name: production
+  note: as in compare's `bundle`
+  params:
+    title: In production
+    beats: "0|runtime dependencies\n5 kB|gzip\nPrecompiled|no message parsing at runtime"
+    note: "ICU plurals, select, numbers and dates: compiled at build time"
+    noteAt: 2
+- name: command
+  note: as in compare's `llm`, with a command under the title
+  params:
+    title: LLM auto-translation
+    code: npx vitetranslate --llm-translate
+- name: four
+  note: four tiles, still one row
+  params:
+    beats: "💰|Cost first\n✋|Asks before spending\n🛡️|Every result validated\n🧠|Any model you like"
+- name: seven
+  note: two rows, 4 + 3, the short one centered
+  params:
+    title: Seven beats
+    beats: "1|one\n2|two\n3|three\n4|four\n5|five\n6|six\n7|seven"
+- name: long-texts
+  note: long big lines shrink on one line; long small lines wrap
+  params:
+    title: A title long enough to need a second line when the card is this full of things
+    code: npx vitetranslate --llm-translate --model some-provider/some-very-long-model-name
+    beats: "Precompiled|no message parsing at runtime, ever, not even once\nLazy-loaded|one chunk per language, loaded when it's asked for\nZero-config|the Vite plugin finds what it needs on its own"
+- name: too-much
+  note: the limit, written down
+  params:
+    title: Twelve long beats are more than a card can hold, even when it tightens everything it has
+    code: npx vitetranslate --llm-translate --model some-provider/some-very-long-model-name
+    beats: "Precompiled|no message parsing at runtime, ever, not even once, in any browser\nLazy-loaded|one chunk per language, loaded only when someone asks for it\nZero-config|the Vite plugin finds what it needs on its own, every time\nValidated|every LLM result goes through the ICU parser before it lands\nCost first|the bill is shown before a single token is spent anywhere\nKeyless|the text you write is the key, so nothing to name or manage\nExtension|a panel in VS Code knows what is missing and where it is\nPlurals|ICU plural, select, numbers and dates, all compiled at build\nTyped|the runtime is small and typed, and it has no dependencies at all\nSync|one command adds and removes keys in every language file\nPreview|the app marks what is missing while you develop it\nOpen|Apache-2.0, free, and open source, from the first line"
+  expect: error
+- name: qr-over-tiles
+  note: the QR can't sit on the content
+  params:
+    beats: "1|one\n2|two\n3|three\n4|four\n5|five\n6|six\n7|seven\n8|eight"
+    qr: ../outro/coffee-qr.svg
+  expect: error
