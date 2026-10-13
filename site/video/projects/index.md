@@ -18,17 +18,18 @@
 
 | | |
 | :- | :- |
-| Pipeline (`uty/`) | check, stamp, tts, record, preview, compose working end to end; voice levelled to -16 LUFS in `compose`; hand-drawn marks (`mark`, `unmark`, `all` for a table column); background music ducked under the voice, credits on the closing card, `toEnd` to close on the track's own ending; the video's `fade` from the YAML; stages `split-panel` (terminal under both pages) and any web page in the app (`url`, `anchor`, `storage`), `scroll`; subtitles broken on pauses; `--silent` keeps the real lines still valid; every run followed live (`live.mjs`, the VS Code task **video: live**); partial takes from the first changed scene, a strip of frames per scene |
+| Pipeline (`uty/`) | check, stamp, tts, record, preview, compose working end to end; voice levelled to -16 LUFS in `compose`; hand-drawn marks (`mark`, `unmark`, `all` for a table column); background music ducked under the voice, credits on the closing card, `toEnd` to close on the track's own ending (never looping), `delay` for a later entrance; the video's `fade` from the YAML; stages `split-panel` (terminal under both pages) and any web page in the app (`url`, `anchor`, `storage`, `preload`), `scroll` (`ease: sine` for a whole page); the final encoded once in two passes, up to `output.mbPerMinute`; subtitles broken on pauses; `--silent` keeps the real lines still valid; every run followed live (`live.mjs`, the VS Code task **video: live**); partial takes from the first changed scene, a strip of frames per scene |
 | [quickstart](quickstart/storyboard.md) | the README quick start in 7 scenes, about 55 s: YAML stamped, recorded at 1920×1080, 30 fps; voice still mute |
 | [quick2](quick2/storyboard.md) | born as a blind conversion of quickstart's `.md`: real voice, six marks (each whole for 1.5 s at least), music under the voice with a 4 s close, credits on the closing card, 54.8 s. Its next take wears the new look of Ada's app (`app-dark.css`) |
-| [compare](compare/storyboard.md) | "Why viteTranslate", 18 scenes, real voice, cut in `output/`: 179.2 s, the narration ends at 2:53.9 and the closing card holds until Mirage ends by itself, then 2.5 s to black. Waiting for the user's viewing |
+| [compare](compare/storyboard.md) | "Why viteTranslate", 19 scenes, real voice, cut in `output/`: 181.2 s, ending with the track (which comes in at 2 s); the coffee afterthought with a stamp and a QR on the closing card. 91 MB, near-lossless. Waiting for the user's viewing |
 | Real voice | works: the key is in `site/video/.env` (git-ignored) |
 | Tests | none for `uty/` yet; checked by running it and reading frames |
 
 ## Next
 
-- [ ] The user watches `compare/output/compare.mp4`: the opening's tone, Ada's app, the site scenes, the ending.
-- [ ] `compare`, `translate`: the French shows up ~2 s after "in French", behind a fixed `wait: 1.5` for the reload. Waiting for the reload itself would tighten it.
+- [ ] The user watches `compare/output/compare.mp4`: code and page in step, the restaurant's scroll, the coffee line's tone, the stamp.
+- [ ] Scan the coffee QR from the screen with a phone (`commons/coffee-qr.svg`: it should open buymeacoffee.com/giancarlogy).
+- [ ] quick2's next take: `app-dark.css` no longer lifts the buttons, so they show up where its JSX has them, in the middle.
 - [ ] The site scenes hang on the published site and the network: a change to the site can move what they click (README § "On stage" lists it).
 - [ ] `tts` warns "0.9 words/s" on `voila`, one word: the sampleRate check could skip lines under three words.
 - [ ] Check that **video: live** starts with the folder: reopen the repo, and if VS Code asks, allow automatic tasks.
@@ -44,6 +45,18 @@
 ## Log
 
 Newest first. An entry: what was done, what was decided and why, what is left. Warnings in **bold**.
+
+### 2026-10-13 · compare: code and page in step, a stamp, a QR, near-lossless
+
+- The user asked for four changes, keeping every line already well read (18 kept, one new: `coffee`, 5.32 s):
+  - **Code and page didn't match**: `app-dark.css` lifted the buttons with `order`, so the sentence typed under "Welcome back" showed up elsewhere. Now the page follows the JSX, and the fixture puts the buttons first in `App.jsx` (`goto: 11`).
+  - **The ending**: a new scene, `coffee`, on outro's card with `still` (already composed: the cut doesn't show). "Oh, I almost forgot…", a rubber stamp "OPEN SOURCE" (green ink with gaps, an SVG filter) and, the user's pick over a written link, a QR for Buy me a coffee. `outro.html` takes `still`, `stamp`, `stampAt`, `qr`, `qrLabel`, `qrAt`; both keep to the right, clear of the music credits.
+  - **Inside the track**, the user's choice over running past it: `music.delay: 2` (the user's idea) and ~2 s of holds cut (hook, extension, build, the site pages, compare, together). `translate` lost its fixed `wait: 1.5`: the French comes 1.3 s sooner. With `toEnd` the track never loops now: silence after it.
+  - **The restaurant scrolls whole**: ~17,000 CSS px in 3.9 s, in French, then Japanese at the bottom. New: `preload` (the page scrolled through before the clip: 14 lazy images, blocks that slide in once) and `scroll`'s `ease: sine`.
+  - **60 MB a minute**: `output.mbPerMinute`, segments as CRF 10 intermediates, the final encoded once in two passes. It came out at ~29 MB a minute (91 MB; the last cut weighed 28): x264 at an average QP under 1, near-lossless on the takes, and a still screen costs nothing. The user: fine, no further digging.
+- **Found: a race in `build`**: the new terminal took the focus a moment after the palette opened, and the run stopped. `wait: 0.6` before the command, and `comando` reopens the palette once.
+- Subtitles: two sentences share a cue only if they break on a pause ("free and open / source." was one; two older cues improved too).
+- Result: `output/compare.mp4`, 181.2 s, on the track's end; the coffee line at 2:52–2:58, over the music's own fade; 2.5 s to black.
 
 ### 2026-10-13 · compare converted and shot: four new pipeline features
 

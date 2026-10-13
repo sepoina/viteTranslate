@@ -442,8 +442,13 @@ export class Director {
   // Un Invio sulla palette esegue la prima voce, qualunque sia: si preme solo se è quella giusta.
   async comando(etichetta) {
     const page = this.pages.vscode;
-    const casella = await this.quickInput("Control+Shift+P");
-    await casella.pressSequentially(etichetta, { delay: 8 });
+    // Un terminale appena aperto si prende il focus un attimo dopo, e la palette si chiude prima
+    // che ci si scriva: allora si riapre, una volta.
+    for (let tentativo = 0; ; tentativo++) {
+      const casella = await this.quickInput("Control+Shift+P");
+      const scritta = await casella.pressSequentially(etichetta, { delay: 8, timeout: 3000 }).then(() => true, (e) => (tentativo ? Promise.reject(e) : false));
+      if (scritta) break;
+    }
     const riga = page.locator(".quick-input-widget .monaco-list-row:visible").first();
     await riga.waitFor({ timeout: 10_000 }).catch(() => {});
     const trovata = (await riga.getAttribute("aria-label").catch(() => null)) ?? "";

@@ -15,7 +15,7 @@
 - **Musica:** Chris Haugen - Mirage, presente. Entra piano 2 secondi dopo l'inizio, sulla domanda, respira nelle card, e arriva fino alla fine del brano: verso la fine si spegne da sola, sotto la battuta del caffè. Nessuna sfumatura che la tagli prima, e mai in loop.
 - **Finale:** dopo "viteTranslate fa il resto" un attimo di pausa, poi, scherzando, la battuta del caffè: il timbro "open source" e il QR per il caffè. Il brano finisce, e negli ultimi 2 secondi almeno il video sfuma al nero.
 - **Respiro:** la voce copre quasi tutto il video, con pause corte tra le scene; dopo `hook` e dopo `together` un secondo senza voce, perché la musica si senta salire. Attese e pause il più corte possibile: tutto deve stare dentro il brano.
-- **Qualità:** il video finale pesa circa 60 MB al minuto: è il master per YouTube.
+- **Qualità:** il video finale è il master per YouTube: fino a 60 MB al minuto. Ne usa circa 29, il massimo che le riprese contengono: oltre, x264 è già quasi senza perdita.
 - **Fonti:** la tabella "⚡ Why viteTranslate" del README e le sue note; il peso del runtime dalla nota ⁴; il confronto della landing (`site/landing/src/Compare.jsx`); le pagine del sito da `doc/live-examples.md`. Se cambiano, il video va rivisto.
 - **Le dieci funzioni della tabella, scena per scena:**
   - testo naturale, senza chiavi → `write`

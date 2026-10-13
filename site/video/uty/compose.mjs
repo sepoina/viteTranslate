@@ -99,10 +99,12 @@ export async function compose(project, { preview = false } = {}) {
   if (preview) await ffmpeg([...finale, "-c:v", "copy", "-c:a", "aac", "-b:a", "160k", "-movflags", "+faststart", video]);
   else {
     // Due passate: la prima misura il video intero, la seconda distribuisce i bit. Il bitrate è
-    // quello del peso chiesto, meno l'audio e un 1% di contenitore.
+    // quello del peso chiesto, meno l'audio e un 1% di contenitore. Nessun tetto ai picchi (VBV):
+    // toglierebbe bit proprio a scroll e dissolvenze, e YouTube non lo chiede. Uno schermo fermo
+    // non costa bit a nessuna qualità: un video quasi tutto fermo può pesare meno del chiesto.
     const kbps = Math.round(((project.output.mbPerMinute * MIB * 8) / 60 / 1000) * 0.99 - AUDIO_KBPS);
     const x264 = [
-      "-c:v", "libx264", "-preset", "slow", "-b:v", `${kbps}k`, "-maxrate", `${Math.round(kbps * 1.6)}k`, "-bufsize", `${kbps * 3}k`,
+      "-c:v", "libx264", "-preset", "slow", "-b:v", `${kbps}k`,
       "-pix_fmt", "yuv420p", "-r", String(fps), "-g", String(fps * 2), "-passlogfile", join(segDir, "x264"),
     ];
     console.log(`  final encode: ${project.output.mbPerMinute} MB/min, video ${kbps} kbit/s in two passes`);
@@ -222,7 +224,7 @@ export function sottotitoli(takes, inizi) {
     const pezzi = [];
     for (const f of frasi) {
       const ultimo = pezzi[pezzi.length - 1];
-      if (ultimo && ultimo.length + f.length + 1 <= 2 * RIGA && staInDueRighe(`${ultimo} ${f}`)) pezzi[pezzi.length - 1] = `${ultimo} ${f}`;
+      if (ultimo && ultimo.length + f.length + 1 <= 2 * RIGA && staInDueRighe(`${ultimo} ${f}`, true)) pezzi[pezzi.length - 1] = `${ultimo} ${f}`;
       else pezzi.push(f);
     }
     const lettere = pezzi.reduce((n, p) => n + p.length, 0);
@@ -264,9 +266,12 @@ function taglio(testo, max = RIGA) {
   return migliore;
 }
 
-function staInDueRighe(testo) {
+// `suPausa`: due frasi stanno insieme in un cue solo se vanno a capo su una pausa; altrimenti meglio
+// due cue ("it's free and open / source." no).
+function staInDueRighe(testo, suPausa = false) {
   if (testo.length <= RIGA) return true;
   const i = taglio(testo);
+  if (suPausa && !".?!,:;".includes(testo[i - 1])) return false;
   return i >= 0 && Math.max(i, testo.length - i - 1) <= RIGA + TOLLERANZA;
 }
 

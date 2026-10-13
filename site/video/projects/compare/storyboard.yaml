@@ -126,6 +126,7 @@ scenes:
     say: "Time for a build. The Vite plugin brings every language file back in sync, on its own: extraction is part of Vite's lifecycle, no extra command to remember. And French gets a chunk of its own, loaded only when it's needed."
     do:
       - key: Control+Backquote # a terminal: faster than the palette, and npm takes ~3 s to print anything
+      - wait: 0.6 # the new terminal takes the focus a moment later: it would close the palette
       - command: "View: Toggle Maximized Panel" # room for the whole output: marks don't follow a scroll
       - wait: 0.3 # PowerShell buffers what's typed before its prompt
       - type: npm run build
@@ -133,7 +134,7 @@ scenes:
       - waitFor: { text: "key(s) missing", exact: false, timeout: 30 } # viteTranslate's block, ~1.2 s after Enter
       - mark: { text: "key(s) missing", exact: false } # one circle only: French's missing keys, on "every language file"
       - waitFor: { text: "built in", exact: false, timeout: 30 } # the build is over in ~2.2 s
-      - wait: 4.4 # to "And French gets a chunk" (real voice: ~10.2 s)
+      - wait: 3.8 # to "And French gets a chunk" (real voice: ~10.2 s)
       - mark: { text: "fr-FR-", exact: false, shape: box } # the circle goes, the box stays to the cut
     hold: 0.6
 
@@ -172,8 +173,8 @@ scenes:
       - wait: 1 # the circle stays: typing starts on "Type" (real voice: ~7.8 s)
       - type: '"Vous avez trois nouveaux messages."'
       - save
-      - waitFor: { page: app, text: Welcome back, exact: false } # the reload, back in English: no fixed wait
-      - wait: 0.3
+      - waitFor: { page: app, text: Welcome back, exact: false } # in English: the build's sync reloaded it already
+      - wait: 0.3 # the save's reload, then French (the old wait: 1.5 showed it ~2 s late)
       - click: { page: app, text: Français } # on "in French"
       - waitFor: { page: app, text: Vous avez trois nouveaux messages. }
       - mark: { page: app, text: Vous avez trois nouveaux messages., shape: box } # "in French"
@@ -321,7 +322,7 @@ scenes:
 
 # ── source: storyboard.md at the last `node uty/run.mjs compare stamp`. Written by the tool, not by hand.
 source:
-  header: "eacea0f97d"
+  header: "cf897c1a4e"
   scenes:
     hook: "8bd1da0a68"
     title: "eca2c7037f"
