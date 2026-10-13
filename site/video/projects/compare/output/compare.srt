@@ -1,148 +1,177 @@
 1
-00:00:00,400 --> 00:00:03,939
-Another internationalization
-library? Fair question.
+00:00:00,400 --> 00:00:05,925
+Another internationalization library?
+It's a fair question, with a simple answer:
 
 2
-00:00:03,939 --> 00:00:08,636
-Here's our answer, you need translation
-right where you already work.
+00:00:05,925 --> 00:00:11,176
+translation belongs where you already work.
+In your JSX, in Vite, in VS Code.
 
 3
-00:00:08,636 --> 00:00:13,332
-In your JSX, in Vite, in VS Code.
-Your tools should be helping you...
+00:00:11,176 --> 00:00:14,655
+It's your own ecosystem
+that should be helping you.
 
 4
-00:00:16,800 --> 00:00:20,011
-So we built it into all
-three. viteTranslate.
+00:00:16,733 --> 00:00:19,263
+That's why viteTranslate
+lives in all three.
 
 5
-00:00:20,011 --> 00:00:22,864
+00:00:19,263 --> 00:00:21,563
 Write the sentence, get the translation.
 
 6
-00:00:24,267 --> 00:00:27,832
+00:00:22,767 --> 00:00:26,708
 Write the sentence in JSX,
 just as it reads. The key?
 
 7
-00:00:27,832 --> 00:00:32,406
-viteTranslate makes it, at build
-time or from the VS Code extension.
+00:00:26,708 --> 00:00:29,831
+viteTranslate makes it: nothing to manage.
 
 8
-00:00:32,406 --> 00:00:33,617
-Nothing to manage.
-
-9
-00:00:35,600 --> 00:00:40,590
+00:00:31,200 --> 00:00:35,886
 And here's VS Code. An official extension
 brings translation into the editor.
 
-10
-00:00:40,590 --> 00:00:44,543
+9
+00:00:35,886 --> 00:00:39,598
 Every sentence with its status,
 highlighted the way you like.
 
+10
+00:00:42,100 --> 00:00:43,357
+Not in French yet?
+
 11
-00:00:46,333 --> 00:00:49,783
-In the browser, it's already
-there. Not in French yet?
+00:00:43,357 --> 00:00:49,225
+You get the English, with a marker only
+developers see: it never reaches production.
 
 12
-00:00:49,783 --> 00:00:53,615
-You get the English, with a
-marker that only developers see.
-
-13
-00:00:53,615 --> 00:00:57,320
-It never reaches production.
+00:00:49,225 --> 00:00:51,251
 Never a blank, never a crash.
 
+13
+00:00:52,633 --> 00:00:53,687
+Time for a build.
+
 14
-00:00:59,300 --> 00:01:00,479
-Let's try a build.
+00:00:53,687 --> 00:00:57,904
+The Vite plugin brings every language
+file back in sync, on its own:
 
 15
-00:01:00,479 --> 00:01:04,932
-The Vite plugin brings every language
-file back in sync, on its own.
-
-16
-00:01:04,932 --> 00:01:09,451
-Extraction is part of Vite's lifecycle,
+00:00:57,904 --> 00:01:02,182
+extraction is part of Vite's lifecycle,
 no extra command to remember.
 
-17
-00:01:09,451 --> 00:01:13,708
-And French gets a chunk of its
-own, loaded only when it's needed.
+16
+00:01:02,182 --> 00:01:06,213
+And French gets a chunk of its own,
+loaded only when it's needed.
 
-18
-00:01:15,700 --> 00:01:17,907
+17
+00:01:07,800 --> 00:01:10,116
 And in production, it travels light.
 
-19
-00:01:17,907 --> 00:01:20,973
+18
+00:01:10,116 --> 00:01:13,332
 Zero runtime dependencies,
 five kilobytes gzipped.
 
-20
-00:01:20,973 --> 00:01:25,879
+19
+00:01:13,332 --> 00:01:18,477
 ICU plurals and dates come precompiled,
 so the browser gets values ready to use.
 
-21
-00:01:27,267 --> 00:01:30,785
+20
+00:01:19,667 --> 00:01:23,217
 The panel already knows what's
 waiting for a translation.
 
-22
-00:01:30,785 --> 00:01:34,983
-Click the new one, then French, and
-the file opens right on the key.
+21
+00:01:23,217 --> 00:01:27,453
+Click the new one, then French,
+and the file opens right on the key.
 
-23
-00:01:34,983 --> 00:01:37,390
+22
+00:01:27,453 --> 00:01:29,882
 Type, save, and there it is, in French.
 
+23
+00:01:34,500 --> 00:01:40,076
+A thousand keys? viteTranslate works
+with an LLM too, whichever one you like.
+
 24
-00:01:42,167 --> 00:01:46,472
-A thousand keys? We built in
-an LLM too, any one you like.
+00:01:40,076 --> 00:01:44,784
+It shows the cost, asks before spending,
+and checks every result.
 
 25
-00:01:46,472 --> 00:01:51,297
-It shows the cost, asks before
-spending, and checks every result.
-
-26
-00:01:52,900 --> 00:01:55,572
+00:01:45,867 --> 00:01:48,110
 Sometimes, simple is better.
 
+26
+00:01:53,733 --> 00:01:54,836
+Voilà!
+
 27
-00:02:04,000 --> 00:02:07,630
-Ten features, one package,
-built to work together.
+00:01:56,833 --> 00:02:00,280
+Want to see it in action?
+The site has three live pages.
 
 28
-00:02:07,630 --> 00:02:14,238
-Lingui, FormatJS and i18next are great libraries,
-and the full comparison is in the README.
+00:02:01,567 --> 00:02:05,720
+The Playground: every feature,
+live, right next to its code.
 
 29
-00:02:14,238 --> 00:02:18,086
-We chose to put it all in
-one place. Where you write.
+00:02:07,600 --> 00:02:11,123
+Edge cases: one row per case,
+mistakes included.
 
 30
-00:02:21,567 --> 00:02:26,041
-viteTranslate. On npm, in the VS
-Code Marketplace, and on GitHub.
+00:02:13,000 --> 00:02:17,137
+And a whole restaurant:
+two hundred and twenty-eight sentences,
 
 31
-00:02:26,041 --> 00:02:29,414
-You write the sentence,
-we take care of the rest.
+00:02:17,137 --> 00:02:19,632
+four languages, translated by the LLM.
+
+32
+00:02:21,533 --> 00:02:25,239
+Lingui, FormatJS and i18next
+are great libraries.
+
+33
+00:02:25,239 --> 00:02:28,263
+The difference isn't any single feature:
+
+34
+00:02:28,263 --> 00:02:31,893
+it's having all of them,
+built to work together.
+
+35
+00:02:33,900 --> 00:02:40,278
+Ten features, one package: in your JSX,
+in VS Code, in Vite, and in production.
+
+36
+00:02:40,278 --> 00:02:43,507
+All in one place, right where you write.
+
+37
+00:02:45,700 --> 00:02:50,272
+viteTranslate. On npm,
+in the VS Code Marketplace, and on GitHub.
+
+38
+00:02:50,272 --> 00:02:53,930
+You write the sentence:
+viteTranslate does the rest.

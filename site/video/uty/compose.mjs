@@ -12,6 +12,10 @@
 // La musica (music.mjs), se il progetto ne ha una, entra all'ultimo passo: sotto la voce già
 // livellata, con la curva che la abbassa intorno a ogni battuta.
 //
+// Il peso: i segmenti sono intermedi quasi senza perdita (CRF 10); il video finale si codifica una
+// volta sola, in due passate a bitrate medio, per pesare output.mbPerMinute: i bit vanno dove
+// servono (scroll, dissolvenze), non sulle card ferme. L'anteprima resta veloce: copia, niente passate.
+//
 //   compose → output/<progetto>.mp4, output/<progetto>.srt, output/poster.jpg, output/credits.txt
 //   preview → preview/<progetto>.mp4 a 960x540, veloce, e preview/contact.jpg: un fotogramma a
 //             metà di ogni scena, per controllare lo storyboard a colpo d'occhio
@@ -21,11 +25,11 @@ import { ffmpeg, measureLoudness } from "./ffmpeg.mjs";
 import { musicFilter } from "./music.mjs";
 
 const pari = (n) => Math.round(n / 2) * 2;
-const DISSOLVENZA_IN = 0.5;
-const DISSOLVENZA_OUT = 0.7;
 const VOCE_LUFS = -16; // il loudness di ogni frase: quello abituale del parlato
 const PICCO = 0.84; // circa -1,5 dBFS: sopra lo 0 l'AAC distorce
 const BORDO = 0.01; // secondi di dissolvenza in testa e in coda a ogni frase
+const AUDIO_KBPS = 192; // l'AAC del video finale
+const MIB = 1048576; // i MB di mbPerMinute: quelli che mostra Windows
 
 export async function compose(project, { preview = false } = {}) {
   const { paths } = project;
@@ -64,7 +68,7 @@ export async function compose(project, { preview = false } = {}) {
   for (const [i, take] of takes.entries()) {
     const file = join(segDir, `${String(i + 1).padStart(2, "0")}-${take.id}.mkv`);
     const guadagno = guadagni[take.id] ?? 0;
-    await segmento(take, { file, W, H, fps, scala, primo: i === 0, ultimo: i === takes.length - 1, preview, paths, guadagno });
+    await segmento(take, { file, W, H, fps, scala, primo: i === 0, ultimo: i === takes.length - 1, preview, paths, guadagno, fade: project.fade });
     lista.push(`file '${file.replace(/\\/g, "/")}'`);
   }
   const fileLista = join(segDir, "list.txt");
@@ -81,17 +85,30 @@ export async function compose(project, { preview = false } = {}) {
   const finale = ["-f", "concat", "-safe", "0", "-i", fileLista];
   const { music } = project;
   if (music) {
-    // Il brano in loop (se è più corto del video) da `start`, poi la sua curva, poi sotto la voce.
+    // Il brano da `start`, in loop se è più corto del video (con toEnd mai: dopo la sua fine,
+    // silenzio), poi la sua curva, poi sotto la voce.
     const lufsBrano = (await measureLoudness(music.file)) ?? VOCE_LUFS;
     const filtro = musicFilter({ music, takes, inizi, totale, lufsBrano, voceLufs: VOCE_LUFS });
     finale.push(
-      "-stream_loop", "-1", "-ss", String(music.start), "-i", music.file,
+      ...(music.toEnd ? [] : ["-stream_loop", "-1"]), "-ss", String(music.start), "-i", music.file,
       "-filter_complex", `[1:a]${filtro}[m];[0:a][m]amix=inputs=2:normalize=0:duration=first,alimiter=limit=0.89:level=false:latency=true[a]`,
       "-map", "0:v", "-map", "[a]",
     );
     console.log(`  music: ${music.track}, ${music.max} dB under the voice, ${music.min} while it speaks`);
   }
-  await ffmpeg([...finale, "-c:v", "copy", "-c:a", "aac", "-b:a", "160k", "-movflags", "+faststart", video]);
+  if (preview) await ffmpeg([...finale, "-c:v", "copy", "-c:a", "aac", "-b:a", "160k", "-movflags", "+faststart", video]);
+  else {
+    // Due passate: la prima misura il video intero, la seconda distribuisce i bit. Il bitrate è
+    // quello del peso chiesto, meno l'audio e un 1% di contenitore.
+    const kbps = Math.round(((project.output.mbPerMinute * MIB * 8) / 60 / 1000) * 0.99 - AUDIO_KBPS);
+    const x264 = [
+      "-c:v", "libx264", "-preset", "slow", "-b:v", `${kbps}k`, "-maxrate", `${Math.round(kbps * 1.6)}k`, "-bufsize", `${kbps * 3}k`,
+      "-pix_fmt", "yuv420p", "-r", String(fps), "-g", String(fps * 2), "-passlogfile", join(segDir, "x264"),
+    ];
+    console.log(`  final encode: ${project.output.mbPerMinute} MB/min, video ${kbps} kbit/s in two passes`);
+    await ffmpeg(["-f", "concat", "-safe", "0", "-i", fileLista, "-map", "0:v", ...x264, "-pass", "1", "-an", "-f", "null", "-"]);
+    await ffmpeg([...finale, ...x264, "-pass", "2", "-c:a", "aac", "-b:a", `${AUDIO_KBPS}k`, "-movflags", "+faststart", video]);
+  }
 
   if (preview) {
     await fogliDiContatto(takes, inizi, video, dir);
@@ -110,27 +127,44 @@ export async function compose(project, { preview = false } = {}) {
   return { video, duration: totale };
 }
 
-async function segmento(take, { file, W, H, fps, scala, primo, ultimo, preview, paths, guadagno }) {
+/**
+ * Le clip di una scena al loro posto nel video. Una sola: a tutto schermo. Più d'una: su un fondo
+ * nero, ognuna alla sua x, y (split: affiancate; split-panel: l'app sopra l'angolo di VS Code); una
+ * clip più corta tiene il suo ultimo fotogramma. Le riprese di prima di x/y hanno solo `width`:
+ * affiancate da sinistra, alte quanto il video. Lo usa anche la striscia di record.mjs.
+ * @param {{ x?: number, y?: number, width: number, height?: number }[]} clips - pixel del video
+ * @param {{ W: number, H: number, scala: number, fps: number, durata: string }} p - W e H già in scala
+ * @returns {{ filtri: string[], uscita: string }} i filtri, e l'etichetta del video montato
+ */
+export function impagina(clips, { W, H, scala, fps, durata }) {
+  if (clips.length === 1) return { filtri: [`[0:v]scale=${W}:${H}:flags=lanczos,setsar=1[m]`], uscita: "[m]" };
+  const filtri = [`color=c=black:s=${W}x${H}:r=${fps}:d=${durata}[f0]`];
+  let accanto = 0;
+  clips.forEach((c, k) => {
+    const x = Math.round((c.x ?? accanto) * scala);
+    const y = Math.round((c.y ?? 0) * scala);
+    const w = Math.min(W - x, pari(c.width * scala));
+    const h = Math.min(H - y, pari((c.height ?? H / scala) * scala));
+    accanto += c.width;
+    filtri.push(`[${k}:v]scale=${w}:${h}:flags=lanczos,setsar=1[c${k}]`, `[f${k}][c${k}]overlay=x=${x}:y=${y}:eof_action=repeat[f${k + 1}]`);
+  });
+  return { filtri, uscita: `[f${clips.length}]` };
+}
+
+async function segmento(take, { file, W, H, fps, scala, primo, ultimo, preview, paths, guadagno, fade }) {
   const D = take.duration.toFixed(4);
   const input = [];
-  const filtri = [];
-  const pagine = Object.entries(take.clips);
+  const clips = Object.values(take.clips);
 
-  for (const [, clip] of pagine) input.push("-i", join(paths.capture, "clips", clip.file));
-  const coda = `fps=${fps},tpad=stop_mode=clone:stop_duration=5,trim=duration=${D},setpts=PTS-STARTPTS`;
-  let video;
-  if (pagine.length === 1) {
-    video = `[0:v]scale=${W}:${H}:flags=lanczos,setsar=1,${coda}`;
-  } else {
-    const wl = pari(pagine[0][1].width * scala);
-    filtri.push(`[0:v]scale=${wl}:${H}:flags=lanczos,setsar=1[l]`, `[1:v]scale=${W - wl}:${H}:flags=lanczos,setsar=1[r]`);
-    video = `[l][r]hstack=inputs=2,${coda}`;
-  }
-  if (primo) video += `,fade=t=in:st=0:d=${DISSOLVENZA_IN}`;
-  if (ultimo) video += `,fade=t=out:st=${(take.duration - DISSOLVENZA_OUT).toFixed(3)}:d=${DISSOLVENZA_OUT}`;
+  for (const clip of clips) input.push("-i", join(paths.capture, "clips", clip.file));
+  const { filtri, uscita } = impagina(clips, { W, H, scala, fps, durata: D });
+  let video = `${uscita}fps=${fps},tpad=stop_mode=clone:stop_duration=5,trim=duration=${D},setpts=PTS-STARTPTS`;
+  const [dentro, fuori] = fade;
+  if (primo && dentro > 0) video += `,fade=t=in:st=0:d=${dentro}`;
+  if (ultimo && fuori > 0) video += `,fade=t=out:st=${Math.max(0, take.duration - fuori).toFixed(3)}:d=${fuori}`;
   filtri.push(`${video}[v]`);
 
-  const k = pagine.length;
+  const k = clips.length;
   const formato = "aresample=48000,aformat=sample_fmts=s16:channel_layouts=stereo";
   if (take.audio) {
     input.push("-i", join(paths.audio, take.audio.file));
@@ -153,7 +187,7 @@ async function segmento(take, { file, W, H, fps, scala, primo, ultimo, preview, 
     ...input,
     "-filter_complex", filtri.join(";"),
     "-map", "[v]", "-map", "[a]",
-    "-c:v", "libx264", "-preset", preview ? "ultrafast" : "slow", "-crf", preview ? "28" : "18",
+    "-c:v", "libx264", "-preset", preview ? "ultrafast" : "fast", "-crf", preview ? "28" : "10", // l'intermedio del finale: quasi senza perdita
     "-pix_fmt", "yuv420p", "-r", String(fps), "-g", String(fps * 2),
     "-c:a", "pcm_s16le",
     file,
@@ -168,17 +202,27 @@ function tempo(s) {
   return `${p(Math.floor(ms / 3600000))}:${p(Math.floor(ms / 60000) % 60)}:${p(Math.floor(ms / 1000) % 60)},${p(ms % 1000, 3)}`;
 }
 
-/** Al massimo due righe di ~42 caratteri per cue: le frasi lunghe si dividono a tempo proporzionale. */
-function sottotitoli(takes, inizi) {
+const RIGA = 42; // caratteri per riga di sottotitolo; due righe per cue
+
+/**
+ * Al massimo due righe di ~42 caratteri per cue: le frasi lunghe si dividono a tempo proporzionale.
+ * Si va a capo, e si cambia cue, dove la voce fa una pausa: dopo un punto, poi dopo una virgola o i
+ * due punti; mai dopo un articolo o una preposizione ("with a / marker").
+ */
+export function sottotitoli(takes, inizi) {
   const cue = [];
   for (const [i, take] of takes.entries()) {
     if (!take.say || !take.audio) continue;
     const testo = take.say.replace(/\s+/g, " ").trim();
-    const frasi = testo.match(/[^.!?]+[.!?]*\s*/g).map((f) => f.trim()).filter(Boolean);
+    const frasi = testo
+      .match(/[^.!?]+[.!?]*\s*/g)
+      .map((f) => f.trim())
+      .filter(Boolean)
+      .flatMap((f) => spezza(f, 2 * RIGA));
     const pezzi = [];
     for (const f of frasi) {
       const ultimo = pezzi[pezzi.length - 1];
-      if (ultimo && ultimo.length + f.length + 1 <= 84) pezzi[pezzi.length - 1] = `${ultimo} ${f}`;
+      if (ultimo && ultimo.length + f.length + 1 <= 2 * RIGA && staInDueRighe(`${ultimo} ${f}`)) pezzi[pezzi.length - 1] = `${ultimo} ${f}`;
       else pezzi.push(f);
     }
     const lettere = pezzi.reduce((n, p) => n + p.length, 0);
@@ -192,13 +236,52 @@ function sottotitoli(takes, inizi) {
   return cue.map(([a, b, testo], n) => `${n + 1}\n${tempo(a)} --> ${tempo(b)}\n${testo}\n`).join("\n");
 }
 
-function a_capo(testo, max = 42) {
-  if (testo.length <= max) return testo;
-  // Il punto di taglio più vicino a metà, su uno spazio.
-  const meta = testo.length / 2;
+// Le parole dopo cui non si va a capo: legano quella che segue.
+const LEGANTI = new Set(
+  "a an the of to in on at by for from with into onto and or but nor so as than that its your our my his her their this these those is are was it's you we".split(" "),
+);
+
+// Caratteri oltre RIGA concessi a una riga, se così si va a capo su una pausa.
+const TOLLERANZA = 2;
+
+/** Il miglior punto per andare a capo (l'indice di uno spazio), o -1. Prima la pausa, poi la metà. */
+function taglio(testo, max = RIGA) {
   let migliore = -1;
-  for (let i = 0; i < testo.length; i++) if (testo[i] === " " && (migliore < 0 || Math.abs(i - meta) < Math.abs(migliore - meta))) migliore = i;
-  return migliore < 0 ? testo : `${testo.slice(0, migliore)}\n${testo.slice(migliore + 1)}`;
+  let punti = Infinity;
+  for (let i = 0; i < testo.length; i++) {
+    if (testo[i] !== " ") continue;
+    const lunga = Math.max(i, testo.length - i - 1);
+    let p = 1.5 * Math.abs(i - testo.length / 2);
+    if (lunga > max + TOLLERANZA) p += 1000 + lunga;
+    else if (lunga > max) p += 15 * (lunga - max);
+    const prima = testo[i - 1];
+    if (".?!".includes(prima)) p -= 40;
+    else if (",:;".includes(prima)) p -= 20;
+    const parola = testo.slice(testo.lastIndexOf(" ", i - 1) + 1, i).toLowerCase();
+    if (LEGANTI.has(parola)) p += 60;
+    if (p < punti) [migliore, punti] = [i, p];
+  }
+  return migliore;
+}
+
+function staInDueRighe(testo) {
+  if (testo.length <= RIGA) return true;
+  const i = taglio(testo);
+  return i >= 0 && Math.max(i, testo.length - i - 1) <= RIGA + TOLLERANZA;
+}
+
+/** Una frase più lunga di `max` in pezzi, tagliati dove la voce respira. */
+function spezza(frase, max) {
+  if (frase.length <= max) return [frase];
+  const i = taglio(frase, max);
+  if (i < 0) return [frase];
+  return [...spezza(frase.slice(0, i), max), ...spezza(frase.slice(i + 1), max)];
+}
+
+export function a_capo(testo, max = RIGA) {
+  if (testo.length <= max) return testo;
+  const i = taglio(testo, max);
+  return i < 0 ? testo : `${testo.slice(0, i)}\n${testo.slice(i + 1)}`;
 }
 
 // ------------------------------------------------------------ anteprima

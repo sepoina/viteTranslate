@@ -26,7 +26,9 @@ export const MUSIC_DEFAULTS = {
   after: 1, // secondi: per risalire dopo
   bridge: 2, // le pause più corte di così restano giù: niente su e giù tra due battute vicine
   start: 0, // secondi dall'inizio del brano
+  delay: 0, // secondi di video prima che il brano entri: la voce apre da sola
   fade: [1.5, 4], // dissolvenza in entrata all'inizio del video, in uscita alla fine (almeno FINE_MINIMA)
+  toEnd: false, // l'ultima scena resta finché il brano finisce: il video chiude sulla fine vera della musica (record.mjs); mai in loop
 };
 // La musica si spegne negli ultimi 4 secondi almeno: una chiusura più corta suona troncata.
 export const FINE_MINIMA = 4;
@@ -76,9 +78,11 @@ export function resolveMusic(raw) {
   const music = { ...MUSIC_DEFAULTS, ...raw };
   music.fade = [].concat(music.fade);
   if (music.fade.length === 1) music.fade.push(music.fade[0]);
-  for (const k of ["max", "min", "before", "after", "bridge", "start"])
+  for (const k of ["max", "min", "before", "after", "bridge", "start", "delay"])
     if (typeof music[k] !== "number") errori.push(`music.${k}: must be a number`);
+  if (music.start < 0 || music.delay < 0) errori.push("music: start and delay are seconds, not below 0");
   if (music.min > music.max) errori.push("music: min must not be above max");
+  if (typeof music.toEnd !== "boolean") errori.push("music.toEnd: true or false");
   if (!(music.fade[1] >= FINE_MINIMA)) errori.push(`music.fade: the fade out lasts at least ${FINE_MINIMA} s, got ${music.fade[1]}`);
   if (!music.track) errori.push("music.track: which track of commons/bkmusic");
   else {
@@ -125,11 +129,14 @@ export function musicFilter({ music, takes, inizi, totale, lufsBrano, voceLufs }
   return [
     "aresample=48000",
     "aformat=sample_fmts=fltp:channel_layouts=stereo",
+    // L'ingresso dopo `delay` secondi; dopo la fine del brano (toEnd, niente loop) silenzio.
+    `adelay=delays=${Math.round(music.delay * 1000)}:all=1`,
+    "apad",
     `atrim=duration=${n(totale)}`,
     "asetpts=PTS-STARTPTS",
     `volume=${guadagno.toFixed(2)}dB`,
     `volume='pow(10,(${curva})/20)':eval=frame`,
-    `afade=t=in:d=${dentro}`,
+    `afade=t=in:st=${n(music.delay)}:d=${dentro}`,
     `afade=t=out:st=${n(Math.max(0, totale - fuori))}:d=${fuori}`,
   ].join(",");
 }

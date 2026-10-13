@@ -18,19 +18,23 @@ export const PROJECTS_DIR = join(VIDEO_DIR, "projects");
 export const COMMONS_DIR = join(VIDEO_DIR, "commons");
 export const CACHE_DIR = join(VIDEO_DIR, ".cache");
 
-export const STAGES = ["vscode", "app", "split", "card"];
-export const ACTIONS = ["wait", "open", "goto", "find", "type", "key", "save", "click", "waitFor", "command", "reload", "mark", "unmark"];
+// "split-panel": VS Code e l'app affiancati in alto, il pannello di VS Code (il terminale) sotto
+// tutti e due, per tutta la larghezza (director.mjs, palco).
+export const STAGES = ["vscode", "app", "split", "split-panel", "card"];
+const CON_APP = ["app", "split", "split-panel"];
+export const ACTIONS = ["wait", "open", "goto", "find", "type", "key", "save", "click", "waitFor", "command", "reload", "scroll", "mark", "unmark"];
 
 // LINKED-DATA: le chiavi di `mark` = README.md § "Marks" = opzioniSegno (director.mjs) e DEFAULTS
 // di marker.js. MARK_TARGET dice dove (e quando passare oltre), MARK_STYLE come; in testa allo YAML,
 // `mark:` ha solo le seconde.
-const MARK_TARGET = ["text", "selector", "role", "name", "exact", "page", "timeout", "selection", "after", "tight"];
+const MARK_TARGET = ["text", "selector", "role", "name", "exact", "page", "timeout", "selection", "after", "tight", "all"];
 const MARK_STYLE = ["shape", "width", "dashes", "color", "opacity", "shadow", "draw", "boil", "dim", "overshoot", "wobble", "pad", "seed"];
 export const MARK_SHAPES = ["circle", "box", "underline", "arrow"];
 
 const DEFAULTS = {
   title: "",
-  output: { width: 1920, height: 1080, fps: 30 },
+  // mbPerMinute: il peso del video finale, in MB al minuto come li conta Windows (MiB): 60 ≈ 8 Mbit/s.
+  output: { width: 1920, height: 1080, fps: 30, mbPerMinute: 60 },
   // Quanto ingrandire l'interfaccia: il viewport CSS è output / zoom. VS Code a 1.2 si legge su
   // un telefono; l'app della demo, quasi vuota, regge di più.
   zoom: { vscode: 1.2, app: 1.6, card: 1 },
@@ -43,7 +47,9 @@ const DEFAULTS = {
   },
   lead: 0.4, // silenzio prima della voce, in ogni scena
   tail: 0.6, // e dopo, prima del taglio
-  split: 0.62, // la quota di VS Code nelle scene "split"
+  split: 0.62, // la quota di VS Code nelle scene "split" (e "split-panel", in alto)
+  panel: 0.3, // la quota dell'altezza del pannello di VS Code nelle scene "split-panel"
+  fade: [0.5, 0.7], // secondi di dissolvenza del video: dal nero all'inizio, al nero alla fine
   typeDelay: 55, // ms per tasto in `type`
   fixture: null, // la cartella del repo copiata in capture/ prima di ogni ripresa
   app: { port: 5199, style: null },
@@ -113,7 +119,20 @@ export function loadProject(name) {
     if (scena.stage === "card" && !existsSync(resolveRef(paths, scena.card))) errori.push(`${dove}: card "${scena.card}" not found`);
     if (scena.params != null && (typeof scena.params !== "object" || Object.values(scena.params).some((v) => typeof v === "object")))
       errori.push(`${dove}: params must be a map of plain values`);
-    if ((scena.stage === "app" || scena.stage === "split") && !sb.fixture) errori.push(`${dove}: stage "${scena.stage}" needs a fixture`);
+    if (CON_APP.includes(scena.stage) && !sb.fixture) errori.push(`${dove}: stage "${scena.stage}" needs a fixture`);
+    if (scena.url != null) {
+      if (!CON_APP.includes(scena.stage)) errori.push(`${dove}: url is for a stage with the app (${CON_APP.join(", ")})`);
+      if (!/^https?:\/\//.test(String(scena.url))) errori.push(`${dove}: url must start with http:// or https://`);
+    }
+    if (scena.anchor != null && (scena.url == null || typeof scena.anchor !== "string"))
+      errori.push(`${dove}: anchor is a CSS selector, and goes with url: the page opens scrolled there`);
+    if (scena.preload != null && (scena.url == null || typeof scena.preload !== "boolean"))
+      errori.push(`${dove}: preload is true or false, and goes with url: the page is scrolled through once before the clip`);
+    if (scena.storage != null) {
+      if (scena.url == null) errori.push(`${dove}: storage goes with url: it is written on that page's origin`);
+      if (typeof scena.storage !== "object" || Array.isArray(scena.storage) || Object.values(scena.storage).some((v) => typeof v === "object"))
+        errori.push(`${dove}: storage must be a map of plain values (localStorage keys and values)`);
+    }
     errori.push(...controllaAzioni(scena.do, dove));
   }
   errori.push(...controllaAzioni(sb.setup, "setup"));
@@ -129,6 +148,11 @@ export function loadProject(name) {
   if (!Array.isArray(sb.vscode.env) || sb.vscode.env.some((n) => !/^[A-Za-z_][A-Za-z0-9_]*$/.test(n)))
     errori.push("vscode.env: a list of environment variable names (the values never go in the YAML)");
   if (sb.poster && !visti.has(sb.poster.scene ?? sb.poster)) errori.push(`poster: no scene "${sb.poster.scene ?? sb.poster}"`);
+  if (!(sb.panel > 0.1 && sb.panel < 0.7)) errori.push("panel: the share of the height for VS Code's panel in split-panel, between 0.1 and 0.7");
+  if (!(sb.output.mbPerMinute > 0)) errori.push("output.mbPerMinute: the size of the final video, in MB per minute (60 ≈ 8 Mbit/s)");
+  sb.fade = [].concat(sb.fade);
+  if (sb.fade.length === 1) sb.fade.push(sb.fade[0]);
+  if (sb.fade.length !== 2 || sb.fade.some((s) => typeof s !== "number" || s < 0)) errori.push("fade: [in, out], seconds from black and to black");
   if (errori.length) throw new Error(`projects/${name}/storyboard.yaml:\n  - ${errori.join("\n  - ")}`);
 
   return { name, ...sb, paths };

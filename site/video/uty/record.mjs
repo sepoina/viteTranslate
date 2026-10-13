@@ -13,8 +13,9 @@
 import { createHash } from "node:crypto";
 import { cpSync, existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { basename, join, relative } from "node:path";
+import { impagina } from "./compose.mjs";
 import { Director, VSCODE_SETTINGS } from "./director.mjs";
-import { ffmpeg } from "./ffmpeg.mjs";
+import { ffmpeg, probeDuration } from "./ffmpeg.mjs";
 import { Recorder } from "./recorder.mjs";
 import { startApp, startVscode, vsixStamp } from "./servers.mjs";
 import { REPO_DIR, VIDEO_DIR, resolveRef } from "./storyboard.mjs";
@@ -81,7 +82,9 @@ function improntaCartella(dir) {
  * cambiano anche tutte quelle dopo, perché ne ereditano lo stato.
  */
 function impronte(project, voci, { rebuildIde }) {
-  const { scenes, music, poster, source, title, voice, ...palco } = project;
+  // mbPerMinute pesa solo sul montaggio: cambiarlo non chiede di rigirare.
+  const { scenes, music, poster, source, title, voice, output: { mbPerMinute, ...formato }, ...resto } = project;
+  const palco = { ...resto, output: formato };
   const leggi = (ref) => (ref ? readFileSync(resolveRef(project.paths, ref), "utf8") : "");
   const stage = impronta(
     palco,
@@ -142,16 +145,16 @@ function piano(project, nuove, prima, { full, from, to }) {
 // ------------------------------------------------------------ strisce
 
 /**
- * La striscia di una scena girata: un fotogramma al secondo, quattro per riga; in una scena split,
- * VS Code e l'app affiancati. Si guarda mentre la ripresa va avanti (README.md § "Partial takes").
+ * La striscia di una scena girata: un fotogramma al secondo, quattro per riga; le pagine al loro
+ * posto, come nel montaggio. Si guarda mentre la ripresa va avanti (README.md § "Partial takes").
  */
-function striscia(take, clipDir, file) {
-  const ingressi = Object.values(take.clips).map((c) => join(clipDir, c.file));
+function striscia(take, clipDir, file, output) {
+  const clips = Object.values(take.clips);
   const righe = Math.max(1, Math.ceil((Math.floor(take.duration) + 1) / 4)); // fps=1 dà i secondi 0, 1, … fino alla fine
-  const affianca = ingressi.length > 1 ? `${ingressi.map((_, k) => `[${k}:v]`).join("")}hstack=inputs=${ingressi.length},` : "[0:v]";
+  const { filtri, uscita } = impagina(clips, { W: output.width, H: output.height, scala: 1, fps: output.fps, durata: take.duration.toFixed(4) });
   return ffmpeg([
-    ...ingressi.flatMap((f) => ["-i", f]),
-    "-filter_complex", `${affianca}fps=1,scale=480:-2,tile=4x${righe}`,
+    ...clips.flatMap((c) => ["-i", join(clipDir, c.file)]),
+    "-filter_complex", [...filtri, `${uscita}fps=1,scale=480:-2,tile=4x${righe}`].join(";"),
     "-frames:v", "1", "-q:v", "4", file,
   ]).catch((e) => console.warn(`    ! strip of ${take.id}: ${e.message.split("\n")[0]}`));
 }
@@ -191,8 +194,10 @@ export async function record(project, { headed = false, rebuildIde = false, full
   }
 
   const usa = new Set(project.scenes.map((s) => s.stage));
-  const serveVscode = usa.has("vscode") || usa.has("split");
-  const serveApp = usa.has("app") || usa.has("split");
+  const serveVscode = ["vscode", "split", "split-panel"].some((s) => usa.has(s));
+  const serveApp = ["app", "split", "split-panel"].some((s) => usa.has(s));
+  // music.toEnd: dove finisce il brano nel video, contato dal suo `start` e dal suo ingresso (`delay`).
+  const fineBrano = project.music?.toEnd ? (await probeDuration(project.music.file)) - project.music.start + project.music.delay : null;
   const envVscode = serveVscode ? await variabiliVscode(project.vscode.env) : {};
   const fermare = [];
   const strisce = [];
@@ -249,31 +254,6 @@ export async function record(project, { headed = false, rebuildIde = false, full
       }
 
       const viste = await regista.palco(scena);
-      // SONDA TEMPORANEA (da togliere): gli eventi che accendono i fumetti nelle webview.
-      if (process.env.VT_TIPDBG === scena.id) {
-        regista.pages.vscode.on("console", (m) => m.text().startsWith("TIPDBG") && console.log(`    ${m.text()}`));
-        for (const fr of regista.pages.vscode.frames()) {
-          await fr.evaluate(() => {
-            if (window.__tipdbg) return;
-            window.__tipdbg = true;
-            const t0 = performance.now();
-            const nome = (n) => (n ? `${n.tagName}${n.id ? "#" + n.id : ""}${n.dataset?.tip ? "[" + n.dataset.tip.slice(0, 30) + "]" : ""}` : "null");
-            for (const tipo of ["focusin", "pointerover", "mouseover", "pointerout", "blur", "focus"]) {
-              (tipo === "blur" || tipo === "focus" ? window : document).addEventListener(tipo, (e) => {
-                if (!document.querySelector("[role=tooltip]")) return;
-                let fv = "?";
-                try { fv = e.target?.matches?.(":focus-visible"); } catch {}
-                console.log(`TIPDBG ${((performance.now() - t0) / 1000).toFixed(2)} ${tipo} ${nome(e.target?.closest?.("[data-tip]") ?? e.target)} hasFocus=${document.hasFocus()} fv=${fv} trusted=${e.isTrusted}`);
-              }, true);
-            }
-            new MutationObserver(() => {
-              const t = document.querySelector("[role=tooltip]");
-              if (t && !t.hidden && !window.__visto) { window.__visto = true; console.log(`TIPDBG ${((performance.now() - t0) / 1000).toFixed(2)} SHOWN ${t.textContent.slice(0, 40)}`); }
-              if (t && t.hidden) window.__visto = false;
-            }).observe(document.body, { subtree: true, attributes: true, childList: true });
-          }).catch(() => {});
-        }
-      }
       const recorders = viste.map(
         (v) => new Recorder(regista.pages[v.page], join(clipDir, `${prefisso}-${v.page}.mp4`), { fps: output.fps, width: v.width, height: v.height }),
       );
@@ -283,7 +263,15 @@ export async function record(project, { headed = false, rebuildIde = false, full
 
       await regista.esegui(scena.do, scena);
       const trascorso = (performance.now() - t0) / 1000;
-      const attesa = Math.max(0, minima - trascorso) + (scena.hold ?? 0);
+      let attesa = Math.max(0, minima - trascorso) + (scena.hold ?? 0);
+      if (fineBrano !== null && i === project.scenes.length - 1) {
+        // music.toEnd: l'ultima scena resta finché il brano finisce, e il video chiude con lui.
+        const prima = takes.reduce((t, take) => t + take.duration, 0);
+        const resta = fineBrano - prima - trascorso;
+        if (resta > attesa) attesa = resta;
+        else if (prima + trascorso + attesa > fineBrano + 0.5)
+          console.warn(`    ! music.toEnd: the video runs ${(prima + trascorso + attesa - fineBrano).toFixed(1)} s past the track: silence after it`);
+      }
       if (attesa > 0) await new Promise((r) => setTimeout(r, attesa * 1000));
       regista.chiudiSegno(); // il taglio: l'ultimo segno della scena finisce qui
       const segniBrevi = regista.segniBrevi.splice(0);
@@ -294,7 +282,7 @@ export async function record(project, { headed = false, rebuildIde = false, full
         id: scena.id,
         stage: scena.stage,
         duration,
-        clips: Object.fromEntries(viste.map((v, k) => [v.page, { file: basename(clip[k].file), width: v.width }])),
+        clips: Object.fromEntries(viste.map((v, k) => [v.page, { file: basename(clip[k].file), x: v.x, y: v.y, width: v.width, height: v.height }])),
         audio: voce ? { file: voce.file, duration: voce.duration, offset: project.lead } : null,
         say: scena.say ?? null,
         fingerprint: nuove.scenes[i],
@@ -304,7 +292,7 @@ export async function record(project, { headed = false, rebuildIde = false, full
       const avviso = trascorso > minima + 0.05 && voce ? ` (actions ran ${(trascorso - minima).toFixed(1)} s past the voice)` : "";
       console.log(`  ● ${prefisso} ${scena.stage} ${duration.toFixed(2)} s${avviso} · strip: capture/strips/${prefisso}.jpg`);
       for (const breve of segniBrevi) console.warn(`    ! ${breve}`);
-      strisce.push(striscia(take, clipDir, join(stripDir, `${prefisso}.jpg`)));
+      strisce.push(striscia(take, clipDir, join(stripDir, `${prefisso}.jpg`), output));
     }
 
     salva();

@@ -10,7 +10,8 @@
 // audio/manifest.json ricorda per ogni scena l'hash di testo + voce: si paga solo la frase cambiata.
 // Le `instructions` di una scena si aggiungono a quelle della voce, non le sostituiscono: la persona
 // resta la stessa in ogni frase, la scena aggiunge solo la sua regia.
-// `--silent` scrive silenzio della durata stimata, per provare riprese e montaggio senza chiave.
+// `--silent` scrive silenzio della durata stimata, per provare riprese e montaggio senza chiave; le
+// frasi che hanno già la voce vera, e non sono cambiate, la tengono.
 // La chiave è quella dell'LLM della libreria (lib/dev/llm/apiKey.js): variabile d'ambiente,
 // .env.local / .env in site/video, keyring.
 import { createHash } from "node:crypto";
@@ -101,10 +102,12 @@ export async function runTts(project, { silent = false, force = false } = {}) {
     if (!scena.say) continue;
     const testo = String(scena.say).replace(/\s+/g, " ").trim();
     const instructions = [voice.instructions, scena.instructions].filter(Boolean).join(" ");
-    const hash = createHash("sha1")
-      .update(JSON.stringify({ m: voice.model, v: voice.voice, i: instructions, r: voice.sampleRate, t: testo, s: silent }))
-      .digest("hex")
-      .slice(0, 12);
+    const hashDi = (s) =>
+      createHash("sha1")
+        .update(JSON.stringify({ m: voice.model, v: voice.voice, i: instructions, r: voice.sampleRate, t: testo, s }))
+        .digest("hex")
+        .slice(0, 12);
+    const hash = hashDi(silent);
     const file = `${scena.id}.wav`;
     const traccia = join(paths.audio, file);
     const grezzo = join(paths.audio, `${scena.id}.raw.wav`);
@@ -113,7 +116,10 @@ export async function runTts(project, { silent = false, force = false } = {}) {
       return pcm.length / 2 / voice.sampleRate;
     };
     const prima = vecchio[scena.id];
-    if (!force && prima?.hash === hash && existsSync(traccia)) {
+    // --silent non scrive sopra una voce vera che vale ancora (stessa frase, stessa voce): una prova
+    // non costa la voce già pagata. Le frasi cambiate, quelle sì, diventano silenzio.
+    const veraBuona = silent && prima && !prima.silent && prima.hash === hashDi(false);
+    if (!force && (prima?.hash === hash || veraBuona) && existsSync(traccia)) {
       // Già pagata. Con la ripresa intera il taglio si rifà, coi margini di adesso (il WAV è nostro:
       // l'intestazione è di 44 byte).
       const ritaglio = !prima.silent && existsSync(grezzo);

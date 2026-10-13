@@ -1,5 +1,6 @@
 /* Stage dress for the small demo apps (demo/*), injected by the recorder as app.style: the app
-   stays as it is, only the look is the site's (colors from site/theme/tokens.css). */
+   stays as it is, only the look is the site's (colors from site/theme/tokens.css). It dresses the
+   fixture's own app only, never a site a scene opens with `url`. */
 html,
 body {
   height: 100%;
@@ -12,26 +13,38 @@ body {
   color: #eef2ef;
   font: 400 24px/1.35 "Segoe UI", system-ui, sans-serif;
 }
+/* Minimal but tidy: the buttons on one row, every sentence on a line of its own, in the JSX's order:
+   what's typed in the code shows up in the same place on the page (compare's fixture puts the
+   language first). Type small enough that no sentence wraps, French included, even in the narrow
+   half of a split. */
 #root {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  column-gap: 0.5em;
+  padding: 0 4vw;
   text-align: center;
-  padding: 0 6vw;
 }
 #root p {
-  margin: 0 0 0.9em;
-  font-size: clamp(24px, 4.4vw, 46px);
-  letter-spacing: -0.01em;
-}
-#root p + p {
+  flex: 0 0 100%;
+  margin: 0 0 0.75em;
+  font-size: clamp(13px, 2.7vw, 30px);
   color: #c3ccc6;
-  font-size: clamp(20px, 3.4vw, 34px);
+  white-space: nowrap;
+}
+#root p:first-of-type {
+  margin-bottom: 0.9em;
+  font-size: clamp(17px, 3.8vw, 44px);
+  letter-spacing: -0.01em;
+  color: #eef2ef;
 }
 #root b {
   color: #4ade80;
 }
 #root button {
-  margin: 0.6em 0.3em 0;
-  padding: 0.45em 1.1em;
-  font: 600 20px "Segoe UI", system-ui, sans-serif;
+  margin: 0 0 1.6em;
+  padding: 0.4em 1.1em;
+  font: 600 clamp(12px, 2.2vw, 20px) "Segoe UI", system-ui, sans-serif;
   color: #eef2ef;
   background: #1c2521;
   border: 1px solid rgba(255, 255, 255, 0.18);

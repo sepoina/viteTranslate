@@ -18,20 +18,21 @@
 
 | | |
 | :- | :- |
-| Pipeline (`uty/`) | check, stamp, tts, record, preview, compose working end to end; voice levelled to -16 LUFS in `compose`; hand-drawn marks (`mark`, `unmark`); background music ducked under the voice, credits on the closing card; every run followed live (`live.mjs`, the VS Code task **video: live**); partial takes from the first changed scene, a strip of frames per scene |
+| Pipeline (`uty/`) | check, stamp, tts, record, preview, compose working end to end; voice levelled to -16 LUFS in `compose`; hand-drawn marks (`mark`, `unmark`, `all` for a table column); background music ducked under the voice, credits on the closing card, `toEnd` to close on the track's own ending; the video's `fade` from the YAML; stages `split-panel` (terminal under both pages) and any web page in the app (`url`, `anchor`, `storage`), `scroll`; subtitles broken on pauses; `--silent` keeps the real lines still valid; every run followed live (`live.mjs`, the VS Code task **video: live**); partial takes from the first changed scene, a strip of frames per scene |
 | [quickstart](quickstart/storyboard.md) | the README quick start in 7 scenes, about 55 s: YAML stamped, recorded at 1920×1080, 30 fps; voice still mute |
-| [quick2](quick2/storyboard.md) | born as a blind conversion of quickstart's `.md`: real voice, six marks (each whole for 1.5 s at least), music under the voice with a 4 s close, credits on the closing card, 54.8 s |
-| [compare](compare/storyboard.md) | "Why viteTranslate", 11 scenes, 133.8 s: real voice, music "presente", cut in `output/`, with a stuck tooltip in `translate`, now fixed in the extension. The user is rewriting the story |
+| [quick2](quick2/storyboard.md) | born as a blind conversion of quickstart's `.md`: real voice, six marks (each whole for 1.5 s at least), music under the voice with a 4 s close, credits on the closing card, 54.8 s. Its next take wears the new look of Ada's app (`app-dark.css`) |
+| [compare](compare/storyboard.md) | "Why viteTranslate", 18 scenes, real voice, cut in `output/`: 179.2 s, the narration ends at 2:53.9 and the closing card holds until Mirage ends by itself, then 2.5 s to black. Waiting for the user's viewing |
 | Real voice | works: the key is in `site/video/.env` (git-ignored) |
 | Tests | none for `uty/` yet; checked by running it and reading frames |
 
 ## Next
 
-- [ ] `compare`: the user is changing `storyboard.md`. Then convert it. The next `record` needs `--rebuild-ide`, so the tooltip fix gets in. In `translate`, the `wait: 0.5` that let the tooltip show and leave can go.
-- [ ] `compare` runs 133.6 s against "about 2 minutes": if it must be shorter, the holds first (hook and together 2.5 s each), then the lines.
+- [ ] The user watches `compare/output/compare.mp4`: the opening's tone, Ada's app, the site scenes, the ending.
+- [ ] `compare`, `translate`: the French shows up ~2 s after "in French", behind a fixed `wait: 1.5` for the reload. Waiting for the reload itself would tighten it.
+- [ ] The site scenes hang on the published site and the network: a change to the site can move what they click (README § "On stage" lists it).
+- [ ] `tts` warns "0.9 words/s" on `voila`, one word: the sampleRate check could skip lines under three words.
 - [ ] Check that **video: live** starts with the folder: reopen the repo, and if VS Code asks, allow automatic tasks.
 - [ ] Listen to `quick2/output/quick2.mp4`: the music levels (`max`, `min`), and whether six marks are too many.
-- [ ] Keep the real voice safe from `--silent`: silent lines could go to their own files (`<id>.silent.wav`), so a rehearsal never writes over a paid line.
 - [ ] Listen to `quick2/output/quick2.mp4` against the user's copy of the first real-voice cut (`quick2 - Copia.mp4`): levels, clicks, timing.
 - [ ] Less mechanical joins between lines, one try at a time: direction notes and punctuation in the conversion; then the neighbouring lines as context (a `voice.context` option); last, the whole narration in one call, cut on its silences.
 - [ ] Real voice for `quickstart`: `node uty/run.mjs quickstart all`, then re-time its waits as done for `quick2`.
@@ -43,6 +44,42 @@
 ## Log
 
 Newest first. An entry: what was done, what was decided and why, what is left. Warnings in **bold**.
+
+### 2026-10-13 · compare converted and shot: four new pipeline features
+
+- The user said go: convert the new story and start. Before the YAML, the pipeline needed:
+  - **`split-panel`**: VS Code fills the frame, the app covers its top right corner, the panel (the terminal) stays uncovered below, full width. Before the clip `palco` opens the panel and drags its border to `panel` (0.3) of the height. Clips now carry x, y, width and height; `impagina()` in `compose.mjs` lays them out for the cut and for the strips.
+  - **Any web page in the app:** a scene's `url`, with `storage` (localStorage before the load) and `anchor` (opens scrolled there). `app.style` dresses the fixture's origin only. New action `scroll`; `mark` gets `all` (a table column).
+  - **`fade`** at the top of the YAML (`[in, out]`, it was a constant 0.7 s at the end), and **`music.toEnd`**: `record` holds the last scene until the track ends.
+  - **Subtitles** break on pauses: full stop, then comma or colon, never after an article or a preposition, 2 characters of slack over 42.
+  - **`--silent` keeps real lines** whose text and voice haven't changed: the old "Next" item, done.
+- Ada's app (`commons/app-dark.css`, shared with quick2): `order` lifts the buttons to the top, every sentence on its line, `nowrap`, smaller type. Measured in Chrome at the real widths with the longest plausible French: nothing wraps. `zoom.app` 1.25 for compare: the landing's table (677 CSS px) fits whole.
+- **Found and fixed: Restricted Mode.** Yesterday's failing `--from translate` runs, and this morning's first take, had VS Code in Restricted Mode: the user settings (trust off) didn't save, so the extension didn't run and Project stayed empty. Intermittent; a bench of the setup alone saved fine. `preparaVscode` now checks the status bar after the reload and writes them again, up to three times. Also: the theme is "Dark Modern" (the server was rewriting "Default Dark Modern" by itself), the JSON goes in on one line, and the terminal's "Show suggestions" hint is off for every video.
+- **Found: the landing sends any `#hash` to the playground** (old links). Hence `anchor`.
+- The temporary tooltip probe (`VT_TIPDBG`) left in `record.mjs` by the previous session: removed.
+- Takes:
+  - mute: 187.7 s, 8.4 s past the track. The user chose two shorter lines (`write`, `fallback`) and shorter pauses, keeping a breath after `hook` and `together`; `tail` 0.4.
+  - real voice (18 lines, run at the user's request): within a few percent of the estimate, some lines longer. Every `at` and word-bound `wait` re-timed on its pauses (`silencedetect`).
+  - `translate`'s box stayed whole 1.2 s: `hold: 2`, shot again from there.
+- Result: `output/compare.mp4`, 179.2 s. Narration ends at 2:53.9, Mirage fades by itself (-31 to -115 LUFS in the last 4 s), 2.5 s to black. Poster on the full list.
+- README: the new keys, stage and action, § "On stage" (split-panel, the published site), § "Field notes" (Restricted Mode, durations).
+
+### 2026-10-13 · compare: the story rewritten for 2:50
+
+- The user reviewed the cut and asked for a new `storyboard.md`. Changes, by scene:
+  - `hook`: one voice, one tone. "Fair question" sounded like a second speaker: the `.md` now asks to tie it to the next sentence and not to direct the question apart. The last line says what it means: your own environment, the ecosystem you work in, should help you.
+  - No "we" in the narration: viteTranslate is the subject ("viteTranslate does the rest"). Header field **Soggetto**.
+  - The app of Ada: buttons on top, sentences below, smaller type, nothing wraps. Header field **L'app di Ada**.
+  - `build`: one circle only, on French's missing keys; the box on the French chunk stays.
+  - `llm-preview`: the terminal as a full-width strip under code and page. After it, a new scene `voila` ("Voilà!", the user's "oplà"), at least 2 s later, on the French as it shows up.
+  - New: `site` (a card: "See it live", the address, three tiles), then `playground`, `edge`, `restaurant`, live from the published site; `compare`, the landing's comparison table, the viteTranslate column boxed, argued by unity, not by the others' gaps. It's now the only scene naming the other libraries; `together` lost its note about them.
+  - `translate`: the `.md` now has the line already agreed in the YAML ("what's waiting for a translation").
+  - English: header field **Inglese**, for the lines and the subtitles.
+- Decided with the user: all three site pages, live from the published site rather than screenshots; "Voilà!" for "oplà".
+- Measured: Mirage lasts 2:59.2, steady up to ~170 s, then fades out by itself, silent by ~177 s. "2:50" is where the music starts to close: the story aims to end its narration there, the closing card holds to the end of the track, the video fades to black over 2 s at least.
+- Rough budget: about 170 s up to `together`, about 177 s to the end of `outro`'s line. To be checked on the real voice; the holds and the `site` card are the first to trim.
+- Found: the previous session's work is not in this log. It added `llm-preview`, with an `llm` block in the fixture and `vscode.env`, which the README's top-level keys didn't list (added now). The last `record --from translate` runs stopped on Settings' gear (in "Next").
+- **Not converted:** the YAML needs four pipeline features first (in "Next"). `check` lists 6 new scenes and 10 changed.
 
 ### 2026-10-12 · The stuck tooltip, fixed in the extension
 

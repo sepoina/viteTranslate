@@ -14,7 +14,9 @@ import { azione, resolveRef } from "./storyboard.mjs";
 // del server (servers.mjs) e in quelle utente del browser (applicaImpostazioniUtente): le prime
 // arrivano prima che la finestra si apra, le seconde coprono lo scope "application".
 export const VSCODE_SETTINGS = {
-  "workbench.colorTheme": "Default Dark Modern",
+  // "Dark Modern": il nome di oggi. Con quello vecchio ("Default Dark Modern") il server migra il
+  // file da sé, e la migrazione può sporcare le impostazioni utente mentre si salvano.
+  "workbench.colorTheme": "Dark Modern",
   "workbench.startupEditor": "none",
   "workbench.secondarySideBar.defaultVisibility": "hidden",
   "workbench.tips.enabled": false,
@@ -57,6 +59,8 @@ export const VSCODE_SETTINGS = {
   "files.autoSave": "off",
   "files.exclude": { "**/.stackblitzrc": true, "**/node_modules": true },
   "terminal.integrated.fontSize": 16,
+  // Un terminale nuovo mostrava "Show suggestions… Don't show this again" sopra il prompt.
+  "terminal.integrated.suggest.enabled": false,
 };
 
 // Ritocchi di VS Code nel browser che le impostazioni non coprono.
@@ -150,11 +154,18 @@ export class Director {
     await page.goto(indirizzo);
     await page.waitForSelector(".monaco-workbench", { timeout: 120_000 });
     await pausa(2500);
-    await this.applicaImpostazioniUtente();
-    // Ricarica: fiducia ed editor di avvio si leggono all'apertura della finestra.
-    await page.goto(indirizzo);
-    await page.waitForSelector(".monaco-workbench", { timeout: 120_000 });
-    await pausa(2500);
+    // Ricarica: fiducia ed editor di avvio si leggono all'apertura della finestra. Il salvataggio
+    // delle impostazioni utente a volte non arriva: VS Code resta in Restricted Mode, e lì
+    // l'estensione non gira (il pannello resta vuoto). Si riprova, poi ci si ferma con un perché.
+    for (let tentativo = 1; ; tentativo++) {
+      await this.applicaImpostazioniUtente();
+      await page.goto(indirizzo);
+      await page.waitForSelector(".monaco-workbench", { timeout: 120_000 });
+      await pausa(2500);
+      if (!(await page.locator(".part.statusbar").getByText("Restricted Mode").count())) break;
+      if (tentativo === 3) throw new Error("VS Code stays in Restricted Mode: the user settings didn't save, and the extension won't run");
+      console.warn(`  ! VS Code in Restricted Mode: the user settings again (${tentativo + 1} of 3)`);
+    }
     const css = VSCODE_CSS + (this.project.vscode.style ? readFileSync(resolveRef(this.project.paths, this.project.vscode.style), "utf8") : "");
     await page.addStyleTag({ content: css });
     await this.comando("View: Close All Editors");
@@ -167,9 +178,10 @@ export class Director {
     await this.comando("Preferences: Open User Settings (JSON)");
     await pausa(1500);
     await page.keyboard.press("Control+A");
-    await page.keyboard.insertText(JSON.stringify(impostazioni, null, 2));
+    // Su una riga sola: a capo per a capo, l'editor rientrava ogni riga più della precedente.
+    await page.keyboard.insertText(JSON.stringify(impostazioni));
     await page.keyboard.press("Control+S");
-    await pausa(800);
+    await pausa(1200);
   }
 
   async preparaApp(url) {
@@ -178,8 +190,10 @@ export class Director {
     const stile = this.project.app.style;
     if (stile) {
       const css = readFileSync(resolveRef(this.project.paths, stile), "utf8");
-      // Init script e non addStyleTag: lo stile deve tornare dopo ogni reload della pagina.
+      // Init script e non addStyleTag: lo stile deve tornare dopo ogni reload della pagina. Solo
+      // sull'app del fixture: i siti che una scena apre con `url` restano come sono.
       await page.context().addInitScript(`(() => {
+        if (location.origin !== ${JSON.stringify(new URL(url).origin)}) return;
         const s = document.createElement("style");
         s.textContent = ${JSON.stringify(css)};
         const metti = () => document.head.append(s);
@@ -198,28 +212,41 @@ export class Director {
   // ------------------------------------------------------------ palcoscenico
 
   /**
-   * Dimensiona le pagine per lo stage della scena e dice quali registrare, con le loro
-   * dimensioni in pixel del video.
-   * @returns {Promise<{ page: string, width: number, height: number }[]>}
+   * Dimensiona le pagine per lo stage della scena e dice quali registrare, con il loro posto nel
+   * video (x, y, larghezza, altezza: pixel del video). compose.mjs le monta lì, una sopra l'altra.
+   * @returns {Promise<{ page: string, x: number, y: number, width: number, height: number }[]>}
    */
   async palco(scena) {
     const { width: W, height: H } = this.project.output;
+    const wv = pari(W * this.project.split);
     const viste = {
-      vscode: [{ page: "vscode", width: W, height: H }],
-      app: [{ page: "app", width: W, height: H }],
-      card: [{ page: "card", width: W, height: H }],
+      vscode: [{ page: "vscode", x: 0, y: 0, width: W, height: H }],
+      app: [{ page: "app", x: 0, y: 0, width: W, height: H }],
+      card: [{ page: "card", x: 0, y: 0, width: W, height: H }],
       split: [
-        { page: "vscode", width: pari(W * this.project.split), height: H },
-        { page: "app", width: W - pari(W * this.project.split), height: H },
+        { page: "vscode", x: 0, y: 0, width: wv, height: H },
+        { page: "app", x: wv, y: 0, width: W - wv, height: H },
       ],
-    }[scena.stage];
+      // VS Code a tutto schermo, l'app sopra il suo angolo in alto a destra: sotto resta scoperto il
+      // pannello, largo quanto il video. L'altezza dell'app la dà il pannello (pannello()).
+      "split-panel": [
+        { page: "vscode", x: 0, y: 0, width: W, height: H },
+        { page: "app", x: wv, y: 0, width: W - wv, height: null },
+      ],
+    }[scena.stage].map((v) => ({ ...v }));
     await this.cancellaSegni(); // a ogni taglio la scena riparte pulita
-    for (const v of viste) {
-      const page = this.pages[v.page];
+    const dimensiona = (v) => {
       const zoom = this.project.zoom[v.page];
-      await page.setViewportSize({ width: Math.round(v.width / zoom), height: Math.round(v.height / zoom) });
-    }
+      return this.pages[v.page].setViewportSize({ width: Math.round(v.width / zoom), height: Math.round(v.height / zoom) });
+    };
+    for (const v of viste) if (v.height != null) await dimensiona(v);
     if (this.pages.vscode) await this.chiudiBarraSecondaria();
+    if (scena.stage === "split-panel") {
+      await pausa(400); // il relayout di VS Code a tutta larghezza
+      viste[1].height = await this.pannello();
+      await dimensiona(viste[1]);
+    }
+    if (scena.url) await this.visita(scena);
     if (scena.stage === "card") {
       // I parametri della scena arrivano alla card come query string (le card in commons/ li leggono).
       const url = pathToFileURL(resolveRef(this.project.paths, scena.card));
@@ -243,6 +270,86 @@ export class Director {
   async ciak(scena) {
     if (scena.stage !== "card") return;
     await this.pages.card.evaluate(() => dispatchEvent(new Event("take")));
+  }
+
+  /**
+   * Il pannello di VS Code (il terminale) aperto e alto `panel` del video, tirando il suo bordo col
+   * mouse: nessuna impostazione ne fissa l'altezza. Restituisce dove comincia, in pixel del video:
+   * lì finisce l'app di una scena split-panel.
+   */
+  async pannello() {
+    const page = this.pages.vscode;
+    const zoom = this.project.zoom.vscode;
+    const parte = page.locator(".part.panel");
+    if (!(await parte.isVisible().catch(() => false))) {
+      await this.comando("View: Toggle Panel Visibility");
+      await parte.waitFor({ state: "visible", timeout: 10_000 });
+      await pausa(500);
+    }
+    const voluta = (this.project.output.height * (1 - this.project.panel)) / zoom;
+    let box = await parte.boundingBox();
+    if (Math.abs(box.y - voluta) > 2) {
+      // Il bordo da tirare: il sash orizzontale sulla cima del pannello.
+      const sash = await page.locator(".monaco-sash.horizontal").evaluateAll(
+        (ns, b) =>
+          ns
+            .map((n) => n.getBoundingClientRect())
+            .find((r) => r.width > 0 && Math.abs(r.top + r.height / 2 - b.y) < 6 && r.left < b.x + b.width && r.right > b.x),
+        box,
+      );
+      if (!sash) throw new Error("split-panel: no border to drag above VS Code's panel");
+      const x = sash.left + sash.width / 2;
+      await page.mouse.move(x, sash.top + sash.height / 2);
+      await page.mouse.down();
+      await page.mouse.move(x, voluta, { steps: 8 });
+      await page.mouse.up();
+      await pausa(400);
+      box = await parte.boundingBox();
+      const p = this.posizioni.vscode; // il mouse vero torna dov'è quello finto: niente bordo acceso
+      await page.mouse.move(p?.x ?? 0, p?.y ?? 0);
+    }
+    return pari(box.y * zoom);
+  }
+
+  /**
+   * La pagina dell'app di una scena con `url`, caricata prima del ciak. `storage` va nel
+   * localStorage della sua origine prima che la pagina parta: per esempio la lingua che un sito
+   * ricorda, perché ogni scena cominci nella stessa.
+   */
+  async visita(scena) {
+    const page = this.pages.app;
+    const url = String(scena.url);
+    if (scena.storage) {
+      const qui = URL.canParse(page.url()) ? new URL(page.url()).origin : null;
+      if (qui !== new URL(url).origin) await page.goto(url, { waitUntil: "domcontentloaded" });
+      await page.evaluate((voci) => {
+        for (const [k, v] of Object.entries(voci)) localStorage.setItem(k, String(v));
+      }, scena.storage);
+    }
+    await page.goto(url);
+    await page.waitForLoadState("networkidle");
+    delete this.posizioni.app; // un documento nuovo: il cursore rientra dall'angolo
+    // `preload`: la pagina si scorre tutta una volta, uno schermo alla volta, e torna in cima. Le
+    // immagini lazy sono caricate e le entrate animate (quelle che partono una volta sola) già fatte:
+    // uno scroll veloce nella clip non trova buchi né blocchi a metà.
+    if (scena.preload) {
+      await page.evaluate(async () => {
+        for (let y = 0; y < document.documentElement.scrollHeight; y += innerHeight * 0.8) {
+          scrollTo({ top: y, behavior: "instant" });
+          await new Promise((r) => setTimeout(r, 120));
+        }
+        scrollTo({ top: 0, behavior: "instant" });
+      });
+      await page.waitForLoadState("networkidle");
+      await pausa(800);
+    }
+    // `anchor`: la pagina si apre già scorsa fin lì. Al posto di un #hash, che un sito può usare
+    // per altro (la landing manda ogni ancora al playground). Poi il tempo delle sue entrate animate.
+    if (scena.anchor) {
+      const el = await trova(page, { selector: scena.anchor }, 15_000);
+      await el.evaluate(scorri, ["start", 0, 0]);
+      await pausa(1500);
+    }
   }
 
   // ------------------------------------------------------------ azioni
@@ -385,6 +492,21 @@ export class Director {
     await trova(page, arg, (arg.timeout ?? 15) * 1000);
   }
 
+  // scroll: { text | selector, page, block: start | center, offset, time, ease }: la pagina scorre
+  // fino al bersaglio in `time` secondi (1), partendo e arrivando piano. `offset`: pixel del video
+  // da lasciare sopra il bersaglio (una barra fissa in cima); lo scroll-margin della pagina vale già.
+  // `ease`: "cubic" (di serie), o "sine" per le corse lunghe: a metà va al più a 1,6 volte la media,
+  // non a 3, e una pagina intera scorre invece di saltare.
+  async a_scroll(arg, scena) {
+    const { nome, page } = this.paginaDi(arg, scena);
+    const curva = arg.ease ?? "cubic";
+    if (!["cubic", "sine"].includes(curva)) throw new Error(`scroll: ease is "cubic" or "sine", not "${curva}"`);
+    const el = await trova(page, arg, (arg.timeout ?? 15) * 1000);
+    const offset = (arg.offset ?? 0) / this.project.zoom[nome];
+    await el.evaluate(scorri, [arg.block ?? "start", offset, (arg.time ?? 1) * 1000, curva]);
+    await pausa(200);
+  }
+
   // click: { text: "Français", page: app } · { selector: "…" } · { role: button, name: Sync }
   async a_click(arg, scena) {
     const { nome, page } = this.paginaDi(arg, scena);
@@ -416,6 +538,7 @@ export class Director {
     const { nome, page } = y.selection ? { nome: "vscode", page: this.pages.vscode } : this.paginaDi(y, scena);
     let box;
     if (y.selection) box = await selezione(page);
+    else if (y.all) box = await unione(page, y, (y.timeout ?? 15) * 1000);
     else {
       const el = await trova(page, y, (y.timeout ?? 15) * 1000);
       box = y.tight ? await soloTesto(el, y.tight === true ? String(y.text) : String(y.tight)) : await sagoma(el);
@@ -527,6 +650,31 @@ export class Director {
 const pari = (n) => Math.round(n / 2) * 2;
 
 /**
+ * Gira nella pagina (el.evaluate): scorre fino all'elemento `n` in `ms` millisecondi, partendo e
+ * arrivando piano (`curva` "cubic" o "sine"); 0 è un salto. `blocco` "start" (sotto lo
+ * scroll-margin della pagina, più `offset` px CSS) o "center".
+ */
+function scorri(n, [blocco, offset, ms, curva = "cubic"]) {
+  const r = n.getBoundingClientRect();
+  const margine = parseFloat(getComputedStyle(n).scrollMarginTop) || 0;
+  const salto = blocco === "center" ? r.top + r.height / 2 - innerHeight / 2 : r.top - margine - offset;
+  const da = scrollY;
+  const a = Math.max(0, Math.min(da + salto, document.documentElement.scrollHeight - innerHeight));
+  if (!(ms > 0)) return scrollTo({ top: a, behavior: "instant" });
+  const t0 = performance.now();
+  return new Promise((fine) => {
+    const passo = (t) => {
+      const k = Math.min(1, (t - t0) / ms);
+      const e = curva === "sine" ? (1 - Math.cos(Math.PI * k)) / 2 : k < 0.5 ? 4 * k ** 3 : 1 - (-2 * k + 2) ** 3 / 2;
+      scrollTo({ top: da + (a - da) * e, behavior: "instant" });
+      if (k < 1) requestAnimationFrame(passo);
+      else fine();
+    };
+    requestAnimationFrame(passo);
+  });
+}
+
+/**
  * Le opzioni di `mark` come le scrive lo YAML (README.md § "Marks") nei nomi di marker.js.
  * Le chiavi assenti restano ai default di marker.js.
  */
@@ -632,14 +780,35 @@ async function soloTesto(el, testo) {
   return r && r.w > 0 ? { x: box.x + r.dx, y: box.y + r.dy, width: r.w, height: r.h } : sagoma(el);
 }
 
+/**
+ * Il rettangolo di tutti gli elementi visibili che corrispondono (mark `all`), nel frame del primo:
+ * le celle di una colonna di tabella, per esempio, che nessun elemento contiene da solo.
+ */
+async function unione(page, arg, ms) {
+  const primo = await trova(page, arg, ms);
+  const loc = localizza(primo.cornice, arg);
+  const boxes = [];
+  for (let i = 0, n = await loc.count(); i < n; i++) {
+    const el = loc.nth(i);
+    const b = (await el.isVisible().catch(() => false)) ? await sagoma(el) : null;
+    if (b && b.width > 0 && b.height > 0) boxes.push(b);
+  }
+  const x = Math.min(...boxes.map((b) => b.x)), y = Math.min(...boxes.map((b) => b.y));
+  const x2 = Math.max(...boxes.map((b) => b.x + b.width)), y2 = Math.max(...boxes.map((b) => b.y + b.height));
+  return { x, y, width: x2 - x, height: y2 - y };
+}
+
+function localizza(frame, arg) {
+  if (arg.selector) return frame.locator(arg.selector);
+  if (arg.role) return frame.getByRole(arg.role, { name: arg.name, exact: arg.exact ?? true });
+  return frame.getByText(String(arg.text), { exact: arg.exact ?? true });
+}
+
 async function trova(page, arg, ms) {
   const fine = Date.now() + ms;
   while (Date.now() < fine) {
     for (const frame of page.frames()) {
-      let loc;
-      if (arg.selector) loc = frame.locator(arg.selector);
-      else if (arg.role) loc = frame.getByRole(arg.role, { name: arg.name, exact: arg.exact ?? true });
-      else loc = frame.getByText(String(arg.text), { exact: arg.exact ?? true });
+      const loc = localizza(frame, arg);
       const n = await loc.count().catch(() => 0);
       for (let i = 0; i < n; i++) {
         const el = loc.nth(i);
