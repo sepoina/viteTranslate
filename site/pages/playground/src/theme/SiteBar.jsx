@@ -10,8 +10,10 @@ import logo from "./logo.svg";
  * @param {string} props.home l'indirizzo della landing: siteUrl() nelle pagine, import.meta.env.BASE_URL nella landing
  * @param {import("react").ReactNode} [props.children] ciò che sta dopo il logo
  * @param {import("react").ReactNode} [props.tools] bottoni in più, dopo lingua e tema
+ * @param {string} [props.languageLabel] l'etichetta accessibile del selettore di lingua, già tradotta (la pagina che non è in italiano passa la sua: `trans("_%_…_%_")`)
+ * @param {string} [props.themeLabel] come sopra, per il pulsante del tema
  */
-export default function SiteBar({ home, children, tools }) {
+export default function SiteBar({ home, children, tools, languageLabel, themeLabel }) {
   return (
     <header className="bar">
       <div className="wrap bar-in">
@@ -20,8 +22,8 @@ export default function SiteBar({ home, children, tools }) {
         </a>
         {children}
         <div className="bar-tools">
-          <LanguageSwitch />
-          <ThemeToggle />
+          <LanguageSwitch label={languageLabel} />
+          <ThemeToggle label={themeLabel} />
           {tools}
         </div>
       </div>

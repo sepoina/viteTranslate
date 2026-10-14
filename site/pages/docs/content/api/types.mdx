@@ -1,0 +1,52 @@
+---
+title: TypeScript types
+description: The types the package exports, one line each, with a link to where they are used.
+sources:
+  - lib/react.d.ts
+  - lib/index.d.ts
+---
+
+The declarations ship with the package: nothing to install from `@types`. The React types come from `@sepoina/vitetranslate/react`, the plugin types from `@sepoina/vitetranslate`.
+
+```tsx
+import { Trans, type TranslateArg } from "@sepoina/vitetranslate/react";
+
+export function Greeting({ name }: { name: TranslateArg }) {
+  return <Trans>Welcome back, <b>{name}</b>!</Trans>;
+}
+```
+
+## Values and arguments {#values-and-arguments}
+
+| Type | What it is | Used in |
+| :- | :- | :- |
+| `TranslateArg` | One value that fits a placeholder: `ReactNode \| Date \| bigint` | [Translate](/components/translate#props) |
+| `TranslateNamedArgs` | A plain object of named values, for `{name}` | [ICU arguments](/concepts/icu#arguments-positions-or-names) |
+| `TranslateArgs` | A value, the named object, or a list of either | [Translate](/components/translate#props) |
+| `TranslateObjectForm` | The object form: text and arguments together, `{ t, a }` | [Translate](/components/translate#other-forms) |
+| `TranslateSource` | Everything that can sit in the text position: a string, a number, a ready element, the compact list or the object form | [Translate](/components/translate#what-can-sit-in-the-text-position) |
+
+## Components {#components}
+
+| Type | What it is | Used in |
+| :- | :- | :- |
+| `TranslateProps` | The props of `Translate` (short name `Trans`) | [Translate](/components/translate#props) |
+| `TranslateContainerProps` | The props of `TranslateContainer` (short name `TransContainer`) | [TranslateContainer](/components/translate-container#props) |
+
+## Hooks {#hooks}
+
+| Type | What it is | Used in |
+| :- | :- | :- |
+| `UseTranslateLanguageResult` | What `useTranslateLanguage()` returns: current language, available ones, the switch function | [useTranslateLanguage](/hooks/use-translate-language) |
+| `TranslateLanguageInfo` | One language: its BCP 47 `tag` and its `languageName` | [useTranslateLanguage](/hooks/use-translate-language) |
+| `ProposeNewLanguageOptions` | The argument of `proposeNewLanguage()`: `lang` and the three callbacks | [proposeNewLanguage()](/hooks/use-translate-language#proposenewlanguage) |
+| `TranslateToStringOptions` | The third argument of the function from `useTranslateToString()`: `skipMark` | [useTranslateToString](/hooks/use-translate-to-string) |
+
+## Plugin options {#plugin-options}
+
+| Type | What it is | Used in |
+| :- | :- | :- |
+| `VitetranslateOptions` | The object `vitetranslate()` takes | [Plugin options](/api/plugin-options) |
+| `ErrorSolveOptions` | The `errorSolve` option: how problems show on screen | [errorSolve](/api/plugin-options#errorsolve) |
+| `ErrorSolveMarks` | The glyphs of `errorSolve.mark` | [Diagnostics](/concepts/diagnostics) |
+| `IcuOptions` | The `icu` option: the default time zone | [icu](/api/plugin-options#icu) |

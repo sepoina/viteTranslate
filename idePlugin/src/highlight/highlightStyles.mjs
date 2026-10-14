@@ -1,3 +1,4 @@
+// DOCS-PAGE: vscode/panel — the user manual describes this behaviour; update it and run npm run docs:seal (AGENTS.md).
 // Il catalogo degli stili di evidenziazione: dati e basta. Ogni colore è l'id di un colore del tema
 // (https://code.visualstudio.com/api/references/theme-color), mai un esadecimale: lo stile segue
 // il tema, chiaro o scuro, e i temi che ridefiniscono quel colore. Gli altri valori sono stringhe

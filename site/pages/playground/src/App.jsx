@@ -1,3 +1,4 @@
+// DOCS-PAGE: getting-started/live-examples — the user manual describes this behaviour; update it and run npm run docs:seal (AGENTS.md).
 import { useEffect } from "react";
 import { Trans, version } from "@sepoina/vitetranslate/react";
 import TopBar from "./playgroundComponents/TopBar.jsx";

@@ -2,6 +2,7 @@
 // Architettura d'insieme: doc/structure.md § "Fase 4 — Runtime", "Suspense e cambio lingua".
 // Quel documento è la fonte di verità sul funzionamento della libreria: se cambi il
 // comportamento di questo file, aggiornalo nello stesso commit.
+// DOCS-PAGE: components/translate-container, concepts/preloading, hooks/use-translate-language — the user manual describes this behaviour; update it and run npm run docs:seal (AGENTS.md).
 
 import React from "react";
 import { TranslateContext } from "./TranslateContext.js";
@@ -98,7 +99,7 @@ function validTimeZone(tz) {
  *   (piano 4.6.3): precede l'opzione `icu.timeZone` del plugin, ceduta invece dal manifest. A
  *   differenza di `initialLanguage`, si PUÒ cambiare dopo il mount — utile per la preferenza
  *   dell'utente o il fuso della richiesta in SSR. Un fuso non valido si segnala in console e si
- *   ignora (vedi doc/icu.md § "Dates and time zones").
+ *   ignora (vedi il manuale, concepts/icu § "Dates and time zones").
  */
 export default function TranslateContainer({ initialLanguage = firstPreloadedLanguage, children, debug, fallback = null, timeZone }) {
   // initialLanguage inesistente -> ricade sulla prima precaricata (quindi sempre disponibile)

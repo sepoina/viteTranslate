@@ -1,0 +1,20 @@
+---
+title: Migrating from 3.x
+description: Convert 3.x language modules to data files with one command, without touching your code or your bundle.
+sources:
+  - lib/dev/vite/uty/migrateLegacyLanguages.js
+  - lib/dev/vite/cli.js
+---
+
+<!-- Migrated from doc/cli.md, "Migrating from 3.x" (ids = the GitHub slugs of the old headings; the parent heading is the page itself). -->
+
+Language files are now data (`.yml`) instead of JS modules. **Nothing changes in your code or in your bundle** — the same lazy chunk per language, the same API — only the files on disk and their extension.
+
+```bash
+npx vitetranslate --migrate   # <tag>.js  ->  <tag>.yml
+npx vitetranslate             # re-sync as usual
+```
+
+The originals are renamed to `.bak-migrated-*`, never deleted: check the result, then remove them. A file the converter can't read on its own (a language module with imports or computed values) is left where it is and reported, so nothing is converted halfway. If you start Vite with the old files still in place, the plugin stops and says exactly this instead of reporting a missing source language.
+
+The command itself is described in the [CLI reference](/api/cli#migrate).

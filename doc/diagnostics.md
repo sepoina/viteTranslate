@@ -1,107 +1,11 @@
-# Diagnostics: `errorSolve`
+<!-- Provisional stub: this page moved to the manual. Remove after the TODO item "stubs" (doc/ImplementationPlans/4_x_x-TODO.md). -->
+# Diagnostics: errorSolve — moved
 
-> The [README](../README.md) covers the quick start. This is the full detail on on-screen and console diagnostics — see [plugin options](plugin-options.md) for the config shape.
+This page now lives in the [viteTranslate manual](https://sepoina.github.io/viteTranslate/docs/concepts/diagnostics/).
 
-🧪 **[Edge cases, live](https://sepoina.github.io/viteTranslate/edge/)** — every case below, rendered next to what it is supposed to render ([how to read the marks there](https://sepoina.github.io/viteTranslate/edge/#note)).
-
-A string that doesn't reach the screen translated is not always a bug you can see. A key nobody has translated yet still renders — in the source language, indistinguishable from a real translation. A text nobody marked renders too. Both look fine, and that is the problem.
-
-`errorSolve` puts a character in front of them, **in development only**, so you spot them by reading the page instead of by auditing the tables. Every field is optional; these are the defaults:
-
-```js
-vitetranslate({
-  localeDir: "locale",
-  sourceLanguage: "it-IT",
-  errorSolve: {
-    mark: {
-      badData: "🚫",            // a value that is not text and never will be
-      malformed: "‼️",          // text nobody marked, or incompatible props
-      untranslated: "🔸",       // no translation in the current language
-      notFullyTranslated: "🔹", // translated here, missing in some other language
-      absentDataInArray: "⁇",   // an argument with no value — a %s, a {0} or a {name}
-    },
-    markOnlyDev: true,          // in a build: just the fallback, no characters
-    warningDev: true,           // runtime console in development
-    warningBuild: false,        // runtime console in production
-  },
-})
-```
-
-Two questions, kept apart: `mark` is **what** you see, everything else is **when** — on screen with `markOnlyDev`, in the console with `warningDev` / `warningBuild`.
-
-One prefix per string, the worst one wins: `‼️` → `🔸` → `🔹`. Set any of them to `""` or `false` to turn that one off. `🚫` never competes with the other three — it fires only where there is no text for a prefix to sit in front of; see [below](#when-there-is-no-text-at-all).
-
-With `markOnlyDev: true` (the default) a production build ships none of this — not the characters, and not the data behind them: the untranslated-key lists never enter the language chunks and the global set stays empty. `mark.absentDataInArray` is the exception: it isn't a diagnostic but ordinary rendering, so it applies in development and in a build alike. A plain object passed as the *value* itself — not as the arguments container — renders the same character: it's what would otherwise make React throw ("Objects are not valid as a React child"), see [ICU messages](icu.md#arguments-positions-or-names).
-
-## Case by case
-
-| What happened | Dev | Build (default) |
-| --- | --- | --- |
-| Text nobody marked — `<Translate t="Mira Halvorsen" />` | `‼️Mira Halvorsen` | `Mira Halvorsen` |
-| Same, but declared with `skipMark` | `Mira Halvorsen` | `Mira Halvorsen` |
-| Incompatible props — `t` and `children` together | `‼️` + the text that was there | the text that was there |
-| No translation in this language | `🔸` + source text | source text |
-| Translated here, missing elsewhere | `🔹` + translation | translation |
-| A value that is not text — `t={() => {}}` | `🚫[func]` | nothing |
-| An argument with no value — a `%s`, a `{0}` or a `{name}` missing from the object | `⁇` (`mark.absentDataInArray`) | `⁇` (`mark.absentDataInArray`) |
-
-Incompatible props never erase the text: the best available one is recovered and rendered — the string in `t`, the children, the first element of the tuple. A mistake in *your* props is not paid for by whoever is reading the screen.
-
-🧪 Live: [incompatible props](https://sepoina.github.io/viteTranslate/edge/#conflicting-props), and the `⁇` of a missing argument in [`%s`](https://sepoina.github.io/viteTranslate/edge/#percent-s) and [ICU](https://sepoina.github.io/viteTranslate/edge/#icu) messages.
-
-## When there is no text at all
-
-Sometimes there is genuinely nothing to recover: a function, a symbol, a React element in the first slot of the tuple, an empty tuple. "Always show something" cannot apply — there is no something — and the only useful thing left to say is **what** was there instead of the text. That is `mark.badData`, and unlike the other three it is not a prefix in front of a text: it is the whole rendering.
-
-| Value | Dev | Build (default) |
-| --- | --- | --- |
-| `t={() => {}}` | `🚫[func]` | nothing |
-| `t={Symbol("x")}` | `🚫[symbol]` | nothing |
-| `t={true}` | `🚫[true]` | nothing |
-| `t={[]}` | `🚫[array]` | nothing |
-| `t={[null]}` | `🚫[nullArray]` | nothing |
-| `t={[<i/>]}`, or `t` and `children` both elements | `🚫[badDom]` | nothing |
-| any other unreadable shape | `🚫[badData]` | nothing |
-
-🧪 The seven of them are live on the edge cases page: [values that aren't text](https://sepoina.github.io/viteTranslate/edge/#not-text).
-
-The name comes from the **first slot that mattered** — the first element of the tuple, the `t` field of the object — because that is where the text was supposed to be: about `t={[<i/>]}` the thing worth saying is that a node sits where the text belonged, not that there is an array. `array` and `nullArray` are for the tuples where that slot doesn't exist or is empty, and there the wrapper *is* the information.
-
-`markOnlyDev` covers this one too, and **turned off it renders nothing at all**: the type name on its own is noise for whoever is reading the page, and an empty rendering is already what the component does for its other "nothing to show" case, the object with no `t` field. The console message stays, under `warningDev`/`warningBuild` as always.
-
-## Unmarked text is domain data, not an error
-
-`<Translate>` used to throw in development on a string without `_%_..._%_`. But plenty of text is not translatable and never will be: a phone number, a field name configured in an admin panel, an exception message, a description coming from the server. Deciding between the two meant inspecting the marker *before* calling `<Translate>` — rewriting outside a decision that belongs here.
-
-Now the marker is the discriminator and the component applies it: marked text is translated, unmarked text is rendered as it is. So a leaf component can take whatever its caller has:
-
-```jsx
-// all six of these work, and none of them needs a wrapper
-<Trans>_%_Welcome_%_</Trans>
-<Trans t={["_%_Hello %s_%_", username]} />
-<Trans o={{ t: "_%_Hello %s_%_", a: [username] }} />   // object form
-<Trans>{user.phoneNumber}</Trans>                  // domain data, rendered as is
-<Trans t={item.count} />                               // a number, "0" included
-<Trans t={<WaitingBarSpan />} />                       // an element renders itself
-```
-
-The `o` prop — and the same `{ t, a }` object passed to `t`, or to `ts()` — is for text that already travels packaged with its arguments, which is how several application cores carry it. It is exactly equivalent to passing them separately.
-
-In development that phone number shows a `‼️`, and that is the point: the prop is receiving something nobody will translate, and you get to decide whether that is right. When the answer is "yes, and it always will be", say so with [`skipMark`](react-api.md#skipmark-when-unmarked-is-the-normal-case) and the `‼️` goes away for that call site only — unlike `mark: { malformed: false }`, which would turn it off everywhere.
-
-A number and a React element don't need the declaration: neither can ever come from the source marked, so both are rendered directly, with no prefix and no warning.
-
-🧪 Marked, unmarked, `skipMark` and everything in between are live on the edge cases page: [unmarked text and skipMark](https://sepoina.github.io/viteTranslate/edge/#unmarked).
-
-## Console output
-
-`warningDev` and `warningBuild` are the switch for **everything the library prints in the browser** — the diagnostics above, the missing-key report, the unknown-language and failed-chunk errors, the warning about an `initialLanguage` that isn't preloaded.
-
-> [!IMPORTANT]
-> With `warningBuild: false` (the default) a published app is completely silent, including the messages that report a real failure — a language chunk that didn't load, a tag that doesn't exist. Set `warningBuild: true` to keep them.
-
-Plugin messages (build time, prefixed `[vitetranslate]`) are not affected: they are not runtime output.
-
-**Plugin messages during `vite dev` follow their own rule: one warning per category, the rest on request.** A typo in a language file used to print a line on every save — the manifest regenerates each time a language file changes — and ten broken files printed ten lines at once. Now the first message in a given category (an invalid language file, an empty one, a malformed marker, and so on) prints in full; the rest of that category are just counted, closing with `+N more: run "npx vitetranslate --status" for the full list`. The block appears a quarter of a second after the last warning of the batch, so one page load is one block and not five. Reloading a page with the exact same problems as before prints nothing a second time — but only within the same `vite dev` process: restarting it always shows the full picture at least once, and if the count is unchanged from the previous run the closing line just says so ("same as the previous session").
-
-During `vite dev` that batching is per **category**, without exception — every kind reported goes through the same "first message shown, the rest counted" rule above, `autoWrap`'s included. The extraction categories, in full: `nested` (two markers in one string), `collision` (two texts hashing to the same id), `malformed` (a delimiter that doesn't open **and** close the whole string), `old-marker` (since 4.7.0: a leftover `_%_` in a project with [other delimiters](plugin-options.md#markers) — nothing is extracted, and `--rewriteMarkerDryRun` shows what [`--rewriteMarker`](cli.md#rewriting-the-markers) would change) and, since 4.4.0, three more from `autoWrap` — `marker-split` (a JSX tag broke a marker before extraction ever saw a whole one — from 4.6.4 only for a case [the preprocessor](react-api.md#write-jsx-inside-translate) itself can't take, see below), `marker-newline` (a line break survives inside a marked attribute, changing both the rendered text and the id), `autowrap-noscope` (a marked text or attribute that `autoWrap` would rewrite, but no enclosing component could be recognised for the injection — see [plugin options](plugin-options.md)), and `autowrap-placeholder` (a `%s` inside a rewritten call, which has nowhere to take an argument). Since 4.6.4, the preprocessor adds its own: `macro-unsupported` (a form it can't extract — a spread child, a `%s` in the text, a marked template nobody receives — left exactly as written), `macro-needs-autowrap` (a sentence split across JSX siblings, `<p>_%_hi <b>x</b>_%_</p>`: the key is registered either way, but rewriting the source needs `autoWrap` on), and, from the table compiler, `slot-percent-s` (a `%s` and a numbered tag in the same text share argument positions — write `{n}` instead of `%s`). The sync command draws its own, separate line here: there, `nested` and `collision` are always listed in full — rare, and each about a different place in the code — while the other categories are kept to a count unless run with `--status`, which lists everything. Every one of these warnings, from 4.6.4, names the exact spot: `file:line:col`, the same format VS Code's own terminal turns into a clickable link.
+| Section | Now at |
+| :- | :- |
+| Case by case | [concepts/diagnostics#case-by-case](https://sepoina.github.io/viteTranslate/docs/concepts/diagnostics/#case-by-case) |
+| When there is no text at all | [concepts/diagnostics#when-there-is-no-text-at-all](https://sepoina.github.io/viteTranslate/docs/concepts/diagnostics/#when-there-is-no-text-at-all) |
+| Unmarked text is domain data, not an error | [concepts/diagnostics#unmarked-text-is-domain-data-not-an-error](https://sepoina.github.io/viteTranslate/docs/concepts/diagnostics/#unmarked-text-is-domain-data-not-an-error) |
+| Console output | [concepts/diagnostics#console-output](https://sepoina.github.io/viteTranslate/docs/concepts/diagnostics/#console-output) |

@@ -6,6 +6,8 @@ project, and also the minimum the library declares support for (`react: ^18.0.0 
 The app's source is identical to the React 19 copy: nothing in the library's runtime requires
 19.
 
+▶️ New to viteTranslate? [Watch the video](https://youtu.be/gYj1z3XMv9M): why it exists and how its pieces work together.
+
 ## Usage
 
 ```bash

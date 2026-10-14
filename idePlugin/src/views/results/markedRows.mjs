@@ -1,3 +1,4 @@
+// DOCS-PAGE: vscode/panel — the user manual describes this behaviour; update it and run npm run docs:seal (AGENTS.md).
 // Dalla risposta di markedProbe.mjs alle righe della sezione Results: l'albero dei file di srcDir
 // che contengono voci marcate, e sotto ogni file le sue voci, nell'ordine del sorgente.
 //

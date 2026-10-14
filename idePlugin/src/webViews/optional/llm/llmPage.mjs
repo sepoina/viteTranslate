@@ -1,3 +1,4 @@
+// DOCS-PAGE: vscode/panel — the user manual describes this behaviour; update it and run npm run docs:seal (AGENTS.md).
 // La pagina del pannello LLM, nella sezione facoltativa (al posto di Results e Project): in alto i
 // tre controlli (chiave, impostazioni, ping), sotto le azioni --llm-*, in fondo, ferma, la barra dei
 // comandi con Back, "Check again" e, se un controllo è andato male, il ? che apre Help nella sua

@@ -29,10 +29,11 @@ const eq = (nome, atteso, ottenuto) => {
 
 // 1. Le pagine trovate.
 const pagine = sitePages(ROOT);
-eq("sitePages trova le tre pagine", ["edge", "llmrestaurant", "playground"], pagine.map((p) => p.slug));
+eq("sitePages trova le quattro pagine", ["docs", "edge", "llmrestaurant", "playground"], pagine.map((p) => p.slug));
+eq("sitePages: solo il manuale è senza card", ["docs"], pagine.filter((p) => !p.card).map((p) => p.slug));
 
-// 2. Le card e le pagine sono lo stesso insieme.
-eq("gli slug delle card sono quelli delle pagine", pagine.map((p) => p.slug), PAGES.map((p) => p.slug).sort());
+// 2. Le card e le pagine con card sono lo stesso insieme (il manuale non ha card: la landing lo linka dalla barra).
+eq("gli slug delle card sono quelli delle pagine con card", pagine.filter((p) => p.card).map((p) => p.slug), PAGES.map((p) => p.slug).sort());
 
 // 3. Il "source" di ogni card è la cartella della pagina con quello slug.
 for (const { slug, source } of PAGES) {
@@ -79,6 +80,18 @@ eq("uno slug doppio lancia", "errore", lancia({ a: "x", b: "x" }));
 eq("uno slug con maiuscole lancia", "errore", lancia({ a: "Edge" }));
 eq("uno slug riservato lancia", "errore", lancia({ a: "assets" }));
 eq("slug diversi passano", "nessun errore", lancia({ a: "x", b: "y" }));
+
+// 4b. "card": false (il manuale): la pagina c'è, ma sitePages lo dice e zipPages non la zippa.
+{
+  const tmp = finta({ a: "x" });
+  try {
+    mkdirSync(join(tmp, "site/pages/b"), { recursive: true });
+    writeFileSync(join(tmp, "site/pages/b/package.json"), JSON.stringify({ vitetranslateSite: { slug: "y", card: false } }));
+    eq("sitePages: card vale true se non dichiarata, false se `card: false`", [["x", true], ["y", false]], sitePages(tmp).map((p) => [p.slug, p.card]));
+  } finally {
+    rmSync(tmp, { recursive: true, force: true });
+  }
+}
 
 // 5. siteLinks.js: copie identiche, a meno delle virgolette.
 const normalizza = (t) => t.replace(/"/g, "'");
@@ -135,6 +148,8 @@ try {
   const letto = leggiZip(readFileSync(scritti[0].file));
   eq("zip: i contenuti tornano uguali (UTF-8 compreso)", { "src/main.jsx": "ciao — è", "package.json": "{}" }, { "src/main.jsx": letto["src/main.jsx"], "package.json": letto["package.json"] });
   eq("zip: due build danno gli stessi byte", true, makeZip(collectFiles(join(cartellaZip, "p"))).equals(readFileSync(scritti[0].file)));
+  const conCard = zipPages([{ dir: "p", slug: "x", card: false }, { dir: "p", slug: "y", card: true }], join(cartellaZip, "dist2"), cartellaZip);
+  eq("zip: una pagina con card: false non ha il suo zip", ["y"], conCard.map((z) => z.slug));
   const demo = zipDemos([{ source: "p", slug: "prova" }], join(cartellaZip, "dist"), cartellaZip);
   eq("zip: le demo vanno in zip/demo/<slug>.zip", join(cartellaZip, "dist/zip/demo/prova.zip"), demo[0].file);
   eq("zip: lo zip di una demo è lo stesso progetto", true, readFileSync(demo[0].file).equals(readFileSync(scritti[0].file)));
@@ -145,7 +160,7 @@ try {
 for (const { slug } of PAGES) eq(`card ${slug}: c'è una pagina da zippare con questo slug`, true, pagine.some((p) => p.slug === slug));
 
 // 8. Il tema: site/theme/ (più runtimeSize.json) copiato identico in src/theme/ di ogni progetto che lo usa.
-eq("themeTargets: la landing e le pagine con theme: true", ["site/landing", "site/pages/playEdge", "site/pages/playground"], themeTargets(ROOT));
+eq("themeTargets: la landing e le pagine con theme: true", ["site/landing", "site/pages/docs", "site/pages/playEdge", "site/pages/playground"], themeTargets(ROOT));
 eq("le copie del tema sono allineate (npm run site:theme)", [], checkTheme(ROOT));
 for (const t of themeTargets(ROOT)) {
   eq(`${t}: main.jsx importa theme/theme.css`, true, readFileSync(join(ROOT, t, "src/main.jsx"), "utf8").includes("./theme/theme.css"));
@@ -181,7 +196,7 @@ try {
 
 // 10. I colori stanno solo in tokens.css: nel resto del CSS del sito, solo var(--…).
 const senzaCommenti = (t) => t.replace(/\/\*[\s\S]*?\*\//g, "");
-for (const f of ["site/theme/theme.css", "site/landing/src/landing.css", "site/pages/playground/src/playground.css", "site/pages/playEdge/src/edge.css"]) {
+for (const f of ["site/theme/theme.css", "site/landing/src/landing.css", "site/pages/playground/src/playground.css", "site/pages/playEdge/src/edge.css", "site/pages/docs/src/docs.css"]) {
   const trovati = senzaCommenti(readFileSync(join(ROOT, f), "utf8")).match(/#[0-9a-fA-F]{3,8}\b|\b(?:rgba?|hsla?)\(/g) ?? [];
   eq(`${f}: nessun colore scritto a mano`, [], trovati);
 }

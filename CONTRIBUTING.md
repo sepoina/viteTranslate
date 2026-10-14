@@ -38,7 +38,9 @@ never shipped) for the HTML entity table, a recorded browser run for markup pars
 straightforward Babel-based implementation for marker extraction. An expectation typed by hand
 is only ever as right as the day it was typed.
 
-`test/` itself holds just the runner (`run.mjs`) and two tools that are *not* part of the
+Before a release, `npm run testRelease` runs the suite and the release checks together: site theme, demo versions, README size, runtime size and the manual.
+
+`test/` itself holds the runner (`run.mjs`), the release checks (`testRelease.mjs`, `release/`) and two tools that are *not* part of the
 suite:
 
 - `exampleLangCompile.mjs` (`npm run dump`) writes a compiled language module — what the
@@ -47,6 +49,10 @@ suite:
 - `browserMarkupParity.mjs` re-records the browser behaviour that `markupParity` compares
   against. It needs Chrome, which is why the recording is frozen in `list/markupExpected.mjs`
   instead of being measured on every run.
+
+## Documentation
+
+The user manual lives in `site/pages/docs/content/` and is what users read. A change to code a page describes (the files carry a `DOCS-PAGE:` comment) means updating the page in the same pull request: the rules are in AGENTS.md ("REGOLE DI MANUALISTICA") and [site/README.md](site/README.md) ("The manual").
 
 ## Editor extension (experimental)
 

@@ -1,3 +1,4 @@
+// DOCS-PAGE: vscode/panel — the user manual describes this behaviour; update it and run npm run docs:seal (AGENTS.md).
 // La pagina Settings, nella sezione facoltativa (al posto di Results e Project): tutto quello che è
 // impostazione, in un posto. La apre l'ingranaggio di Project. In testa il logo intero (logo.mjs).
 // Sotto, e scorre, la sezione CONFIG: le voci nello stile delle azioni di LLM (icona, nome, sotto il

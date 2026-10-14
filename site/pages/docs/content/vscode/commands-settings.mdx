@@ -1,0 +1,29 @@
+---
+title: Commands and settings
+description: Every command of the extension and every setting it adds to VS Code.
+sources:
+  - idePlugin/package.json#contributes
+---
+
+<!-- Migrated from idePlugin/README.md: "Commands" and "Settings". The ID column is new: it names what package.json contributes. -->
+
+## Commands {#commands}
+
+From the panel, or the Command Palette under **viteTranslate:**
+
+| Command | ID | Does |
+| --- | --- | --- |
+| **Sync language files** | `vitetranslate.sync` | Runs `vitetranslate` in a terminal: new keys in, stale ones out |
+| **LLM** | `vitetranslate.llm` | Opens the LLM page: readiness check and every `--llm-*` action |
+| **Settings** | `vitetranslate.settings` | Opens the settings page: options, files, versions |
+| **Back** | `vitetranslate.closeOptional` | Leaves Settings, LLM or Help and puts the panel back as it was |
+| **Choose highlight style…** | `vitetranslate.highlightStyle` | Tries every style live on your code: `Enter` keeps it, `Esc` changes nothing |
+| **Refresh** | `vitetranslate.refresh` | Re-reads projects and rescans **Results** (it refreshes by itself on save too) |
+
+## Settings {#settings}
+
+| Setting | Default | Does |
+| --- | --- | --- |
+| `vitetranslate.highlightStyle` | `framed-box` | How marked strings stand out, or `off` |
+| `vitetranslate.highlightRuler` | `true` | Marks them in the scrollbar too, in your theme's accent color |
+| `vitetranslate.detailCommand` | `false` | Terminals also show how the CLI is really launched: folder, runtime, runner, CLI file |

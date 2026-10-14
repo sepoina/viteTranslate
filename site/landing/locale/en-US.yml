@@ -2,7 +2,7 @@
 #      American English
 #       |    code: en-US
 #       |    missing key: 0
-#       |    processed: 2026-10-10 22:05
+#       |    processed: 2026-10-14 13:26
 #       |    TableVersion: 260905
 #  -------------------------------------------------
 #
@@ -53,8 +53,12 @@ Hero_1eptjs7: "bytes of runtime, gzipped"
 Hero_1gdm8ga: "New: automatic translation with an LLM"
 Hero_1rwpyzm: "Write the text <em>once</em>."
 Hero_56y4kk: "Vite does the rest."
+HeroVideo_10an6gt: "Video: why viteTranslate, and how its ecosystem works"
+HeroVideo_1wfoiwd: "Why viteTranslate, and how its pieces work together."
+HeroVideo_l53cig: "The video"
 LanguageSwitch_gzrcyx: "Page language"
 Marquee_aimam1: "One source. As many languages as you like."
+Nav_16qsfmz: "Docs"
 Nav_1c4ck8: "Comparison"
 Nav_1d2o49w: "Features"
 Nav_4py963: "Demos"

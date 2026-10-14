@@ -1,0 +1,38 @@
+---
+title: Providers
+description: Which models the built-in client talks to, and how to plug in any other API with your own driver.
+sources:
+  - lib/dev/llm/fetchDriver.js
+  - lib/dev/llm/callModel.js
+  - lib/dev/llm/llmOptions.js
+---
+
+<!-- Migrated from doc/llm.md: "Optional Vercel Provider", plus the paragraph on the built-in client taken from "Getting started" (ids = the GitHub slugs of the old headings). -->
+
+## OpenAI-compatible endpoints {#openai-compatible-endpoints}
+
+The built-in client speaks the Chat Completions shape (`connection.protocol: "openai-chat"`, the only value accepted) with plain `fetch` — no dependency added. `/chat/completions` is appended to `baseURL`. Gemini (`/v1beta/openai`), OpenAI, OpenRouter, Groq, DeepSeek, Ollama, LM Studio and vLLM all work this way: set `connection.baseURL` and `connection.model`, see [setup](/llm/setup#getting-started).
+
+Anything else: see [Optional Vercel Provider](#optional-vercel-provider).
+
+## Optional Vercel Provider {#optional-vercel-provider}
+
+For an API that doesn't speak Chat Completions, or to go through a client library, pass your own `llm.driver`: a function, sync or async, receiving `{ connection, apiKey, systemPrompt, userPayload, mode, maxTokens }` (ignore `maxTokens` if you like) and returning either `Record<key, string>` or `{ translations, usage }`. With a driver, `baseURL` and `model` are not required. For example, with the [Vercel AI SDK](https://sdk.vercel.ai):
+
+```js
+llm: {
+  driver: async ({ systemPrompt, userPayload }) => {
+    const { generateText } = await import("ai");
+    const { openai } = await import("@ai-sdk/openai");
+    const { text, usage } = await generateText({
+      model: openai("gpt-4o-mini"),
+      system: systemPrompt,
+      prompt: userPayload,
+    });
+    return {
+      translations: JSON.parse(text),
+      usage: { tokensIn: usage.promptTokens, tokensOut: usage.completionTokens },
+    };
+  },
+},
+```

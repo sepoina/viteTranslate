@@ -1,0 +1,68 @@
+---
+title: jsxArg, basicHtmlToNodes, version
+description: Three small exports: the value wrapper the preprocessor injects, a safe HTML-to-nodes converter, and the package version.
+sources:
+  - lib/react.d.ts
+  - lib/react/index.js
+  - lib/react/jsxArg.js
+  - lib/react/basicHtmlToNodes.js
+  - lib/htmlDialect.js
+---
+
+<!-- Migrated from doc/react-api.md: "jsxArg()", "basicHtmlToNodes()" and "version" (ids = the GitHub slugs of the old headings). -->
+
+## `jsxArg()` {#jsxarg}
+
+What the preprocessor wraps every value around when it moves it into `a`, so a JSX child renders exactly as JSX would: `null`, `undefined` and the two booleans become `""`, everything else passes through unchanged.
+
+```js
+import { jsxArg } from "@sepoina/vitetranslate/react";
+
+jsxArg(null);   // ""
+jsxArg(false);  // ""
+jsxArg(0);      // 0, a real value
+```
+
+Written by hand only when building a compiled marker's arguments yourself; inside `<Translate>…</Translate>` the preprocessor injects it around every value automatically.
+
+## `basicHtmlToNodes()` {#basichtmltonodes}
+
+Turns a string with basic HTML into React nodes, without `dangerouslySetInnerHTML`. `<Translate>` doesn't need it — its tables are compiled at build time — except in development, for a key not synced yet. It is exported because it is useful on its own ([live in the playground](site:playground#html-to-nodes)):
+
+```jsx
+import { basicHtmlToNodes } from "@sepoina/vitetranslate/react";
+
+basicHtmlToNodes("Hello <b>%s</b>", "Mario");   // ["Hello ", <b>Mario</b>]
+basicHtmlToNodes("you have %s messages");       // "you have ⁇ messages"
+basicHtmlToNodes("no markup here");             // "no markup here" (same string back)
+```
+
+| | |
+| :- | :- |
+| `text` | Text, optionally with markup and `%s` placeholders |
+| `args` | Optional: a value or an array of values for the `%s`, in order |
+| *returns* | A string, a single element, or a fragment |
+
+- Recognises the same tags as `<Translate>` (`<b> <strong> <i> <em> <u> <small> <code> <br> <hr> <wbr>`) and HTML entities. Any other tag is dropped, its content kept (`<div>hi</div>` → `hi`).
+- **No attribute is ever forwarded**: the elements it builds carry only a `key`.
+- A `%s` without a value follows the same [`⁇` rule](/components/translate#markup-and-placeholders).
+- A string without markup comes back untouched, allocating nothing; parsed results are cached, so each string is converted once per app.
+
+> 🧪 The same dialect, case by case — dropped attributes, unknown tags, broken markup: [edge/#html](site:edge#html).
+
+> [!IMPORTANT]
+> Read before using it outside the library:
+
+- It is meant for **strings you control** — typically your own translation tables — not as a sanitiser for hostile input.
+- `args` are interpolated **before** parsing, so an argument containing markup is itself interpreted as HTML (unlike `<Translate>`).
+- It needs the DOM (it uses a `<template>` element). Where `document` doesn't exist, as in server-side rendering, it returns the original string unconverted.
+
+## `version` {#version}
+
+The installed package version, as a plain string — read from `package.json` at build time, so it costs nothing at runtime. Handy for a footer, an about page or a demo:
+
+```jsx
+import { version } from "@sepoina/vitetranslate/react";
+
+<p>viteTranslate v{version}</p>
+```

@@ -1,3 +1,4 @@
+// DOCS-PAGE: vscode/panel — the user manual describes this behaviour; update it and run npm run docs:seal (AGENTS.md).
 // Quali progetti elenca il pannello: tutti i vite.config.* del workspace, fuori da node_modules,
 // uno per cartella. Quale si guarda lo sceglie l'utente in Selector, o lo porta il file attivo
 // (projectOf, in resultsView.mjs).

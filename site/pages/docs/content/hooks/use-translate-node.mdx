@@ -1,0 +1,26 @@
+---
+title: useTranslateNode
+description: The hook form of Translate: the lookup without an element, which is what autoWrap injects.
+sources:
+  - lib/react.d.ts
+  - lib/react/useTranslateNode.js
+---
+
+<!-- Migrated from doc/react-api.md, "useTranslateNode()" (ids = the GitHub slugs of the old headings; the parent heading is the page itself). -->
+
+The hook form of `<Translate>`: same lookup, without an element. It is what the `autoWrap` option injects ([plugin options](/api/plugin-options)), so most projects never write it by hand.
+
+```jsx
+import { useTranslateNode } from "@sepoina/vitetranslate/react";
+
+function Card({ compiled }) {
+  const t = useTranslateNode();
+  return <p>{t(compiled)}</p>;
+}
+```
+
+- It takes a **compiled** marker — the string a `<Translate t={...}>` already receives — not a `_%_..._%_` you type yourself.
+- A second argument fills the `%s`, like `<Translate a={...}>`.
+- Given anything that isn't a compiled marker, it has no key to look up and returns the text itself, delimiters stripped — the same fallback `<Translate>` and `ts()` use for what the compiler never saw.
+
+> 🎮 What `autoWrap` makes of it: [live](site:playground#autowrap) · 🧪 [ten edge cases](site:edge#autowrap).

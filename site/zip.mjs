@@ -118,13 +118,14 @@ export function makeZip(files) {
 
 /**
  * Scrive uno zip per pagina in `<dist>/zip/<slug>.zip`.
- * @param {{ dir: string, slug: string }[]} pagine come da sitePages(): `dir` è relativa alla radice del repo
+ * @param {{ dir: string, slug: string, card?: boolean }[]} pagine come da sitePages(): `dir` è relativa alla radice del repo;
+ *   chi ha `card: false` (il manuale) non ha uno zip
  * @param {string} dist la cartella del sito pubblicato
  * @param {string} [radice] la radice del repo
  * @returns {{ slug: string, file: string, files: number, bytes: number }[]}
  */
 export function zipPages(pagine, dist, radice = RADICE) {
-  return zipFolders(pagine, join(dist, "zip"), radice);
+  return zipFolders(pagine.filter((p) => p.card !== false), join(dist, "zip"), radice);
 }
 
 /**

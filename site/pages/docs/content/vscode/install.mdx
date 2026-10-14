@@ -1,0 +1,46 @@
+---
+title: Install
+description: What the VS Code extension is, how it relates to the library, and how to get it running.
+sources:
+  - idePlugin/package.json#engines
+  - idePlugin/package.json#preview
+  - idePlugin/src/probes/markedScan.mjs
+---
+
+<!-- Migrated from idePlugin/README.md: "One project, two halves", "Getting started" and "Safe by design" (the Marketplace README stays as it is). -->
+
+> [!NOTE]
+> **Preview.** It reads your project and never writes to it. The only things that change files are **Sync** and the LLM actions, and they run the same CLI you'd type yourself.
+
+![The viteTranslate panel next to the editor](img/panel.png)
+
+## One project, two halves {#one-project-two-halves}
+
+[viteTranslate](/getting-started/overview) is a Vite plugin: you write sentences right in your JSX, it extracts them and keeps one `.yml` table per language in sync. This extension is its view from inside the editor, and it doesn't work without it.
+
+| The library (npm) | The extension (here) |
+| --- | --- |
+| Extracts marked strings, syncs the tables | Lists them file by file, each with its status |
+| Fills `null` keys through an LLM, from the CLI | Runs Sync and the LLM actions in one click |
+| Reads its options from `vite.config` | Shows them as resolved, plus versions and the API key's whereabouts |
+
+It doesn't re-implement anything: **Results** asks the library installed in *your* project, so the panel and `npx vitetranslate` never disagree.
+
+## Getting started {#getting-started}
+
+1. **Have viteTranslate in a Vite project**, version 4.6.4 or later. New to it? The [usage guide](/getting-started/usage) takes two minutes: `npm install @sepoina/vitetranslate`.
+2. **Install the extension** from the [Marketplace](https://marketplace.visualstudio.com/items?itemName=sepoina.vitetranslate-ide), or run `code --install-extension sepoina.vitetranslate-ide`.
+3. **Click the % icon** in the Activity Bar. Highlighting needs nothing: open a `.jsx` file and it's on.
+
+Older library, or none? The panel says so and gives you the `npm install` that fixes it.
+
+**Requirements**: VS Code 1.90+, a [trusted workspace](https://code.visualstudio.com/docs/editing/workspaces/workspace-trust) for anything beyond `package.json`, and on Windows a `node` in your PATH, so the CLI can ask you things (confirmations, the API key).
+
+Next: [the panel, piece by piece](/vscode/panel), and [commands and settings](/vscode/commands-settings).
+
+## Safe by design {#safe-by-design}
+
+- **Read-only.** `vite.config` runs in a separate process, never through Vite: no plugin hook fires, nothing gets synced. A config that hangs is dropped after 15 seconds.
+- **Restricted Mode respected.** Untrusted workspace? Nothing runs: you get `package.json` only.
+- **Nothing heavy inside.** No Babel bundled: it uses the one your project already has, and lets it go after two idle minutes.
+- **Secrets stay secret.** The API key is located, never displayed.

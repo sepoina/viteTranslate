@@ -13,7 +13,7 @@ import { commandBarHtml, COMMAND_BAR_CSS } from "../../commandBar/commandBar.mjs
 import { TOOLTIP_CSS } from "../../tooltip/tooltip.mjs";
 
 /** La documentazione completa di `llm`, aperta nel browser dal link in fondo. */
-export const LLM_DOC_URL = "https://github.com/sepoina/viteTranslate/blob/main/doc/llm.md";
+export const LLM_DOC_URL = "https://sepoina.github.io/viteTranslate/docs/llm/setup/";
 
 // I testi che cambiano tra le due varianti.
 const TESTI = {

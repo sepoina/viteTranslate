@@ -1,5 +1,6 @@
 import { Trans, useTrans } from "@sepoina/vitetranslate/react";
 import { REPO } from "./links.js";
+import { siteUrl } from "./siteLinks.js";
 import SectionHead from "./SectionHead.jsx";
 import SIZE from "./theme/runtimeSize.json";
 
@@ -10,7 +11,8 @@ const COLUMNS = ["viteTranslate", "Lingui", "FormatJS", "i18next"];
 // Le righe vengono dalla
 // tabella del README (manca solo la licenza), e le note che giustificano ogni casella stanno lì:
 // una casella cambiata qui si cambia anche là, con la sua nota, e con la data qui sotto.
-// `doc` è la guida del repo che spiega la soluzione di viteTranslate per quella riga: la stessa
+// `manual` (route#id del manuale, site/pages/docs) o `doc` (un file del repo, per le righe di
+// architettura) è dove spiega la soluzione di viteTranslate per quella riga: lo stesso indirizzo
 // a cui porta il nome della riga nel README. Le etichette en-US usano le parole del README.
 // Prima le righe dove nessun rivale ha ✓, poi quelle dove qualcuno lo pareggia; dentro ogni
 // gruppo, dal vantaggio più netto (✕ = 0, – = ½, ✓ = 1 sommati sui rivali) al più sottile; a
@@ -23,11 +25,11 @@ const ROWS = [
   },
   {
     label: "_%_Zero dipendenze a runtime_%_",
-    doc: "doc/requirements.md#it-never-reaches-your-bundle",
+    manual: "getting-started/installation#it-never-reaches-your-bundle",
     v: ["y", "n", "n", "n"],
   },
-  { label: "_%_Estensione VS Code ufficiale_%_", doc: "doc/ide-panel.md", v: ["y", "n", "n", "n"] },
-  { label: "_%_Traduzione automatica con LLM_%_", doc: "doc/llm.md", v: ["y", "n", "n", "p"] },
+  { label: "_%_Estensione VS Code ufficiale_%_", manual: "vscode/install", v: ["y", "n", "n", "n"] },
+  { label: "_%_Traduzione automatica con LLM_%_", manual: "llm/setup", v: ["y", "n", "n", "p"] },
   {
     label: "_%_Nessun parser dei messaggi a runtime_%_",
     doc: "doc/structure.md#2b-table-compilation-pre-building-values",
@@ -41,17 +43,23 @@ const ROWS = [
   },
   {
     label: "_%_Sintassi senza chiavi_%_",
-    doc: "doc/react-api.md#write-jsx-inside-translate",
+    manual: "components/translate#write-jsx-inside-translate",
     v: ["y", "y", "p", "p"],
   },
-  { label: "_%_Plugin Vite ufficiale_%_", doc: "doc/plugin-options.md", v: ["y", "y", "y", "n"] },
-  { label: "_%_ICU MessageFormat (plurali, select, date)_%_", doc: "doc/icu.md", v: ["y", "y", "y", "p"] },
+  { label: "_%_Plugin Vite ufficiale_%_", manual: "api/plugin-options", v: ["y", "y", "y", "n"] },
+  { label: "_%_ICU MessageFormat (plurali, select, date)_%_", manual: "concepts/icu", v: ["y", "y", "y", "p"] },
   {
     label: "_%_Lingue caricate a richiesta_%_",
-    doc: "doc/react-api.md#preloading-suspense-and-the-initial-flash",
+    manual: "concepts/preloading",
     v: ["y", "y", "y", "y"],
   },
 ];
+
+// `route#id` del manuale -> https://…/docs/route/#id
+const manualUrl = (target) => {
+  const [route, id] = target.split("#");
+  return `${siteUrl("docs")}${route}/${id ? `#${id}` : ""}`;
+};
 
 const GLYPHS = { y: "✓", p: "–", n: "✕" };
 
@@ -105,7 +113,7 @@ export default function Compare() {
                 {ROWS.map((row) => (
                   <tr key={row.label}>
                     <th scope="row">
-                      <a href={`${REPO}/blob/main/${row.doc}`}>
+                      <a href={row.manual ? manualUrl(row.manual) : `${REPO}/blob/main/${row.doc}`}>
                         <Trans t={row.label} a={row.a} />
                       </a>
                     </th>

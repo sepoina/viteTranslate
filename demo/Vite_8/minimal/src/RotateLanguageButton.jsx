@@ -1,3 +1,4 @@
+// DOCS-PAGE: tutorials/language-switcher — the user manual describes this behaviour; update it and run npm run docs:seal (AGENTS.md).
 import { useTransLanguage } from '@sepoina/vitetranslate/react';
 
 export default function RotateLanguageButton() {

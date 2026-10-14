@@ -1,6 +1,7 @@
 import { Trans, version } from "@sepoina/vitetranslate/react";
 import CopyCommand from "./CopyCommand.jsx";
-import { DOCS, NPM, REPO } from "./links.js";
+import { NPM, REPO } from "./links.js";
+import { siteUrl } from "./siteLinks.js";
 
 // La banda verde finale e il piè di pagina. La banda è uguale nei due temi.
 export default function Outro() {
@@ -16,7 +17,7 @@ export default function Outro() {
           </p>
           <div className="cta-row">
             <CopyCommand tone="ink" />
-            <a className="btn btn-ink" href={DOCS}>
+            <a className="btn btn-ink" href={siteUrl("docs")}>
               <Trans>_%_Leggi la documentazione_%_</Trans>
               <span aria-hidden="true">→</span>
             </a>

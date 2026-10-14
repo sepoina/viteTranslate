@@ -1,0 +1,192 @@
+---
+title: Your first translated app
+description: From an empty folder to a French build, with the commands you type and what they print.
+sources:
+  - demo/Vite_8/quickApp/vite.config.js
+  - demo/Vite_8/quickApp/src/main.jsx
+  - lib/dev/vite/cli.js
+  - lib/react.d.ts
+---
+
+<!-- LINKED-DATA: this tutorial follows demo/Vite_8/quickApp, and the quick start in README.md and getting-started/usage say the same things in short. The commands and outputs below come from a real run of these steps; run them again when the CLI output changes. The demo's src/App.jsx is not a source on purpose: the video site/video/projects/quick2 films it and a comment there would show on screen. -->
+
+You will build the smallest useful app: one sentence, English as the source, French as the second language, a button for each. Nothing else.
+
+The output below is trimmed to the lines that matter. Yours will differ in version numbers and file hashes.
+
+## Create the project {#create-the-project}
+
+```sh
+npm create vite@latest quickApp -- --template react --no-interactive
+cd quickApp
+npm install
+npm install @sepoina/vitetranslate
+```
+
+npm also installs the required peer `@babel/core` ([why](/getting-started/installation#why-babelcore-is-required)). The finished project is `demo/Vite_8/quickApp` in the [repository](repo:demo/Vite_8/quickApp).
+
+## Register the plugin {#register-the-plugin}
+
+Replace `vite.config.js`:
+
+```js title="vite.config.js"
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
+import { vitetranslate } from "@sepoina/vitetranslate";
+
+export default defineConfig({
+  plugins: [
+    react(),
+    vitetranslate({
+      localeDir: "locale",
+      sourceLanguage: "en-US",
+    }),
+  ],
+});
+```
+
+`localeDir` is where the language files will live; `sourceLanguage` is the language you write in. All the options are in [Plugin options](/api/plugin-options).
+
+## Write the first sentence {#write-the-first-sentence}
+
+Wrap the app once, in `src/main.jsx`:
+
+```jsx title="src/main.jsx"
+import { StrictMode } from "react";
+import { createRoot } from "react-dom/client";
+import { TransContainer } from "@sepoina/vitetranslate/react";
+import App from "./App.jsx";
+
+createRoot(document.getElementById("root")).render(
+  <StrictMode>
+    <TransContainer initialLanguage="en-US">
+      <App name="Ada" />
+    </TransContainer>
+  </StrictMode>,
+);
+```
+
+Replace `src/App.jsx` with a sentence written as it is, tags and values included:
+
+```jsx title="src/App.jsx"
+import { Trans } from "@sepoina/vitetranslate/react";
+
+export default function App({ name }) {
+  return <Trans>Welcome back, <b>{name}</b>!</Trans>;
+}
+```
+
+No key to invent. The sentence is the source.
+
+## Start Vite {#start-vite}
+
+```sh
+npm run dev
+```
+
+```text
+::: viteTranslate        ║  sources: "src" (2 files, 1 sentence)
+::: ⌘ v4.7.1             ║  translations: "locale" (only source language)
+:::                      ║  skip fastverify: no previous sync on record.
+:::                      ║  American English - source language, created
+```
+
+The sync ran before Vite started and wrote the source table:
+
+```yaml title="locale/en-US.yml"
+App_zn6492: "Welcome back, <b>{name}</b>!"
+```
+
+The key is the component name and a checksum of the text. You never type it. More in [Translation files](/concepts/translation-files).
+
+## Add French {#add-french}
+
+From a second terminal, with the dev server still running:
+
+```sh
+npx vitetranslate --add fr-FR
+```
+
+```text
+::: add-language         ║  fr-FR  added as locale/fr-FR.yml — français (France)
+:::                      ║  CODE   LANGUAGE           KEYS  MISSING  STATUS
+:::                      ║  en-US  American English      1        0  source language
+:::                      ║  fr-FR  français (France)     1        1  1 key(s) to translate
+:::                      ║  2 language(s): 1 ok, 1 incomplete
+```
+
+The new file lists the key with a `null`, which means "not translated yet":
+
+```yaml title="locale/fr-FR.yml"
+App_zn6492: null
+```
+
+## Translate {#translate}
+
+Replace the `null` by hand, or let a model do it ([LLM setup](/llm/setup)):
+
+```yaml title="locale/fr-FR.yml"
+App_zn6492: "Bon retour, <b>{name}</b> !"
+```
+
+Then ask where you stand. The command writes nothing, so it also works as a CI check:
+
+```sh
+npx vitetranslate --status
+```
+
+```text
+:::                      ║  CODE   LANGUAGE           KEYS  MISSING  STATUS
+:::                      ║  en-US  American English      1        0  source language
+:::                      ║  fr-FR  français (France)     1        0  fully translated
+:::                      ║  2 language(s): 2 ok
+```
+
+Until a key is translated the page shows the source text, never a blank. In dev, saving a table reloads the page.
+
+## Add the buttons {#add-the-buttons}
+
+Back in `src/App.jsx`, one button per language:
+
+```jsx title="src/App.jsx"
+import { Trans, useTransLanguage } from "@sepoina/vitetranslate/react";
+
+export default function App({ name }) {
+  const { proposeNewLanguage } = useTransLanguage();
+  return (
+    <>
+      <p>
+        <Trans>Welcome back, <b>{name}</b>!</Trans>
+      </p>
+      <button onClick={() => proposeNewLanguage({ lang: "en-US" })}>English</button>
+      <button onClick={() => proposeNewLanguage({ lang: "fr-FR" })}>Français</button>
+    </>
+  );
+}
+```
+
+Click Français: the page reads *Bon retour, Ada !*. A button per language found in `localeDir` is the subject of [A language switcher](/tutorials/language-switcher).
+
+## Build {#build}
+
+```sh
+npm run build
+```
+
+```text
+::: viteTranslate        ║  sources: "src" (2 files, 1 sentence)
+:::                      ║  American English - source language, no key changes, table rewritten
+:::                      ║  français - all ok!
+dist/index.html                  0.38 kB │ gzip:  0.26 kB
+dist/assets/fr-FR-Bh-JA_Rl.js    0.46 kB │ gzip:  0.33 kB
+dist/assets/index-pInvpJH9.js  231.98 kB │ gzip: 73.08 kB
+```
+
+The sync runs again before the build, so a table that is out of date never ships. French is its own 0.46 kB chunk, loaded when someone picks it. The source language is already in the main bundle.
+
+## Where next {#where-next}
+
+- Change the sentence and restart `npm run dev`: the key follows the text, and the French translation goes back to `null` for you to fill again.
+- Add a third language with `npx vitetranslate --add de-DE`.
+- Plain strings, such as a `placeholder`, go through `useTrans`: see [useTranslateToString](/hooks/use-translate-to-string).
+- Plurals and dates: [Plurals and dates](/tutorials/plurals-and-dates).

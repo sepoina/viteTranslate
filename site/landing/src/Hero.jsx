@@ -1,5 +1,6 @@
 import { Trans, version } from "@sepoina/vitetranslate/react";
 import CopyCommand from "./CopyCommand.jsx";
+import HeroVideo from "./HeroVideo.jsx";
 import { REPO } from "./links.js";
 import { siteUrl } from "./siteLinks.js";
 import SIZE from "./theme/runtimeSize.json";
@@ -81,6 +82,9 @@ export default function Hero() {
           </span>
         </a>
       </div>
+
+      {/* Il video chiude l'hero: una banda a tutta larghezza, fuori da .wrap. */}
+      <HeroVideo />
     </section>
   );
 }

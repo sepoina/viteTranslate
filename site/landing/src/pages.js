@@ -1,3 +1,4 @@
+// DOCS-PAGE: getting-started/live-examples — the user manual describes this behaviour; update it and run npm run docs:seal (AGENTS.md).
 // Una card per pagina del sito. Lo slug deve coincidere con "vitetranslateSite.slug" nel
 // package.json della pagina (site/pages/*): lo controlla test/list/site.test.mjs.
 // `preview` è uno screenshot in public/previews/, catturato dalla pagina buildata (1280x800 o simili, poi 960x600).

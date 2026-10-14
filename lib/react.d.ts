@@ -1,6 +1,7 @@
 // Architettura d'insieme: doc/structure.md § "Distribuzione del pacchetto".
 // Quel documento è la fonte di verità sul funzionamento della libreria: se cambi il
 // comportamento di questo file, aggiornalo nello stesso commit.
+// DOCS-PAGE: api/types, components/translate, components/translate-container, getting-started/faq, getting-started/usage, hooks/helpers, hooks/use-translate-language, hooks/use-translate-node, hooks/use-translate-to-string, tutorials/first-app, tutorials/language-switcher — the user manual describes this behaviour; update it and run npm run docs:seal (AGENTS.md).
 
 /// <reference path="./virtual.d.ts" />
 

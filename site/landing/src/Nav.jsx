@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Trans } from "@sepoina/vitetranslate/react";
 import { scrollToSection } from "./motion.js";
 import { REPO } from "./links.js";
+import { siteUrl } from "./siteLinks.js";
 import { SECTIONS } from "./sections.js";
 import SiteBar from "./theme/SiteBar.jsx";
 
@@ -74,6 +75,9 @@ export default function Nav() {
         <button type="button" onClick={() => scrollToSection("demos")}>
           <Trans>_%_Demo_%_</Trans>
         </button>
+        <a href={siteUrl("docs")}>
+          <Trans>_%_Documentazione_%_</Trans>
+        </a>
       </nav>
     </SiteBar>
   );

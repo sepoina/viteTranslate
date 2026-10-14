@@ -1,3 +1,4 @@
+// DOCS-PAGE: vscode/panel — the user manual describes this behaviour; update it and run npm run docs:seal (AGENTS.md).
 // La pagina della sezione Selector (una webview): Config, Filter e Search, fatti coi componenti di
 // @vscode-elements/elements. Qui solo lo scheletro: elenchi e ricerca li riempie webview.mjs dallo
 // stato che l'estensione manda (selectorState.mjs). I bottoni (Sync, LLM, le icone) stanno nella

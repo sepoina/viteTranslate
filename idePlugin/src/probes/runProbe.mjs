@@ -1,3 +1,4 @@
+// DOCS-PAGE: vscode/panel — the user manual describes this behaviour; update it and run npm run docs:seal (AGENTS.md).
 // Lancia una sonda su un progetto e ne aspetta la risposta: probe.mjs (il vite.config) o
 // markedProbe.mjs (le voci marcate).
 //

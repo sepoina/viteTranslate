@@ -1,3 +1,4 @@
+// DOCS-PAGE: vscode/panel — the user manual describes this behaviour; update it and run npm run docs:seal (AGENTS.md).
 // La pagina del guasto della libreria, nella sezione facoltativa (al posto di Results e Project): il
 // progetto selezionato non ha @sepoina/vitetranslate, ne ha una di prima di `./ide/scan`, o una che
 // non si carica (LIBRARY_PROBLEMS in markedScan.mjs). Results non avrebbe niente da mostrare e

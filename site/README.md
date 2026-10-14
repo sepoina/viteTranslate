@@ -9,6 +9,7 @@ plus one page per demo, each a Vite project of its own.
 | [`pages/playground/`](pages/playground) | `/viteTranslate/playground/` |
 | [`pages/playEdge/`](pages/playEdge) | `/viteTranslate/edge/` |
 | [`pages/llmRestaurant/`](pages/llmRestaurant) | `/viteTranslate/llmrestaurant/` |
+| [`pages/docs/`](pages/docs) | `/viteTranslate/docs/` — the user manual (no card, no zip) |
 
 ## Run
 
@@ -19,7 +20,7 @@ npm run site:build     # the same build, without serving: output in site/dist
 npm run site           # dev server of the landing only, port 3002
 ```
 
-A single page in dev: `npm run dev -w site/pages/playground` (3000), `…/playEdge` (3001), `…/llmRestaurant` (3003).
+A single page in dev: `npm run dev -w site/pages/playground` (3000), `…/playEdge` (3001), `…/llmRestaurant` (3003), `npm run docs` for the manual (3004).
 
 In `npm run site` the cards lead to the pages already built in `site/dist` (served at `/viteTranslate/…` by
 [`landing/vite.config.js`](landing/vite.config.js)), so run `npm run site:build` first; without `site/dist` they
@@ -27,6 +28,30 @@ lead to the published site.
 
 Each folder stays a project that installs and builds on its own; what changes between the
 two situations is the `base` and where the links to the other pages point.
+
+## The manual
+
+The user manual is [`pages/docs/`](pages/docs): pages are `.mdx` files in `content/<section>/<page>.mdx`, in a small dialect that a local compiler ([`scripts/compileDocs.mjs`](pages/docs/scripts/compileDocs.mjs)) turns into JSX under `src/generated/` (ignored by git). Every sentence becomes a `<Trans>`, so the Italian version is made by viteTranslate itself. Anything the dialect does not list is a compile error with `file:line`.
+
+- **Frontmatter:** `title`, `description`, `sources:` (the repo files the page describes; `file.json#key` for part of a JSON), optional `aliases:`.
+- **Blocks:** `##` and `###` with a mandatory `{#id}`; paragraphs; lists (one line per item, one nesting level); callouts `> [!NOTE]` with paragraphs only; tables (`\|` for a literal bar); code fences with a language and optional `title="…"`; `![alt](img/x.png)` (PNG or WebP in `public/img`, size read from the file); `<Demo page="slug" anchor="id" />`.
+- **Inline:** code, bold, italic, links: `/route#id`, `#id`, `site:slug#id`, `repo:path#id`, `https://…`. A code span cannot contain a backtick.
+- **Special characters** in text (`{ } < > &`, `%s`, the marker delimiter) are emitted as values (`{K[n]}`), never as translatable text.
+
+```bash
+npm run docs              # dev server, port 3004
+npm run docs:status       # pages whose sources changed since they were last read
+npm run docs:seal -- llm/price   # after updating the page and reading the diff
+npm run testRelease       # the release checks, the manual's among them
+```
+
+**Sources and lock.** `docs.lock.json` stores, per page, the hash of each source (line endings do not count) and every anchor ever published. A page is *stale* when a source changed; `seal` records the new state, one page at a time. Each source file carries a `DOCS-PAGE: route` comment pointing back. Anchors never leave the lock: a renamed or moved section needs an `aliases:` line (`route#old -> new`, also across two existing pages: the router follows `generated/aliases.json`). The static copies written at build time (`scripts/staticRoutes.mjs`) give every route its own `index.html` and every old route a redirect; they never overwrite a real page.
+
+**Translation.** `pages/docs/locale/` is written by viteTranslate only. Never edit it by hand; the Italian table is filled with `cd site/pages/docs && npx vitetranslate --llm-translate it-IT` (try `--llm-dry-run` first).
+
+## Release checks
+
+`npm run testRelease` ([`test/testRelease.mjs`](../test/testRelease.mjs)) runs every `test/release/*.check.mjs` in name order and prints one table: `suite` (`npm test`), `theme`, `demos`, `readme` (size rule of AGENTS.md), `runtime-size` (runs `estimateSize`, which rewrites `site/runtimeSize.json`) and `docs`: it compiles the manual and runs eight checks (stale pages, `DOCS-PAGE` pointers, API coverage, published anchors, links into the manual, links to migrated files, `TODO(links)`, translation status). `--only <word>` runs the checks whose name has it. A check is a file exporting `name` and `run()` that returns `{ level: "ok" | "warn" | "ko", lines }`. Exit code 1 on any KO.
 
 ## Theme
 
@@ -47,6 +72,17 @@ Working on the theme with a dev server open: `node site/syncTheme.mjs --watch` i
 
 Need something dark on a light page (like the source panel of the edge page)? Put `data-theme="dark"` on it: its whole
 subtree keeps the dark tokens.
+
+## The video in the hero
+
+[`landing/src/HeroVideo.jsx`](landing/src/HeroVideo.jsx) closes the hero with a full-width band: a poster ([`landing/public/video/poster.webp`](landing/public/video/poster.webp), ~95 kB) that opens YouTube
+in a new tab. No embedded player, on purpose: the embed sometimes answers "Sign in to confirm you're not a bot"
+(YouTube's own check on IP and session, nothing a page can work around).
+
+- **New video:** change `VIDEO_ID` in [`landing/src/links.js`](landing/src/links.js), and the same id everywhere its
+  LINKED-DATA comment points (root README, extension, launcher, demos).
+- **New poster:** 1280 px wide WebP, about 100 kB. The band around it has its own `--video-*` tokens and stays dark
+  in both themes (`data-theme="dark"`), like the poster.
 
 ## Cards: Source, StackBlitz, Zip
 
@@ -69,7 +105,7 @@ without `src/App.jsx` (the file StackBlitz opens).
 
 1. Create `site/pages/<folder>/` with a Vite project, and put in its `package.json`
    `"vitetranslateSite": { "slug": "<slug>", "theme": true }` (`slug`: `a-z`, `0-9`, `-`; `theme` only if the page
-   uses the site theme). That field is what makes it a page.
+   uses the site theme; `"card": false` for a page without a landing card and without a zip, like the manual). That field is what makes it a page.
 2. Add its card to [`landing/src/pages.js`](landing/src/pages.js) and translate the two new sentences.
 3. Copy [`landing/src/siteLinks.js`](landing/src/siteLinks.js) into the page's `src/` if it links back to the site.
 4. If it uses the theme: `import "./theme/theme.css"` in `main.jsx`, and `<SiteBar>` for the top bar.

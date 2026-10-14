@@ -1,0 +1,101 @@
+---
+title: A language switcher
+description: List the languages, switch with one click, remember the choice, or rotate through them with a single button.
+sources:
+  - demo/Vite_8/minimal/src/RotateLanguageButton.jsx
+  - lib/react/useTranslateLanguage.js
+  - lib/react.d.ts
+---
+
+<!-- LINKED-DATA: the last section is a simplified take on RotateLanguageButton in demo/Vite_8/minimal (its comments and styles left out). The code and results below come from a real run of a project with en-US, de-DE and fr-FR. -->
+
+A switcher needs three things: which language is on screen, which ones exist, and a way to ask for another. One hook gives you all of them. This tutorial assumes a project with at least two languages, like the one in [Your first translated app](/tutorials/first-app).
+
+## List the languages {#list-the-languages}
+
+```jsx title="src/LanguageSwitcher.jsx"
+import { useTransLanguage } from "@sepoina/vitetranslate/react";
+
+export default function LanguageSwitcher() {
+  const { id, languages, proposeNewLanguage } = useTransLanguage();
+
+  return languages.map(({ tag, languageName }) => (
+    <button key={tag} disabled={id === tag} onClick={() => proposeNewLanguage({ lang: tag })}>
+      {languageName}
+    </button>
+  ));
+}
+```
+
+- `languages` has every file found in `localeDir`, source language first.
+- `languageName` is the language written in itself, region included: with `en-US`, `de-DE` and `fr-FR` the buttons read *American English*, *Deutsch (Deutschland)* and *français (France)*.
+- `id` is the tag on screen, so the current language's button is disabled.
+
+Put it anywhere below `TransContainer`:
+
+```jsx title="src/App.jsx"
+import { Trans } from "@sepoina/vitetranslate/react";
+import LanguageSwitcher from "./LanguageSwitcher.jsx";
+
+export default function App({ name }) {
+  return (
+    <>
+      <p>
+        <Trans>Welcome back, <b>{name}</b>!</Trans>
+      </p>
+      <LanguageSwitcher />
+    </>
+  );
+}
+```
+
+Click *Deutsch (Deutschland)* and the sentence reads *Willkommen zurück, Ada!*; click *français (France)* and it reads *Bon retour, Ada !*. The language you leave stays on screen until the new one has loaded, so there is no blank frame in between ([how it works](/hooks/use-translate-language#proposenewlanguage)).
+
+## Remember the choice {#remember-the-choice}
+
+A reload goes back to the language in `initialLanguage`. To keep the choice, save it when a switch succeeds, and read it back at start:
+
+```jsx title="src/LanguageSwitcher.jsx"
+const switchTo = (tag) =>
+  proposeNewLanguage({ lang: tag, onDone: (ok) => ok && localStorage.setItem("lang", tag) });
+```
+
+```jsx title="src/main.jsx"
+<TransContainer initialLanguage={localStorage.getItem("lang") ?? "en-US"}>
+  <App name="Ada" />
+</TransContainer>
+```
+
+After choosing German and reloading, the page reads *Willkommen zurück, Ada!*. `onDone` receives the real outcome, so a failed load is not remembered.
+
+> [!NOTE]
+> `initialLanguage` is read once, at mount. Starting from a language that is not preloaded works, but costs a round trip before the first paint, and the container says so once in the console. If most visitors start in the same language, see [Preloading](/concepts/preloading).
+
+## One button that rotates {#one-button-that-rotates}
+
+For a demo, or a page with three languages and no room for a menu: one button that names the current language and the next one. This is what `demo/Vite_8/minimal` does.
+
+```jsx title="src/LanguageSwitcher.jsx"
+import { useTransLanguage } from "@sepoina/vitetranslate/react";
+
+export default function LanguageSwitcher() {
+  const { id, languages, proposeNewLanguage } = useTransLanguage();
+
+  const current = languages.find((l) => l.tag === id);
+  const next = languages[(languages.indexOf(current) + 1) % languages.length];
+
+  return (
+    <button onClick={() => proposeNewLanguage({ lang: next.tag })}>
+      {current.languageName} → {next.languageName}
+    </button>
+  );
+}
+```
+
+Click four times and the page goes *American English → Deutsch (Deutschland)*, *Deutsch (Deutschland) → français (France)*, *français (France) → American English*, and around again.
+
+## Good to know {#good-to-know}
+
+- The `languages` array is frozen and shared by the whole app. To sort or filter it, copy it first: `[...languages]`.
+- `languages` also works above the container, so a header outside the translated tree can list the languages. There `id` is `undefined` and switching does nothing.
+- A failed load falls back to the eager language, and `id` tells you which one is really on screen. See [useTranslateLanguage](/hooks/use-translate-language) for the retry pattern and the `onStart` and `onError` callbacks.

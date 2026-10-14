@@ -1,5 +1,5 @@
 // `@babel/core` è una peer dependency OBBLIGATORIA, e la sua assenza non è più un avviso: ferma
-// il dev server e la build (vedi doc/requirements.md § "Why @babel/core is required"). Questo
+// il dev server e la build (vedi il manuale, getting-started/installation, "Why @babel/core is required"). Questo
 // test copre la decisione, che non è verificabile disinstallando Babel dalla macchina che la
 // verifica — `motivoBabel` accetta la sonda come parametro proprio per questo, la stessa
 // cucitura che `autoSync` espone come `probeBabel`.

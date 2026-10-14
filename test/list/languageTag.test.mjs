@@ -30,13 +30,14 @@ const rifiuta = (tag, atteso) => {
 };
 
 // ------------------------------------------------------- l'elenco documentato, per intero
-console.log("\n== ogni tag di doc/bcp47.md è accettato ==");
+console.log("\n== ogni tag dell'elenco del manuale è accettato ==");
 {
-  // L'oracolo è la nostra stessa documentazione: se un tag è nella tabella che pubblichiamo
-  // come "lingue supportate", `--add` deve poterlo aggiungere. È anche il test che ha imposto
-  // `{2,3}` nella regex — "fil-PH" è lì dentro, e un `[a-z]{2}` l'avrebbe scartato.
-  const doc = readFileSync(join(dirname(fileURLToPath(import.meta.url)), "../../doc/bcp47.md"), "utf8");
-  const tags = [...doc.matchAll(/^\| \*\*([^*]+)\*\*/gm)].map((m) => m[1]);
+  // L'oracolo è la nostra stessa documentazione: se un tag è nell'elenco che pubblichiamo come
+  // "lingue supportate" (il manuale, concepts/languages: un blocco `text` con una riga per tag),
+  // `--add` deve poterlo aggiungere. È anche il test che ha imposto `{2,3}` nella regex —
+  // "fil-PH" è lì dentro, e un `[a-z]{2}` l'avrebbe scartato.
+  const doc = readFileSync(join(dirname(fileURLToPath(import.meta.url)), "../../site/pages/docs/content/concepts/languages.mdx"), "utf8");
+  const tags = [...doc.matchAll(/^([a-z]{2,3}-[A-Z]{2}) {2,}\S/gm)].map((m) => m[1]);
   eq("la tabella è stata letta davvero", true, tags.length > 50);
   const scartati = tags.filter((t) => !validateLanguageTag(t).ok);
   eq(`tutti i ${tags.length} tag documentati passano`, "", scartati.join(" "));

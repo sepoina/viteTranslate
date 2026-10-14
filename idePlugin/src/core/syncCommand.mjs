@@ -86,7 +86,7 @@ export function cliLaunch({ cli, args, runner, runAsNodeCmd, platform = process.
 }
 
 /**
- * Le azioni del pannello LLM (llmPanel.mjs): il CLI del progetto con un `--llm-*` (doc/llm.md).
+ * Le azioni del pannello LLM (llmPanel.mjs): il CLI del progetto con un `--llm-*` (manuale: llm/setup).
  * `icon` è una codicon; `languages: true` chiede prima le lingue (per `--llm-retranslate`, che le
  * vuole).
  */

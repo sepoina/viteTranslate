@@ -1,0 +1,60 @@
+---
+title: Live examples
+description: Every live example on the site, mapped to the page of this manual that explains it.
+sources:
+  - site/pages/playground/src/App.jsx
+  - site/pages/playEdge/src/testCases.jsx
+  - site/landing/src/pages.js
+---
+
+<!-- Migrated from doc/live-examples.md (ids = the GitHub slugs of the old headings). -->
+<!-- LINKED-DATA: the sections of the playground and edge pages (site/pages/playground, site/pages/playEdge) are the rows below; add a section there, add a row here. -->
+
+Two pages, two jobs:
+
+- 🎮 [Playground](site:playground) — each feature working, next to the code that produces it.
+- 🧪 [Edge cases](site:edge) — where things bend: one row per case, what renders next to what should, the recommended forms first and the mistakes last ([how to read it](site:edge#note)).
+
+Both switch language live, and the `#` next to every title is a link to share. Each page of this manual links its own live cases too, right where it explains them.
+
+## 🎮 Playground {#playground}
+
+| Section | Shows | Explained in |
+| :- | :- | :- |
+| [Static translation](site:playground#static-text) | `<Trans>` around a marked sentence | [Translate](/components/translate) (`<Trans>`) |
+| [Dynamic translation](site:playground#dynamic-text) | `%s` filled by `t={[text, ...args]}` | [Props](/components/translate#props) |
+| [Markup and React nodes](site:playground#markup) | The HTML dialect, a link as an argument | [Markup and placeholders](/components/translate#markup-and-placeholders) |
+| [Placeholders and attributes](site:playground#attributes) | `placeholder`, `aria-label`, `title` through `trans()` | [useTranslateToString](/hooks/use-translate-to-string) |
+| [Language switch](site:playground#language-switch) | The language list, lazy switching, callbacks | [useTranslateLanguage](/hooks/use-translate-language) |
+| [Plurals and ordinals](site:playground#icu-plural) | `plural`, `selectordinal`, `#` | [One example per construct](/concepts/icu#one-example-per-construct) |
+| [Select and named arguments](site:playground#icu-select) | `select`, `{name}` from an object | [Positions or names](/concepts/icu#arguments-positions-or-names) |
+| [Numbers, currencies and dates](site:playground#icu-format) | Each language's formats, the `timeZone` prop | [Dates and time zones](/concepts/icu#dates-and-time-zones) |
+| [autoWrap](site:playground#autowrap) | Markers with no `<Trans>` around them | [Plugin options](/api/plugin-options), [limitations](/concepts/limitations) |
+| [HTML from outside](site:playground#html-to-nodes) | `basicHtmlToNodes()` on a server's HTML | [basicHtmlToNodes](/hooks/helpers#basichtmltonodes) |
+| [Plugin config](site:playground#install-config) | Install, `vite.config.js`, folder layout | [Plugin options](/api/plugin-options) |
+| [Dev run](site:playground#install-dev) | `TransContainer`, the first `npm run dev` | [TranslateContainer](/components/translate-container) |
+| [Language build](site:playground#install-sync) | The automatic sync, `--status` in CI | [CLI](/api/cli) |
+| [Adding a new language](site:playground#install-new-language) | `--add`, then the `null`s to fill | [Adding a language](/concepts/languages) |
+| [Translating with an LLM](site:playground#install-llm) | The `llm` block, `--llm-translate` | [Getting started](/llm/setup#getting-started) |
+
+## 🧪 Edge cases {#edge-cases}
+
+| Category | Covers | Explained in |
+| :- | :- | :- |
+| [Call forms](site:edge#call-forms) | Children, `t`, tuple, `{ t, a }`, `o`, `a` | [Translate](/components/translate) |
+| [The preprocessor: JSX becomes the message](site:edge#macro) | Plain text, named values, a dialect tag staying text, a link becoming a slot, `null`/`false`, tagged templates in a component | [Write JSX inside Translate](/components/translate#write-jsx-inside-translate) |
+| [Short names](site:edge#aliases) | `<Translate>` and `<Trans>`, `ts` and `trans`, a marked text passed to `<Trans>`, and `Trans === Translate` | [Short names](/components/translate-container#short-names) |
+| [What becomes a marker](site:edge#markers) | Empty, nested, built at runtime, mid-string, in a template | [Known limitations](/concepts/limitations) |
+| [%s interpolation](site:edge#percent-s) | Too many, too few, `null`, `0`, `""` | [Markup and placeholders](/components/translate#markup-and-placeholders) |
+| [Standard ICU interpolation](site:edge#icu) | Positions, names, braces, apostrophes | [ICU messages](/concepts/icu) |
+| [Arguments that are React nodes](site:edge#react-nodes) | Elements as arguments, and where they don't belong | [What can sit in the text position](/components/translate#what-can-sit-in-the-text-position) |
+| [HTML dialect](site:edge#html) | Allowed tags, dropped attributes, broken markup, entities | [Markup and placeholders](/components/translate#markup-and-placeholders) |
+| [Unmarked text and skipMark](site:edge#unmarked) | The `‼️`, and when to silence it | [Unmarked text](/concepts/diagnostics#unmarked-text-is-domain-data-not-an-error) |
+| [Values that are not text](site:edge#not-text) | Numbers, `true`, functions, symbols — and `🚫[type]` | [When there is no text at all](/concepts/diagnostics#when-there-is-no-text-at-all) |
+| [Incompatible props](site:edge#conflicting-props) | Two texts for one slot: which one survives | [Case by case](/concepts/diagnostics#case-by-case) |
+| [Real texts](site:edge#real-text) | Accents, emoji, CJK, quotes, new lines | [File format](/concepts/translation-files#file-format) |
+| [autoWrap](site:edge#autowrap) | Ten cases, the ones it can't rewrite included | [Known limitations](/concepts/limitations) |
+
+## 🍽️ Showcase {#showcase}
+
+[The restaurant](site:llmrestaurant) — a whole landing page, 228 sentences, four languages filled in by `vitetranslate --llm-translate`. Its booking form shows plural guests, a date and a price: see [ICU messages](/concepts/icu) and [LLM setup](/llm/setup). Source in [`site/pages/llmRestaurant`](repo:site/pages/llmRestaurant).

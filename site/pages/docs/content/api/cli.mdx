@@ -1,0 +1,155 @@
+---
+title: CLI
+description: The sync command and its flags: add languages, check the tables, rewrite markers, and what to do when the sync stops.
+sources:
+  - lib/dev/vite/cli.js
+  - lib/dev/vite/uty/syncError.js
+  - lib/dev/vite/uty/fastVerify.js
+  - lib/dev/vite/uty/languageStatus.js
+  - lib/dev/vite/uty/migrateLegacyLanguages.js
+---
+
+<!-- Migrated from doc/cli.md (ids = the GitHub slugs of the old headings; "Rewriting the markers" moved to concepts/markers, "Migrating from 3.x" to tutorials/migrating-from-3). -->
+
+```bash
+npx vitetranslate
+```
+
+> **Installed once globally** (`npm i -g vitetranslate`), it's just `vitetranslate` — no `npx`, same command — in every project from then on: see the [launcher](repo:launcher#readme) for how it finds the right copy. Every example below works either way; drop the `npx` if you went global.
+
+> [!NOTE]
+> Before 4.1 the command was called `vitetranslate-prepare-translation-table`. That name is still registered and keeps working, so a `prebuild` script you already wrote does not break — but `vtranslate-cli` (what `vitetranslate` runs under the hood) is the one to use, and the only one the messages mention.
+
+Reads the `vitetranslate` config from `vite.config.*` in the current working directory, scans `srcDir` for marked strings (`_%_..._%_` by default, or your own [delimiters](/concepts/markers)) and `<Trans>` calls (or `trans` tagged templates), and syncs every language file in `localeDir`: adds new keys, removes stale ones — carrying over the translation when a key was only renamed, and when the rename also changed how the placeholders are written (`%s` to `{name}`, converting a marker to the preprocessor): the old translation's `%s`s or `{token}`s are rewritten into the new ones, in order, and only kept if the count matches — otherwise the new key is left `null` rather than risk showing the wrong argument — and reports what's left untranslated. The plugin runs this for you, at dev server startup and before every build (see [plugin options](/api/plugin-options)); this command is what you reach for when you want it on purpose — `--add`, `--status`, `--migrate`, or a check in CI.
+
+> 🎮 [Live walkthrough](site:playground#install-sync) — the sync and `--status`, then [`--add`](site:playground#install-new-language) and [`--llm-translate`](site:playground#install-llm), each with the files it writes.
+
+```text
+::: viteTranslate        ║  source: "src" (32 files),  translations: "locale" (59 keys)
+:::                      ║
+::: status               ║  it-IT.yml - 2 key(s) added, 1 removed
+:::                      ║  [en-US.yml, zh-CN.yml] - complete translations!
+:::                      ║  pt-BR.yml - 12 key(s) missing
+:::                      ║
+```
+
+Languages with nothing left to do share one line — it is the same news for all of them — while each language that still needs work gets its own, because the work is different for each. Only the missing count is coloured: in a block that is otherwise uniform, "there is still work here" is the one thing to find without reading.
+
+## `--add` {#add}
+
+```bash
+vitetranslate --add fr-FR de-DE
+```
+
+Adds one or more languages, syncs as usual — so the new files come out already filled with every key to translate (`null`) — and closes with the `--status` report, where the languages just added show up with their missing counts. Tags must be in the `<language>-<REGION>` form and name a real language and region ([supported list](/concepts/languages)); every tag is validated before anything is written, and a language already present is left untouched.
+
+> [!TIP]
+> A brand new project doesn't need it for the source language: the first `vite dev` creates that table by itself. With auto-sync off (`autoSyncDev: false`, or `VITETRANSLATE_NO_SYNC` set) nobody creates it, so without a readable `sourceLanguage` file in `localeDir` the dev server prints what's missing and stops, instead of starting anyway and failing on the first page load. `npx vitetranslate --add <sourceLanguage>` is exactly the command it points you to.
+
+## `--status` {#status}
+
+```bash
+vitetranslate --status
+```
+
+Reports every translation table and exits **without writing anything**: keys, missing translations, tables out of sync with the source code, and errors — an unreadable language file, a missing source language, files still in the 3.x format. The reference is the source code as it is now, not the source language file, so it also answers "do I need to re-run the sync?".
+
+```text
+::: status               ║  translation tables in "locale"
+:::                      ║  source language "it-IT" · 53 key(s) found in 17 scanned source file(s)
+:::                      ║
+:::                      ║  CODE   LANGUAGE            KEYS  MISSING  STATUS
+:::                      ║  en-US  American English      53        0  fully translated
+:::                      ║  it-IT  italiano (Italia)     53        0  source language
+:::                      ║  fr-FR  français (France)     51       12  out of sync with the source code:
+:::                      ║                                           2 key(s) to add, 0 to remove
+:::                      ║  de-DE  Deutsch                -        -  line 7: not an entry — expected
+:::                      ║                                           'Key_abc: "text"' or 'Key_abc: null'
+:::                      ║
+::: status               ║  4 language(s): 2 ok, 1 incomplete, 1 error
+```
+
+The `CODE` cell is coloured by what the language needs: green when there is nothing to do, orange when there is (missing translations, out of sync), red when the file cannot be read.
+
+The exit code is `1` on errors only, so it works as a CI check. An incomplete table is not an error — it is the normal state of a project still being translated.
+
+An [ICU message](/concepts/icu) that's broken, or whose arguments don't match the source, adds a warning note to the row — never an error, so it never trips the CI check on its own:
+
+```text
+:::                      ║  fr-FR  français (France)     53        0  1 key(s) whose ICU arguments or
+:::                      ║                                           syntax don't match the source,
+:::                      ║                                           shown in it-IT until fixed: App_1nn7xtl
+```
+
+The same note appears on the source row for a message that doesn't parse (`shown as plain text`), and as `key(s) with incomplete plural or select branches` when a translation is valid but doesn't cover every category this language's plural rules require.
+
+## `--migrate` {#migrate}
+
+```bash
+vitetranslate --migrate
+```
+
+One-off conversion of 3.x language files (`<tag>.js`) to the `<tag>.yml` format — see [migrating from 3.x](/tutorials/migrating-from-3). It only converts and exits; nothing else runs.
+
+## `--rewriteMarker` {#rewritemarker}
+
+`--rewriteMarkerDryRun [start] [end]` and `--rewriteMarker [start] [end]` rewrite the delimiters in your source after you change them in `vite.config`: see [Rewriting the markers](/concepts/markers#rewriting-the-markers).
+
+## When the sync stops {#when-the-sync-stops}
+
+The sync would rather stop than guess. These all end with a clear message and exit code `1`, and **none of them leaves a half-written table**:
+
+| Message | What happened | What to do |
+| :- | :- | :- |
+| `The scan … is incomplete` (`VT_SCAN_INCOMPLETE`) | A marked file could not be read or parsed, so some keys are missing from the scan and syncing would erase them from every language. | Fix the file(s) named in the message, then run again. A file using syntax the parser does not enable — decorators, for example — is skipped the same way, and blocks the CLI and `vite build` until it parses. |
+| `A language file cannot be read` (`VT_LANGUAGE_UNREADABLE`) | One or more language files cannot be opened (permissions, I/O error, a broken symlink). Every one is listed. | Fix them and run again. Nothing was touched. |
+| `cannot back up …` (`VT_BACKUP_FAILED`) | A `.bak-*` copy could not be written, so the sync refuses to overwrite the file it was protecting. | Free the disk space or fix the permissions, then run again. Backups already written stay. |
+| `… changed after it was read` (`VT_FILE_CHANGED`) | You (or your editor) saved a language file while the sync was running. It was **not** overwritten. | Run again once the other edit is done. |
+| `cannot write …` (`VT_WRITE_FAILED`) | A table could not be replaced. | See the reason in the message, fix it, run again. |
+
+When one table fails after others were already replaced, the message says which ones ("partial update"). There is no rollback — it could overwrite something newer — so just run the sync again: it picks up where it stopped.
+
+Under `vite dev` an incomplete scan is only a warning: the tables stay as they are and the server starts; the next start syncs again. `vite build` fails, like the CLI.
+
+## `--fastverify` {#fastverify}
+
+```bash
+vitetranslate --fastverify
+```
+
+Skips the whole sync when nothing relevant changed since the last one: it compares source file timestamps against a small record left by the last run and, if nothing moved, prints one line and exits — **without loading `vite.config` and without writing anything**, not even that record. The moment it finds anything worth a second look (a file touched, `vite.config` itself, the tables in `localeDir`), it falls back to the exact same full sync as running the command with no flags, plus one line saying why:
+
+```text
+::: viteTranslate        ║  sources: "src" (3000 files, 53 sentences),  translations: "locale"
+:::                      ║  fastverify: nothing changed.
+:::                      ║  2 marker warning(s), to see them terminal:
+:::                      ║  $ npx vitetranslate --status
+:::                      ╟─────────────────────────────────────────────────────────
+```
+
+> [!TIP]
+> This is the flag the plugin itself uses internally at dev server startup (see `autoSyncDev` in [plugin options](/api/plugin-options)), so most projects never need to type it by hand. It still has a use on its own: a CI job that wants to check freshness without paying the full scan, or a project that has turned `autoSyncDev` off and wants a cheap check in a `predev` script. It is *not* for `prebuild`/`autoSyncBuild`: before a production build, paying the full scan for the certainty of freshly rebuilt tables is the right trade.
+
+Running the plain command (no flags) never looks at that record — it always re-scans and rewrites it — so it is also the way out of any doubt about whether the fast path might be hiding something.
+
+## `--simpleLog` {#simplelog}
+
+```bash
+vitetranslate --simpleLog
+```
+
+Plain, un-boxed output: no label column, no rules — same colors, just shorter lines. Useful in a CI log or a narrow terminal. Same as the plugin's `simpleLog` option ([plugin options](/api/plugin-options)); when both are set, this flag wins.
+
+## LLM auto-translation {#llm-auto-translation}
+
+Twelve flags, every one of them starting with `--llm-`, kept in their own pages because mixing them with the sync flags above would make both hard to read: the full reference, including the `llm` plugin option they depend on, starts at [LLM setup](/llm/setup), and the flag table is in [Running and debugging](/llm/running#flags).
+
+Rejected combinations, same style as `--fastverify` + `--add` above: `--fastverify` with any `--llm-*` flag; any `--llm-*` with `--add`, `--status` or `--migrate`; `--llm-translate` with `--llm-retranslate`; `--llm-retranslate` with no tags; `--llm-status`/`--llm-ping` with a translate/retranslate/context/dry-run/auto/noask flag; `--llm-dry-run`, `--llm-auto`, `--llm-noask` or `--llm-debug` without a command they modify; more than one `--llm-key-*`, or one combined with anything else. An unrecognised `--llm-*` flag is also an error — the prefix is the namespace, a typo inside it doesn't fall back to a silent sync. All of them are read case-insensitive, like `--simpleLog` and `--fastverify`.
+
+## `--help` {#help}
+
+```bash
+vitetranslate --help
+```
+
+Usage and the available flags. It works from anywhere: unlike the other forms, it does not need a `vite.config.*` in the current directory.

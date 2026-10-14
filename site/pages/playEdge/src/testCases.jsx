@@ -1,3 +1,4 @@
+// DOCS-PAGE: getting-started/live-examples — the user manual describes this behaviour; update it and run npm run docs:seal (AGENTS.md).
 import { Translate, useTranslateToString, Trans, useTrans } from '@sepoina/vitetranslate/react';
 
 //

@@ -1,3 +1,4 @@
+// DOCS-PAGE: tutorials/first-app — the user manual describes this behaviour; update it and run npm run docs:seal (AGENTS.md).
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import { vitetranslate } from "@sepoina/vitetranslate";

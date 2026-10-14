@@ -1,0 +1,122 @@
+---
+title: Usage
+description: From the first sentence to a shipped build: write text, let the table write itself, add a language, translate, switch.
+sources:
+  - lib/react.d.ts
+  - lib/dev/vite/cli.js
+---
+
+<!-- Migrated from README.md "Quick start" steps 2-6 and its first "Next steps" fold (ids are new). -->
+<!-- LINKED-DATA: README.md quick start steps 2-6 say the same as this page; demo/Vite_8/quickApp is this walkthrough, finished; site/video/projects/quickstart films it. Change a step here, change the others. -->
+
+## Write text where it belongs {#write-text-where-it-belongs}
+
+Wrap the app once:
+
+```jsx
+// src/main.jsx
+import { TransContainer } from "@sepoina/vitetranslate/react";
+
+<TransContainer initialLanguage="en-US">
+  <App name="Ada" />
+</TransContainer>
+```
+
+Then write sentences as they are, values and tags included:
+
+```jsx
+// src/App.jsx
+import { Trans } from "@sepoina/vitetranslate/react";
+
+export default function App({ name }) {
+  return <Trans>Welcome back, <b>{name}</b>!</Trans>;
+}
+```
+
+No key to invent, no duplicate string to maintain.
+
+## Start Vite: the source table writes itself {#start-vite-the-source-table-writes-itself}
+
+```sh
+npm run dev
+```
+
+![npm run dev: viteTranslate finds 1 sentence and creates the source table, then Vite starts](img/quickstart-dev.png)
+
+```yaml
+# locale/en-US.yml
+App_zn6492: "Welcome back, <b>{name}</b>!"
+```
+
+Keys are generated for you. The sync runs at every `vite dev` start and before every build: new keys in, stale ones out, and a string that moves keeps its translation.
+
+## Add a language {#add-a-language}
+
+From a second terminal, the dev server can keep running:
+
+```sh
+npx vitetranslate --add fr-FR
+```
+
+![npx vitetranslate --add fr-FR: locale/fr-FR.yml created, 1 key to translate](img/quickstart-add.png)
+
+```yaml
+# locale/fr-FR.yml
+App_zn6492: null
+```
+
+## Translate {#translate}
+
+Replace each `null` by hand ([file format](/concepts/translation-files)) or let an [LLM](/llm/setup) do it:
+
+```yaml
+# locale/fr-FR.yml
+App_zn6492: "Bon retour, <b>{name}</b> !"
+```
+
+Then check where you stand. `--status` writes nothing, so it doubles as a CI check:
+
+```sh
+npx vitetranslate --status
+```
+
+![npx vitetranslate --status: en-US and fr-FR both ok](img/quickstart-status.png)
+
+Until a key is translated the page shows the source text, never a blank. In dev, saving a table reloads the page.
+
+## Switch language and ship {#switch-language-and-ship}
+
+```jsx
+import { useTransLanguage } from "@sepoina/vitetranslate/react";
+
+const { proposeNewLanguage } = useTransLanguage();
+<button onClick={() => proposeNewLanguage({ lang: "fr-FR" })}>Français</button>
+```
+
+`npm run build`: each language compiles to its own chunk, loaded when selected ([useTranslateLanguage](/hooks/use-translate-language)).
+
+[**Download zip**](https://sepoina.github.io/viteTranslate/zip/demo/vite8-quick-app.zip) · [Open it on StackBlitz](https://stackblitz.com/github/sepoina/viteTranslate/tree/main/demo/Vite_8/quickApp?file=src/App.jsx)
+
+## Next steps: plain strings, short names, plurals and dates {#next-steps}
+
+**Plain strings** — attributes, titles, anything that isn't JSX — go through `trans` used as a tagged template. Live in the [playground](site:playground):
+
+```jsx
+import { Trans, useTrans } from "@sepoina/vitetranslate/react";
+
+function App({ name }) {
+  const trans = useTrans();
+  return (
+    <>
+      <Trans>Nice to meet you, <b>{name}</b></Trans>
+      <input placeholder={trans`Write to ${name}`} />
+    </>
+  );
+}
+```
+
+`Trans`, `useTrans`, `TransContainer`, `useTransLanguage` are the short names of `Translate`, `useTranslateToString`, `TranslateContainer`, `useTranslateLanguage`: same functions, both work.
+
+**Plurals and dates** go in a string marked `_%_…_%_`: see [ICU messages](/concepts/icu). Prefer other delimiters? `markerStart`/`markerEnd` — see [Markers](/concepts/markers).
+
+**The command line**: run `npx vitetranslate` from the project root. Tired of `npx`? A tiny [launcher](repo:launcher#readme) runs each project's own version. Every command is in the [CLI reference](/api/cli).

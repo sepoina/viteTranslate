@@ -1,3 +1,4 @@
+// DOCS-PAGE: vscode/install — the user manual describes this behaviour; update it and run npm run docs:seal (AGENTS.md).
 // La scansione delle voci marcate di UN progetto, file per file, con la loro riga: il lavoro della
 // sonda di Marked (markedProbe.mjs, che ne è solo l'ingresso). Node puro, nessun `vscode`.
 //

@@ -2,7 +2,7 @@
 #      中文（中国）
 #       |    code: zh-CN
 #       |    missing key: 0
-#       |    processed: 2026-10-10 22:05
+#       |    processed: 2026-10-14 13:26
 #       |    TableVersion: 260905
 #  -------------------------------------------------
 #
@@ -53,8 +53,12 @@ Hero_1eptjs7: "字节运行时（gzip）"
 Hero_1gdm8ga: "新功能：LLM 自动翻译"
 Hero_1rwpyzm: "文本只写<em>一次</em>。"
 Hero_56y4kk: "其余交给 Vite。"
+HeroVideo_10an6gt: "视频：为什么选择 viteTranslate，以及它的生态如何运作"
+HeroVideo_1wfoiwd: "为什么选择 viteTranslate，以及它的各个部分如何协同工作。"
+HeroVideo_l53cig: "视频"
 LanguageSwitch_gzrcyx: "页面语言"
 Marquee_aimam1: "一份源码，想要多少语言都行。"
+Nav_16qsfmz: "文档"
 Nav_1c4ck8: "对比"
 Nav_1d2o49w: "功能"
 Nav_4py963: "演示"

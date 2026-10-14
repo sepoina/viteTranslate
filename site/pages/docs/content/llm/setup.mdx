@@ -1,0 +1,104 @@
+---
+title: Setup
+description: Point viteTranslate at a model, give it the key, and fill your null keys with one command.
+sources:
+  - lib/dev/llm/llmOptions.js
+  - lib/dev/llm/apiKey.js
+  - lib/dev/llm/keyringPeer.js
+  - lib/dev/llm/fetchDriver.js
+  - lib/dev/llm/llmCommands.js
+---
+
+<!-- Migrated from doc/llm.md: the introduction, "Getting started", "Every option" and "The API key" (ids = the GitHub slugs of the old headings). -->
+
+`vitetranslate --llm-translate` syncs the tables, then fills every `null` key through an LLM you configure. The manual workflow — copy the `----to be translated----` block into a chat, paste the answer back (see [translation files](/concepts/translation-files)) — still works and always will; this does the same thing for you.
+
+It runs **only from the CLI**, never from the Vite plugin: an LLM call inside `vite dev` would mean a network call, and a bill, on every dev server start and every CI build ([why](repo:doc/structure.md#phase-5--llm-auto-translation)).
+
+Runnable example: [`demo/Vite_8/llmTranslate`](repo:demo/Vite_8/llmTranslate) — three languages at `null`, the `llm` block already wired, one command to fill them.
+
+> 🎮 [Live walkthrough](site:playground#install-llm) — the config and one run. 🍽️ [The restaurant](site:llmrestaurant) — a whole landing page translated by this command, four languages, the Japanese one reordering its ICU arguments.
+
+## Getting started {#getting-started}
+
+**1. Point `llm` at a model** — any OpenAI-compatible endpoint:
+
+```js
+// vite.config.js
+vitetranslate({
+  localeDir: "locale",
+  sourceLanguage: "it-IT",
+  llm: {
+    connection: {
+      baseURL: "https://generativelanguage.googleapis.com/v1beta/openai",
+      model: "gemini-2.5-flash",
+      apiKeyEnv: "VITETRANSLATE_API_KEY", // the NAME of the env var, never the key
+    },
+  },
+});
+```
+
+Anything that does not speak this shape: see [Providers](/llm/providers).
+
+**2. Give it the key**, for example in `.env.local` (other options [below](#the-api-key)):
+
+```sh
+VITETRANSLATE_API_KEY=your-key-here
+```
+
+**3. Check, estimate, run:**
+
+```bash
+vitetranslate --llm-ping          # the connection works and the model answers
+vitetranslate --llm-dry-run --llm-translate   # what it would cost; sends nothing
+vitetranslate --llm-translate     # prints the estimate, asks, then translates
+```
+
+Add `costMillionInput`/`costMillionOutput` (your provider's price per million tokens) to see the cost next to the estimate — see [price](/llm/price).
+
+## Every option {#every-option}
+
+All optional except where noted. Each is explained in its section below.
+
+| `llm.` | Default | |
+| :- | :- | :- |
+| `connection.baseURL` | — | **Required** without a `driver`. OpenAI-compatible endpoint ([getting started](#getting-started)) |
+| `connection.model` | — | **Required** without a `driver` |
+| `connection.apiKeyEnv` | `"VITETRANSLATE_API_KEY"` | Name of the env var holding the key ([API key](#the-api-key)) |
+| `connection.protocol` | `"openai-chat"` | The only value accepted |
+| `connection.temperature` | `0.2` | Sent with every request |
+| `connection.timeoutMs` | `60000` | Per request |
+| `connection.maxRetries` | `3` | Retries on HTTP 429, 5xx and network errors — never on 400/401/403 |
+| `connection.maxConcurrency` | `4` | Requests in flight at the same time |
+| `connection.modelClass` | `"standard"` | How much the model can take: sizes the batches and `max_tokens` ([model class](/llm/price#model-class)) |
+| `connection.maxTokensField` | `"max_tokens"` | Name of the output-limit field in the request: `"max_tokens"`, `"max_completion_tokens"`, or `false` to send none |
+| `connection.providerOptions` | `{}` | Extra fields merged into the request body, for provider-specific settings. Wins over everything else, `max_tokens` included |
+| `connection.costMillionInput` / `costMillionOutput` | — | Price per million tokens. Both or neither ([estimate](/llm/price#the-estimate)) |
+| `connection.costUnity` | `"$"` | Currency symbol printed in front of costs |
+| `driver` | — | Your own function instead of the built-in client ([Vercel example](/llm/providers#optional-vercel-provider)) |
+| `budget` | `"safe"` | Your spending caps, per run and per day, in cost ([budget](/llm/price#budget-caps)) |
+| `costGuard` | — | Below this estimated cost, no confirmation ([confirmation](/llm/price#confirmation)) |
+| `context` | `{ mode: "auto", refreshEvery: 40, sample: 300 }` | The project brief ([context abstract](/llm/context)) |
+| `languages` | every table in `localeDir` | Which languages `--llm-translate` fills; tags on the command line narrow it further. The source language is always excluded |
+| `tone` | — | A free-text line added to every translation prompt, e.g. `"informal, second person"` |
+
+## The API key {#the-api-key}
+
+The key never goes in `vite.config.*`: there is no `connection.apiKey` option, only `apiKeyEnv`, the **name** of an environment variable. It is looked up in this order, and never logged or written to disk:
+
+1. `process.env[apiKeyEnv]`
+2. `.env.local`, then `.env`, in the project root
+3. the system keyring, if `@napi-rs/keyring` is installed
+
+The keyring is an **optional** peer dependency, for when you'd rather keep the key in the OS keychain than in a file:
+
+```bash
+npm i -D @napi-rs/keyring
+vitetranslate --llm-key-set       # reads the key from stdin, input hidden
+vitetranslate --llm-key-status
+vitetranslate --llm-key-clear
+```
+
+Without the package, or without a Secret Service (Docker, WSL, a remote SSH session), that step is skipped silently.
+
+`vitetranslate --llm-status` tells you where the key was found, along with the connection, today's spend, the budget and model class in force, `llm.costGuard` and the [context abstract](/llm/context). It makes no network call; `--llm-ping` adds one minimal request to confirm the model answers.

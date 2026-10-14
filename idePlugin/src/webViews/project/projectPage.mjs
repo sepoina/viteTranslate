@@ -1,3 +1,4 @@
+// DOCS-PAGE: vscode/panel — the user manual describes this behaviour; update it and run npm run docs:seal (AGENTS.md).
 // La pagina della sezione Project (una webview), in due zone:
 //   - in alto, e scorre se la sezione è bassa, Translations: i file di lingua del progetto
 //     selezionato nello stile di Config in Selector (il resto della sintesi sta in Settings). Accanto

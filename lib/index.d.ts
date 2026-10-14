@@ -1,6 +1,7 @@
 // Architettura d'insieme: doc/structure.md § "Distribuzione del pacchetto".
 // Quel documento è la fonte di verità sul funzionamento della libreria: se cambi il
 // comportamento di questo file, aggiornalo nello stesso commit.
+// DOCS-PAGE: api/plugin-options, api/types, concepts/diagnostics, getting-started/faq — the user manual describes this behaviour; update it and run npm run docs:seal (AGENTS.md).
 
 /// <reference path="./virtual.d.ts" />
 

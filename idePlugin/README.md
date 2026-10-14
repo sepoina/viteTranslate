@@ -11,7 +11,7 @@ Every marked string and how its translation is doing, in a panel of its own. No 
 [![npm library](https://img.shields.io/npm/v/@sepoina/vitetranslate?logo=npm&logoColor=white&label=library&color=CB3837)](https://www.npmjs.com/package/@sepoina/vitetranslate)
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue)](https://github.com/sepoina/viteTranslate/blob/HEAD/idePlugin/LICENSE)
 
-[**Library**](https://github.com/sepoina/viteTranslate#readme) · [**Panel guide**](https://github.com/sepoina/viteTranslate/blob/HEAD/doc/ide-panel.md) · [**Site**](https://sepoina.github.io/viteTranslate/) · [**Issues**](https://github.com/sepoina/viteTranslate/issues)
+[**Library**](https://github.com/sepoina/viteTranslate#readme) · [**Panel guide**](https://sepoina.github.io/viteTranslate/docs/vscode/panel/) · [**Site**](https://sepoina.github.io/viteTranslate/) · [**Issues**](https://github.com/sepoina/viteTranslate/issues)
 
 </div>
 
@@ -22,6 +22,12 @@ Every marked string and how its translation is doing, in a panel of its own. No 
 ## 🧩 One project, two halves
 
 [viteTranslate](https://github.com/sepoina/viteTranslate#readme) is a Vite plugin: you write sentences right in your JSX, it extracts them and keeps one `.yml` table per language in sync. This extension is its view from inside the editor, and it doesn't work without it.
+
+<!-- LINKED-DATA: same video id as README.md, launcher/README.md, the demo READMEs and site/landing/src/links.js (VIDEO_ID). -->
+<p align="center">
+  <a href="https://youtu.be/gYj1z3XMv9M"><img src="https://github.com/sepoina/viteTranslate/raw/HEAD/doc/youplay.png" alt="Watch: why viteTranslate, and how its pieces work together" width="560" /></a><br />
+  <sub>▶️ Why viteTranslate, and how the two halves work together.</sub>
+</p>
 
 | The library (npm) | The extension (here) |
 | --- | --- |
@@ -102,8 +108,8 @@ From the panel, or the Command Palette under **viteTranslate:**
 
 ## 📚 More
 
-- 📖 **[Panel guide](https://github.com/sepoina/viteTranslate/blob/HEAD/doc/ide-panel.md)**: every section, glyph and button, the fifteen styles, what happens under the hood.
-- 🌐 **[viteTranslate](https://github.com/sepoina/viteTranslate#readme)**: the library, its [CLI](https://github.com/sepoina/viteTranslate/blob/HEAD/doc/cli.md) and the [LLM guide](https://github.com/sepoina/viteTranslate/blob/HEAD/doc/llm.md).
+- 📖 **[Panel guide](https://sepoina.github.io/viteTranslate/docs/vscode/panel/)**: every section, glyph and button, the fifteen styles, what happens under the hood.
+- 🌐 **[viteTranslate](https://github.com/sepoina/viteTranslate#readme)**: the library, its [CLI](https://sepoina.github.io/viteTranslate/docs/api/cli/) and the [LLM guide](https://sepoina.github.io/viteTranslate/docs/llm/setup/).
 - 🧪 **[Run it from source](https://github.com/sepoina/viteTranslate/blob/HEAD/CONTRIBUTING.md#editor-extension-experimental)**: `npm run ide:dev` in the repository.
 - 💬 **[Discussions](https://github.com/sepoina/viteTranslate/discussions)** for ideas, **[Issues](https://github.com/sepoina/viteTranslate/issues)** for bugs.
 - 📄 **[License](https://github.com/sepoina/viteTranslate/blob/HEAD/idePlugin/LICENSE)**: Apache License 2.0.

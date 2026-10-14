@@ -3,12 +3,13 @@
 // SORGENTE in site/theme/: la copia in src/theme/ la rigenera `npm run site:theme`.
 import { useTransLanguage, useTrans } from "@sepoina/vitetranslate/react";
 
-export default function LanguageSwitch() {
+// `label`: l’etichetta accessibile, già tradotta; senza, quella italiana (la lingua sorgente degli altri progetti).
+export default function LanguageSwitch({ label }) {
   const { id, languages, proposeNewLanguage } = useTransLanguage();
   const trans = useTrans();
 
   return (
-    <div className="seg lang-switch" role="group" aria-label={trans("_%_Lingua della pagina_%_")}>
+    <div className="seg lang-switch" role="group" aria-label={label ?? trans("_%_Lingua della pagina_%_")}>
       {languages.map(({ tag, languageName }) => (
         <button
           key={tag}

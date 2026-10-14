@@ -89,6 +89,15 @@
   --grid: #141b17;
   --glow: rgba(74, 222, 128, 0.13);
 
+  /* La banda del video in fondo all'hero (landing): retino, aloni verde e ciano, cornice al neon.
+     Solo qui: la banda ha data-theme="dark", quindi il tema chiaro non li ridefinisce. */
+  --video-dot: rgba(74, 222, 128, 0.22);
+  --video-glow: rgba(74, 222, 128, 0.36);
+  --video-glow-2: rgba(34, 211, 238, 0.3);
+  --video-neon-2: #22d3ee;
+  --video-halo: rgba(74, 222, 128, 0.35);
+  --video-shade: rgba(0, 0, 0, 0.6);
+
   /* Codice. */
   --code-bg: #161d19;
   --tk-c: #7f8b84; /* commenti */

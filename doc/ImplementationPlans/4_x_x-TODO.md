@@ -173,3 +173,39 @@ Each has trade-offs: list them in the plan. **Trigger:** the first report of a b
 **Verified facts (2026-10-10):** `autoSync.js` keeps successful Promises in `inCorso`. Two sequential calls in the same process with the same configuration return the earlier result, even if source strings changed between them. A temporary-project reproduction returned `synced` on the second call while its table still contained the old text. `autoSyncReentrancy.test.mjs` deliberately asserts reuse of the completed result.
 
 **Proposal to assess:** retain only in-flight Promises, so overlapping calls share work but a later invocation can run fastVerify/full sync again. Define the boundary between duplicate hooks in one startup and a later restart/programmatic build before changing tests. Verify simultaneous calls, successful completion followed by a source edit, failures, incomplete scans and repeated builds. Do not treat a fulfilled Promise as evidence that disk state is still current.
+
+## T7. Docs search
+
+**Status:** idea. **Origin:** manual v1.
+
+**Idea:** an index of the page titles and headings built at `site:build`, searched in the browser (no service). The compiler already knows every title and heading: `src/generated/routes.json` has them.
+
+## T8. Content prerender
+
+**Status:** idea. **Origin:** manual v1.
+
+**Facts:** the manual is drawn in the browser; the static copies per route give each address a file, a title and a description, but the text is not in the HTML (search engines and no-script readers see an empty page).
+
+**Idea:** render each route to HTML at build time, if the plugin supports an SSR build. Then the copies carry the text and the redirects stay as they are.
+
+## T9. Remove the `doc/` stubs
+
+**Status:** scheduled. **Origin:** manual v1 (step 1.10).
+
+**Facts:** the twelve migrated files (`react-api`, `llm`, `cli`, `icu`, `diagnostics`, `plugin-options`, `translations`, `bcp47`, `limitations`, `requirements`, `live-examples`, `ide-panel`) are provisional stubs with a table "old heading → manual section". Published packages and the Marketplace README may still link to them.
+
+**Trigger:** two minor releases after this one, when the published extension and the npm README no longer point to `doc/*.md`. Then delete the stubs and `MIGRATED` in `site/docsSources.mjs` (and its check).
+
+## T10. IDE release check in `testRelease`
+
+**Status:** idea. **Origin:** manual v1.
+
+**Idea:** a check in `test/release/` that runs `npm view @sepoina/vitetranslate@latest version` and compares it with `IDE_API` / `IDE_API_MIN`, as the release rules of AGENTS.md ask before an extension release.
+
+## T11. Theme strings in Italian on the docs page
+
+**Status:** idea. **Origin:** manual v1.
+
+**Facts:** `site/theme/{SiteBar,LanguageSwitch,ThemeToggle}.jsx` keep two Italian marked strings (`Lingua della pagina`, `Cambia tema`). The docs page passes its own labels, but the Italian text still lands in its `en-US` table as a source sentence, and translating it wastes tokens.
+
+**Idea:** make `label` required in the theme and let each page pass its own.

@@ -2,7 +2,7 @@
 #      italiano (Italia) (sourceLanguage)
 #       |    code: it-IT
 #       |    missing key: 0
-#       |    processed: 2026-10-10 22:05
+#       |    processed: 2026-10-14 13:26
 #       |    TableVersion: 260905
 #  -------------------------------------------------
 #
@@ -53,8 +53,12 @@ Hero_1eptjs7: "byte di runtime, in gzip"
 Hero_1gdm8ga: "Nuovo: traduzione automatica con LLM"
 Hero_1rwpyzm: "Scrivi il testo <em>una volta</em>."
 Hero_56y4kk: "Vite fa il resto."
+HeroVideo_10an6gt: "Video: perché viteTranslate e come lavora il suo ecosistema"
+HeroVideo_1wfoiwd: "Perché viteTranslate, e come lavorano insieme i suoi pezzi."
+HeroVideo_l53cig: "Il video"
 LanguageSwitch_gzrcyx: "Lingua della pagina"
 Marquee_aimam1: "Una sola sorgente. Tutte le lingue che vuoi."
+Nav_16qsfmz: "Documentazione"
 Nav_1c4ck8: "Confronto"
 Nav_1d2o49w: "Funzioni"
 Nav_4py963: "Demo"

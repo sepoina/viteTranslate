@@ -1,0 +1,67 @@
+---
+title: Markers and keys
+description: How a string is marked, how to pick your own delimiters, and why the key of a translation never changes.
+sources:
+  - lib/markerSyntax.js
+  - lib/dev/vite/uty/markerOptions.js
+  - lib/dev/vite/uty/rewriteMarkers.js
+  - lib/dev/babel/extractMarkers.js
+  - lib/dev/vite/cli.js
+---
+
+<!-- Migrated from doc/plugin-options.md, "Markers", and doc/cli.md, "Rewriting the markers" (ids = the GitHub slugs of the old headings; the old parent heading "Markers" is the page itself). -->
+
+`_%_` is the default delimiter of a marked string. Pick your own with `marker` (one delimiter, both ends) or `markerStart` / `markerEnd`; the specific one wins:
+
+```js
+vitetranslate({
+  localeDir: "locale",
+  sourceLanguage: "it-IT",
+  markerStart: "≼", // U+227C
+  markerEnd: "≽",   // U+227D
+});
+```
+
+```jsx
+const steps = ["≼Choose≽", "≼Pay≽"]; // same key as "_%_Choose_%_" had
+<input title={trans("≼Filter≽")} />
+```
+
+- **The key never changes.** It comes from the text inside, not from the delimiters (nor from the component name): switching delimiters, or rewriting `_%_x_%_` to `≼x≽`, keeps every translation. [`--rewriteMarker`](#rewriting-the-markers) does the rewriting for you, and refuses to write if a single key would change.
+- **Not allowed:** spaces, control characters, `<` `>` `{` `}` `"` `'` a backtick, a backslash and `&` (each already means something in JSX, strings or messages), `%s`, and two different delimiters where one contains the other. A bad value stops the plugin at startup, naming the option.
+- **Advice:** at least two characters, or a Unicode symbol that never shows up in real text (`≼ ≽`, `§`). Any string that contains a delimiter without being wrapped by it raises a [warning](/concepts/diagnostics), so a common single character will raise many.
+- **Old markers:** with custom delimiters, a leftover `_%_` in the source raises the `old-marker` warning and extracts nothing. A [macro](/components/translate-container#short-names) (`<Trans>…</Trans>`) needs no delimiters at all.
+- The demo [`customMarkers`](repo:demo/Vite_8/customMarkers) shows it working, and the [VS Code extension](/vscode/panel) highlights your delimiters (it reads them from `vite.config`).
+
+## Rewriting the markers {#rewriting-the-markers}
+
+Changed your delimiters in `vite.config`? These two rewrite the source from the old ones to the new ones:
+
+```bash
+vitetranslate --rewriteMarkerDryRun [start] [end]
+vitetranslate --rewriteMarker [start] [end]
+```
+
+The arguments are the markers **now in your source**: none means `_%_`, one means the same at both ends, two mean start and end. The target is always the markers of `vite.config`. Only `srcDir` is touched, through the syntax tree: comments and imports stay as they are, and only the delimiters change, never the text inside.
+
+| Setup in `vite.config` | Arguments | What happens |
+| :- | :- | :- |
+| custom (`≼ ≽`) | none | `_%_` → `≼ ≽`: the first switch |
+| custom (`≼ ≽`) | `"§"` | `§` → `≼ ≽`: from one custom pair to another |
+| custom (`≼ ≽`) | `"≼" "≽"` | nothing to rewrite (exit 1) |
+| default (`_%_`) | none | nothing to rewrite (exit 1) |
+| default (`_%_`) | `"≼" "≽"` | `≼ ≽` → `_%_`: back to the default |
+
+The decision comes from the setup and the arguments alone, before any file is read: the command never guesses from your code.
+
+`--rewriteMarkerDryRun` runs the whole check and writes nothing; it prints the translation status with the current markers and with the rewritten ones. `--rewriteMarker` runs **the same check on every file** and only then writes: all or nothing. If a single key would change (a macro whose text contains the new delimiter, for example), or a file that holds old markers cannot be parsed, it writes nothing, lists the culprits and exits `1`. If a write fails halfway (permissions, a file locked by another program) it stops and lists what was and wasn't rewritten; the keys are the same either way, so running the same command again finishes the job. No sync runs afterwards: tables and caches catch up on your next one.
+
+A shell may need quotes: `"≼"`. In `cmd.exe`, a `%` can be read as a variable. Can't be combined with `--add`, `--status`, `--migrate`, `--fastverify` or any `--llm-*` flag.
+
+```text
+::: rewrite              ║  _%_…_%_  →  ≼…≽          (dry run)
+::: files                ║  12 to change, 47 markers
+::: before               ║  42 keys · en-US 40/42 · zh-CN 42/42
+::: after                ║  42 keys · en-US 40/42 · zh-CN 42/42
+::: ok                   ║  same keys, same status — run without DryRun to write
+```

@@ -44,7 +44,7 @@ export default function App() {
           <Trans>La chiave API non entra mai in <b>vite.config.js</b>: lì vive solo il nome della variabile d'ambiente.</Trans>
           <br />
           <footer>
-            <Trans>- doc/llm.md, la pagina che spiega tutto il resto</Trans>
+            <Trans>- La guida LLM, la pagina che spiega tutto il resto</Trans>
           </footer>
         </blockquote>
       </article>

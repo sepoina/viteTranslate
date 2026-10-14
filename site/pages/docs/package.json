@@ -1,0 +1,25 @@
+{
+  "name": "site-docs",
+  "private": true,
+  "version": "0.0.0",
+  "vitetranslateSite": { "slug": "docs", "theme": true, "card": false },
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "compile": "node scripts/compileDocs.mjs",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@sepoina/vitetranslate": "^4.7.1",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8"
+  },
+  "devDependencies": {
+    "@babel/core": "^8.0.0",
+    "@rolldown/binding-wasm32-wasi": "^1.2.7",
+    "@vitejs/plugin-react": "^6.1.1",
+    "rolldown": "^1.2.7",
+    "vite": "^8.2.2"
+  }
+}

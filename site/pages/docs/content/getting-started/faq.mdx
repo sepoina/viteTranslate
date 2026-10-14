@@ -1,0 +1,47 @@
+---
+title: FAQ
+description: Short answers to the questions that come up first, each with a link to the section that has the details.
+sources:
+  - lib/index.d.ts
+  - lib/react.d.ts
+---
+
+## Do I have to invent keys? {#keys}
+
+No. The sentence you write is the source: its key is generated from the text and the file it lives in, so there is nothing to invent. When a sentence moves, the sync carries its translation over, and changing the delimiters never changes a key. See [Markers and keys](/concepts/markers).
+
+## Does it work with TypeScript? {#typescript}
+
+Yes. `.ts` and `.tsx` files are scanned like the rest, and the declarations ship with the package. The exported types are listed in [TypeScript types](/api/types). One catch: the CLI reads a TypeScript `vite.config` with Node itself, which needs Node 23.6 or later ([limitations](/concepts/limitations#runtime-and-tools)).
+
+## Does it work with server-side rendering? {#ssr}
+
+The plugin is a Vite plugin, so the app has to be built with Vite. If you render on the server, set the time zone explicitly (the `timeZone` prop or the plugin option), or dates can differ between server and browser. See [Dates and time zones](/concepts/icu#dates-and-time-zones) and, for where the package goes in `package.json`, [It never reaches your bundle](/getting-started/installation#it-never-reaches-your-bundle).
+
+## What do I see before a text is translated? {#untranslated}
+
+The source text, never a blank. In development a small mark in front of the text says it is still missing. A production build shows the plain source text. See [Diagnostics](/concepts/diagnostics#case-by-case) for what each mark means.
+
+## How big is the runtime? {#runtime-size}
+
+5 kB gzip, ICU helpers included and React left out. The ICU helpers ship only if a table uses ICU. See [Runtime size](/getting-started/overview#runtime-size).
+
+## Can I use my own delimiters instead of `_%_`? {#delimiters}
+
+Yes: `marker` for one delimiter on both ends, or `markerStart` and `markerEnd`. A tool rewrites the old ones for you and refuses to write if a single key would change. See [Markers and keys](/concepts/markers#rewriting-the-markers).
+
+## What does the LLM see? {#llm-sees}
+
+The strings still `null` for the language being filled, each with the name of the component it comes from, and a short project brief you can read and edit. Not your source files, and not your API key. See [The context abstract](/llm/context).
+
+## Does it translate while I run `vite dev`? {#llm-dev}
+
+Never. The LLM runs only from the CLI, when you ask, and prints the estimated cost before spending anything. See [Price](/llm/price#confirmation).
+
+## Can I edit the YAML by hand? {#yaml}
+
+The translations, yes: replace each `null` with your text. The source language file and the header comments are generated, so leave them alone. See [File format](/concepts/translation-files#file-format).
+
+## Do I need VS Code? {#vscode}
+
+No. Sync, status and LLM translation all run from the CLI. The extension is the same library seen from inside the editor: every string with its status, and one-click sync. See [Install](/vscode/install).

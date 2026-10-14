@@ -1085,10 +1085,12 @@ console.log("\n== persist: a write that keeps failing leaves a recovery file and
     }, () => maybeRunLlmCommand(["--llm-translate", "fr-FR", "--llm-noask"], baseConfig(baseDir2, async (request) => { armed = true; return stub2.driver(request); })));
   } finally { console.log = realLog; console.warn = realWarn; }
   eq("exit code 1", 1, process.exitCode);
-  // The log wraps long lines under its gutter: flatten it before looking for a sentence.
-  const text = logged.join("\n").replace(/\n[^\n]*?[║╟][─\s]*/g, " ");
-  eq("the warning names the language and the count", true, /fr-FR: 2 translation\(s\) could not be saved/.test(text));
-  eq("and points at the recovery file with safe merge instructions", true, text.includes(".unsaved-") && text.includes("Compare them with fr-FR.yml") && text.includes("preserve newer human edits"));
+  // The log wraps long lines under its gutter, and a long temp path (Windows) can break even inside a
+  // word: compare without the gutter and without whitespace.
+  const flat = logged.join("\n").split("\n").map((l) => l.replace(/^[^║╟]*[║╟][─\s]*/, "")).join("").replace(/\s+/g, "");
+  const has = (s) => flat.includes(s.replace(/\s+/g, ""));
+  eq("the warning names the language and the count", true, has("fr-FR: 2 translation(s) could not be saved"));
+  eq("and points at the recovery file with safe merge instructions", true, has(".unsaved-") && has("Compare them with fr-FR.yml") && has("preserve newer human edits"));
   process.exitCode = realExit;
 }
 

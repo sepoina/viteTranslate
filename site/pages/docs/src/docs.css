@@ -1,0 +1,551 @@
+/* Il manuale: layout a tre colonne e testo. Solo var(--…): i colori stanno in theme/tokens.css (un test lo controlla).
+   Le classi cominciano per d-: theme.css ha già .toc e .anchor per altre pagine. */
+
+/* L'altezza della barra in alto: App.jsx la misura (a capo sui telefoni è più alta di --bar-h). */
+:root {
+  --d-bar: var(--bar-h);
+}
+
+/* ---------- Barra ---------- */
+.d-menu-btn {
+  display: none;
+  padding: 8px 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  color: var(--muted);
+  font-size: 0.9375rem;
+  font-weight: 500;
+}
+
+.d-menu-btn:hover {
+  background: var(--wash);
+  color: var(--text);
+}
+
+/* ---------- Griglia ---------- */
+.d-shell {
+  display: grid;
+  grid-template-columns: 260px minmax(0, 1fr) 220px;
+  gap: 0 40px;
+  align-items: start;
+  padding-bottom: 4rem;
+}
+
+.d-main {
+  min-width: 0;
+  padding-top: 2.5rem;
+}
+
+.d-article {
+  max-width: 72ch;
+}
+
+.d-scrim {
+  display: none;
+}
+
+/* ---------- Colonna di sinistra ---------- */
+.d-sidebar {
+  position: sticky;
+  top: var(--d-bar);
+  max-height: calc(100vh - var(--d-bar));
+  padding: 2rem 0 2rem;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.d-group + .d-group {
+  margin-top: 1.5rem;
+}
+
+.d-group-label {
+  margin: 0 0 0.4rem 0.6rem;
+  color: var(--faint);
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.d-sidebar ul,
+.d-toc ul,
+.d-toc-inline ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.d-sidebar a {
+  display: block;
+  padding: 0.3rem 0.6rem;
+  border-radius: var(--r-sm);
+  color: var(--muted);
+  font-size: 0.9375rem;
+  line-height: 1.4;
+  text-decoration: none;
+  transition: color 150ms var(--ease), background-color 150ms var(--ease);
+}
+
+.d-sidebar a:hover {
+  background: var(--wash);
+  color: var(--text);
+}
+
+.d-sidebar a[aria-current="page"] {
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-weight: 600;
+}
+
+/* ---------- Colonna di destra ---------- */
+.d-toc {
+  position: sticky;
+  top: var(--d-bar);
+  max-height: calc(100vh - var(--d-bar));
+  padding: 2.5rem 0 2rem;
+  overflow-y: auto;
+  font-size: 0.875rem;
+}
+
+.d-toc-label {
+  margin: 0 0 0.6rem;
+  color: var(--faint);
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.d-toc ul,
+.d-toc-inline ul {
+  border-left: 1px solid var(--line);
+}
+
+.d-toc a,
+.d-toc-inline a {
+  display: block;
+  margin-left: -1px;
+  padding: 0.25rem 0.75rem;
+  border-left: 1px solid transparent;
+  color: var(--faint);
+  line-height: 1.4;
+  text-decoration: none;
+}
+
+.d-toc a:hover,
+.d-toc-inline a:hover {
+  color: var(--text);
+}
+
+.d-toc a[aria-current="location"] {
+  border-left-color: var(--accent);
+  color: var(--accent);
+}
+
+.d-toc li[data-depth="3"] a,
+.d-toc-inline li[data-depth="3"] a {
+  padding-left: 1.5rem;
+}
+
+.d-toc code,
+.d-toc-inline code {
+  font-size: 0.92em;
+}
+
+/* Sotto i 1100 px l'indice passa sopra il testo, ripiegato. */
+.d-toc-inline {
+  display: none;
+  margin-top: 1.5rem;
+  padding: 0.7rem 1rem;
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  background: var(--surface-2);
+  font-size: 0.9375rem;
+}
+
+.d-toc-inline summary {
+  color: var(--muted);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.d-toc-inline ul {
+  margin-top: 0.6rem;
+}
+
+/* ---------- Testata della pagina ---------- */
+.d-title {
+  max-width: 50rem;
+  font-family: var(--display);
+  font-size: clamp(2rem, 4.4vw, 2.9rem);
+  font-weight: 700;
+  font-synthesis: none;
+  line-height: 1.1;
+  text-wrap: balance;
+}
+
+.d-article .lead {
+  margin-top: 1rem;
+}
+
+/* ---------- Testo ---------- */
+.d-prose {
+  margin-top: 2rem;
+  overflow-wrap: break-word;
+}
+
+.d-prose > * + * {
+  margin-top: 1rem;
+}
+
+.d-prose a {
+  color: var(--accent);
+}
+
+.d-prose h2,
+.d-prose h3 {
+  scroll-margin-top: calc(var(--d-bar) + 16px);
+}
+
+.d-prose h2 {
+  margin-top: 2.75rem;
+  padding-top: 0.5rem;
+  font-family: var(--display);
+  font-size: 1.6rem;
+  font-weight: 700;
+  font-synthesis: none;
+  line-height: 1.2;
+  text-wrap: balance;
+}
+
+.d-prose h3 {
+  margin-top: 2rem;
+  font-size: 1.2rem;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.d-prose h2 + *,
+.d-prose h3 + * {
+  margin-top: 0.75rem;
+}
+
+.d-heading code {
+  padding: 0;
+  background: none;
+  font-size: 0.88em;
+}
+
+.d-anchor {
+  margin-left: 0.4em;
+  color: var(--accent);
+  font-family: var(--mono);
+  font-weight: 400;
+  text-decoration: none;
+  opacity: 0;
+  transition: opacity 150ms var(--ease);
+}
+
+.d-heading:hover .d-anchor,
+.d-anchor:focus-visible {
+  opacity: 1;
+}
+
+@media (hover: none) {
+  .d-anchor {
+    opacity: 0.5;
+  }
+}
+
+.d-prose :is(ul, ol) {
+  padding-left: 1.4rem;
+}
+
+.d-prose li + li {
+  margin-top: 0.35rem;
+}
+
+.d-prose li > ul {
+  margin-top: 0.35rem;
+}
+
+.ic {
+  padding: 0.05em 0.3em;
+  border-radius: var(--r-sm);
+  background: var(--wash-2);
+  font-family: var(--mono);
+  font-size: 0.88em;
+}
+
+/* ---------- Note ---------- */
+.d-callout {
+  --c: var(--line-strong);
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--c);
+  border-radius: var(--r-md);
+  background: var(--surface-2);
+}
+
+.d-callout-note {
+  --c: var(--tk-t);
+}
+
+.d-callout-tip {
+  --c: var(--accent);
+}
+
+.d-callout-important {
+  --c: var(--tk-k);
+}
+
+.d-callout-warning {
+  --c: var(--warn);
+}
+
+.d-callout-caution {
+  --c: var(--error);
+}
+
+.d-callout-label {
+  margin-bottom: 0.3rem;
+  color: var(--c);
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.d-callout-body > p + p {
+  margin-top: 0.6rem;
+}
+
+/* ---------- Codice, tabelle, immagini, schede ---------- */
+.d-code {
+  position: relative;
+}
+
+.d-copy {
+  position: absolute;
+  top: 0.4rem;
+  right: 0.5rem;
+  padding: 0.2rem 0.55rem;
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  background: var(--surface);
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  transition: color 150ms var(--ease), border-color 150ms var(--ease);
+}
+
+.d-copy:hover {
+  border-color: var(--line-strong);
+  color: var(--text);
+}
+
+.table-scroll {
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+}
+
+.table-scroll table {
+  width: 100%;
+  min-width: 28rem;
+  border-collapse: collapse;
+  font-size: 0.9375rem;
+}
+
+.table-scroll :is(th, td) {
+  padding: 0.55rem 0.8rem;
+  border-bottom: 1px solid var(--line-soft);
+  text-align: left;
+  vertical-align: top;
+}
+
+.table-scroll th {
+  border-bottom-color: var(--line-hard);
+  color: var(--text);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.table-scroll tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.d-figure {
+  margin: 0;
+}
+
+.d-figure img {
+  max-width: 100%;
+  height: auto;
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+}
+
+.d-demo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  color: var(--text);
+  text-decoration: none;
+}
+
+.d-prose a.d-demo {
+  color: var(--text);
+}
+
+.d-demo-name {
+  font-weight: 600;
+}
+
+.d-demo-go {
+  color: var(--accent);
+  font-size: 0.9375rem;
+  white-space: nowrap;
+}
+
+/* ---------- Piede della pagina ---------- */
+.d-foot {
+  margin-top: 3rem;
+  font-size: 0.875rem;
+}
+
+.d-foot a {
+  color: var(--faint);
+}
+
+.d-foot a:hover {
+  color: var(--text);
+}
+
+.d-pagenav {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.d-pagenav a {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding: 0.9rem 1.1rem;
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  text-decoration: none;
+  transition: border-color 150ms var(--ease);
+}
+
+.d-pagenav a:hover {
+  border-color: var(--card-hover);
+}
+
+.d-pagenav-next {
+  grid-column: 2;
+  text-align: right;
+}
+
+.d-pagenav-dir {
+  color: var(--faint);
+  font-size: 0.8125rem;
+}
+
+.d-pagenav-title {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.d-missing .btn {
+  margin-top: 1rem;
+}
+
+/* ---------- 760–1099 px: niente colonna di destra ---------- */
+@media (max-width: 1099px) {
+  .d-shell {
+    grid-template-columns: 240px minmax(0, 1fr);
+    gap: 0 32px;
+  }
+
+  .d-toc {
+    display: none;
+  }
+
+  .d-toc-inline {
+    display: block;
+  }
+}
+
+/* ---------- Sotto i 760 px: una colonna, la sinistra è un cassetto ---------- */
+@media (max-width: 759px) {
+  .d-shell {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .d-menu-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+
+  .d-sidebar {
+    position: fixed;
+    top: var(--d-bar);
+    bottom: 0;
+    left: 0;
+    z-index: 35;
+    width: min(86vw, 320px);
+    max-height: none;
+    padding: 1rem 16px 2rem;
+    border-right: 1px solid var(--line);
+    background: var(--bg);
+    visibility: hidden;
+    transform: translateX(-100%);
+    transition: transform 200ms var(--ease), visibility 0s linear 200ms;
+  }
+
+  .d-sidebar[data-open] {
+    visibility: visible;
+    transform: none;
+    transition-delay: 0s;
+  }
+
+  .d-scrim {
+    position: fixed;
+    top: var(--d-bar);
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 34;
+    display: block;
+    background: color-mix(in srgb, var(--bg-deep) 70%, transparent);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 200ms var(--ease);
+  }
+
+  .d-scrim[data-open] {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .d-main {
+    padding-top: 1.5rem;
+  }
+
+  .d-pagenav {
+    grid-template-columns: 1fr;
+  }
+
+  .d-pagenav-next {
+    grid-column: 1;
+  }
+}

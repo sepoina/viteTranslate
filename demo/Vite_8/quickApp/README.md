@@ -6,6 +6,8 @@ The [quick start](https://github.com/sepoina/viteTranslate#-quick-start), finish
 after its six steps, nothing more. One sentence in [`src/App.jsx`](src/App.jsx), English as the
 source language, French filled in by hand, two buttons to switch.
 
+▶️ New to viteTranslate? [Watch the video](https://youtu.be/gYj1z3XMv9M): why it exists and how its pieces work together.
+
 ```bash
 npm install
 npm run dev

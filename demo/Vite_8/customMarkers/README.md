@@ -4,6 +4,8 @@ The [`minimal`](../minimal) demo, with **your own delimiters**: strings are mark
 instead of `_%_like this_%_`. Same three languages (`it-IT` source, `en-US`, `zh-CN`), same keys:
 the key comes from the text inside, never from the delimiters.
 
+▶️ New to viteTranslate? [Watch the video](https://youtu.be/gYj1z3XMv9M): why it exists and how its pieces work together.
+
 ```js
 // vite.config.js
 vitetranslate({
@@ -28,7 +30,7 @@ for contrast, a `` trans`…` `` template, which needs no delimiters.
 symbols, picked on purpose: they never show up in real text, so a delimiter can't be mistaken for
 punctuation. Any string that contains a delimiter without being wrapped by it raises a warning, and a
 common character (`#`, `|`) would raise plenty. Two or more characters (`[[` and `]]`, say) work too, within the
-[rules](../../../doc/plugin-options.md#markers).
+[rules](https://sepoina.github.io/viteTranslate/docs/concepts/markers/).
 
 ### How do I type them?
 
@@ -45,7 +47,7 @@ Copy and paste, the system character map, or a VS Code user snippet (Command Pal
 }
 ```
 
-The [VS Code extension](../../../doc/ide-panel.md) highlights your delimiters: it reads them from `vite.config.js`.
+The [VS Code extension](https://sepoina.github.io/viteTranslate/docs/vscode/panel/) highlights your delimiters: it reads them from `vite.config.js`.
 
 ## Moving an existing project
 
@@ -57,7 +59,7 @@ npx vtranslate-cli --rewriteMarker         # do it: all files or none
 ```
 
 Only the delimiters are rewritten, never the text inside, and nothing is written unless every key
-and every translation status stays the same. Details: [CLI](../../../doc/cli.md#rewriting-the-markers).
+and every translation status stays the same. Details: [CLI](https://sepoina.github.io/viteTranslate/docs/concepts/markers/#rewriting-the-markers).
 
 ## Usage
 

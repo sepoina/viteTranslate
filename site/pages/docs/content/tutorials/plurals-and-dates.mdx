@@ -1,0 +1,119 @@
+---
+title: Plurals and dates
+description: A counter that says "1 file" and "5 files" in every language, a date that reads right everywhere, and the warning that tells you a translation misses a plural form.
+sources:
+  - lib/icu/runtime.js
+  - lib/dev/vite/uty/languageStatus.js
+---
+
+<!-- LINKED-DATA: the code, the messages and the results below come from a real run (en-US source, ru-RU translated by hand) built with vite build and read in a browser. Rerun it when the ICU runtime or the status wording changes. -->
+
+Plurals and dates use ICU messages, written in a marked string and compiled at build time. This tutorial builds a small page with both, in two languages. The full syntax is in [ICU messages](/concepts/icu); here you see it work.
+
+Start from a project with `en-US` as source language, like the one in [Your first translated app](/tutorials/first-app).
+
+## Write the messages {#write-the-messages}
+
+```jsx title="src/App.jsx"
+import { useState } from "react";
+import { Trans, useTransLanguage } from "@sepoina/vitetranslate/react";
+
+export default function App() {
+  const [count, setCount] = useState(3);
+  const { id, languages, proposeNewLanguage } = useTransLanguage();
+  const booked = "2026-10-03";
+
+  return (
+    <>
+      <p>
+        <Trans
+          t="_%_{0, plural, =0 {No files} one {# file} other {# files}} selected_%_"
+          a={[count]}
+        />
+      </p>
+      <p>
+        <Trans t="_%_Booked for {0, date, medium}_%_" a={[booked]} />
+      </p>
+      <button onClick={() => setCount(count + 1)}>+1</button>
+      <button onClick={() => setCount(0)}>0</button>
+      {languages.map(({ tag }) => (
+        <button key={tag} disabled={id === tag} onClick={() => proposeNewLanguage({ lang: tag })}>
+          {tag}
+        </button>
+      ))}
+    </>
+  );
+}
+```
+
+- `{0, plural, …}` picks a branch from the number in `a={[count]}`. `=0` matches exactly zero, `one` and `other` are the plural categories of English, and `#` stands for the number itself.
+- `{0, date, medium}` formats a date for the language on screen. A string like `"2026-10-03"` is a calendar date, not an instant, so it never slips to the day before in a western time zone ([time zones](/concepts/icu#dates-and-time-zones)).
+- JSX text can't hold ICU syntax (a `{` starts a JSX expression there), so these use the `t=` form.
+
+Start Vite, or run `npx vitetranslate`, and the source table gets both messages whole:
+
+```yaml title="locale/en-US.yml"
+App_1tkblfr: "{0, plural, =0 {No files} one {# file} other {# files}} selected"
+App_5fhoku: "Booked for {0, date, medium}"
+```
+
+The page reads *3 files selected* and *Booked for Oct 3, 2026*. Press `0` and it reads *No files selected*; press `+1` once more and *1 file selected*.
+
+## Add a language with more plural forms {#add-a-language-with-more-plural-forms}
+
+English has two plural forms. Russian has four. Add it:
+
+```sh
+npx vitetranslate --add ru-RU
+```
+
+Translate it with only the two forms you know from English, as a first attempt:
+
+```yaml title="locale/ru-RU.yml"
+App_1tkblfr: "Выбрано: {0, plural, =0 {нет файлов} one {# файл} other {# файла}}"
+App_5fhoku: "Забронировано на {0, date, medium}"
+```
+
+Now ask for the status:
+
+```sh
+npx vitetranslate --status
+```
+
+```text
+:::                      ║  CODE   LANGUAGE          KEYS  MISSING  STATUS
+:::                      ║  en-US  American English     2        0  source language
+:::                      ║  ru-RU  русский (Россия)     2        0  1 key(s) with incomplete plural
+:::                      ║                                          or select branches: App_1tkblfr
+:::                      ║  2 language(s): 1 ok, 1 warning
+```
+
+Nothing is missing, but one key does not cover every plural category Russian needs. It is a warning, not an error: the missing forms fall back to `other` at run time. Add the two forms it asks for, `few` and `many`:
+
+```yaml title="locale/ru-RU.yml"
+App_1tkblfr: "Выбрано: {0, plural, =0 {нет файлов} one {# файл} few {# файла} many {# файлов} other {# файла}}"
+```
+
+```text
+:::                      ║  ru-RU  русский (Россия)     2        0  fully translated
+:::                      ║  2 language(s): 2 ok
+```
+
+An [LLM](/llm/running#what-gets-validated) gets the same check: a reply that misses a plural category for the target language is rejected.
+
+## See it in both languages {#see-it-in-both-languages}
+
+Build, preview, and click through the counter in Russian:
+
+| Count | English | Russian |
+| :- | :- | :- |
+| 0 | No files selected | Выбрано: нет файлов |
+| 1 | 1 file selected | Выбрано: 1 файл |
+| 2 | | Выбрано: 2 файла |
+| 5 | | Выбрано: 5 файлов |
+| 21 | | Выбрано: 21 файл |
+
+The date reads *Oct 3, 2026* in English and *3 окт. 2026 г.* in Russian, from the same message. Each language picks its own plural rule and its own date order: you never write them.
+
+> [!TIP]
+> The translation is free to reorder the arguments or drop a plural form the language does not need. A name such as `{0}` is code, not text: it stays as written in every language.

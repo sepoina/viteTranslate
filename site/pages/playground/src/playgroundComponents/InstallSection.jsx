@@ -123,7 +123,7 @@ PlaceholderExample_1ebkbf3: "Il nome verrà usato nel saluto"`} />
         <p className="doc-text">
           <Trans>_%_Ogni lingua è un file .yml dentro localeDir, con lo stesso nome del suo tag_%_</Trans>
           {" "}
-          <a href="https://github.com/sepoina/viteTranslate/blob/main/doc/bcp47.md" target="_blank" rel="noopener noreferrer">BCP 47</a>
+          <a href="https://sepoina.github.io/viteTranslate/docs/concepts/languages/#bcp47" target="_blank" rel="noopener noreferrer">BCP 47</a>
           <Trans>_%_. Il file della lingua di default viene creato e tenuto aggiornato in automatico dal comando di sincronizzazione: non va scritto a mano, solo tradotto se serve._%_</Trans>
         </p>
         <p className="doc-text">
@@ -221,8 +221,8 @@ PlaceholderExample_1ebkbf3: "Le nom sera utilisé dans la salutation"`} />
 
         <p className="doc-text">
           <Trans>_%_Costi, limiti di spesa, la chiave nel portachiavi di sistema e tutte le opzioni:_%_</Trans>{" "}
-          <a href="https://github.com/sepoina/viteTranslate/blob/main/doc/llm.md" target="_blank" rel="noopener noreferrer">
-            doc/llm.md
+          <a href="https://sepoina.github.io/viteTranslate/docs/llm/setup/" target="_blank" rel="noopener noreferrer">
+            docs/llm/setup
           </a>
         </p>
       </section>

@@ -28,7 +28,8 @@ const SLUG_RISERVATI = ["assets"];
 /**
  * Le pagine del sito: ogni site/pages/* il cui package.json ha "vitetranslateSite.slug".
  * @param {string} [radice] la radice del repo (nei test, una cartella finta)
- * @returns {{ dir: string, slug: string }[]} ordinate per slug; `dir` è relativa alla radice
+ * @returns {{ dir: string, slug: string, card: boolean }[]} ordinate per slug; `dir` è relativa alla radice. `card` è false
+ *   per le pagine che non hanno una card nella landing ("vitetranslateSite.card": false, come il manuale): niente zip.
  */
 export function sitePages(radice = RADICE) {
   const base = join(radice, "site/pages");
@@ -37,7 +38,8 @@ export function sitePages(radice = RADICE) {
   for (const { name } of cartelle) {
     const file = join(base, name, "package.json");
     if (!existsSync(file)) continue;
-    const slug = JSON.parse(readFileSync(file, "utf8")).vitetranslateSite?.slug;
+    const sito = JSON.parse(readFileSync(file, "utf8")).vitetranslateSite;
+    const slug = sito?.slug;
     if (slug === undefined) continue;
     if (typeof slug !== "string" || !/^[a-z0-9-]+$/.test(slug)) {
       throw new Error(`site/pages/${name}: slug "${slug}" non valido (solo a-z, 0-9 e "-")`);
@@ -45,7 +47,7 @@ export function sitePages(radice = RADICE) {
     if (SLUG_RISERVATI.includes(slug)) throw new Error(`site/pages/${name}: lo slug "${slug}" è riservato agli asset della landing`);
     const doppia = pagine.find((p) => p.slug === slug);
     if (doppia) throw new Error(`lo slug "${slug}" è usato da ${doppia.dir} e da site/pages/${name}`);
-    pagine.push({ dir: `site/pages/${name}`, slug });
+    pagine.push({ dir: `site/pages/${name}`, slug, card: sito.card !== false });
   }
   return pagine.sort((a, b) => a.slug.localeCompare(b.slug));
 }

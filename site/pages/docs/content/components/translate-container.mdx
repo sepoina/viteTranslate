@@ -1,0 +1,54 @@
+---
+title: TranslateContainer
+description: The component that wraps your app once, holds the current language and loads the tables, plus the map of the whole React API.
+sources:
+  - lib/react.d.ts
+  - lib/react/index.js
+  - lib/react/TranslateContainer.jsx
+  - lib/react/TranslateContext.js
+---
+
+<!-- Migrated from doc/react-api.md: "TranslateContainer", "At a glance" and "Short names" (ids = the GitHub slugs of the old headings; the parent heading is the page itself). -->
+
+```jsx
+<TransContainer initialLanguage="it-IT">
+  <App />
+</TransContainer>
+```
+
+## Props {#props}
+
+| Prop | Type | Default | Description |
+| :- | :- | :- | :- |
+| `initialLanguage` | `string` | the first eager language: `preloadedLanguages[0] ?? sourceLanguage` | Language to **start** from ([BCP 47](/concepts/languages#bcp47)). Read once at mount: to change language later, use [`proposeNewLanguage()`](/hooks/use-translate-language#proposenewlanguage). Same default in dev and build |
+| `fallback` | `node` | `null` | Shown while a non-preloaded initial language loads. Chunks are local, so `null` is a near-imperceptible empty frame |
+| `debug` | `boolean` | `false` | Exposed by `useTranslateLanguage()` |
+| `timeZone` | `string` | — | IANA zone (`"Europe/Rome"`) for [ICU](/concepts/icu) `date`/`time` messages. Precedes the plugin's `icu.timeZone` option. Unlike `initialLanguage`, it **can** change after mount |
+| `children` | `node` | — | The app tree that receives the translation context |
+
+An eagerly bundled initial language renders synchronously; any other makes the container suspend until its chunk is ready. Never the wrong language — see [Preloading](/concepts/preloading).
+
+> 🎮 Live: [the setup](site:playground#install-dev), and [`timeZone` at work](site:playground#icu-format).
+
+## At a glance {#at-a-glance}
+
+Every example in this manual uses the [short names](#short-names); the full name is the same function.
+
+| Short name | Full name | Kind | For |
+| :- | :- | :- | :- |
+| `TransContainer` | [`TranslateContainer`](#props) | component | Wraps the app once, at the root: holds the current language, loads the tables |
+| `<Trans>` | [`<Translate>`](/components/translate) | component | Translated text in JSX |
+| `useTrans()` | [`useTranslateToString()`](/hooks/use-translate-to-string) | hook | Translated plain strings — `placeholder`, `aria-label`, `title`. By convention `const trans = useTrans()` |
+| — | [`useTranslateNode()`](/hooks/use-translate-node) | hook | What the `autoWrap` option injects; rarely written by hand |
+| — | [`jsxArg()`](/hooks/helpers#jsxarg) | function | What the preprocessor injects around a value; rarely written by hand |
+| `useTransLanguage()` | [`useTranslateLanguage()`](/hooks/use-translate-language) | hook | A language switcher: current language, available ones, [`proposeNewLanguage()`](/hooks/use-translate-language#proposenewlanguage) |
+| — | [`basicHtmlToNodes()`](/hooks/helpers#basichtmltonodes) | function | A string with basic HTML → React nodes, no `dangerouslySetInnerHTML` |
+| — | [`version`](/hooks/helpers#version) | string | The installed package version |
+
+And how languages load on the first render: [Preloading, Suspense and the initial flash](/concepts/preloading).
+
+## Short names {#short-names}
+
+`Trans`, `useTrans`, `TransContainer` and `useTransLanguage` are `Translate`, `useTranslateToString`, `TranslateContainer` and `useTranslateLanguage` under a shorter name: **the same function**, not a copy (`Trans === Translate`), so React DevTools shows the full name. Both keep working for good, and the preprocessor reads both (also under an `as` alias). A key never depends on the name or on the delimiters: renaming `<Translate>` to `<Trans>` keeps every translation. The one exception is a text that contains the word `<Translate>` itself — a site about this library — which is a new message. The rest of the API (`useTranslateNode`, `jsxArg`, `basicHtmlToNodes`, `version`) has no short name.
+
+The names will sound familiar from other i18n libraries (`Trans` in react-i18next and Lingui). Mixing them in one project is safe: the preprocessor and the editor extension treat `Trans` as ours only when it is imported from `@sepoina/vitetranslate/react`.

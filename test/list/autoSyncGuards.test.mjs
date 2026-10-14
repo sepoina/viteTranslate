@@ -174,9 +174,12 @@ console.log("\n== G15: scansione incompleta -- in dev avviso, in build errore ==
   }
   eq("serve: resolves without syncing", false, dev?.ran);
   eq("serve: reason scan-incomplete", "scan-incomplete", dev?.reason);
-  const text = warnings.join("\n");
-  eq("serve: the warning says the tables are untouched", true, text.includes("Your tables were left untouched; the dev server starts anyway"));
-  eq("serve: and names the broken file", true, text.includes("Broken.jsx"));
+  // The log wraps long lines under its gutter, and a long temp path (Windows) can break even inside a
+  // word ("Broke" / "n.jsx"): compare without colors, gutter and whitespace.
+  const flat = warnings.join("\n").replace(/\x1b\[[0-9;]*m/g, "").split("\n").map((l) => l.replace(/^[^║╟]*[║╟][─\s]*/, "")).join("").replace(/\s+/g, "");
+  const has = (s) => flat.includes(s.replace(/\s+/g, ""));
+  eq("serve: the warning says the tables are untouched", true, has("Your tables were left untouched; the dev server starts anyway"));
+  eq("serve: and names the broken file", true, has("Broken.jsx"));
   eq("build: rejects VT_SCAN_INCOMPLETE", "VT_SCAN_INCOMPLETE", buildError?.code);
   eq("tables untouched by both", before, readFileSync(join(p.localeDir, "it-IT.yml"), "utf8"));
 

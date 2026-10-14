@@ -1,0 +1,471 @@
+{
+  "pages": {
+    "api/cli": {
+      "sealedAt": "32f6c57",
+      "sources": {
+        "lib/dev/vite/cli.js": "0d286d24ec084edb12d070e25dbb6f40d2587be6d36c963dc937b1a1827120fd",
+        "lib/dev/vite/uty/syncError.js": "036401dd617a55f74e0e85f8e98e0beddcd1e198d6e03ff767478880b96a6dac",
+        "lib/dev/vite/uty/fastVerify.js": "a7ba5b55558ddc6d9357f63f8f020dee484fecfa1401db27e0094ca1b165d46d",
+        "lib/dev/vite/uty/languageStatus.js": "b14a6e25b632315070fb7386911ab66276522b0804f1c3b61ab8fbb39b7efd55",
+        "lib/dev/vite/uty/migrateLegacyLanguages.js": "d32ef8050ba83d39b724a16f3a79e63c265b0367ceccdca7400f0e1145ebd489"
+      }
+    },
+    "api/plugin-options": {
+      "sealedAt": "32f6c57",
+      "sources": {
+        "lib/index.d.ts": "8953057fd32c19a01d187801c41ca7ea395b88a800bd014facfc87864c08648b",
+        "lib/dev/vite/vitetranslate.js": "005b20a89057dc28edf62e4951fa53ffa9b8bb9999f6ceb33ec04b7aa61e0d58",
+        "lib/dev/vite/uty/icuOptions.js": "555e463386a5a3b5b3a44435b4e3d8aa7d3b0628e67c63e6cb7e7627dbabfa9c",
+        "lib/errorSolve.js": "482019c69a89fa05500a999fafb078978ea05e17eaeff24ad9a73496470651f2"
+      }
+    },
+    "api/types": {
+      "sealedAt": "32f6c57",
+      "sources": {
+        "lib/react.d.ts": "d4f7461a2f3293bbe20637b1fc30959705cde82ca788127d14b2b033dee0ddcc",
+        "lib/index.d.ts": "8953057fd32c19a01d187801c41ca7ea395b88a800bd014facfc87864c08648b"
+      }
+    },
+    "components/translate": {
+      "sealedAt": "32f6c57",
+      "sources": {
+        "lib/react.d.ts": "d4f7461a2f3293bbe20637b1fc30959705cde82ca788127d14b2b033dee0ddcc",
+        "lib/react/Translate.js": "b2483d19ab7755d72b5402feb92c020fc79815fe5a0d55488b2b4a705dbaba00",
+        "lib/react/readSource.js": "28319f0096eec1a651a449ffeaa11172a7dd20f32f173cccd2edf5c70ff6de49",
+        "lib/react/normalizeSource.js": "09ecaba6427de517108d701be5f1347a6e3d71cafebddeb68b4abbfc43dccc9e",
+        "lib/react/jsxArg.js": "fca0af20e82a91088f3f5990508a87be2bbc53e8f020b5e332d85cd326d34643",
+        "lib/htmlDialect.js": "938b2c7c62647f2f77b9e3b2632a179ffd79d971b3eec1a6347bd483c377a809",
+        "lib/dev/babel/jsxMessage.js": "14bae023a9970043caa5b60c2082ce0dc6e84a0ae20cc52b6309a3cdf8b86ef3",
+        "lib/dev/babel/macroForms.js": "a52baf54b5b01f175c40321e8ef4f78b02ec174925af62682d7d961d938081ec"
+      }
+    },
+    "components/translate-container": {
+      "sealedAt": "32f6c57",
+      "sources": {
+        "lib/react.d.ts": "d4f7461a2f3293bbe20637b1fc30959705cde82ca788127d14b2b033dee0ddcc",
+        "lib/react/index.js": "d07f83ae871eb83545725eeb816996b2c8db319a6bb48f80705ed6b313b2df0e",
+        "lib/react/TranslateContainer.jsx": "1e151f4ba714471a5f13ea45050eaa7b465d227033a8112086be82f034cf5d6d",
+        "lib/react/TranslateContext.js": "cb9b13eea12ecead2e503194a7f5f64906f5f8fc55df7cd8dcc32af1a18ffebb"
+      }
+    },
+    "concepts/diagnostics": {
+      "sealedAt": "32f6c57",
+      "sources": {
+        "lib/errorSolve.js": "482019c69a89fa05500a999fafb078978ea05e17eaeff24ad9a73496470651f2",
+        "lib/index.d.ts": "8953057fd32c19a01d187801c41ca7ea395b88a800bd014facfc87864c08648b",
+        "lib/react/Translate.js": "b2483d19ab7755d72b5402feb92c020fc79815fe5a0d55488b2b4a705dbaba00",
+        "lib/dev/vite/uty/devReporter.js": "d3b872d65f3f4f3505754439ab30d880c986906b38fc536546af077196e1c3bc",
+        "lib/dev/vite/uty/languageStatus.js": "b14a6e25b632315070fb7386911ab66276522b0804f1c3b61ab8fbb39b7efd55",
+        "lib/dev/babel/extractMarkers.js": "f30edc22493959a22bf018f41436dd5f658fb34a1f07abe35850737e0dd3c900",
+        "lib/dev/babel/macroForms.js": "a52baf54b5b01f175c40321e8ef4f78b02ec174925af62682d7d961d938081ec",
+        "lib/dev/compile/compileTable.js": "88db6db02adc21ce5b578105f4c5aeff5319f42ca18587b6629044fdcc9ddfa0"
+      }
+    },
+    "concepts/icu": {
+      "sealedAt": "32f6c57",
+      "sources": {
+        "lib/icu/parse.js": "d905b6366655dfa6da5cd7655da0821c6559396be11e5b357af7cb62a549825b",
+        "lib/icu/runtime.js": "2eb43829792c25374bb961d6a45d50e2950cbffb8eba928cbe33a839f7f8b369",
+        "lib/icu/devInterpret.js": "8b9f5859700e38c2195425a2ed5904635cd5141770714a077db5d8ab53f9abd9",
+        "lib/dev/compile/icu/compileIcu.js": "fb23f2bd32dd15d1320b8b1ae5c026ccd468733e24375bfd85df4bb02dd7e249",
+        "lib/dev/compile/icu/icuSignature.js": "f2a3615d7f56f763cee9c3c2eabb7d14f0150860a430ca415a6bfbb8546acd7a",
+        "lib/dev/vite/uty/icuOptions.js": "555e463386a5a3b5b3a44435b4e3d8aa7d3b0628e67c63e6cb7e7627dbabfa9c",
+        "lib/dev/vite/uty/languageStatus.js": "b14a6e25b632315070fb7386911ab66276522b0804f1c3b61ab8fbb39b7efd55",
+        "lib/dev/llm/validateTranslation.js": "4e87d4d1701260cc0986f8cfbb42a7fb48103af878a612cd9d3637bc5049372c"
+      }
+    },
+    "concepts/languages": {
+      "sealedAt": "32f6c57",
+      "sources": {
+        "lib/dev/vite/uty/validateLanguageTag.js": "fa3e1881740ed239396a1f0cc4574b5db8b649134d561b193eec3b3fd9f1c837",
+        "lib/dev/vite/uty/languageAutonym.js": "07acf3b85505077edbd314c37a412f3bdcb4a57a1a73e4edea4c46e11b294686",
+        "lib/dev/vite/uty/buildLanguageHeader.js": "99ff65ec68ae1f29377be79d0cd3af5ec410138498fcd6487b2f8d53edc0acb1",
+        "lib/dev/vite/cli.js": "0d286d24ec084edb12d070e25dbb6f40d2587be6d36c963dc937b1a1827120fd"
+      }
+    },
+    "concepts/limitations": {
+      "sealedAt": "32f6c57",
+      "sources": {
+        "lib/dev/babel/extractMarkers.js": "f30edc22493959a22bf018f41436dd5f658fb34a1f07abe35850737e0dd3c900",
+        "lib/dev/babel/macroForms.js": "a52baf54b5b01f175c40321e8ef4f78b02ec174925af62682d7d961d938081ec",
+        "lib/dev/babel/jsxMessage.js": "14bae023a9970043caa5b60c2082ce0dc6e84a0ae20cc52b6309a3cdf8b86ef3",
+        "lib/react/interpolate.js": "1b38f28aa2e8d738d16f833bd1033b546d33b81c5f88f1b9f578a0e9816a7209",
+        "lib/react/basicHtmlToNodes.js": "310e82bf7631ea25157910ccf036b2028c52e5571e5af86af070ec24ad06a060",
+        "lib/dev/vite/uty/replaceFileAtomic.js": "f59bdee41200428f50c78cd2d1ca4e919484b0587a1471dca4bb5e88dfebbd25"
+      }
+    },
+    "concepts/markers": {
+      "sealedAt": "32f6c57",
+      "sources": {
+        "lib/markerSyntax.js": "9ca0d7d3b50d55d6738ac4dfd8f30046dab423abf83eecb5c4d4884dc87bd750",
+        "lib/dev/vite/uty/markerOptions.js": "8760fb0cafac3c8145fd6e6cf46f39fd8a5d134f7fd6388b39a9681d7ff981a7",
+        "lib/dev/vite/uty/rewriteMarkers.js": "0f306a1581103de01a1f05647d85d6778cf23a7d7b2583bd7eb9a71a036a31da",
+        "lib/dev/babel/extractMarkers.js": "f30edc22493959a22bf018f41436dd5f658fb34a1f07abe35850737e0dd3c900",
+        "lib/dev/vite/cli.js": "0d286d24ec084edb12d070e25dbb6f40d2587be6d36c963dc937b1a1827120fd"
+      }
+    },
+    "concepts/preloading": {
+      "sealedAt": "32f6c57",
+      "sources": {
+        "lib/react/languageResource.js": "529dddc4e2f772bc3b808988d70816c22ef189afe2926e4acd8acc4e7d5290f4",
+        "lib/react/TranslateContext.js": "cb9b13eea12ecead2e503194a7f5f64906f5f8fc55df7cd8dcc32af1a18ffebb",
+        "lib/react/TranslateContainer.jsx": "1e151f4ba714471a5f13ea45050eaa7b465d227033a8112086be82f034cf5d6d",
+        "lib/dev/vite/buildManifest.js": "3532d4013f08bbc87c5f5661c365e8ac7f55d88b84a5b2bbf777fbc623fd038c"
+      }
+    },
+    "concepts/translation-files": {
+      "sealedAt": "32f6c57",
+      "sources": {
+        "lib/dev/vite/uty/languageFileFormat.js": "8abea59783d8001406b960130acc7e41406e72dfc0358944fe2e46dfd22597e5",
+        "lib/dev/vite/uty/parseLanguageFile.js": "b7fd09e675ebbcea035b915d4b50a7cad05d59870c89821b60f98d67bf02f4b0",
+        "lib/dev/vite/uty/serializeLanguageFile.js": "243e5671ac5711ec74b6c46385d73343caf1bb9ad10f114c755289b2a9de50ea",
+        "lib/dev/vite/uty/guardMassErase.js": "fc2896f37102636d3f7b981a13b1cd5edb1cc3bd57697e0794cadc4f4516c338",
+        "lib/dev/vite/uty/backupLanguageFile.js": "75ec178d02513edfba2fdae1b1f73998c3620484aa1608520a1f5d88b2975bf8",
+        "lib/dev/vite/uty/replaceFileAtomic.js": "f59bdee41200428f50c78cd2d1ca4e919484b0587a1471dca4bb5e88dfebbd25"
+      }
+    },
+    "getting-started/faq": {
+      "sealedAt": "32f6c57",
+      "sources": {
+        "lib/index.d.ts": "8953057fd32c19a01d187801c41ca7ea395b88a800bd014facfc87864c08648b",
+        "lib/react.d.ts": "d4f7461a2f3293bbe20637b1fc30959705cde82ca788127d14b2b033dee0ddcc"
+      }
+    },
+    "getting-started/installation": {
+      "sealedAt": "32f6c57",
+      "sources": {
+        "package.json#peerDependencies": "653d7a4b02362de8337d74378c1924744b7a8ac345031f5e433fdd0e874efd98",
+        "package.json#peerDependenciesMeta": "041d6b23b69f45752dde30a03ac15bc22e887a5ad70cc9bd209d7c200b9bdaed",
+        "lib/dev/babel/babelPeer.js": "7ae9c376905d0079f5d6ad2731f2c02b257aef2c8c9a35f0cde34b70bd9650a7",
+        "lib/dev/llm/keyringPeer.js": "258dc8af27759f090bf941399f312123f3279e4a7378a14a7bf02c29700ccdc8"
+      }
+    },
+    "getting-started/live-examples": {
+      "sealedAt": "32f6c57",
+      "sources": {
+        "site/pages/playground/src/App.jsx": "99c365df1c1dbc01d437e33392ef19ae475463ab2e3a40b97438c2670214cc6b",
+        "site/pages/playEdge/src/testCases.jsx": "e03a3f6c5721ed24accb53077968e1db56600e1185df040492a14b89610dc2b3",
+        "site/landing/src/pages.js": "ec2b59c541adaeb4d3e100975725e803678c2fb8ee6d4d9f7f16ec5e0ca54f91"
+      }
+    },
+    "getting-started/overview": {
+      "sealedAt": "32f6c57",
+      "sources": {
+        "package.json#peerDependencies": "653d7a4b02362de8337d74378c1924744b7a8ac345031f5e433fdd0e874efd98",
+        "site/runtimeSize.json": "7dcf5c2ff32f961bc146239f65777aa258275d975e80348a2e5315172b2385be"
+      }
+    },
+    "getting-started/usage": {
+      "sealedAt": "32f6c57",
+      "sources": {
+        "lib/react.d.ts": "d4f7461a2f3293bbe20637b1fc30959705cde82ca788127d14b2b033dee0ddcc",
+        "lib/dev/vite/cli.js": "0d286d24ec084edb12d070e25dbb6f40d2587be6d36c963dc937b1a1827120fd"
+      }
+    },
+    "hooks/helpers": {
+      "sealedAt": "32f6c57",
+      "sources": {
+        "lib/react.d.ts": "d4f7461a2f3293bbe20637b1fc30959705cde82ca788127d14b2b033dee0ddcc",
+        "lib/react/index.js": "d07f83ae871eb83545725eeb816996b2c8db319a6bb48f80705ed6b313b2df0e",
+        "lib/react/jsxArg.js": "fca0af20e82a91088f3f5990508a87be2bbc53e8f020b5e332d85cd326d34643",
+        "lib/react/basicHtmlToNodes.js": "310e82bf7631ea25157910ccf036b2028c52e5571e5af86af070ec24ad06a060",
+        "lib/htmlDialect.js": "938b2c7c62647f2f77b9e3b2632a179ffd79d971b3eec1a6347bd483c377a809"
+      }
+    },
+    "hooks/use-translate-language": {
+      "sealedAt": "32f6c57",
+      "sources": {
+        "lib/react.d.ts": "d4f7461a2f3293bbe20637b1fc30959705cde82ca788127d14b2b033dee0ddcc",
+        "lib/react/useTranslateLanguage.js": "bbbf597a42385607c435c7b6ab5452011b84915b53477eea8bd0ba9b9e386d72",
+        "lib/react/TranslateContainer.jsx": "1e151f4ba714471a5f13ea45050eaa7b465d227033a8112086be82f034cf5d6d",
+        "lib/react/languageResource.js": "529dddc4e2f772bc3b808988d70816c22ef189afe2926e4acd8acc4e7d5290f4"
+      }
+    },
+    "hooks/use-translate-node": {
+      "sealedAt": "32f6c57",
+      "sources": {
+        "lib/react.d.ts": "d4f7461a2f3293bbe20637b1fc30959705cde82ca788127d14b2b033dee0ddcc",
+        "lib/react/useTranslateNode.js": "b4c70520f8eb60b3bd84827654e8bc71b1ae9c1165dc8acefd237fb953fd1c99"
+      }
+    },
+    "hooks/use-translate-to-string": {
+      "sealedAt": "32f6c57",
+      "sources": {
+        "lib/react.d.ts": "d4f7461a2f3293bbe20637b1fc30959705cde82ca788127d14b2b033dee0ddcc",
+        "lib/react/useTranslateToString.js": "caa93c143b609a9928675c85e363b3e613a1830fe5f80c5dcf71eaa3993b18e7",
+        "lib/dev/babel/macroForms.js": "a52baf54b5b01f175c40321e8ef4f78b02ec174925af62682d7d961d938081ec"
+      }
+    },
+    "llm/context": {
+      "sealedAt": "32f6c57",
+      "sources": {
+        "lib/dev/llm/contextFile.js": "4f7c8df6aa2639344bd5b35a2a8d2c2ff51ebe4e5e63beb66aebeff99e2053e2",
+        "lib/dev/llm/contextSample.js": "cfbf709d71dc4e9e46323926688054e52560b49b268228cc1c4f46ce8d1fc97d",
+        "lib/dev/llm/llmOptions.js": "c97f11748cc8d607d9f4a8aea4fd09fe04fb8207971ce7ad8dbd4987a2d564cf"
+      }
+    },
+    "llm/price": {
+      "sealedAt": "32f6c57",
+      "sources": {
+        "lib/dev/llm/costModel.js": "511f5bf33f86e43f92406bd786bcea80a92f1dd749b3581dc24c434e82762ed4",
+        "lib/dev/llm/budgetGuard.js": "03a7d6d09c302fb84bd12b49089c46f633d87b5ffd1a72b834eac651637323cb",
+        "lib/dev/llm/llmOptions.js": "c97f11748cc8d607d9f4a8aea4fd09fe04fb8207971ce7ad8dbd4987a2d564cf",
+        "lib/dev/llm/buildBatches.js": "2da25650ed525313d82ca70ee53affe38e9c5aaf2071063af5f385916fa131d5",
+        "lib/dev/llm/llmLedger.js": "2908f63493ec3dfebe2385159398f280b7a6baa8d337c8ab710b14ba4b770b3b",
+        "lib/dev/llm/translatePass.js": "1e67dec819fdc0bad2ff7988e5f799e0e56640a64dd1cd74392aa97f9322c637"
+      }
+    },
+    "llm/providers": {
+      "sealedAt": "32f6c57",
+      "sources": {
+        "lib/dev/llm/fetchDriver.js": "3821eac4496662fe00d6ed8664cf7d3731ceae6877fcffbb21003406a85fc0d4",
+        "lib/dev/llm/callModel.js": "0efa4a5db9f03a09128873bcfb7a81f38087fc8bb30b9c649bbb3a6f3182d349",
+        "lib/dev/llm/llmOptions.js": "c97f11748cc8d607d9f4a8aea4fd09fe04fb8207971ce7ad8dbd4987a2d564cf"
+      }
+    },
+    "llm/running": {
+      "sealedAt": "32f6c57",
+      "sources": {
+        "lib/dev/llm/llmCommands.js": "9f56b284dca417a0067e3efe0b2213a0797065924f66f4f4111efc98ad9e4d62",
+        "lib/dev/llm/requestPanel.js": "05f2cd21972a8d1b6d8f785a2af3de548c5400edace0e7068eec12ce9fe0a439",
+        "lib/dev/llm/llmReport.js": "287b5503caadb62817f5a2d2e262a67c8b5652112985bf2651d657d77c1608c5",
+        "lib/dev/llm/validateTranslation.js": "4e87d4d1701260cc0986f8cfbb42a7fb48103af878a612cd9d3637bc5049372c",
+        "lib/dev/llm/debugTrace.js": "b5c83c3e757fd57a18b065881556a402681d2d1e5d8a3dfd39ee0e5a04b89eec",
+        "lib/dev/llm/translatePass.js": "1e67dec819fdc0bad2ff7988e5f799e0e56640a64dd1cd74392aa97f9322c637",
+        "lib/dev/vite/cli.js": "0d286d24ec084edb12d070e25dbb6f40d2587be6d36c963dc937b1a1827120fd"
+      }
+    },
+    "llm/setup": {
+      "sealedAt": "32f6c57",
+      "sources": {
+        "lib/dev/llm/llmOptions.js": "c97f11748cc8d607d9f4a8aea4fd09fe04fb8207971ce7ad8dbd4987a2d564cf",
+        "lib/dev/llm/apiKey.js": "cd8f5941887d854b61f0812adbcee8b9050e40a5fcfd68e9a78c183b1dd85dbd",
+        "lib/dev/llm/keyringPeer.js": "258dc8af27759f090bf941399f312123f3279e4a7378a14a7bf02c29700ccdc8",
+        "lib/dev/llm/fetchDriver.js": "3821eac4496662fe00d6ed8664cf7d3731ceae6877fcffbb21003406a85fc0d4",
+        "lib/dev/llm/llmCommands.js": "9f56b284dca417a0067e3efe0b2213a0797065924f66f4f4111efc98ad9e4d62"
+      }
+    },
+    "tutorials/first-app": {
+      "sealedAt": "32f6c57",
+      "sources": {
+        "demo/Vite_8/quickApp/vite.config.js": "1f37d72ba3dbda1810a3f42b6a9992305e9843f1c386a0af2b3d4b800bda62b1",
+        "demo/Vite_8/quickApp/src/main.jsx": "3f8d37ac29b7aa130951a39374103ff18d0a68e50bfffc40a78b3f1b90597f22",
+        "lib/dev/vite/cli.js": "0d286d24ec084edb12d070e25dbb6f40d2587be6d36c963dc937b1a1827120fd",
+        "lib/react.d.ts": "d4f7461a2f3293bbe20637b1fc30959705cde82ca788127d14b2b033dee0ddcc"
+      }
+    },
+    "tutorials/language-switcher": {
+      "sealedAt": "32f6c57",
+      "sources": {
+        "demo/Vite_8/minimal/src/RotateLanguageButton.jsx": "5120f4a6fb58e9d7cb2b084d490d4edad9a10c519d92238df74d21f3aca437d5",
+        "lib/react/useTranslateLanguage.js": "bbbf597a42385607c435c7b6ab5452011b84915b53477eea8bd0ba9b9e386d72",
+        "lib/react.d.ts": "d4f7461a2f3293bbe20637b1fc30959705cde82ca788127d14b2b033dee0ddcc"
+      }
+    },
+    "tutorials/migrating-from-3": {
+      "sealedAt": "32f6c57",
+      "sources": {
+        "lib/dev/vite/uty/migrateLegacyLanguages.js": "d32ef8050ba83d39b724a16f3a79e63c265b0367ceccdca7400f0e1145ebd489",
+        "lib/dev/vite/cli.js": "0d286d24ec084edb12d070e25dbb6f40d2587be6d36c963dc937b1a1827120fd"
+      }
+    },
+    "tutorials/plurals-and-dates": {
+      "sealedAt": "32f6c57",
+      "sources": {
+        "lib/icu/runtime.js": "2eb43829792c25374bb961d6a45d50e2950cbffb8eba928cbe33a839f7f8b369",
+        "lib/dev/vite/uty/languageStatus.js": "b14a6e25b632315070fb7386911ab66276522b0804f1c3b61ab8fbb39b7efd55"
+      }
+    },
+    "vscode/commands-settings": {
+      "sealedAt": "32f6c57",
+      "sources": {
+        "idePlugin/package.json#contributes": "a8d7b4c42c9df0d198fd6358382f737c9d97a887e07dc62be0f80c2bc5fc569e"
+      }
+    },
+    "vscode/install": {
+      "sealedAt": "32f6c57",
+      "sources": {
+        "idePlugin/package.json#engines": "86854732e86fd617cb2d2035b413f045f9df90f9b72936728b42cb11b05b7d5c",
+        "idePlugin/package.json#preview": "b5bea41b6c623f7c09f1bf24dcae58ebab3c0cdd90ad966bc43a45b44867e12b",
+        "idePlugin/src/probes/markedScan.mjs": "0cc610e304f453848b4547611faf41e4060265d9cce5e5b49d8700eefb9fb053"
+      }
+    },
+    "vscode/panel": {
+      "sealedAt": "32f6c57",
+      "sources": {
+        "idePlugin/package.json#contributes": "a8d7b4c42c9df0d198fd6358382f737c9d97a887e07dc62be0f80c2bc5fc569e",
+        "idePlugin/src/webViews/selector/selectorPage.mjs": "b142bcf836c9428890add8bb85cf8373b89247ad56bb9dd00dff5b4df453cf68",
+        "idePlugin/src/views/results/resultsView.mjs": "b6e39310d63feaf240c73a027b2edd6629243129fc2a2b196102decae718df73",
+        "idePlugin/src/views/results/markedRows.mjs": "6da960d204376526e6a5a8a337a4cb398f59d33cc5b565b07c69e9af87a29f10",
+        "idePlugin/src/webViews/project/projectPage.mjs": "81cd8ba62d04dbfda29a6d5f131dfa9523f6a4a8fe2c7ed9024c2317bd316359",
+        "idePlugin/src/webViews/optional/settings/settingsPage.mjs": "16566fc742d21bebf6c411615188780955efc4513e0ef4ceb752284d5b151c25",
+        "idePlugin/src/webViews/optional/llm/llmPage.mjs": "5c52d835c274eb8ee582ad2e9e10f490bb9493acd9227acf9c42d051c0d0834f",
+        "idePlugin/src/webViews/optional/library/libraryPage.mjs": "979ea034d1e3059fca7f511bc3c21d5965f80b0aa066ccaa90a005991944bd17",
+        "idePlugin/src/highlight/highlightStyles.mjs": "adfa4848eed3af9952882432bc1a195dba7f87a7dd45f52c576cc97a568fe3df",
+        "idePlugin/src/core/pickProject.mjs": "2f037c484e4f9b62a7ff96e9d044d79da09d40c5907a3114130a06fd9a29ae9a",
+        "idePlugin/src/probes/runProbe.mjs": "dac307853fee5996a036235e447030987698f9baf548bdab503986f94cdf6ad8"
+      }
+    }
+  },
+  "anchors": [
+    "api/cli",
+    "api/cli#add",
+    "api/cli#fastverify",
+    "api/cli#help",
+    "api/cli#llm-auto-translation",
+    "api/cli#migrate",
+    "api/cli#rewritemarker",
+    "api/cli#simplelog",
+    "api/cli#status",
+    "api/cli#when-the-sync-stops",
+    "api/plugin-options",
+    "api/plugin-options#errorsolve",
+    "api/plugin-options#icu",
+    "api/plugin-options#llm",
+    "api/types",
+    "api/types#components",
+    "api/types#hooks",
+    "api/types#plugin-options",
+    "api/types#values-and-arguments",
+    "components/translate",
+    "components/translate#markup-and-placeholders",
+    "components/translate#other-forms",
+    "components/translate#props",
+    "components/translate#skipmark-when-unmarked-is-the-normal-case",
+    "components/translate#what-can-sit-in-the-text-position",
+    "components/translate#write-jsx-inside-translate",
+    "components/translate-container",
+    "components/translate-container#at-a-glance",
+    "components/translate-container#props",
+    "components/translate-container#short-names",
+    "concepts/diagnostics",
+    "concepts/diagnostics#case-by-case",
+    "concepts/diagnostics#console-output",
+    "concepts/diagnostics#unmarked-text-is-domain-data-not-an-error",
+    "concepts/diagnostics#when-there-is-no-text-at-all",
+    "concepts/icu",
+    "concepts/icu#apostrophes-are-just-apostrophes",
+    "concepts/icu#arguments-positions-or-names",
+    "concepts/icu#dates-and-time-zones",
+    "concepts/icu#limits",
+    "concepts/icu#mixing-s-with-n-or-names",
+    "concepts/icu#one-example-per-construct",
+    "concepts/icu#what-checks-it",
+    "concepts/icu#what-ships",
+    "concepts/icu#when-a-string-becomes-icu",
+    "concepts/languages",
+    "concepts/languages#bcp47",
+    "concepts/languages#methodological-notes",
+    "concepts/languages#numbered-tags-in-the-table",
+    "concepts/limitations",
+    "concepts/limitations#autowrap",
+    "concepts/limitations#markers-and-extraction",
+    "concepts/limitations#messages-and-icu",
+    "concepts/limitations#runtime-and-tools",
+    "concepts/limitations#the-preprocessor",
+    "concepts/markers",
+    "concepts/markers#rewriting-the-markers",
+    "concepts/preloading",
+    "concepts/translation-files",
+    "concepts/translation-files#file-format",
+    "concepts/translation-files#what-protects-your-files",
+    "getting-started/faq",
+    "getting-started/faq#delimiters",
+    "getting-started/faq#keys",
+    "getting-started/faq#llm-dev",
+    "getting-started/faq#llm-sees",
+    "getting-started/faq#runtime-size",
+    "getting-started/faq#ssr",
+    "getting-started/faq#typescript",
+    "getting-started/faq#untranslated",
+    "getting-started/faq#vscode",
+    "getting-started/faq#yaml",
+    "getting-started/installation",
+    "getting-started/installation#install-and-register-the-plugin",
+    "getting-started/installation#it-never-reaches-your-bundle",
+    "getting-started/installation#napi-rskeyring-is-optional-and-stays-that-way",
+    "getting-started/installation#requirements",
+    "getting-started/installation#why-babelcore-is-required",
+    "getting-started/live-examples",
+    "getting-started/live-examples#edge-cases",
+    "getting-started/live-examples#playground",
+    "getting-started/live-examples#showcase",
+    "getting-started/overview",
+    "getting-started/overview#runtime-size",
+    "getting-started/overview#the-flow-in-four-steps",
+    "getting-started/overview#what-it-is",
+    "getting-started/overview#where-to-go-next",
+    "getting-started/usage",
+    "getting-started/usage#add-a-language",
+    "getting-started/usage#next-steps",
+    "getting-started/usage#start-vite-the-source-table-writes-itself",
+    "getting-started/usage#switch-language-and-ship",
+    "getting-started/usage#translate",
+    "getting-started/usage#write-text-where-it-belongs",
+    "hooks/helpers",
+    "hooks/helpers#basichtmltonodes",
+    "hooks/helpers#jsxarg",
+    "hooks/helpers#version",
+    "hooks/use-translate-language",
+    "hooks/use-translate-language#proposenewlanguage",
+    "hooks/use-translate-node",
+    "hooks/use-translate-to-string",
+    "llm/context",
+    "llm/price",
+    "llm/price#budget-caps",
+    "llm/price#confirmation",
+    "llm/price#model-class",
+    "llm/price#reasoning-models",
+    "llm/price#the-estimate",
+    "llm/providers",
+    "llm/providers#openai-compatible-endpoints",
+    "llm/providers#optional-vercel-provider",
+    "llm/running",
+    "llm/running#debugging-a-run",
+    "llm/running#flags",
+    "llm/running#what-gets-validated",
+    "llm/running#while-it-runs",
+    "llm/setup",
+    "llm/setup#every-option",
+    "llm/setup#getting-started",
+    "llm/setup#the-api-key",
+    "tutorials/first-app",
+    "tutorials/first-app#add-french",
+    "tutorials/first-app#add-the-buttons",
+    "tutorials/first-app#build",
+    "tutorials/first-app#create-the-project",
+    "tutorials/first-app#register-the-plugin",
+    "tutorials/first-app#start-vite",
+    "tutorials/first-app#translate",
+    "tutorials/first-app#where-next",
+    "tutorials/first-app#write-the-first-sentence",
+    "tutorials/language-switcher",
+    "tutorials/language-switcher#good-to-know",
+    "tutorials/language-switcher#list-the-languages",
+    "tutorials/language-switcher#one-button-that-rotates",
+    "tutorials/language-switcher#remember-the-choice",
+    "tutorials/migrating-from-3",
+    "tutorials/plurals-and-dates",
+    "tutorials/plurals-and-dates#add-a-language-with-more-plural-forms",
+    "tutorials/plurals-and-dates#see-it-in-both-languages",
+    "tutorials/plurals-and-dates#write-the-messages",
+    "vscode/commands-settings",
+    "vscode/commands-settings#commands",
+    "vscode/commands-settings#settings",
+    "vscode/install",
+    "vscode/install#getting-started",
+    "vscode/install#one-project-two-halves",
+    "vscode/install#safe-by-design",
+    "vscode/panel",
+    "vscode/panel#highlighting",
+    "vscode/panel#library-missing-or-too-old",
+    "vscode/panel#llm",
+    "vscode/panel#pages-that-take-over-settings-llm-help",
+    "vscode/panel#project",
+    "vscode/panel#results",
+    "vscode/panel#selector",
+    "vscode/panel#settings",
+    "vscode/panel#under-the-hood",
+    "vscode/panel#which-project"
+  ]
+}

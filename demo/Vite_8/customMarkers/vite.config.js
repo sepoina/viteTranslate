@@ -9,7 +9,7 @@ export default defineConfig({
       localeDir: 'locale', // lang dir
       sourceLanguage: 'it-IT', // source Language
       // Your own delimiters instead of _%_: two very rare Unicode symbols (U+227C, U+227D), which never
-      // show up in real text — so a marker can't be mistaken for punctuation. See doc/plugin-options.md#markers.
+      // show up in real text — so a marker can't be mistaken for punctuation. See https://sepoina.github.io/viteTranslate/docs/concepts/markers/.
       markerStart: '≼',
       markerEnd: '≽',
       // Con autoWrap un testo marcato fra i tag (≼così≽) si traduce da solo: niente <Trans> da scrivere.

@@ -111,7 +111,8 @@ console.log("\n== failures leave the original intact and clean the temporary fil
 
   // Rename retry is for Windows only: on POSIX an EPERM is final and not retried.
   let calls = 0;
-  e = withIo({ renameSync: () => { calls++; throw ioError("EPERM"); } }, () =>
+  // The platform is forced: on a Windows machine syncIo.platform is "win32" and the retry would kick in.
+  e = withIo({ platform: "linux", renameSync: () => { calls++; throw ioError("EPERM"); } }, () =>
     thrown(() => replaceFileAtomic(filePath, "new\n", snapshot)));
   eq("POSIX: EPERM is not retried", 1, calls);
   eq("POSIX: fails with VT_WRITE_FAILED", "VT_WRITE_FAILED", e?.code);

@@ -2,6 +2,8 @@
 
 The `vitetranslate` command, installed once for every project on your machine.
 
+▶️ New to viteTranslate? [Watch the video](https://youtu.be/gYj1z3XMv9M): why it exists and how its pieces work together.
+
 ```bash
 npm i -g vitetranslate
 cd my-app
@@ -30,7 +32,7 @@ The package manager comes from your lockfile: pnpm, Yarn and Bun get their own c
 - `--version`: this launcher's version, plus which copy it would run and where that copy lives.
 - `--help`: the project's own help. This launcher's shows up only when there is no copy to ask.
 
-Everything else goes straight to the project's command: see the [CLI reference](https://github.com/sepoina/viteTranslate/blob/main/doc/cli.md).
+Everything else goes straight to the project's command: see the [CLI reference](https://sepoina.github.io/viteTranslate/docs/api/cli/).
 
 ## No global install?
 

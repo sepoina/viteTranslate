@@ -1,3 +1,4 @@
+// DOCS-PAGE: vscode/panel — the user manual describes this behaviour; update it and run npm run docs:seal (AGENTS.md).
 // La sezione Results come la vede VS Code: la TreeView del modello (markedTree.mjs) e quello che la
 // muove da fuori. Tutto qui è solo di Results:
 //   - i salvataggi dei sorgenti del suo srcDir e dei file di lingua della sua localeDir (le

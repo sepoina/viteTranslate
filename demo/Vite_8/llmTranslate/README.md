@@ -5,6 +5,8 @@
 ship with every cell at `null` — nobody typed a single one of them. A model does that, once, when
 you say so.
 
+▶️ New to viteTranslate? [Watch the video](https://youtu.be/gYj1z3XMv9M): why it exists and how its pieces work together.
+
 ```bash
 npm install
 cp .env.example .env.local     # paste your key after the `=`
@@ -81,7 +83,7 @@ per request, so a small local model gets small batches and a flagship gets big o
 *your* spending cap, in cost — `'safe'` here is $0.10 per run, $0.50 per day. OpenAI's reasoning
 models also want `maxTokensField: 'max_completion_tokens'`.
 
-Costs, budget caps, the keyring and every flag: **[doc/llm.md](../../../doc/llm.md)**.
+Costs, budget caps, the keyring and every flag: **[The LLM guide](https://sepoina.github.io/viteTranslate/docs/llm/setup/)**.
 
 ## Where to find the rest
 

@@ -86,7 +86,7 @@ eq("undefined vale safe", "safe", budgetOf(undefined).preset);
   eq("merge: token non attivi", undefined, merged.maxTokensPerRun);
 }
 eq("un campo esplicito vale anche nell'altra unità", 1000, budgetOf({ maxTokensPerRun: 1000 }, priced).maxTokensPerRun);
-throws("campo della 4.6.1 -> errore col rimando", () => budgetOf({ maxKeysPerRun: 5 }), "doc/llm.md");
+throws("campo della 4.6.1 -> errore col rimando", () => budgetOf({ maxKeysPerRun: 5 }), "docs/llm/price/#budget-caps");
 throws("campo della 4.6.1 -> nomina il campo", () => budgetOf({ maxKeysPerRun: 5 }), "llm.budget.maxKeysPerRun is not a recognised option");
 throws("valore negativo", () => budgetOf({ maxTokensPerRun: -1 }), "must be a number >= 0");
 throws("preset sconosciuto", () => budgetOf("huge"), '"huge"');
