@@ -267,6 +267,9 @@ try {
   eq("scanScope: salta generated/, locale/, dist/ e node_modules", [false, false, false, false, false], ["site/pages/docs/src/generated/g.js", "site/pages/docs/locale/en-US.yml", "site/pages/docs/dist/d.js", "lib/node_modules/n.js", "lib/dist/e.js"].map((f) => ambito.includes(f)));
   eq("scanScope: guarda i sorgenti delle pagine, README e lib", [true, true, true], ["site/pages/docs/src/ui/u.js", "README.md", "lib/a.js"].map((f) => ambito.includes(f)));
   eq("scanScope: e quello che sta in un file saltato non produce KO", ["site/pages/docs/src/ui/u.js"], righe(checks(tmp), "links into the manual").map((r) => r.trim().split(":")[0]));
+  scrivi("lib/react.d.ts", "Vedi doc/icu.md.\n");
+  eq("scanScope: i .d.ts di lib/ sono nel perimetro", true, scanScope(tmp).includes("lib/react.d.ts"));
+  eq("scanScope: un doc/x.md dentro un .d.ts è un KO", ["lib/react.d.ts"], righe(checks(tmp), "links to migrated files").slice(1).map((r) => r.trim().split(":")[0]));
 } finally {
   rmSync(tmp, { recursive: true, force: true });
 }

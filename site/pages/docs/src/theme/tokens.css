@@ -107,6 +107,11 @@
   --tk-n: #fdba74; /* numeri, null */
   --tk-m: var(--accent); /* il marcatore _%_…_%_ */
 
+  /* Le note del manuale: una velatura lime e un bordo largo appena visibile, per staccarle dai
+     riquadri del codice. */
+  --callout-bg: rgba(190, 222, 74, 0.08);
+  --callout-rim: rgba(255, 255, 255, 0.02);
+
   /* Forma e movimento. */
   --r-sm: 4px;
   --r-md: 8px;
@@ -172,6 +177,8 @@
     --tk-t: #0369a1;
     --tk-k: #6d28d9;
     --tk-n: #c2410c;
+    --callout-bg: rgba(190, 222, 74, 0.14);
+    --callout-rim: rgba(0, 0, 0, 0.02);
   }
 }
 
@@ -223,4 +230,6 @@
   --tk-t: #0369a1;
   --tk-k: #6d28d9;
   --tk-n: #c2410c;
+  --callout-bg: rgba(190, 222, 74, 0.14);
+  --callout-rim: rgba(0, 0, 0, 0.02);
 }

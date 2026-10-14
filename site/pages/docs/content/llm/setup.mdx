@@ -56,6 +56,33 @@ vitetranslate --llm-translate     # prints the estimate, asks, then translates
 
 Add `costMillionInput`/`costMillionOutput` (your provider's price per million tokens) to see the cost next to the estimate — see [price](/llm/price).
 
+## Tested endpoints {#tested-endpoints}
+
+Any OpenAI-compatible endpoint should do. These are the ones run end to end, with the settings they need:
+
+| Endpoint | `baseURL` | `model` | Reasoning off | Reliability |
+| :- | :- | :- | :- | :- |
+| DeepSeek | `https://api.deepseek.com` | `deepseek-flash` | `providerOptions: { thinking: { type: "disabled" } }` | ★★★ |
+| OpenRouter | `https://openrouter.ai/api/v1` | `deepseek/deepseek-v4.1-flash` | `providerOptions: { reasoning: { enabled: false } }` | ★★★ ~20 s/batch |
+| OpenRouter | `https://openrouter.ai/api/v1` | `z-ai/glm-4.7-flash` | `providerOptions: { reasoning: { enabled: false } }` | ★★ ~65 s/batch |
+| OpenRouter | `https://openrouter.ai/api/v1` | `qwen/qwen3-235b-a22b-2507` | nothing to switch off: it doesn't reason | ★★ ~65 s/batch |
+| OpenRouter | `https://openrouter.ai/api/v1` | `anthropic/claude-haiku-5.5` | `providerOptions: { reasoning: { enabled: false } }` | ★ fast, but echoed a batch |
+
+- ★★★ — every batch back on the first try, well within the default timeout.
+- ★★ — works, but a full batch takes over a minute: raise `timeoutMs`.
+- ★ — answers, but not to be trusted unchecked.
+
+The times are for a full `standard` batch (~85 keys) and come from one run: providers have good days and bad ones.
+
+Claude Haiku 5.5 is quick (7–20 s a batch) and its Chinese reads well, but once it sent a whole batch of 100 keys back in English, identical to the source. Valid JSON, tags and arguments in place: no check can tell an echo from a translation, so those keys landed in the table as if translated. If you use it, read the table afterwards.
+
+GLM 4.7 Flash runs at ~56 tokens/s. Give it `timeoutMs: 120000` (the default is 60 seconds), and `provider: { sort: "throughput" }` in `providerOptions`, so OpenRouter tries the fastest providers first. On the GLM 5.3 models OpenRouter marks reasoning as mandatory, and refuses `enabled: false` with a `400`.
+
+The reasoning column matters more than it looks. A model that thinks by default can spend the whole `max_tokens` thinking and send back an empty reply, batch after batch — see [reasoning models](/llm/price#reasoning-models). The field is the provider's own: another provider's may be ignored without a word, or turned down with a `400`.
+
+> [!NOTE]
+> The list grows as endpoints get tested. Got one working that isn't here? [Tell us](https://github.com/sepoina/viteTranslate/issues) the `baseURL`, the model and what you put in `providerOptions`.
+
 ## Every option {#every-option}
 
 All optional except where noted. Each is explained in its section below.
@@ -68,9 +95,9 @@ All optional except where noted. Each is explained in its section below.
 | `connection.protocol` | `"openai-chat"` | The only value accepted |
 | `connection.temperature` | `0.2` | Sent with every request |
 | `connection.timeoutMs` | `60000` | Per request |
-| `connection.maxRetries` | `3` | Retries on HTTP 429, 5xx and network errors — never on 400/401/403 |
+| `connection.maxRetries` | `3` | Retries on HTTP 429, 5xx and network errors — never on 400/401/403. A 429 waits as long as the provider says, up to 65 s ([running](/llm/running#while-it-runs)) |
 | `connection.maxConcurrency` | `4` | Requests in flight at the same time |
-| `connection.modelClass` | `"standard"` | How much the model can take: sizes the batches and `max_tokens` ([model class](/llm/price#model-class)) |
+| `connection.modelClass` | `"standard"` | How much the model can take: sizes the batches and caps `max_tokens` ([model class](/llm/price#model-class)) |
 | `connection.maxTokensField` | `"max_tokens"` | Name of the output-limit field in the request: `"max_tokens"`, `"max_completion_tokens"`, or `false` to send none |
 | `connection.providerOptions` | `{}` | Extra fields merged into the request body, for provider-specific settings. Wins over everything else, `max_tokens` included |
 | `connection.costMillionInput` / `costMillionOutput` | — | Price per million tokens. Both or neither ([estimate](/llm/price#the-estimate)) |

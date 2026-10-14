@@ -43,9 +43,18 @@ A truncated reply that still brought some keys home is a `<` line ending in `tru
 :::                      ║  real token: 3100 (≈ $0.0106)
 ```
 
-`N to do` counts the keys still `null` in that language after this reply, `Full translate!` means none are left; then any rejected or missing keys, or for an error the reason. The last line is the real cost of the run, summed from the provider's `usage` — plus the share of [reasoning](/llm/price#reasoning-models), when there was any. With `--llm-debug`, the trace folder is printed at the end; the per-language breakdown lives there, in `summary.json`.
+`N to do` counts the keys still `null` in that language after this reply, `Full translate!` means none are left; then any rejected or missing keys, or for an error the reason. The last line is the real cost of the run, summed from the provider's `usage` — at the cost the provider reports when it does ([OpenRouter](/llm/price#the-estimate)), at your prices otherwise — plus the share of [reasoning](/llm/price#reasoning-models), when there was any. At half the output or more, a warning follows with the link to switch it off. With `--llm-debug`, the trace folder is printed at the end; the per-language breakdown lives there, in `summary.json`.
 
 Piped, redirected or in CI there is no live block, only the final log. A failed request doesn't stop the others: its keys stay `null` — a truncated one excepted, see above — and [`--llm-debug`](#debugging-a-run) has the full reply.
+
+Unless the error would hit every batch alike: `HTTP 401` (the key is rejected), `403` (the model is refused to this key or app), `404` (no such model or endpoint), or a `429` the retries couldn't wait out. Then the run sends nothing more, lets the requests in flight finish, keeps what they bring, and says why:
+
+```text
+:::                      ║  stopped on HTTP 403: 5 request(s) not sent
+:::                      ║  the provider refuses this model to this key or app
+```
+
+A `429` waits as long as the provider says — `Retry-After`, or the reset OpenRouter puts in the error — up to 65 seconds. A limit further off, like a daily one, isn't waited for.
 
 Before it spends anything, the run does its homework: the sync it starts with (it stops with the same messages as the [sync](/api/cli#when-the-sync-stops), an incomplete scan included) and, for `--llm-retranslate`, a backup of each table it is about to overwrite. If either fails, **no request is sent**, not even the context abstract.
 

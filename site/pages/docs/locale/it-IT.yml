@@ -1,1196 +1,1218 @@
 #  -------------------------------------------------
 #      italiano (Italia)
 #       |    code: it-IT
-#       |    missing key: 1186
-#       |    processed: 2026-10-14 13:46
+#       |    missing key: 0
+#       |    processed: 2026-10-14 18:18
 #       |    TableVersion: 260905
 #  -------------------------------------------------
 #
-
-#  ----to be translated------------------------------------------
-App_1532kg4: null
-App_15xaas1: null
-App_1bbt83l: null
-App_1usxgxi: null
-App_416i43: null
-App_lmffm8: null
-App_ni4cxp: null
-App_sq7lrl: null
-Callout_1fhzm21: null
-Callout_1lz5070: null
-Callout_8me78u: null
-Callout_esqylo: null
-Callout_gmki19: null
-cli_10hxm30: null
-cli_12gnji0: null
-cli_13qpclh: null
-cli_15bnnf9: null
-cli_1657vwm: null
-cli_17dfc71: null
-cli_17oug6s: null
-cli_17uvuyn: null
-cli_18i51wo: null
-cli_19n9xdo: null
-cli_1a1xo6z: null
-cli_1ad7mv5: null
-cli_1b2fqp4: null
-cli_1cmxse9: null
-cli_1ff0suz: null
-cli_1ft7932: null
-cli_1ho6dk7: null
-cli_1ieyl21: null
-cli_1ipkplr: null
-cli_1kdmc70: null
-cli_1lxkq5d: null
-cli_1pkav2a: null
-cli_1r3wlso: null
-cli_1tfdavu: null
-cli_1tx7n9o: null
-cli_1unqjtm: null
-cli_1vs6gyo: null
-cli_1wnylk0: null
-cli_1x7kpj4: null
-cli_4t7pnh: null
-cli_4upscn: null
-cli_4v1pz6: null
-cli_4xaa1c: null
-cli_8qu7ts: null
-cli_9e2a2o: null
-cli_el6tkh: null
-cli_g18r9n: null
-cli_jmw1m3: null
-cli_s4949n: null
-cli_t1j2c3: null
-cli_xjjggl: null
-cli_xwhstk: null
-cli_xwpucw: null
-CodeBlock_1mj7wi3: null
-CodeBlock_z02y2i: null
-commandssettings_10f48lk: null
-commandssettings_10heiff: null
-commandssettings_12sn5le: null
-commandssettings_13pmhh8: null
-commandssettings_180588j: null
-commandssettings_1a0siud: null
-commandssettings_1b2a7fw: null
-commandssettings_1cdqk5: null
-commandssettings_1fizrvs: null
-commandssettings_1h5nkv1: null
-commandssettings_1pkqb6l: null
-commandssettings_69hq6t: null
-commandssettings_6u75x2: null
-commandssettings_7dfy7c: null
-commandssettings_98tl48: null
-commandssettings_9fxa7e: null
-commandssettings_b87mb9: null
-commandssettings_d7idzm: null
-commandssettings_jptazz: null
-commandssettings_knxiby: null
-commandssettings_nxc9o6: null
-commandssettings_swhmw0: null
-commandssettings_vjuz6x: null
-commandssettings_zh7in7: null
-commandssettings_zlbyw5: null
-context_1535r4l: null
-context_16ci4q2: null
-context_19y6d9c: null
-context_1kpxfqk: null
-context_1r89qas: null
-context_5gz77n: null
-context_6dw667: null
-context_ff9psa: null
-context_m4zlmg: null
-context_o9c3hf: null
-context_qnhlje: null
-context_w5t32l: null
-Demo_ivtwj9: null
-diagnostics_1141i31: null
-diagnostics_119qaqt: null
-diagnostics_119qnc1: null
-diagnostics_13hhxlh: null
-diagnostics_13mcx9: null
-diagnostics_14h94dm: null
-diagnostics_14y7x94: null
-diagnostics_15d0yqz: null
-diagnostics_1835jb2: null
-diagnostics_1ajhz84: null
-diagnostics_1amy5sj: null
-diagnostics_1cdqo3t: null
-diagnostics_1dl7l3t: null
-diagnostics_1g631hn: null
-diagnostics_1hcvf9g: null
-diagnostics_1hoeu4t: null
-diagnostics_1kldkq4: null
-diagnostics_1lk5w2b: null
-diagnostics_1lwve84: null
-diagnostics_1m320i3: null
-diagnostics_1m5bu4h: null
-diagnostics_1plj28o: null
-diagnostics_1pzk99i: null
-diagnostics_1q3rzju: null
-diagnostics_1q5vs30: null
-diagnostics_1sgwued: null
-diagnostics_1ufmeao: null
-diagnostics_1uvcwsp: null
-diagnostics_1uydf24: null
-diagnostics_1x31s31: null
-diagnostics_1yiswvs: null
-diagnostics_26ps8v: null
-diagnostics_2gua4e: null
-diagnostics_36zyyk: null
-diagnostics_4sqhtx: null
-diagnostics_57jsn: null
-diagnostics_5qtby1: null
-diagnostics_6i0fd1: null
-diagnostics_6lt1u9: null
-diagnostics_93nyn0: null
-diagnostics_99i7gq: null
-diagnostics_asvdiz: null
-diagnostics_bpaa6q: null
-diagnostics_byds09: null
-diagnostics_cmd6lq: null
-diagnostics_ds3761: null
-diagnostics_ghk0aa: null
-diagnostics_gxu7bp: null
-diagnostics_h4c9cc: null
-diagnostics_jts6p7: null
-diagnostics_lwc6nu: null
-diagnostics_o0u7bm: null
-diagnostics_o5a1rp: null
-diagnostics_qso9ta: null
-diagnostics_rbpzqf: null
-diagnostics_rjnl8w: null
-diagnostics_rkxvts: null
-diagnostics_tix533: null
-diagnostics_u36zxr: null
-diagnostics_u9l2r9: null
-diagnostics_vb63jv: null
-diagnostics_w65lrs: null
-diagnostics_wli5zv: null
-diagnostics_ybzzsq: null
-faq_13oi7ih: null
-faq_1dr1j80: null
-faq_1g08w04: null
-faq_1hmni4n: null
-faq_1mgaqtr: null
-faq_1pzx1v2: null
-faq_1ul2kxt: null
-faq_1w9b4sc: null
-faq_1xgri4c: null
-faq_24ewyf: null
-faq_2lme4i: null
-faq_4v1iod: null
-faq_6xb0k4: null
-faq_9lzgec: null
-faq_b19n6t: null
-faq_bdpbo0: null
-faq_ftjjbi: null
-faq_hgdw8p: null
-faq_lhmelk: null
-faq_nkf0z1: null
-faq_ov4yw0: null
-faq_zaqpkb: null
-firstapp_11xegag: null
-firstapp_132sur8: null
-firstapp_16dutm8: null
-firstapp_1794hr9: null
-firstapp_17yhcdp: null
-firstapp_18o8jhp: null
-firstapp_1c2mh6o: null
-firstapp_1g7h2bc: null
-firstapp_1gmpzav: null
-firstapp_1ht7qn1: null
-firstapp_1lnu73t: null
-firstapp_1m2m2ab: null
-firstapp_1s87b5c: null
-firstapp_1ugk0sh: null
-firstapp_1w7minc: null
-firstapp_1wmau5y: null
-firstapp_1ybaj42: null
-firstapp_1ymrv9f: null
-firstapp_4t8x3w: null
-firstapp_56gfx6: null
-firstapp_c1xp85: null
-firstapp_exekwr: null
-firstapp_fehb5y: null
-firstapp_hj391t: null
-firstapp_iwvqw7: null
-firstapp_j5rhnq: null
-firstapp_kceo03: null
-firstapp_oxoyhd: null
-firstapp_ozp1jq: null
-firstapp_qzaf5x: null
-firstapp_r4toqi: null
-firstapp_uez44u: null
-firstapp_vyqy6h: null
-Heading_mm2o3i: null
-helpers_11sflwp: null
-helpers_15po30i: null
-helpers_16juypr: null
-helpers_1bls8t: null
-helpers_1dhyt51: null
-helpers_1fms61t: null
-helpers_1ghxm6i: null
-helpers_1mkl1lb: null
-helpers_1q0tov7: null
-helpers_1reh9vu: null
-helpers_1u4zp03: null
-helpers_1vu2ia7: null
-helpers_1yvsyzr: null
-helpers_3subh6: null
-helpers_7bh9s4: null
-helpers_ayzav5: null
-helpers_cq90qt: null
-helpers_p6kzck: null
-helpers_wk7tpu: null
-helpers_wlyzb6: null
-icu_10n9f7t: null
-icu_11doiaa: null
-icu_12zrdow: null
-icu_13dz4ly: null
-icu_152gl1o: null
-icu_154ximz: null
-icu_15nouo9: null
-icu_160lyaj: null
-icu_19ce0i6: null
-icu_1auvdky: null
-icu_1ax30be: null
-icu_1b2hlk6: null
-icu_1b54ee1: null
-icu_1d9nshv: null
-icu_1dqbk2s: null
-icu_1dsy0ns: null
-icu_1ec58fe: null
-icu_1fmj1l2: null
-icu_1fucmhv: null
-icu_1g2n06n: null
-icu_1hknngc: null
-icu_1jehlvq: null
-icu_1ku5d1u: null
-icu_1lipfs9: null
-icu_1njxmmy: null
-icu_1p075m4: null
-icu_1qtc7bq: null
-icu_1r8bokr: null
-icu_1rf9na4: null
-icu_1spw2fp: null
-icu_1t16fou: null
-icu_1v43uxn: null
-icu_1vtyiw7: null
-icu_1xtbb8n: null
-icu_27up7v: null
-icu_3aruik: null
-icu_6l7usq: null
-icu_77fqyy: null
-icu_7bfk1q: null
-icu_9coeui: null
-icu_aowmo9: null
-icu_bqg31l: null
-icu_bsmn2m: null
-icu_c267e3: null
-icu_cangbn: null
-icu_d57cpc: null
-icu_dekm90: null
-icu_e4yr58: null
-icu_ege3og: null
-icu_f3mk6y: null
-icu_fwco82: null
-icu_fxotmm: null
-icu_g24sqm: null
-icu_g5wcbz: null
-icu_i5lslq: null
-icu_iqyg5l: null
-icu_jm3esy: null
-icu_k9k1du: null
-icu_kl9uhf: null
-icu_lya0jv: null
-icu_mdkfm7: null
-icu_mxjxmi: null
-icu_rgfgte: null
-icu_rxk3bp: null
-icu_sgukxp: null
-icu_snqtrp: null
-icu_snupsx: null
-icu_thlz01: null
-icu_vuj8uf: null
-icu_wf09mf: null
-icu_y1rgiw: null
-icu_yp8ds2: null
-icu_zuo8k8: null
-install_1709scs: null
-install_19ytshx: null
-install_1dr1qxe: null
-install_1drcwpd: null
-install_1eyynwj: null
-install_1ia0fi2: null
-install_1ja5tfe: null
-install_1n66dn4: null
-install_1rwq6di: null
-install_1scx69w: null
-install_1vdczoy: null
-install_7zjeb8: null
-install_8jguik: null
-install_8pmh3x: null
-install_9o9xsq: null
-install_b4k49d: null
-install_bgu7lj: null
-install_dd63u8: null
-install_ehzjlf: null
-install_eve7f3: null
-install_fk0lrj: null
-install_ibez6k: null
-install_mz4bmq: null
-install_n29mk9: null
-install_pzf02v: null
-install_x93zm3: null
-install_ymak0a: null
-installation_12okzxg: null
-installation_14c3hli: null
-installation_17md6b: null
-installation_1bdat4y: null
-installation_1byvfeu: null
-installation_1fln2cz: null
-installation_1fvccwa: null
-installation_1kev8u7: null
-installation_1s094ob: null
-installation_1ukc6fu: null
-installation_1yi6vzl: null
-installation_25m9yq: null
-installation_29tt4v: null
-installation_92tbzo: null
-installation_f16rwi: null
-installation_f4xrfu: null
-installation_nh39v5: null
-installation_ny5sda: null
-installation_puvrk7: null
-installation_q0urhf: null
-installation_qnbuwa: null
-installation_tfq7wk: null
-installation_v05z5e: null
-installation_v3fxaf: null
-installation_vjbi13: null
-installation_vv9lcf: null
-languages_10s3t77: null
-languages_12o3096: null
-languages_1bsazhq: null
-languages_1c7vi19: null
-languages_1e726fy: null
-languages_1jsc9lo: null
-languages_1m6gd4x: null
-languages_1xyv0cm: null
-languages_2a4xjr: null
-languages_61o2yb: null
-languages_632opc: null
-languages_cq382p: null
-languages_h0h1rx: null
-languages_je9my3: null
-languages_merwlu: null
-languages_xeqhc8: null
-LanguageSwitch_gzrcyx: null
-languageswitcher_10xq0pu: null
-languageswitcher_12qxvkk: null
-languageswitcher_14io5dg: null
-languageswitcher_17xi8xd: null
-languageswitcher_1k6znb6: null
-languageswitcher_1mtokb4: null
-languageswitcher_1qo1q7t: null
-languageswitcher_1vftbx2: null
-languageswitcher_1we86rm: null
-languageswitcher_37esvz: null
-languageswitcher_7wiulw: null
-languageswitcher_ad9kym: null
-languageswitcher_axfsca: null
-languageswitcher_i2w702: null
-languageswitcher_jg6lrz: null
-languageswitcher_kqhdu5: null
-languageswitcher_ld3t5s: null
-languageswitcher_mvp6xf: null
-languageswitcher_qqy6sw: null
-languageswitcher_y03617: null
-limitations_11yq3wi: null
-limitations_13zltxi: null
-limitations_1414qcb: null
-limitations_160mu0r: null
-limitations_169odn7: null
-limitations_1aggsm6: null
-limitations_1bu5rtx: null
-limitations_1byqpbk: null
-limitations_1hc1e59: null
-limitations_1i9qpus: null
-limitations_1nagd96: null
-limitations_1o6rsgh: null
-limitations_1tvr0mt: null
-limitations_1vp1h3t: null
-limitations_86x8k8: null
-limitations_96t8ip: null
-limitations_anogcb: null
-limitations_bbok07: null
-limitations_c6d6op: null
-limitations_cktal4: null
-limitations_kcmpi3: null
-limitations_n2r7v: null
-limitations_nci5d5: null
-limitations_o1ugcp: null
-limitations_p90zrt: null
-limitations_qqyckm: null
-limitations_y2my8s: null
-limitations_yqgloe: null
-limitations_z0qqlr: null
-limitations_zb73cb: null
-liveexamples_111pp2e: null
-liveexamples_12w7mql: null
-liveexamples_1349omc: null
-liveexamples_13p59do: null
-liveexamples_13slc5b: null
-liveexamples_14jh4t: null
-liveexamples_15ji5g2: null
-liveexamples_17fztni: null
-liveexamples_180bo8y: null
-liveexamples_18b5hn0: null
-liveexamples_19a0zj5: null
-liveexamples_1a5mmjh: null
-liveexamples_1ahgn4l: null
-liveexamples_1atkthw: null
-liveexamples_1avqxnv: null
-liveexamples_1cj3wg5: null
-liveexamples_1cnjvmb: null
-liveexamples_1dnlmko: null
-liveexamples_1dwx7n9: null
-liveexamples_1gno9oi: null
-liveexamples_1gor6g5: null
-liveexamples_1haq3u0: null
-liveexamples_1hknsno: null
-liveexamples_1hulkov: null
-liveexamples_1i1tg4w: null
-liveexamples_1iok6w4: null
-liveexamples_1j84m91: null
-liveexamples_1juzuch: null
-liveexamples_1lfw2hp: null
-liveexamples_1ls1h8y: null
-liveexamples_1lsz317: null
-liveexamples_1n1eh52: null
-liveexamples_1nl344y: null
-liveexamples_1nneal9: null
-liveexamples_1oapck9: null
-liveexamples_1po4hpe: null
-liveexamples_1q3cau8: null
-liveexamples_1ramxt4: null
-liveexamples_1t5nd6a: null
-liveexamples_1udv7: null
-liveexamples_1um7xga: null
-liveexamples_1v5xkll: null
-liveexamples_1vah4ch: null
-liveexamples_1vm9qqv: null
-liveexamples_1wa0mfw: null
-liveexamples_1ykv3mj: null
-liveexamples_1yuti5a: null
-liveexamples_3nsd3c: null
-liveexamples_43ll2x: null
-liveexamples_4fa6xa: null
-liveexamples_4jge2z: null
-liveexamples_6l7i0t: null
-liveexamples_6lsc2d: null
-liveexamples_8y77f9: null
-liveexamples_9fxwyo: null
-liveexamples_a0w32q: null
-liveexamples_bhjrb9: null
-liveexamples_bkj2rk: null
-liveexamples_cf9fk1: null
-liveexamples_cszjrg: null
-liveexamples_dlu99z: null
-liveexamples_dsrk81: null
-liveexamples_e2bnw: null
-liveexamples_e3hhiv: null
-liveexamples_ezid8c: null
-liveexamples_fdxwiz: null
-liveexamples_fzqife: null
-liveexamples_ge1bwh: null
-liveexamples_gjku3y: null
-liveexamples_hf8tjx: null
-liveexamples_hk2k3m: null
-liveexamples_hz3g0b: null
-liveexamples_itx55l: null
-liveexamples_jpilds: null
-liveexamples_ju31z5: null
-liveexamples_mmbdtf: null
-liveexamples_o64ht0: null
-liveexamples_pamo76: null
-liveexamples_pozo5w: null
-liveexamples_prfr16: null
-liveexamples_rlnvi1: null
-liveexamples_rrybae: null
-liveexamples_s6e5y4: null
-liveexamples_sazvb9: null
-liveexamples_smaicg: null
-liveexamples_su3t6z: null
-liveexamples_t0iqhq: null
-liveexamples_te5drk: null
-liveexamples_u1izpp: null
-liveexamples_ucsxtm: null
-liveexamples_uka51q: null
-liveexamples_uqwgfu: null
-liveexamples_yqwx3w: null
-liveexamples_yyxexf: null
-markers_11yq4r9: null
-markers_1dtwq39: null
-markers_1goa7mk: null
-markers_1kvyv87: null
-markers_1l9hdhu: null
-markers_1lzhhjk: null
-markers_1mi3zlh: null
-markers_1of295a: null
-markers_1ogjgch: null
-markers_1s5xn9b: null
-markers_1uvu5oq: null
-markers_1wpz33o: null
-markers_2cvl9i: null
-markers_36seix: null
-markers_3ot51v: null
-markers_flavrl: null
-markers_frf1zx: null
-markers_k7q455: null
-markers_ontib5: null
-markers_rbt5pa: null
-markers_s0jnjx: null
-markers_sfpp0t: null
-markers_xmp9z5: null
-markers_y4q8vv: null
-migratingfrom3_1wtzsev: null
-migratingfrom3_9utgzi: null
-migratingfrom3_i3y5yr: null
-migratingfrom3_pdmdyp: null
-migratingfrom3_yuvhyu: null
-nav_149pu15: null
-nav_152osw7: null
-nav_15an5sn: null
-nav_1i6d12o: null
-nav_1kywofd: null
-nav_1q2gibn: null
-nav_1qw53kp: null
-nav_4ilap0: null
-nav_cnwihs: null
-nav_myqrkh: null
-nav_qflz3l: null
-nav_uj079i: null
-overview_18gw32r: null
-overview_1916ol: null
-overview_19wsv83: null
-overview_1dbchgv: null
-overview_1fx06w6: null
-overview_1gorazl: null
-overview_1hoq7vb: null
-overview_1lp9e8j: null
-overview_1s8hk8v: null
-overview_1tmxv8o: null
-overview_1ucvhhj: null
-overview_1w5ljcb: null
-overview_1yszoc0: null
-overview_275qvn: null
-overview_3bbkzl: null
-overview_48nlby: null
-overview_4mlj3q: null
-overview_61l2zr: null
-overview_6deyc0: null
-overview_7wamw2: null
-overview_8bfhqh: null
-overview_8uz3dt: null
-overview_9d885r: null
-overview_as74sn: null
-overview_bf0yh0: null
-overview_cz60g5: null
-overview_e2sltb: null
-overview_fvljmk: null
-overview_k5zkcu: null
-overview_kvhdlx: null
-overview_pd95dv: null
-overview_qlvjvc: null
-overview_r6yfyj: null
-overview_wmcc1p: null
-overview_xdoi8g: null
-overview_xr0k4b: null
-overview_z197qr: null
-overview_z781et: null
-PageNav_1dxgcmp: null
-PageNav_1v03yl3: null
-panel_102bbjq: null
-panel_10ci3g7: null
-panel_10l9zpg: null
-panel_11e8lt1: null
-panel_11z1xyd: null
-panel_12tbiw: null
-panel_13ep6m5: null
-panel_14pkfag: null
-panel_14yx631: null
-panel_1506gkm: null
-panel_15a7396: null
-panel_164zfge: null
-panel_179kdki: null
-panel_17s3fuk: null
-panel_182hcr8: null
-panel_18pyui: null
-panel_19he3o6: null
-panel_19kz63g: null
-panel_1akrn1: null
-panel_1atvrdq: null
-panel_1ay9h4c: null
-panel_1b25j40: null
-panel_1b4dxvq: null
-panel_1bscuvw: null
-panel_1cqjubr: null
-panel_1dg9ni2: null
-panel_1djiaxf: null
-panel_1ecy5fr: null
-panel_1eywx9z: null
-panel_1fja3d5: null
-panel_1fq1ev1: null
-panel_1g78vuz: null
-panel_1gtyi8x: null
-panel_1gy72ul: null
-panel_1it82lz: null
-panel_1ji84ms: null
-panel_1jm3a9h: null
-panel_1lmrijn: null
-panel_1lpabch: null
-panel_1mfsq4h: null
-panel_1muexbu: null
-panel_1n0xe4: null
-panel_1n9o8iz: null
-panel_1nev4ow: null
-panel_1pdqmt1: null
-panel_1posgx: null
-panel_1q75ovc: null
-panel_1qixau6: null
-panel_1qlrv1z: null
-panel_1ukdv8o: null
-panel_1uswey1: null
-panel_1va1utk: null
-panel_1x87voy: null
-panel_3kqode: null
-panel_48xd1p: null
-panel_4ju318: null
-panel_4rwsck: null
-panel_52ly6o: null
-panel_5bi27o: null
-panel_6wydkk: null
-panel_7xwr8h: null
-panel_7zqmxk: null
-panel_85xbom: null
-panel_8o2gtb: null
-panel_8q2aqb: null
-panel_98m59d: null
-panel_bphmgh: null
-panel_civ59p: null
-panel_csde8k: null
-panel_e15qk4: null
-panel_g2g9go: null
-panel_gcfv5n: null
-panel_h8rh4y: null
-panel_hc0sxu: null
-panel_hj95t4: null
-panel_nrc4c7: null
-panel_o6kg5s: null
-panel_ogeqzl: null
-panel_pw36i1: null
-panel_q9qics: null
-panel_qvinrj: null
-panel_rivipb: null
-panel_rolex: null
-panel_rpv5dy: null
-panel_rtb8e2: null
-panel_ry3ncz: null
-panel_tiq9jm: null
-panel_udj5qm: null
-panel_vcs5e6: null
-panel_vjul00: null
-panel_w4id7z: null
-panel_y2t4gn: null
-panel_y6z3ud: null
-pluginoptions_13wqxoe: null
-pluginoptions_14g98tk: null
-pluginoptions_152mgrj: null
-pluginoptions_16y5d10: null
-pluginoptions_17odye3: null
-pluginoptions_17rx2bm: null
-pluginoptions_19vy9jc: null
-pluginoptions_1bx3xpx: null
-pluginoptions_1cfdx5d: null
-pluginoptions_1dcos3d: null
-pluginoptions_1hjpzkx: null
-pluginoptions_1hz296t: null
-pluginoptions_1l43aau: null
-pluginoptions_1lsh08m: null
-pluginoptions_1ofi82e: null
-pluginoptions_1pxlmum: null
-pluginoptions_1r7b3t5: null
-pluginoptions_1u0ji43: null
-pluginoptions_1we9f69: null
-pluginoptions_235ssc: null
-pluginoptions_53huvh: null
-pluginoptions_8eqr6z: null
-pluginoptions_98wkya: null
-pluginoptions_9ly8vv: null
-pluginoptions_9x7v35: null
-pluginoptions_akk7nx: null
-pluginoptions_behpy6: null
-pluginoptions_bq4e4v: null
-pluginoptions_bzixwn: null
-pluginoptions_dse476: null
-pluginoptions_dx0nwa: null
-pluginoptions_e2b09f: null
-pluginoptions_fq933y: null
-pluginoptions_gmla1u: null
-pluginoptions_h0nxar: null
-pluginoptions_hf5i4: null
-pluginoptions_ioye08: null
-pluginoptions_k2nt1z: null
-pluginoptions_mby9g9: null
-pluginoptions_n4iyjl: null
-pluginoptions_neatgi: null
-pluginoptions_pcthum: null
-pluginoptions_ppn1ge: null
-pluginoptions_r17qai: null
-pluginoptions_sxt9j3: null
-pluginoptions_t8bowc: null
-pluginoptions_x3zmpc: null
-pluginoptions_xj83x5: null
-pluginoptions_xqdqf7: null
-pluralsanddates_12oxyl2: null
-pluralsanddates_172rj38: null
-pluralsanddates_18ms8y7: null
-pluralsanddates_18q4av: null
-pluralsanddates_1bgr31n: null
-pluralsanddates_1bq6f85: null
-pluralsanddates_1dwlg4e: null
-pluralsanddates_1e83fak: null
-pluralsanddates_1ixgsd1: null
-pluralsanddates_1j5ntiu: null
-pluralsanddates_1jge9o0: null
-pluralsanddates_1nc1d4y: null
-pluralsanddates_1tqn8et: null
-pluralsanddates_1xi6hy9: null
-pluralsanddates_1yioljz: null
-pluralsanddates_243eyo: null
-pluralsanddates_3do4qk: null
-pluralsanddates_5kx4f4: null
-pluralsanddates_baat3: null
-pluralsanddates_dfbb72: null
-pluralsanddates_fh49ic: null
-pluralsanddates_gx3r32: null
-pluralsanddates_ihmb8g: null
-pluralsanddates_isj2cr: null
-pluralsanddates_l9k2vi: null
-pluralsanddates_m3ivyf: null
-pluralsanddates_m3li1c: null
-pluralsanddates_mdihne: null
-pluralsanddates_mexcdr: null
-pluralsanddates_mm44vi: null
-pluralsanddates_mni3cd: null
-pluralsanddates_tgueql: null
-pluralsanddates_vmtgmp: null
-pluralsanddates_wc4f02: null
-pluralsanddates_wty22q: null
-preloading_11zo11r: null
-preloading_12cixxu: null
-preloading_16w7waj: null
-preloading_17aa31v: null
-preloading_1b00ksw: null
-preloading_1b0m6xs: null
-preloading_1ksluek: null
-preloading_1nerzca: null
-preloading_1ok0fks: null
-preloading_1tx38zf: null
-preloading_1vf1i9w: null
-preloading_25uzal: null
-preloading_3a8sdr: null
-preloading_4km16l: null
-preloading_avrvu3: null
-preloading_cy9iba: null
-preloading_k0xrc7: null
-preloading_pkkqow: null
-price_10qaut: null
-price_10t6qw1: null
-price_11h3k7i: null
-price_151mhh9: null
-price_159cv9w: null
-price_15ur7wq: null
-price_166s6s: null
-price_17x5stv: null
-price_1bdug8v: null
-price_1dlrr2w: null
-price_1eh3993: null
-price_1etis6e: null
-price_1fyjbg0: null
-price_1gcrojy: null
-price_1gsopz2: null
-price_1h2hq7w: null
-price_1ie4no4: null
-price_1ik9pfq: null
-price_1iz8iye: null
-price_1j80f9x: null
-price_1jppctn: null
-price_1my3yc0: null
-price_1n8jz62: null
-price_1nv6j9e: null
-price_1oemlgj: null
-price_1r2fmbp: null
-price_1ru7w4h: null
-price_1rxbw19: null
-price_1ta6bbr: null
-price_1tw88wk: null
-price_1u7a0nl: null
-price_1u8v6bu: null
-price_1wgc7t1: null
-price_1xxkhmt: null
-price_1ygic6a: null
-price_1yw4h0u: null
-price_20z66c: null
-price_2uswo5: null
-price_32lppp: null
-price_3onai2: null
-price_4pkqjp: null
-price_5uurni: null
-price_64h5v3: null
-price_b70gx4: null
-price_buqukr: null
-price_c58y6f: null
-price_db45ew: null
-price_fwaxhk: null
-price_h0raed: null
-price_h14f4q: null
-price_hihuxu: null
-price_hjqv3d: null
-price_id7f4g: null
-price_k5mf3t: null
-price_kxj5b0: null
-price_llne8a: null
-price_lltjbg: null
-price_m4amc5: null
-price_now0cj: null
-price_nxn5br: null
-price_o6j7wt: null
-price_qpyace: null
-price_rfp0v9: null
-price_rh0xue: null
-price_sn605a: null
-price_thuw9: null
-price_tzmgvy: null
-price_up47op: null
-price_v10mgk: null
-price_yrfndr: null
-price_zburfc: null
-price_zumd7h: null
-providers_1h8s6pk: null
-providers_1k873g3: null
-providers_1llhlrv: null
-providers_2qrkzu: null
-providers_2rzthv: null
-providers_3tj8mp: null
-providers_ld3477: null
-running_10dce2y: null
-running_10y4iix: null
-running_13147xa: null
-running_1318k3s: null
-running_132l3le: null
-running_13jv17o: null
-running_15z9bit: null
-running_163pkya: null
-running_17dksj2: null
-running_195bduw: null
-running_1covbb2: null
-running_1dn5fu2: null
-running_1dp8rfj: null
-running_1ef4ges: null
-running_1exawet: null
-running_1f7un2m: null
-running_1j1gqgy: null
-running_1md2p9j: null
-running_1mowa36: null
-running_1svdr29: null
-running_1tkalfy: null
-running_1vapoc7: null
-running_1vnbeq7: null
-running_1w9giy3: null
-running_1w9jcm3: null
-running_2g7jnh: null
-running_423ml4: null
-running_5yog6k: null
-running_a2n0aa: null
-running_c4aywa: null
-running_c79f1s: null
-running_dzg7l5: null
-running_gugtrf: null
-running_j5mq6z: null
-running_jdx2hv: null
-running_kpmb21: null
-running_lqw277: null
-running_lz6r58: null
-running_n0931i: null
-running_nehomc: null
-running_nsiqch: null
-running_pfd07i: null
-running_qnpmx5: null
-running_r9dti5: null
-running_rrcgz2: null
-running_sbkpew: null
-running_smvf9i: null
-running_th7wid: null
-running_wkmi7b: null
-running_yftxs3: null
-running_yw5xun: null
-setup_12lnvgx: null
-setup_16iqjjw: null
-setup_16l9vpz: null
-setup_17cguxr: null
-setup_1d1ag87: null
-setup_1dqzjk8: null
-setup_1evbdga: null
-setup_1hcas14: null
-setup_1j2wfxh: null
-setup_1la7luv: null
-setup_1m7py3: null
-setup_1mpfoyx: null
-setup_1qeopif: null
-setup_1qms01o: null
-setup_1wh9oc9: null
-setup_1yfgjgq: null
-setup_2o6jdw: null
-setup_36fyyk: null
-setup_3zffsz: null
-setup_5zat7v: null
-setup_6lv4sq: null
-setup_6nycn: null
-setup_8h5suh: null
-setup_8h7jkh: null
-setup_awvfaq: null
-setup_clqh62: null
-setup_gwa2pa: null
-setup_jvskgq: null
-setup_l7o2gm: null
-setup_mino7j: null
-setup_n8ev6v: null
-setup_nkt2di: null
-setup_ox8jlx: null
-setup_pl94gf: null
-setup_qe6w6a: null
-setup_r8cenu: null
-setup_sj3r1r: null
-setup_t8jcnr: null
-setup_tk6k2k: null
-setup_uzmc4s: null
-setup_vleos1: null
-setup_w9n3f3: null
-setup_wi5egl: null
-setup_yghas9: null
-Sidebar_1684n44: null
-ThemeToggle_1i35buc: null
-Toc_1cxbknc: null
-translate_1288f6y: null
-translate_13n4ic1: null
-translate_14byyby: null
-translate_14pxdf1: null
-translate_15ztrq4: null
-translate_16pki59: null
-translate_179wxy5: null
-translate_19s2kw8: null
-translate_1andat4: null
-translate_1crzzhd: null
-translate_1e7hw2c: null
-translate_1f3d6yk: null
-translate_1glnpy5: null
-translate_1hksxus: null
-translate_1lozj7t: null
-translate_1lpoedk: null
-translate_1n7enya: null
-translate_1o0bs66: null
-translate_1ondql1: null
-translate_1pvl08t: null
-translate_1q68gpl: null
-translate_1qh6418: null
-translate_1s1ntvy: null
-translate_1ua6eyw: null
-translate_1uhyuw4: null
-translate_1wbizr7: null
-translate_1wmwrkm: null
-translate_1xm2olb: null
-translate_1yacv8t: null
-translate_2hee74: null
-translate_2kg6ee: null
-translate_39gb2k: null
-translate_3j2hsa: null
-translate_3rnq7n: null
-translate_3xq1ij: null
-translate_5bh3ad: null
-translate_5f8ja6: null
-translate_5j9gn7: null
-translate_75toll: null
-translate_80wzex: null
-translate_83jlw3: null
-translate_85n6d3: null
-translate_99cu2y: null
-translate_9n440t: null
-translate_cacju3: null
-translate_ckyxwv: null
-translate_cs0qgc: null
-translate_fmqwdc: null
-translate_fq9rvb: null
-translate_jo4fa1: null
-translate_jsiqo: null
-translate_jut623: null
-translate_jzn1ma: null
-translate_m8nwhe: null
-translate_mlvnx4: null
-translate_mso9de: null
-translate_nw267a: null
-translate_oa0gb7: null
-translate_q6w19c: null
-translate_qqs3kh: null
-translate_qynfmi: null
-translate_ru2g2m: null
-translate_wavt60: null
-translate_xh7a2b: null
-translate_xr72oa: null
-translate_yv7zi7: null
-translatecontainer_10or6r9: null
-translatecontainer_12jo4ix: null
-translatecontainer_12yut28: null
-translatecontainer_14njcq4: null
-translatecontainer_196jggg: null
-translatecontainer_1bcr8ec: null
-translatecontainer_1d6mpoq: null
-translatecontainer_1drjlys: null
-translatecontainer_1gaq9jh: null
-translatecontainer_1ih3oj: null
-translatecontainer_1ksaxkf: null
-translatecontainer_1mgw6xl: null
-translatecontainer_1n81lfx: null
-translatecontainer_1peajjb: null
-translatecontainer_1pkn7x: null
-translatecontainer_1r9f14x: null
-translatecontainer_1scdd8o: null
-translatecontainer_1v33ye8: null
-translatecontainer_1vs5mmw: null
-translatecontainer_1xfxhfz: null
-translatecontainer_1yfwpl3: null
-translatecontainer_25jq72: null
-translatecontainer_3o5wjk: null
-translatecontainer_64fd7w: null
-translatecontainer_78l976: null
-translatecontainer_8cp87m: null
-translatecontainer_ez7ayu: null
-translatecontainer_g0yy8r: null
-translatecontainer_jmq0f3: null
-translatecontainer_k1jfip: null
-translatecontainer_k7dvs4: null
-translatecontainer_kbh0k0: null
-translatecontainer_nzw4x5: null
-translatecontainer_pk5jt5: null
-translatecontainer_pwm56r: null
-translatecontainer_py9ego: null
-translatecontainer_vela5f: null
-translatecontainer_w6h4kq: null
-translationfiles_10bqtgu: null
-translationfiles_1377m6b: null
-translationfiles_1fjnly4: null
-translationfiles_1iv5cc3: null
-translationfiles_1npo7k0: null
-translationfiles_1p3j85i: null
-translationfiles_1u5wh1u: null
-translationfiles_ag80ux: null
-translationfiles_e80by6: null
-translationfiles_fth1yh: null
-translationfiles_gsf4r5: null
-translationfiles_h4afs3: null
-translationfiles_ov9sxt: null
-translationfiles_t5lj77: null
-translationfiles_y304mw: null
-types_12ydohm: null
-types_148gmmw: null
-types_14ij54v: null
-types_16ijgqj: null
-types_17n7iou: null
-types_182e52j: null
-types_186bqrd: null
-types_1cl3qzz: null
-types_1fs1sba: null
-types_1igzrx7: null
-types_1im6ry0: null
-types_1lqvgx3: null
-types_1lrd75m: null
-types_1mvkp5i: null
-types_1njmawa: null
-types_1tg0qi5: null
-types_1uhq96n: null
-types_7u4ncq: null
-types_am071d: null
-types_cbksdy: null
-types_fgp1sa: null
-types_h0btx9: null
-types_hokizf: null
-types_irou6q: null
-types_k48wjm: null
-types_m4bve4: null
-types_nrpe1h: null
-types_o9vd8g: null
-types_pz9pn6: null
-types_rga4c2: null
-types_rhdxku: null
-types_v3qnlr: null
-types_ytdile: null
-types_zuvsf4: null
-usage_13nid2r: null
-usage_188fwo: null
-usage_1bqz9mo: null
-usage_1i36bf2: null
-usage_1jaac23: null
-usage_1kdump5: null
-usage_1lut6n6: null
-usage_1mzti2m: null
-usage_1n7xson: null
-usage_1nrh8ag: null
-usage_1q411o4: null
-usage_1sglzp3: null
-usage_1uf55xf: null
-usage_1up8uov: null
-usage_1xemg5b: null
-usage_8d3yp6: null
-usage_iki1ct: null
-usage_kcg50: null
-usage_lpf2j3: null
-usage_n333i6: null
-usage_n86pm7: null
-usage_o92jeb: null
-usage_tawyzt: null
-usage_ucqswq: null
-usage_xgioaj: null
-usetranslatelanguage_13cazda: null
-usetranslatelanguage_13vho8g: null
-usetranslatelanguage_13xmeoc: null
-usetranslatelanguage_14zbzwo: null
-usetranslatelanguage_151eiy8: null
-usetranslatelanguage_1777jyl: null
-usetranslatelanguage_1f1aywe: null
-usetranslatelanguage_1f2mstn: null
-usetranslatelanguage_1hgcsd6: null
-usetranslatelanguage_1neplk1: null
-usetranslatelanguage_1tyyme0: null
-usetranslatelanguage_1y42alr: null
-usetranslatelanguage_f5d8we: null
-usetranslatelanguage_gn7vx: null
-usetranslatelanguage_h0yp25: null
-usetranslatelanguage_kcop6p: null
-usetranslatelanguage_qxsjha: null
-usetranslatelanguage_tmq03o: null
-usetranslatenode_1akw6ha: null
-usetranslatenode_1jo3lz7: null
-usetranslatenode_97o4d1: null
-usetranslatenode_hcg7oz: null
-usetranslatenode_pkhgur: null
-usetranslatenode_r4kvo0: null
-usetranslatenode_xn3vn3: null
-usetranslatetostring_14ib4aa: null
-usetranslatetostring_18lclyq: null
-usetranslatetostring_1g72l3g: null
-usetranslatetostring_47vgdt: null
-usetranslatetostring_bsrje4: null
-usetranslatetostring_k80zyw: null
-usetranslatetostring_vt05bq: null
+App_1532kg4: "Pagina non trovata"
+App_15xaas1: "Lingua della pagina"
+App_1bbt83l: "Menu"
+App_1usxgxi: "← viteTranslate"
+App_416i43: "Cambia tema"
+App_lmffm8: "Torna alla panoramica"
+App_ni4cxp: "Questo indirizzo non è nel manuale."
+App_sq7lrl: "Modifica questa pagina su GitHub"
+Callout_1fhzm21: "Attenzione"
+Callout_1lz5070: "Nota"
+Callout_8me78u: "Importante"
+Callout_esqylo: "Avviso"
+Callout_gmki19: "Suggerimento"
+cli_10hxm30: "Tu (o il tuo editor) hai salvato un file di lingua mentre la sincronizzazione era in corso. <b>Non</b> è stato sovrascritto."
+cli_12gnji0: "Cos'è successo"
+cli_13qpclh: "Libera lo spazio su disco o correggi i permessi, poi esegui di nuovo. I backup già scritti restano."
+cli_15bnnf9: "Cosa fare"
+cli_1657vwm: "Uso e flag disponibili. Funziona da qualsiasi posizione: a differenza delle altre forme, non richiede un {0} nella directory corrente."
+cli_17dfc71: "Segnala ogni tabella di traduzione ed esce <b>senza scrivere nulla</b>: chiavi, traduzioni mancanti, tabelle non sincronizzate con il codice sorgente ed errori — un file di lingua illeggibile, una lingua di origine mancante, file ancora nel formato 3.x. Il riferimento è il codice sorgente così com'è ora, non il file della lingua di origine, quindi risponde anche a \"devo rieseguire la sincronizzazione?\"."
+cli_17oug6s: "Conversione una tantum dei file di lingua 3.x ({0}) al formato {1} — vedi <2>migrazione da 3.x</2>. Converte ed esce; non viene eseguito nient'altro."
+cli_17uvuyn: "Non è stato possibile sostituire una tabella."
+cli_18i51wo: "Correggili ed esegui di nuovo. Non è stato toccato nulla."
+cli_19n9xdo: "Esegui di nuovo una volta completata l'altra modifica."
+cli_1a1xo6z: "Salta l'intera sincronizzazione quando nulla di rilevante è cambiato dall'ultima volta: confronta i timestamp dei file sorgente con un piccolo record lasciato dall'ultima esecuzione e, se nulla è cambiato, stampa una riga ed esce — <b>senza caricare {0} e senza scrivere nulla</b>, nemmeno quel record. Nel momento in cui trova qualcosa che merita un secondo sguardo (un file modificato, {1} stesso, le tabelle in {2}), torna alla stessa identica sincronizzazione completa dell'esecuzione del comando senza flag, più una riga che spiega il motivo:"
+cli_1ad7mv5: "CLI"
+cli_1b2fqp4: "Il codice di uscita è {0} solo in caso di errori, quindi funziona come controllo CI. Una tabella incompleta non è un errore — è lo stato normale di un progetto ancora in traduzione."
+cli_1cmxse9: "Traduzione automatica LLM"
+cli_1ff0suz: "Correggi i file indicati nel messaggio, poi esegui di nuovo. Un file che usa una sintassi non abilitata dal parser — i decoratori, per esempio — viene saltato allo stesso modo e blocca la CLI e {0} finché non viene analizzato."
+cli_1ft7932: "La stessa nota compare sulla riga di origine per un messaggio che non viene analizzato ({0}) e come {1} quando una traduzione è valida ma non copre tutte le categorie richieste dalle regole plurali di questa lingua."
+cli_1ho6dk7: "Le lingue che non hanno più nulla da fare condividono una riga — la notizia è la stessa per tutte — mentre ogni lingua che necessita ancora di lavoro ha la propria, perché il lavoro è diverso per ciascuna. Solo il conteggio mancante è colorato: in un blocco altrimenti uniforme, \"c'è ancora lavoro qui\" è l'unica cosa da trovare senza leggere."
+cli_1ieyl21: "Non è stato possibile leggere o analizzare un file contrassegnato, quindi alcune chiavi mancano dalla scansione e la sincronizzazione le cancellerebbe da ogni lingua."
+cli_1ipkplr: "Questo è il flag che il plugin stesso usa internamente all'avvio del dev server (vedi {0} in <1>opzioni del plugin</1>), quindi la maggior parte dei progetti non ha mai bisogno di digitarlo a mano. Ha comunque un suo utilizzo: un job CI che vuole verificare l'aggiornamento senza pagare la scansione completa, o un progetto che ha disattivato {2} e vuole un controllo economico in uno script {3}. <i>Non</i> è per {4}/{5}: prima di una build di produzione, pagare la scansione completa per la certezza di tabelle ricostruite di fresco è il compromesso giusto."
+cli_1kdmc70: "Non è stato possibile scrivere una copia {0}, quindi la sincronizzazione rifiuta di sovrascrivere il file che stava proteggendo."
+cli_1lxkq5d: "Vedi il motivo nel messaggio, correggilo, esegui di nuovo."
+cli_1pkav2a: "🎮 <0>Procedura guidata dal vivo</0> — la sincronizzazione e {1}, poi <2>{3}</2> e <4>{5}</4>, ciascuno con i file che scrive."
+cli_1r3wlso: "{0} e {1} riscrivono i delimitatori nel tuo sorgente dopo che li hai modificati in {2}: vedi <3>Riscrivere i marcatori</3>."
+cli_1tfdavu: "<code>%s</code>"
+cli_1tx7n9o: "Messaggio"
+cli_1unqjtm: "Dodici flag, ognuno dei quali inizia con {0}, tenuti in pagine separate perché mescolarli con i flag di sincronizzazione sopra renderebbe entrambi difficili da leggere: il riferimento completo, inclusa l'opzione del plugin {1} da cui dipendono, inizia da <2>Configurazione LLM</2>, e la tabella dei flag è in <3>Esecuzione e debug</3>."
+cli_1vs6gyo: "Combinazioni rifiutate, stesso stile di {0} + {1} sopra: {2} con qualsiasi flag {3}; qualsiasi {4} con {5}, {6} o {7}; {8} con {9}; {10} senza tag; {11}/{12} con un flag translate/retranslate/context/dry-run/auto/noask; {13}, {14}, {15} o {16} senza un comando che modificano; più di un {17}, o uno combinato con qualsiasi altra cosa. Anche un flag {18} non riconosciuto è un errore — il prefisso è il namespace, un refuso al suo interno non ricade su una sincronizzazione silenziosa. Tutti vengono letti senza distinzione tra maiuscole e minuscole, come {19} e {20}."
+cli_1wnylk0: "Legge la configurazione {0} da {1} nella directory di lavoro corrente, analizza {2} alla ricerca di stringhe contrassegnate ({3} per impostazione predefinita, o i tuoi <4>delimitatori</4>) e chiamate {5} (o template taggati {6}), e sincronizza ogni file di lingua in {7}: aggiunge nuove chiavi, rimuove quelle obsolete — trasferendo la traduzione quando una chiave è stata solo rinominata, e quando la rinomina ha anche cambiato il modo in cui sono scritti i segnaposto ({8} in {9}, convertendo un marcatore nel preprocessore): i {10} o {11} della vecchia traduzione vengono riscritti nei nuovi, in ordine, e mantenuti solo se il conteggio corrisponde — altrimenti la nuova chiave viene lasciata {12} piuttosto che rischiare di mostrare l'argomento sbagliato — e segnala ciò che resta non tradotto. Il plugin esegue questa operazione per te, all'avvio del dev server e prima di ogni build (vedi <13>opzioni del plugin</13>); questo comando è ciò a cui ricorri quando lo vuoi di proposito — {14}, {15}, {16}, o un controllo in CI."
+cli_1x7kpj4: "Con {0} una scansione incompleta è solo un avviso: le tabelle restano come sono e il server si avvia; il prossimo avvio sincronizza di nuovo. {1} fallisce, come la CLI."
+cli_4t7pnh: "La sincronizzazione preferisce fermarsi piuttosto che indovinare. Tutti questi terminano con un messaggio chiaro e codice di uscita {0}, e <b>nessuno di essi lascia una tabella scritta a metà</b>:"
+cli_4upscn: "Eseguire il comando semplice (senza flag) non guarda mai quel record — riesegue sempre la scansione e lo riscrive — quindi è anche il modo per uscire da qualsiasi dubbio sul fatto che il percorso rapido possa nascondere qualcosa."
+cli_4v1pz6: "<b>Installato una volta globalmente</b> ({0}), è solo {1} — nessun {2}, stesso comando — in ogni progetto da quel momento in poi: vedi il <3>launcher</3> per come trova la copia giusta. Ogni esempio seguente funziona in entrambi i modi; ometti {4} se hai scelto l'installazione globale."
+cli_4xaa1c: "Un progetto nuovo di zecca non ne ha bisogno per la lingua di origine: la prima {0} crea quella tabella da sola. Con la sincronizzazione automatica disattivata ({1}, o {2} impostato) nessuno la crea, quindi senza un file {3} leggibile in {4} il dev server stampa ciò che manca e si ferma, invece di avviarsi comunque e fallire al primo caricamento della pagina. {5} è esattamente il comando a cui ti indirizza."
+cli_8qu7ts: "Quando la sincronizzazione si ferma"
+cli_9e2a2o: "Un <0>messaggio ICU</0> danneggiato, o i cui argomenti non corrispondono al sorgente, aggiunge una nota di avviso alla riga — mai un errore, quindi non fa mai scattare da solo il controllo CI:"
+cli_el6tkh: "Output semplice, senza riquadri: nessuna colonna di etichette, nessuna riga — stessi colori, solo righe più corte. Utile in un log CI o in un terminale stretto. Uguale all'opzione {0} del plugin (<1>opzioni del plugin</1>); quando entrambe sono impostate, vince questo flag."
+cli_g18r9n: "La cella {0} è colorata in base a ciò di cui la lingua ha bisogno: verde quando non c'è nulla da fare, arancione quando c'è (traduzioni mancanti, non sincronizzata), rosso quando il file non può essere letto."
+cli_jmw1m3: "{0} ({1})"
+cli_s4949n: "Prima della 4.1 il comando si chiamava {0}. Quel nome è ancora registrato e continua a funzionare, quindi uno script {1} che hai già scritto non si rompe — ma {2} (ciò che {3} esegue internamente) è quello da usare, e l'unico che i messaggi menzionano."
+cli_t1j2c3: "Il comando di sincronizzazione e i suoi flag: aggiungi lingue, controlla le tabelle, riscrivi i marcatori e cosa fare quando la sincronizzazione si ferma."
+cli_xjjggl: "Aggiunge una o più lingue, sincronizza come al solito — quindi i nuovi file escono già riempiti con ogni chiave da tradurre ({0}) — e si chiude con il report {1}, dove le lingue appena aggiunte compaiono con i loro conteggi mancanti. I tag devono essere nella forma {2} e indicare una lingua e una regione reali (<3>elenco supportato</3>); ogni tag viene convalidato prima che venga scritto qualcosa, e una lingua già presente viene lasciata intatta."
+cli_xwhstk: "Quando una tabella fallisce dopo che altre sono già state sostituite, il messaggio dice quali (\"aggiornamento parziale\"). Non c'è rollback — potrebbe sovrascrivere qualcosa di più recente — quindi esegui di nuovo la sincronizzazione: riprende da dove si era fermata."
+cli_xwpucw: "Non è possibile aprire uno o più file di lingua (permessi, errore di I/O, un symlink danneggiato). Vengono elencati tutti."
+CodeBlock_1mj7wi3: "Copia"
+CodeBlock_z02y2i: "Copiato"
+commandssettings_10f48lk: "Come si distinguono le stringhe contrassegnate, o {0}"
+commandssettings_10heiff: "Dal pannello, o dal Command Palette sotto <b>viteTranslate:</b>"
+commandssettings_12sn5le: "ID"
+commandssettings_13pmhh8: "Comando"
+commandssettings_180588j: "<b>Indietro</b>"
+commandssettings_1a0siud: "<b>LLM</b>"
+commandssettings_1b2a7fw: "Esegue {0} in un terminale: nuove chiavi in entrata, quelle obsolete in uscita"
+commandssettings_1cdqk5: "Apre la pagina delle impostazioni: opzioni, file, versioni"
+commandssettings_1fizrvs: "Lascia Impostazioni, LLM o Aiuto e ripristina il pannello com'era"
+commandssettings_1h5nkv1: "Comandi e impostazioni"
+commandssettings_1pkqb6l: "Comandi"
+commandssettings_69hq6t: "Impostazione"
+commandssettings_6u75x2: "I terminali mostrano anche come viene realmente avviata la CLI: cartella, runtime, runner, file CLI"
+commandssettings_7dfy7c: "Rilegge i progetti e riesegue la scansione di <b>Risultati</b> (si aggiorna da solo anche al salvataggio)"
+commandssettings_98tl48: "Predefinito"
+commandssettings_9fxa7e: "Fa"
+commandssettings_b87mb9: "<b>Impostazioni</b>"
+commandssettings_d7idzm: "Impostazioni"
+commandssettings_jptazz: "Apre la pagina LLM: controllo di disponibilità e ogni azione {0}"
+commandssettings_knxiby: "<b>Sincronizza i file di lingua</b>"
+commandssettings_nxc9o6: "Ogni comando dell'estensione e ogni impostazione che aggiunge a VS Code."
+commandssettings_swhmw0: "<b>Scegli lo stile di evidenziazione…</b>"
+commandssettings_vjuz6x: "<b>Aggiorna</b>"
+commandssettings_zh7in7: "Li contrassegna anche nella barra di scorrimento, nel colore d'accento del tuo tema"
+commandssettings_zlbyw5: "Prova ogni stile dal vivo sul tuo codice: {0} lo mantiene, {1} non cambia nulla"
+context_1535r4l: "L'abstract del contesto"
+context_16ci4q2: "mai — ma legge comunque il file se esiste"
+context_19y6d9c: "solo su {0}"
+context_1kpxfqk: "Un nome che il brief dice di <i>mantenere</i> resta esattamente come scritto, nella sua scrittura, anche dentro una frase giapponese o russa: nessuna traslitterazione. Vuoi i katakana? Dillo sotto i marker."
+context_1r89qas: "Modalità"
+context_5gz77n: "quando il file manca, o le chiavi sono cresciute di {0} o del 25% dall'ultima generazione — al massimo una volta per esecuzione"
+context_6dw667: "Il breve brief di progetto che il modello legge prima di ogni traduzione, e come resta aggiornato."
+context_ff9psa: "Rigenera"
+context_m4zlmg: "<b>sotto di essi</b> — tuo, mai toccato, e reimmesso in ogni aggiornamento futuro. Una correzione scritta lì (\"lo chiamiamo 'Ordine', non 'Ordinazione'\") resta."
+context_o9c3hf: "Un file scritto interamente a mano (senza marker generati) non viene mai sovrascritto in nessuna modalità; ricevi un avviso una sola volta."
+context_qnhlje: "{0} è un breve brief che il modello legge prima di ogni traduzione, in quattro sezioni: <b>Domain</b> (di cosa parla l'app), <b>Register</b> (il suo tono), <b>Glossary</b> (termini da mantenere coerenti, o non tradotti) e <b>Ambiguities</b> (stringhe che richiedono contesto per essere tradotte bene). Il file ha due parti:"
+context_w5t32l: "<b>tra i marker {0}</b> — scritto dal modello da un campione delle tue stringhe, sostituito a ogni aggiornamento;"
+Demo_ivtwj9: "Apri dal vivo"
+diagnostics_1141i31: "Valore"
+diagnostics_119qaqt: "un testo o attributo marcato che {0} riscriverebbe, ma nessun componente contenitore è stato riconosciuto per l'iniezione — vedi <1>opzioni del plugin</1>"
+diagnostics_119qnc1: "Il comando di sincronizzazione traccia una propria riga separata qui: lì, {0} e {1} sono sempre elencati per intero — rari, e ciascuno relativo a un punto diverso del codice — mentre le altre categorie sono ridotte a un conteggio a meno che non si esegua con {2}, che elenca tutto. Ognuno di questi avvisi indica il punto esatto: {3}, lo stesso formato che il terminale di VS Code trasforma in un link cliccabile."
+diagnostics_13hhxlh: "{0}, oppure {1} e {2} entrambi elementi"
+diagnostics_13mcx9: "Cos'è"
+diagnostics_14h94dm: "Con {0} (il valore predefinito) una build di produzione non include nulla di tutto questo — né i caratteri, né i dati dietro di essi: gli elenchi delle chiavi non tradotte non entrano mai nei chunk di lingua e l'insieme globale resta vuoto. {1} è l'eccezione: non è una diagnostica ma un rendering ordinario, quindi si applica sia in sviluppo sia in una build. Un oggetto semplice passato come <i>value</i> stesso — non come contenitore di argomenti — renderizza lo stesso carattere: è ciò che altrimenti farebbe lanciare un errore a React (\"Objects are not valid as a React child\"), vedi <2>messaggi ICU</2>."
+diagnostics_14y7x94: "Diagnostiche"
+diagnostics_15d0yqz: "Prop incompatibili — {0} e {1} insieme"
+diagnostics_1835jb2: "Quando non c'è alcun testo"
+diagnostics_1ajhz84: "il testo che c'era"
+diagnostics_1amy5sj: "Caso per caso"
+diagnostics_1cdqo3t: "un {0} dentro una chiamata riscritta, che non ha dove prendere un argomento"
+diagnostics_1dl7l3t: "una forma che il preprocessore non riesce a estrarre — un figlio spread, un {0} nel testo, un template marcato che nessuno riceve — lasciata esattamente come scritta"
+diagnostics_1g631hn: "Quel raggruppamento è per <b>categoria</b>, senza eccezioni — ogni tipo segnalato segue la stessa regola \"primo messaggio mostrato, il resto conteggiato\". Le categorie sollevate durante l'estrazione dei marker:"
+diagnostics_1hcvf9g: "un {0} rimasto in un progetto con <1>altri delimitatori</1>: non viene estratto nulla, e {2} mostra cosa <3>{4}</3> cambierebbe"
+diagnostics_1hoeu4t: "Un argomento senza valore — un {0}, un {1} o un {2} mancante dall'oggetto"
+diagnostics_1kldkq4: "Un numero e un elemento React non hanno bisogno della dichiarazione: nessuno dei due può mai provenire dalla sorgente marcata, quindi entrambi vengono renderizzati direttamente, senza prefisso e senza avviso."
+diagnostics_1lk5w2b: "{0} + il testo che c'era"
+diagnostics_1lwve84: "testo sorgente"
+diagnostics_1m320i3: "Cos'è successo"
+diagnostics_1m5bu4h: "nulla"
+diagnostics_1plj28o: "Build (predefinito)"
+diagnostics_1pzk99i: "Il nome deriva dal <b>primo slot che contava</b> — il primo elemento della tupla, il campo {0} dell'oggetto — perché è lì che il testo doveva trovarsi: riguardo a {1} la cosa che vale la pena dire è che un nodo si trova dove sarebbe dovuto stare il testo, non che c'è un array. {2} e {3} sono per le tuple in cui quello slot non esiste o è vuoto, e lì il wrapper <i>è</i> l'informazione."
+diagnostics_1q3rzju: "Output della console"
+diagnostics_1q5vs30: "Categoria"
+diagnostics_1sgwued: "Un valore che non è testo — {0}"
+diagnostics_1ufmeao: "Le prop incompatibili non cancellano mai il testo: viene recuperato e renderizzato il migliore disponibile — la stringa in {0}, i children, il primo elemento della tupla. Un errore nelle <i>tue</i> prop non viene pagato da chi sta leggendo lo schermo."
+diagnostics_1uvcwsp: "In sviluppo quel numero di telefono mostra un {0}, e questo è il punto: la prop sta ricevendo qualcosa che nessuno tradurrà, e tocca a te decidere se è giusto. Quando la risposta è \"sì, e lo sarà sempre\", dillo con <1>{2}</1> e il {3} sparisce solo per quel call site — a differenza di {4}, che lo disattiverebbe ovunque."
+diagnostics_1uydf24: "Il testo non marcato è dato di dominio, non un errore"
+diagnostics_1x31s31: "La forma della configurazione è in <0>opzioni del plugin</0>."
+diagnostics_1yiswvs: "{0} + traduzione"
+diagnostics_26ps8v: "traduzione"
+diagnostics_2gua4e: "Due domande, tenute separate: {0} è <b>cosa</b> vedi, tutto il resto è <b>quando</b> — sullo schermo con {1}, nella console con {2} / {3}."
+diagnostics_36zyyk: "Moltissimo testo non è traducibile e non lo sarà mai: un numero di telefono, un nome di campo configurato in un pannello di amministrazione, un messaggio di eccezione, una descrizione che arriva dal server. Quindi il marker è il discriminante e il componente lo applica: il testo marcato è tradotto, il testo non marcato è renderizzato così com'è. Un componente foglia può accettare qualunque cosa gli passi il chiamante, senza che un wrapper decida in anticipo:"
+diagnostics_4sqhtx: "{0} mette un carattere davanti a essi, <b>solo in sviluppo</b>, così li noti leggendo la pagina invece di controllare le tabelle. Ogni campo è opzionale; questi sono i valori predefiniti:"
+diagnostics_57jsn: "{0} e {1} sono l'interruttore per <b>tutto ciò che la libreria stampa nel browser</b> — le diagnostiche sopra, il report delle chiavi mancanti, gli errori di lingua sconosciuta e di chunk fallito, l'avviso su un {2} che non è precaricato."
+diagnostics_5qtby1: "dal compilatore di tabelle: un {0} e un tag numerato nello stesso testo condividono le posizioni degli argomenti — scrivi {1} invece di {2}"
+diagnostics_6i0fd1: "🧪 Marcato, non marcato, {0} e tutto ciò che sta in mezzo sono dal vivo nella pagina dei casi limite: <1>testo non marcato e skipMark</1>."
+diagnostics_6lt1u9: "Idem, ma dichiarato con {0}"
+diagnostics_93nyn0: "{0} ({1})"
+diagnostics_99i7gq: "🧪 I sette sono dal vivo nella pagina dei casi limite: <0>valori che non sono testo</0>."
+diagnostics_asvdiz: "🧪 <0>Casi limite, dal vivo</0> — ogni caso sotto, renderizzato accanto a ciò che dovrebbe renderizzare (<1>come leggere i segni lì</1>)."
+diagnostics_bpaa6q: "un delimitatore che non apre <b>e</b> chiude l'intera stringa"
+diagnostics_byds09: "I messaggi del plugin (a tempo di build, con prefisso {0}) non sono interessati: non sono output di runtime."
+diagnostics_cmd6lq: "🧪 Dal vivo: <0>prop incompatibili</0>, e il {1} di un argomento mancante nei messaggi <2>{3}</2> e <4>ICU</4>."
+diagnostics_ds3761: "Con {0} (il valore predefinito) un'app pubblicata è completamente silenziosa, inclusi i messaggi che segnalano un vero fallimento — un chunk di lingua che non è stato caricato, un tag che non esiste. Imposta {1} per mantenerli."
+diagnostics_ghk0aa: "qualsiasi altra forma illeggibile"
+diagnostics_gxu7bp: "Nessuna traduzione in questa lingua"
+diagnostics_h4c9cc: "<b>I messaggi del plugin durante {0} seguono una regola propria: un avviso per categoria, il resto su richiesta.</b> Il primo messaggio di una data categoria (un file di lingua non valido, uno vuoto, un marker malformato e così via) viene stampato per intero; il resto di quella categoria viene solo conteggiato, chiudendosi con {1}. Il blocco appare un quarto di secondo dopo l'ultimo avviso del batch, così un caricamento di pagina è un blocco e non cinque. Ricaricare una pagina con gli stessi identici problemi di prima non stampa nulla una seconda volta — ma solo all'interno dello stesso processo {2}: riavviarlo mostra sempre il quadro completo almeno una volta, e se il conteggio è invariato rispetto all'esecuzione precedente la riga di chiusura lo dice semplicemente (\"come la sessione precedente\")."
+diagnostics_jts6p7: "{0} + testo sorgente"
+diagnostics_lwc6nu: "un'interruzione di riga sopravvive dentro un attributo marcato, cambiando sia il testo renderizzato sia l'id"
+diagnostics_o0u7bm: "La prop {0} — e lo stesso oggetto {1} passato a {2}, o a {3} — è per testo che viaggia già impacchettato con i suoi argomenti, che è come diversi nuclei applicativi lo trasportano. È esattamente equivalente a passarli separatamente."
+diagnostics_o5a1rp: "Un prefisso per stringa, vince il peggiore: {0} → {1} → {2}. Imposta uno qualsiasi di essi a {3} o {4} per disattivare quello. {5} non compete mai con gli altri tre — scatta solo dove non c'è testo davanti a cui mettere un prefisso; vedi <6>sotto</6>."
+diagnostics_qso9ta: "una frase divisa tra sibling JSX, {0}: la chiave viene registrata in ogni caso, ma riscrivere la sorgente richiede {1} attivo"
+diagnostics_rbpzqf: "un tag JSX ha rotto un marker prima che l'estrazione ne vedesse uno intero — solo per un caso che <0>il preprocessore</0> stesso non riesce a gestire"
+diagnostics_rjnl8w: "A volte non c'è davvero nulla da recuperare: una funzione, un symbol, un elemento React nel primo slot della tupla, una tupla vuota. \"Mostra sempre qualcosa\" non può applicarsi — non c'è un qualcosa — e l'unica cosa utile che resta da dire è <b>cosa</b> c'era al posto del testo. Quello è {0}, e a differenza degli altri tre non è un prefisso davanti a un testo: è l'intero rendering."
+diagnostics_rkxvts: "Tradotto qui, mancante altrove"
+diagnostics_tix533: "due testi che producono lo stesso id"
+diagnostics_u36zxr: "I caratteri che errorSolve mette davanti al testo non tradotto o non marcato in sviluppo, e l'output della console dietro di essi."
+diagnostics_u9l2r9: "due marker in una stringa"
+diagnostics_vb63jv: "Una stringa che non arriva tradotta sullo schermo non è sempre un bug che puoi vedere. Una chiave che nessuno ha ancora tradotto viene comunque renderizzata — nella lingua sorgente, indistinguibile da una vera traduzione. Anche un testo che nessuno ha marcato viene renderizzato. Entrambi sembrano a posto, e questo è il problema."
+diagnostics_w65lrs: "Testo che nessuno ha marcato — {0}"
+diagnostics_wli5zv: "Dev"
+diagnostics_ybzzsq: "{0} copre anche questo caso, e <b>disattivato non renderizza nulla</b>: il nome del tipo da solo è rumore per chi legge la pagina, e un rendering vuoto è già ciò che il componente fa per l'altro suo caso \"niente da mostrare\", l'oggetto senza campo {1}. Il messaggio in console resta, sotto {2}/{3} come sempre."
+faq_13oi7ih: "Quanto è grande il runtime?"
+faq_1dr1j80: "Sì: {0} per un delimitatore su entrambi i lati, oppure {1} e {2}. Uno strumento riscrive quelli vecchi per te e rifiuta di scrivere se anche una sola chiave cambierebbe. Vedi <3>Markers and keys</3>."
+faq_1g08w04: "Il testo sorgente, mai uno spazio vuoto. In sviluppo un piccolo segno davanti al testo indica che manca ancora. Una build di produzione mostra il testo sorgente così com'è. Vedi <0>Diagnostics</0> per il significato di ogni segno."
+faq_1hmni4n: "Sì. I file {0} e {1} vengono analizzati come gli altri, e le dichiarazioni sono incluse nel pacchetto. I tipi esportati sono elencati in <2>TypeScript types</2>. Un'avvertenza: la CLI legge un {3} TypeScript con Node stesso, che richiede Node 23.6 o successivo (<4>limitations</4>)."
+faq_1mgaqtr: "Le traduzioni, sì: sostituisci ogni {0} con il tuo testo. Il file della lingua sorgente e i commenti di intestazione sono generati, quindi lasciali stare. Vedi <1>File format</1>."
+faq_1pzx1v2: "Cosa vede il modello LLM?"
+faq_1ul2kxt: "No. La frase che scrivi è la sorgente: la sua chiave è generata dal testo e dal file in cui si trova, quindi non c'è nulla da inventare. Quando una frase si sposta, la sincronizzazione porta con sé la sua traduzione, e cambiare i delimitatori non cambia mai una chiave. Vedi <0>Markers and keys</0>."
+faq_1w9b4sc: "Cosa vedo prima che un testo sia tradotto?"
+faq_1xgri4c: "Traduce mentre eseguo <code>%s</code>?"
+faq_24ewyf: "5 kB gzip, con gli helper ICU inclusi e React escluso. Gli helper ICU vengono inclusi solo se una tabella usa ICU. Vedi <0>Runtime size</0>."
+faq_2lme4i: "Risposte brevi alle domande che sorgono per prime, ciascuna con un link alla sezione che contiene i dettagli."
+faq_4v1iod: "Il plugin è un plugin Vite, quindi l'app deve essere compilata con Vite. Se esegui il rendering sul server, imposta esplicitamente il fuso orario (la prop {0} o l'opzione del plugin), altrimenti le date possono differire tra server e browser. Vedi <1>Dates and time zones</1> e, per dove va il pacchetto in {2}, <3>It never reaches your bundle</3>."
+faq_6xb0k4: "Posso usare i miei delimitatori invece di <code>%s</code>?"
+faq_9lzgec: "Serve VS Code?"
+faq_b19n6t: "Mai. Il modello LLM viene eseguito solo dalla CLI, quando lo chiedi, e stampa il costo stimato prima di spendere qualsiasi cosa. Vedi <0>Price</0>."
+faq_bdpbo0: "Le stringhe ancora {0} per la lingua in fase di riempimento, ciascuna con il nome del componente da cui proviene, e un breve abstract del progetto che puoi leggere e modificare. Non i tuoi file sorgente, e non la tua chiave API. Vedi <1>The context abstract</1>."
+faq_ftjjbi: "Funziona con il rendering lato server?"
+faq_hgdw8p: "Posso modificare lo YAML a mano?"
+faq_lhmelk: "No. Sincronizzazione, stato e traduzione LLM vengono eseguiti tutti dalla CLI. L'estensione è la stessa libreria vista dall'interno dell'editor: ogni stringa con il suo stato, e sincronizzazione con un clic. Vedi <0>Install</0>."
+faq_nkf0z1: "FAQ"
+faq_ov4yw0: "Funziona con TypeScript?"
+faq_zaqpkb: "Devo inventare delle chiavi?"
+firstapp_11xegag: "Sostituisci {0} con una frase scritta così com'è, tag e valori inclusi:"
+firstapp_132sur8: "La chiave è il nome del componente e un checksum del testo. Non la digiti mai. Altro in <0>Translation files</0>."
+firstapp_16dutm8: "Build"
+firstapp_1794hr9: "Registra il plugin"
+firstapp_17yhcdp: "Aggiungi i pulsanti"
+firstapp_18o8jhp: "Costruirai l'app utile più piccola: una frase, l'inglese come sorgente, il francese come seconda lingua, un pulsante per ciascuna. Nient'altro."
+firstapp_1c2mh6o: "Poi chiedi a che punto sei. Il comando non scrive nulla, quindi funziona anche come controllo CI:"
+firstapp_1g7h2bc: "Cambia la frase e riavvia {0}: la chiave segue il testo, e la traduzione francese torna a {1} perché tu la riempia di nuovo."
+firstapp_1gmpzav: "Di nuovo in {0}, un pulsante per lingua:"
+firstapp_1ht7qn1: "Nessuna chiave da inventare. La frase è la sorgente."
+firstapp_1lnu73t: "Il nuovo file elenca la chiave con un {0}, che significa \"non ancora tradotta\":"
+firstapp_1m2m2ab: "npm installa anche il peer richiesto {0} (<1>why</1>). Il progetto finito è {2} nel <3>repository</3>."
+firstapp_1s87b5c: "Da una cartella vuota a una build francese, con i comandi che digiti e ciò che stampano."
+firstapp_1ugk0sh: "La sincronizzazione viene eseguita di nuovo prima della build, così una tabella non aggiornata non viene mai pubblicata. Il francese è il suo chunk da 0,46 kB, caricato quando qualcuno lo sceglie. La lingua sorgente è già nel bundle principale."
+firstapp_1w7minc: "Sostituisci {0}:"
+firstapp_1wmau5y: "Avvolgi l'app una volta, in {0}:"
+firstapp_1ybaj42: "L'output qui sotto è ridotto alle righe che contano. Il tuo differirà nei numeri di versione e negli hash dei file."
+firstapp_1ymrv9f: "Scrivi la prima frase"
+firstapp_4t8x3w: "Dove andare ora"
+firstapp_56gfx6: "Avvia Vite"
+firstapp_c1xp85: "Sostituisci {0} a mano, o lascia che lo faccia un modello (<1>LLM setup</1>):"
+firstapp_exekwr: "Plurali e date: <0>Plurals and dates</0>."
+firstapp_fehb5y: "Crea il progetto"
+firstapp_hj391t: "Aggiungi il francese"
+firstapp_iwvqw7: "Da un secondo terminale, con il dev server ancora in esecuzione:"
+firstapp_j5rhnq: "Traduci"
+firstapp_kceo03: "La sincronizzazione è stata eseguita prima che Vite partisse e ha scritto la tabella sorgente:"
+firstapp_oxoyhd: "Finché una chiave non è tradotta la pagina mostra il testo sorgente, mai uno spazio vuoto. In dev, salvare una tabella ricarica la pagina."
+firstapp_ozp1jq: "La tua prima app tradotta"
+firstapp_qzaf5x: "Aggiungi una terza lingua con {0}."
+firstapp_r4toqi: "Clicca Français: la pagina mostra <i>Bon retour, Ada !</i>. Un pulsante per ogni lingua trovata in {0} è l'argomento di <1>A language switcher</1>."
+firstapp_uez44u: "{0} è dove vivranno i file delle lingue; {1} è la lingua in cui scrivi. Tutte le opzioni sono in <2>Plugin options</2>."
+firstapp_vyqy6h: "Le stringhe semplici, come un {0}, passano attraverso {1}: vedi <2>useTranslateToString</2>."
+Heading_mm2o3i: "Link a questa sezione"
+helpers_11sflwp: "Leggi prima di usarlo fuori dalla libreria:"
+helpers_15po30i: "Ciò che il preprocessore avvolge attorno a ogni valore quando lo sposta in {0}, così un figlio JSX viene renderizzato esattamente come farebbe JSX: {1}, {2} e i due booleani diventano {3}, tutto il resto passa invariato."
+helpers_16juypr: "Una stringa senza markup torna invariata, senza allocare nulla; i risultati analizzati sono in cache, quindi ogni stringa viene convertita una volta per app."
+helpers_1bls8t: "Un {0} senza valore segue la stessa <1>regola {2}</1>."
+helpers_1dhyt51: "Testo, facoltativamente con markup e segnaposto {0}"
+helpers_1fms61t: "È pensato per <b>stringhe che controlli tu</b> — tipicamente le tue tabelle di traduzione — non come sanificatore per input ostili."
+helpers_1ghxm6i: "<i>restituisce</i>"
+helpers_1mkl1lb: "Una stringa, un singolo elemento, o un frammento"
+helpers_1q0tov7: "<code>%s</code>"
+helpers_1reh9vu: "Scritto a mano solo quando costruisci tu stesso gli argomenti di un marker compilato; dentro {0} il preprocessore lo inietta automaticamente attorno a ogni valore."
+helpers_1u4zp03: "La versione del pacchetto installato, come stringa semplice — letta da {0} in fase di build, quindi non costa nulla a runtime. Utile per un footer, una pagina about o una demo:"
+helpers_1vu2ia7: "{0} vengono interpolati <b>prima</b> dell'analisi, quindi un argomento che contiene markup viene esso stesso interpretato come HTML (a differenza di {1})."
+helpers_1yvsyzr: "Facoltativo: un valore o un array di valori per il {0}, in ordine"
+helpers_3subh6: "🧪 Lo stesso dialetto, caso per caso — attributi eliminati, tag sconosciuti, markup rotto: <0>edge/#html</0>."
+helpers_7bh9s4: "Riconosce gli stessi tag di {0} ({1}) e le entità HTML. Qualsiasi altro tag viene eliminato, il suo contenuto mantenuto ({2} → {3})."
+helpers_ayzav5: "Trasforma una stringa con HTML di base in nodi React, senza {0}. {1} non ne ha bisogno — le sue tabelle sono compilate in fase di build — tranne in sviluppo, per una chiave non ancora sincronizzata. È esportato perché è utile da solo (<2>live in the playground</2>):"
+helpers_cq90qt: "Richiede il DOM (usa un elemento {0}). Dove {1} non esiste, come nel rendering lato server, restituisce la stringa originale non convertita."
+helpers_p6kzck: "<b>Nessun attributo viene mai inoltrato</b>: gli elementi che costruisce portano solo un {0}."
+helpers_wk7tpu: "jsxArg, basicHtmlToNodes, version"
+helpers_wlyzb6: "Tre piccole esportazioni: il wrapper di valori che il preprocessore inietta, un convertitore sicuro da HTML a nodi, e la versione del pacchetto."
+icu_10n9f7t: "Un esempio per costrutto"
+icu_11doiaa: "Compilazione"
+icu_12zrdow: "Fuso orario, in ordine di precedenza: una data di calendario è sempre UTC; poi la prop {0} di {1} (la preferenza di chi guarda, o il fuso della richiesta in SSR); poi l'opzione {2} del plugin (un valore predefinito di build — gli orari di un ristorante, mostrati nel fuso del ristorante indipendentemente da chi guarda); infine, in assenza di tutto quanto sopra, il fuso in cui si trova il runtime stesso."
+icu_13dz4ly: "Dove"
+icu_152gl1o: "Per i caratteri a cui ICU tiene davvero, usa le entità: {0} o {1} per {2}, {3} per {4}, e {5} per un {6} letterale dentro un ramo plurale ({7} non va bene lì: il suo {8} è il numero)."
+icu_154ximz: "🎮 <0>Live showcase</0> — un modulo di prenotazione che usa tutti e tre: numero di ospiti al plurale, una data formattata, un prezzo formattato. La traduzione giapponese li riordina tutti."
+icu_15nouo9: "Con {0}"
+icu_160lyaj: "{0} legge un campo dell'<b>oggetto arguments</b> — l'oggetto stesso, o il primo elemento quando gli argomenti arrivano come array o tupla. Conta solo un <b>oggetto semplice</b>: un letterale, l'output di {1}, un {2} — mai un'istanza di classe, un {3}, o un elemento React, che vengono invece renderizzati come sé stessi. Un campo mancante mostra {4} ({5}, sopprimibile allo stesso modo di un {6} mancante — vedi <7>Diagnostics</7>), e non viene mai registrato come avviso separato."
+icu_19ce0i6: "Un testo è un messaggio ICU solo se contiene un <b>argomento</b> ICU: {0}, {1}, o {2} e simili. {3} funziona comunque: i due possono coesistere nella stessa tabella."
+icu_1auvdky: "risolto sotto"
+icu_1ax30be: "Perché preoccuparsene? Perché ogni traduttore — umano o LLM — \"abbellisce\" {0} in {1} o {2} ogni tanto, e con la quotatura ICU questo aggiungerebbe o rimuoverebbe silenziosamente un argomento."
+icu_1b2hlk6: "sempre UTC, così {0} non scivola al 2 a New York"
+icu_1b54ee1: "Fuso orario usato"
+icu_1d9nshv: "Superato"
+icu_1dqbk2s: "Valore"
+icu_1dsy0ns: "{0} per {1}, assente per il resto"
+icu_1ec58fe: "Fai SSR con le date? Imposta esplicitamente il fuso orario (prop o opzione del plugin). Lasciato a \"qualunque fuso in cui si trova il runtime\", il server e il browser possono non essere d'accordo, e React segnala un disallineamento di idratazione."
+icu_1fmj1l2: "qualsiasi altra cosa"
+icu_1fucmhv: "Un {0} letterale non basta da solo — {1} resta testo semplice — ma un vero argomento attiva sempre il parsing ICU, quindi una parentesi graffa che vuoi letterale ha bisogno di un'entità: {2} o {3}. Questo vale anche per {4}: viene letto come un argomento e, senza un valore, viene renderizzato come {5}."
+icu_1g2n06n: "Questa è anche la regola con cui la <0>macro</0> costruisce i propri argomenti: {1} compila {2} esattamente come farebbe {3} — un identificatore diventa un nome, qualsiasi altra cosa diventa una posizione, e un tag numerato (uno slot) condivide lo stesso contatore di posizione di {4}."
+icu_1hknngc: "mostrato come testo semplice, con un avviso"
+icu_1jehlvq: "Argomenti: posizioni o nomi"
+icu_1ku5d1u: "millisecondi dall'epoch"
+icu_1lipfs9: "La sintassi ICU richiede un'espressione, quindi non può stare direttamente nel testo JSX ({0} avvia lì una vera espressione JSX) — usa {1} o {2}."
+icu_1njxmmy: "🧪 <0>Casi limite ICU, dal vivo</0> — posizioni, nomi, graffe e apostrofi letterali, ciascuno accanto a ciò che dovrebbe renderizzare."
+icu_1p075m4: "L'ICU standard usa {0} come carattere di escape: {1} nasconde l'argomento, {2} lo trasforma in testo. Qui no. Un apostrofo è sempre un apostrofo:"
+icu_1qtc7bq: "Nessun formato numerico denominato personalizzato ({0} definiti nella configurazione) — solo gli stili integrati e la sintassi {1}."
+icu_1r8bokr: "Limiti"
+icu_1rf9na4: "Quando una stringa diventa ICU"
+icu_1spw2fp: "rifiutato, resta {0} per un ciclo di riparazione"
+icu_1t16fou: "Significato"
+icu_1v43uxn: "🎮 Playground, dal vivo: <0>plurali {1} ordinali</0>, <2>select {3} argomenti denominati</2>, <4>numeri, valute {5} date</4>: cambia la lingua e guardali adattarsi."
+icu_1vtyiw7: "Un {0} passato a un semplice {1} (o a un {2}) non viene formattato — passa così com'è, cosa che React non renderizza come JSX e {3} trasforma nel suo {4} grezzo. Usa {5} o {6} ogni volta che l'argomento è una data."
+icu_1xtbb8n: "mostrato così com'è"
+icu_27up7v: "un numero"
+icu_3aruik: "{0} — due restano due"
+icu_6l7usq: "Una traduzione può disporre gli argomenti nell'ordine richiesto dalla grammatica della lingua di destinazione — vedi la riga giapponese nella vetrina qui sopra — ma un nome è codice, non testo: {0} resta {1} in ogni lingua."
+icu_77fqyy: "{0} (scalare)"
+icu_7bfk1q: "Ottieni"
+icu_9coeui: "Un numero inferiore a {0} in valore assoluto sembra un numero di secondi Unix, non di millisecondi — un {1} lo segnala una volta, solo in sviluppo."
+icu_aowmo9: "Un tag di markup non può aprirsi fuori da un ramo plural/select e chiudersi al suo interno, o viceversa."
+icu_bqg31l: "Le categorie plurali mancanti (una lingua richiede {0}/{1} e la traduzione ha solo {2}/{3}) sono un avviso ovunque, mai un errore bloccante — la categoria mancante ricade su {4} al momento del rendering."
+icu_bsmn2m: "I nomi provengono solo da oggetti semplici — non da istanze di classi, {0} o qualsiasi cosa con un proprio prototipo."
+icu_c267e3: "Il parser ICU ({0}) non arriva mai in un bundle di produzione — viene eseguito solo nel plugin, nella CLI e, in sviluppo, nell'interprete solo-dev per una chiave appena scritta e non ancora sincronizzata. Ciò che viene distribuito sono quattro piccoli helper di formattazione, condivisi in un unico chunk tra tutte le lingue e inclusi solo se qualche tabella usa effettivamente l'ICU — un'app senza messaggi ICU non paga nulla per questa funzionalità. Vedi la <1>dimensione del runtime</1>."
+icu_cangbn: "Gli apostrofi sono solo apostrofi"
+icu_d57cpc: "una <b>data di calendario</b>, non un istante"
+icu_dekm90: "Un messaggio non valido"
+icu_e4yr58: "🎮 <0>Argomenti denominati, dal vivo</0> · 🧪 ogni caso di posizione e nome — saltato, ripetuto, mancante — su <1>edge/#icu</1>."
+icu_ege3og: "Legge"
+icu_f3mk6y: "Una data che non esiste — {0}, {1}, una stringa ISO che porta un giorno del genere, un numero fuori da ±8,64e15 ms, un {2} non valido — non viene mai corretta: non slitta al 2 marzo e non genera un errore. Viene mostrata così com'è (il {3} come {4}). Gli anni {5}–{6} sono anni reali, non 1900–1999."
+icu_fwco82: "{0}, {1}, {2}"
+icu_fxotmm: "{0}, {1}"
+icu_g24sqm: "Mescolare <code>%s</code> con <code>%s</code> o nomi"
+icu_g5wcbz: "Argomenti che non corrispondono al sorgente"
+icu_i5lslq: "al suo posto viene mostrato il testo sorgente, con un avviso"
+icu_iqyg5l: "Date e fusi orari"
+icu_jm3esy: "una nota di avviso"
+icu_k9k1du: "Cosa viene distribuito"
+icu_kl9uhf: "una stringa ISO con orario"
+icu_lya0jv: "{0} e {1} accettano:"
+icu_mdkfm7: "Cosa lo verifica"
+icu_mxjxmi: "Scritto"
+icu_rgfgte: "{0} all'interno di un ramo {1}/{2} indica il numero stesso, formattato e con l'offset applicato; annidato dentro un altro plural, si riferisce sempre a quello più vicino che lo racchiude."
+icu_rxk3bp: "{0} e {1}"
+icu_sgukxp: "Tu scrivi"
+icu_snqtrp: "un istante"
+icu_snupsx: "—"
+icu_thlz01: "non analizzato"
+icu_vuj8uf: "🧪 Apostrofi dritti, curvi e raddoppiati, graffe con e senza entità, {0} in un plural: dal vivo su <1>edge/#icu</1>."
+icu_wf09mf: "Plurali, select, numeri e date con ICU MessageFormat, compilati in fase di build come tutto il resto."
+icu_y1rgiw: "{0} non accetta un numero — confronta semplicemente il suo argomento con un insieme di chiavi:"
+icu_yp8ds2: "Messaggi ICU"
+icu_zuo8k8: "Il {0} <i>k</i>-esimo (contato da 0) è {1} sotto il cofano, quindi {2} è legale ed entrambi puntano alla stessa cosa. Un {3} dentro un argomento o un ramo ICU non lo è — scrivilo come {4} lì invece. E una volta che un messaggio ha argomenti con nome, abbandona {5} anche per il resto: {6} conta le posizioni partendo dall'oggetto che contiene i nomi, cosa che raramente è ciò che vuoi — {7}, {8} dicono ciò che intendi."
+install_1709scs: "Estrae le stringhe marcate, sincronizza le tabelle"
+install_19ytshx: "Legge le sue opzioni da {0}"
+install_1dr1qxe: "Un progetto, due metà"
+install_1drcwpd: "Li elenca file per file, ciascuno con il suo stato"
+install_1eyynwj: "<b>Niente di pesante all'interno.</b> Nessun Babel incluso: usa quello che il tuo progetto ha già e lo rilascia dopo due minuti di inattività."
+install_1ia0fi2: "<b>Anteprima.</b> Legge il tuo progetto e non vi scrive mai. Le uniche cose che modificano i file sono <b>Sync</b> e le azioni LLM, e eseguono la stessa CLI che digiteresti tu."
+install_1ja5tfe: "<b>Modalità con restrizioni rispettata.</b> Workspace non attendibile? Non viene eseguito nulla: ottieni solo {0}."
+install_1n66dn4: "Libreria più vecchia, o assente? Il pannello lo segnala e ti fornisce il {0} che lo risolve."
+install_1rwq6di: "<b>Installa l'estensione</b> dal <0>Marketplace</0>, oppure esegui {1}."
+install_1scx69w: "Sicuro per progettazione"
+install_1vdczoy: "Riempie {0} chiavi tramite un LLM, dalla CLI"
+install_7zjeb8: "Poi: <0>il pannello, pezzo per pezzo</0>, e <1>comandi e impostazioni</1>."
+install_8jguik: "<b>I segreti restano segreti.</b> La chiave API viene individuata, mai mostrata."
+install_8pmh3x: "<b>Sola lettura.</b> {0} viene eseguito in un processo separato, mai tramite Vite: nessun hook del plugin si attiva, nulla viene sincronizzato. Una configurazione che si blocca viene scartata dopo 15 secondi."
+install_9o9xsq: "Esegue Sync e le azioni LLM con un clic"
+install_b4k49d: "Per iniziare"
+install_bgu7lj: "Installa"
+install_dd63u8: "La libreria (npm)"
+install_ehzjlf: "Li mostra come risolti, più le versioni e l'ubicazione della chiave API"
+install_eve7f3: "L'estensione (qui)"
+install_fk0lrj: "<b>Devi avere viteTranslate in un progetto Vite</b>, versione 4.6.4 o successiva. Non lo conosci? La <0>guida all'uso</0> richiede due minuti: {1}."
+install_ibez6k: "<0>viteTranslate</0> è un plugin Vite: scrivi le frasi direttamente nel tuo JSX, lui le estrae e mantiene sincronizzata una tabella {1} per lingua. Questa estensione è la sua vista dall'interno dell'editor e non funziona senza di esso."
+install_mz4bmq: "<b>Clicca sull'icona %</b> nella barra delle attività. L'evidenziazione non richiede nulla: apri un file {0} ed è attiva."
+install_n29mk9: "Il pannello viteTranslate accanto all'editor"
+install_pzf02v: "Non reimplementa nulla: <b>Results</b> interroga la libreria installata nel <i>tuo</i> progetto, così il pannello e {0} non sono mai in disaccordo."
+install_x93zm3: "<b>Requisiti</b>: VS Code 1.90+, un <0>workspace attendibile</0> per qualsiasi cosa oltre {1}, e su Windows un {2} nel tuo PATH, così la CLI può chiederti cose (conferme, la chiave API)."
+install_ymak0a: "Cos'è l'estensione VS Code, come si rapporta alla libreria e come farla funzionare."
+installation_12okzxg: "Dipendenza peer"
+installation_14c3hli: "Entrambe le major funzionano ed entrambe producono un'estrazione identica. Babel 8 richiede Node {0}, che è più restrittivo di qualsiasi cosa chieda questo plugin. Nota che npm avverte solo riguardo a {1}, quindi installerà tranquillamente Babel 8 su un Node più vecchio, dove non può essere caricato affatto. Se succede, ti viene detto, e ti viene detto di aggiornare Node o restare su Babel 7 — non di reinstallare ciò che hai già."
+installation_17md6b: "Perché <code>%s</code> è obbligatorio"
+installation_1bdat4y: "Sotto Vitest nessuno dei due controlli scatta. Il test runner esegue gli hook del plugin, e la tua suite non dovrebbe morire per una dipendenza che i tuoi test non raggiungono mai."
+installation_1byvfeu: "Intervallo supportato"
+installation_1fln2cz: "Requisiti"
+installation_1fvccwa: "React"
+installation_1kev8u7: "Installazione"
+installation_1s094ob: "Solo {0} — e la catena di risoluzione della chiave API per {1}, come ultima risorsa — lo toccano mai. Senza di esso installato, o senza un Secret Service con cui parlare (Docker, WSL, una sessione SSH remota), quel passo della catena viene saltato in silenzio e il resto del plugin funziona esattamente allo stesso modo: una variabile d'ambiente o una voce in {2} coprono lo stesso bisogno senza di esso. Installalo solo se vuoi che la chiave risieda nel portachiavi del sistema operativo."
+installation_1ukc6fu: "Installa e registra il plugin"
+installation_1yi6vzl: "Vite"
+installation_25m9yq: "Non arriva mai nel tuo bundle"
+installation_29tt4v: "Un'asimmetria che vale la pena conoscere. Con il rendering lato server il runtime viene eseguito da Node in produzione, quindi lì il pacchetto appartiene a {0}, e Babel viene classificato come dipendenza di produzione insieme ad esso. Lo stesso vale se ripubblichi una libreria che riesporta questi componenti."
+installation_92tbzo: "Installa il pacchetto, registra il plugin e scopri quali dipendenze peer richiede."
+installation_f16rwi: "Poi: <0>scrivi il tuo primo testo tradotto</0>."
+installation_f4xrfu: "sì"
+installation_nh39v5: "{0} <i>(solo per {1}, vedi <2>Configurazione LLM</2>)</i>"
+installation_ny5sda: "{0} <i>(per il punto di ingresso {1})</i>"
+installation_puvrk7: "<code>%s</code> è opzionale, e resta tale"
+installation_q0urhf: "<b>no</b>"
+installation_qnbuwa: "Babel viene eseguito sulla tua macchina durante {0} e {1}, e nulla di esso entra nel bundle che distribuisci. Questo vale indipendentemente da come collochi il pacchetto nel tuo {2}, ed è verificato anziché presunto: la suite di test asserisce che il runtime del browser non importa nulla oltre a React e al modulo virtuale, e che nessuna traccia di Babel sopravvive in esso."
+installation_tfq7wk: "Il plugin analizza le tue sorgenti con esso per trovare i marker. Senza di esso non viene estratto nulla, i marker raggiungono il browser nella loro forma originale e l'app viene renderizzata non tradotta in ogni stringa pur sembrando funzionante. Quindi la sua assenza blocca il dev server e fa fallire la build, anziché produrre un avviso che nessuno legge."
+installation_v05z5e: "Installali se il tuo progetto non li ha già. Le sorgenti {0}/{1}/{2}/{3} vengono tutte analizzate. Le dichiarazioni TypeScript sono incluse nel pacchetto."
+installation_v3fxaf: "Questa asimmetria ha un prezzo, ed è il prezzo di rendere obbligatorio il peer: in quei due casi la tua installazione di produzione tira dentro Babel e il suo albero, per qualcosa che non viene mai eseguito lì. {0} non lo eliminerà, perché in quella configurazione non è una dev dependency. Se il peso per te conta più dell'installazione automatica, dichiara {1} opzionale nel tuo {2}: i controlli sopra riguardano l'<i>uso</i> del plugin, non come è stato installato, e continuano a funzionare in entrambi i casi."
+installation_vjbi13: "Essendo un peer obbligatorio, npm e pnpm lo installano da soli. Yarn si limita ad avvisare, e non arriva per riflesso nemmeno da {0}, che dalla versione 6 non dipende da Babel. Se il tuo package manager lo ha omesso, installalo tu stesso:"
+installation_vv9lcf: "Opzionale"
+languages_10s3t77: "Il tag deve essere nella forma {0} e indicare una lingua e una regione reali (<1>elenco supportato</1>) — {2} viene rifiutato prima che qualsiasi cosa venga scritta su disco. Una lingua già presente viene lasciata intatta."
+languages_12o3096: "Un valore come {0} deriva dall'aver scritto JSX dentro {1} (<2>Translate</2>): {3} qui non ha attributi, quindi è testo — spostalo dove la frase lo richiede, come si sposta qualsiasi altro tag. Un {4} è diverso: è uno <b>slot</b>, che sostituisce un link o un componente fornito dal codice sorgente — un {5}, un {6}. Mantieni ogni tag numerato, di apertura e chiusura, con il suo numero, attorno alle parole che devono starci dentro; puoi spostare un tag insieme alle sue parole, ma non rinumerarne uno, eliminarlo o trasformarlo in un tag diverso — il numero è come la tabella compilata trova l'elemento giusto, non una scelta stilistica."
+languages_1bsazhq: "🎮 <0>Gli stessi passaggi, dal vivo</0> — {1}, i {2}, il file finito."
+languages_1c7vi19: "Aggiungere una lingua"
+languages_1e726fy: "Sostituisci ogni {0} con il testo tradotto, mantenendo intatti i segnaposto {1} e i tag numerati ({2}), poi sincronizza ancora una volta così che il file assuma la sua forma definitiva:"
+languages_1jsc9lo: "Nessuna ulteriore registrazione necessaria: ogni file {0} in {1} è automaticamente disponibile — {2} lo elenca e {3} lo carica in modo lazy su richiesta."
+languages_1m6gd4x: "<b>Metodologia di costruzione:</b> Questo elenco è stato compilato espandendo un insieme di base di tag di lingua BCP 47 comuni attraverso un confronto incrociato con le capacità di internazionalizzazione native di Google Chrome (tramite il motore V8 e la libreria ICU). Per mantenere una rigorosa coerenza strutturale in tutto il dataset, è stata applicata una regola di filtraggio per conservare solo i formati standard {0} (xx-XX). I codici di lingua autonomi (ad es. {1}, {2}) e i tag di macro-regione (ad es. {3}) sono stati deliberatamente esclusi dalla tabella finale, anche se sono supportati nativamente dalle API {4} del browser."
+languages_1xyv0cm: "I tag accettati da {0}: {1}, una lingua reale in una regione reale (<2>CLI</2>). 🎮 <3>Aggiungerne una</3> e <4>passare dall'una all'altra</4>, dal vivo."
+languages_2a4xjr: "<b>Fonti dei dati:</b> Le principali fonti autorevoli utilizzate per convalidare ed espandere questo elenco includono la documentazione ufficiale dell'API Google Chrome Extensions per le locale supportate da {0}, il registro dei codici di lingua della Google Workspace Admin Directory API e le mappature del Common Locale Data Repository (CLDR) che determinano l'implementazione sottostante di ICU (International Components for Unicode) di Chromium."
+languages_61o2yb: "Note metodologiche"
+languages_632opc: "Tag di lingua supportati"
+languages_cq382p: "{0} fa il passo successivo per te — riempie i {1} tramite un LLM che configuri, con un validatore che rifiuta qualsiasi cosa si romperebbe a runtime. Vedi <2>Configurazione LLM</2>. Anche il metodo manuale funziona, e sempre funzionerà: copia quel blocco in un LLM a mano, poi incolla la risposta sopra i {3}:"
+languages_h0h1rx: "Le stesse chiavi compaiono anche nel file della lingua di origine, raggruppate sotto quello stesso separatore — mai come {0} lì, ma come testo reale, finché mancano in almeno un'altra lingua."
+languages_je9my3: "Il nuovo file esce con ogni chiave trovata nella sorgente, non ancora tradotta ({0}):"
+languages_merwlu: "Aggiungi una lingua con un solo comando, riempila a mano o con un LLM, e scopri quali tag di lingua sono accettati."
+languages_xeqhc8: "Tag numerati nella tabella"
+LanguageSwitch_gzrcyx: "Lingua della pagina"
+languageswitcher_10xq0pu: "Clicca quattro volte e la pagina passa da <i>American English → Deutsch (Deutschland)</i>, <i>Deutsch (Deutschland) → français (France)</i>, <i>français (France) → American English</i>, e di nuovo in cerchio."
+languageswitcher_12qxvkk: "{0} funziona anche sopra il container, così un'intestazione esterna all'albero tradotto può elencare le lingue. Lì {1} è {2} e cambiare non fa nulla."
+languageswitcher_14io5dg: "Un selettore ha bisogno di tre cose: quale lingua è sullo schermo, quali esistono e un modo per chiederne un'altra. Un solo hook te le fornisce tutte. Questo tutorial presuppone un progetto con almeno due lingue, come quello in <0>La tua prima app tradotta</0>."
+languageswitcher_17xi8xd: "Dopo aver scelto il tedesco e ricaricato, la pagina mostra <i>Willkommen zurück, Ada!</i>. {0} riceve l'esito reale, quindi un caricamento fallito non viene memorizzato."
+languageswitcher_1k6znb6: "{0} contiene ogni file trovato in {1}, con la lingua di origine per prima."
+languageswitcher_1mtokb4: "Una ricarica torna alla lingua in {0}. Per conservare la scelta, salvala quando un cambio riesce, e rileggila all'avvio:"
+languageswitcher_1qo1q7t: "Clicca <i>Deutsch (Deutschland)</i> e la frase mostra <i>Willkommen zurück, Ada!</i>; clicca <i>français (France)</i> e mostra <i>Bon retour, Ada !</i>. La lingua che lasci resta sullo schermo finché la nuova non è stata caricata, quindi non c'è un frame vuoto nel mezzo (<0>come funziona</0>)."
+languageswitcher_1vftbx2: "{0} viene letto una volta, al mount. Partire da una lingua non precaricata funziona, ma costa un round trip prima del primo paint, e il container lo segnala una volta nella console. Se la maggior parte dei visitatori parte dalla stessa lingua, vedi <1>Precaricamento</1>."
+languageswitcher_1we86rm: "Elenca le lingue"
+languageswitcher_37esvz: "Un caricamento fallito ripiega sulla lingua eager, e {0} ti dice quale è davvero sullo schermo. Vedi <1>useTranslateLanguage</1> per il pattern di retry e i callback {2} e {3}."
+languageswitcher_7wiulw: "Un selettore di lingua"
+languageswitcher_ad9kym: "{0} è il tag sullo schermo, quindi il pulsante della lingua corrente è disabilitato."
+languageswitcher_axfsca: "{0} è la lingua scritta in sé stessa, regione inclusa: con {1}, {2} e {3} i pulsanti mostrano <i>American English</i>, <i>Deutsch (Deutschland)</i> e <i>français (France)</i>."
+languageswitcher_i2w702: "L'array {0} è congelato e condiviso da tutta l'app. Per ordinarlo o filtrarlo, copialo prima: {1}."
+languageswitcher_jg6lrz: "Un pulsante che ruota"
+languageswitcher_kqhdu5: "Ricorda la scelta"
+languageswitcher_ld3t5s: "Per una demo, o una pagina con tre lingue e senza spazio per un menu: un pulsante che indica la lingua corrente e la successiva. È ciò che fa {0}."
+languageswitcher_mvp6xf: "Elenca le lingue, cambia con un clic, ricorda la scelta o ruota tra esse con un solo pulsante."
+languageswitcher_qqy6sw: "Mettilo ovunque sotto {0}:"
+languageswitcher_y03617: "Buono a sapersi"
+limitations_11yq3wi: "<b>Un fallback incorporato in dev può mostrare un'entità non decodificata sotto SSR, fino alla prima sincronizzazione.</b> {0} decodifica le entità usando il DOM; senza di esso (server-side rendering) restituisce il testo di fallback così com'è. Sparisce non appena la chiave viene sincronizzata nella tabella della lingua — la tabella compilata non lo porta mai."
+limitations_13zltxi: "Marker ed estrazione"
+limitations_1414qcb: "<b>{0} mantiene l'avviso di React anche quando {1} lo traduce.</b> React rifiuta i children su {2} indipendentemente da cosa siano; il testo tradotto viene comunque mostrato, ma la soluzione per l'avviso è {3}, non {4}."
+limitations_160mu0r: "Messaggi e ICU"
+limitations_169odn7: "Il preprocessore"
+limitations_1aggsm6: "<b>Un'entità e il carattere che rappresenta sono due testi diversi per l'estrattore, ovunque.</b> {0} e {1} ottengono due id diversi, esattamente come {2} e {3} li hanno sempre — scrivere l'entità è una scelta, non un refuso da normalizzare. 🧪 <4>Entità, dal vivo</4>."
+limitations_1bu5rtx: "Runtime e strumenti"
+limitations_1byqpbk: "<b>Un template literal marcato ha bisogno di qualcosa che lo riceva.</b> Uno con {0} all'interno viene compilato solo dove il {1} che produce ha senso: {2}, {3} / {4}, oppure — con {5} — un attributo host o un child dentro un componente riconosciuto. Ovunque altro è un avviso {6} in fase di build, e il template viene lasciato com'era."
+limitations_1hc1e59: "<b>{0} ha bisogno del DOM</b> se chiamato direttamente. {1} no."
+limitations_1i9qpus: "<b>Un file marcato che il parser non riesce a leggere blocca la sincronizzazione.</b> La CLI e {0} si fermano con {1} anziché cancellare le sue chiavi dalle tue tabelle; {2} si limita ad avvisare e si avvia. Il parser abilita solo {3} e {4}, quindi un file che usa i decoratori, per esempio, è sempre in questo caso finché non viene modificato. Vedi <5>Quando la sincronizzazione si ferma</5>."
+limitations_1nagd96: "<b>Un tag di markup non può aprirsi fuori da un ramo plural/select e chiudersi dentro di esso, o viceversa.</b> Ogni ramo viene compilato come un proprio piccolo albero; un tag deve essere intero al suo interno — lo stesso limite vale per un tag numerato (uno slot)."
+limitations_1o6rsgh: "<b>Nessuna quotatura con apostrofo ICU.</b> Un apostrofo è sempre testo (vedi <0>Messaggi ICU</0>), quindi i messaggi importati da un catalogo ICU standard che usano {1} o {2} devono essere convertiti: {3} per una graffa letterale, un singolo {4} per un apostrofo. 🧪 <5>Dal vivo</5>."
+limitations_1tvr0mt: "<b>{0} riscrive solo un attributo — o un testo JSX — all'interno di un componente che riesce a riconoscere come tale.</b> Il controllo è per file e volutamente conservativo (vedi <1>le note sull'architettura</1>): una funzione esportata come componente, o che chiama già un hook, è idonea; una semplicemente <i>invocata</i> altrove nello stesso file come funzione semplice non lo è mai, perché iniettare un hook al suo interno sarebbe una chiamata a un hook non valida. Se non viene riconosciuto, il testo o l'attributo marcato viene lasciato esattamente com'è scritto, con un avviso {2} che indica il file — {3} funziona comunque lì. 🧪 Questo e il prossimo limite di autoWrap, dal vivo: <4>edge/#autowrap</4>."
+limitations_1vp1h3t: "<b>{0} non può comparire nel testo del messaggio.</b> Dentro {1} o un template marcato, scrivi il valore come {2} — un {3} letterale lì è un errore di build ({4}), non un passaggio silenzioso."
+limitations_86x8k8: "<b>{0} non viene riconosciuto.</b> Il preprocessore cerca un identificatore semplice importato da {1} ({2}, o {3}); un import di namespace ({4}, poi {5}) è una forma AST diversa che non corrisponde — lo stesso vale per {6} riesportato da un file tuo."
+limitations_96t8ip: "<b>La CLI carica la tua configurazione Vite con Node stesso</b>, non con Vite — una configurazione TypeScript richiede un Node che rimuova i tipi (23.6+)."
+limitations_anogcb: "Cosa non fa viteTranslate, raggruppato per dove lo incontrerai."
+limitations_bbok07: "🧪 La maggior parte di essi gira dal vivo, una riga per caso, sulla <0>pagina dei casi limite</0>: vedere il limite è più veloce che leggerlo."
+limitations_c6d6op: "Limiti noti"
+limitations_cktal4: "<b>Uno slot si numera da {0}, non da {1}, quando il messaggio ha un argomento con nome.</b> Posizioni e slot condividono un unico contatore (vedi <2>Translate</2>); {3} compila il link come {4}, non {5}."
+limitations_kcmpi3: "<b>Gli id sono un hash a 32 bit</b> sul percorso del file e sul testo. Una collisione tra due stringhe è improbabile ma possibile, e viene segnalata come avviso di build che le nomina entrambe."
+limitations_n2r7v: "<b>I delimitatori non possono contenere spazi, caratteri di controllo, {0} {1} {2} {3} {4} {5} un backtick, un backslash, {6} o {7}, e un singolo carattere comune genera molti avvisi.</b> <8>{9}/{10}</8> vengono controllati all'avvio del plugin. Un delimitatore facile da trovare nel testo normale (un {11} isolato, per esempio) trasforma ogni stringa che lo contiene, senza esserne racchiusa, in un avviso {12}: scegli due o più caratteri, o un simbolo che non compare mai nel testo reale ({13})."
+limitations_nci5d5: "<b>I marker devono essere stringhe intere.</b> Uno incorporato in una stringa più lunga, o un template literal con {0} all'interno, non viene estratto — usa invece un segnaposto {1}. 🧪 <2>Dal vivo</2>."
+limitations_o1ugcp: "<b>I children con spread non sono supportati.</b> {0} riceve un avviso {1} e viene lasciato intatto; scrivi i valori per esteso, oppure costruisci la frase con {2}."
+limitations_p90zrt: "<b>I plurali non possono essere scritti come JSX.</b> Un valore semplice sì — {0} — ma {1} è sintassi ICU, non un'espressione JSX: scrivi invece {2} o {3}."
+limitations_qqyckm: "autoWrap"
+limitations_y2my8s: "<b>La sicurezza dei file è un tentativo ragionevole, non un lock.</b> Le tabelle vengono sostituite atomicamente una per una, dopo un controllo che nessuno le abbia modificate — ma resta una breve finestra di race tra il controllo e la rinomina, non c'è alcun lock tra i processi, più tabelle non sono un'unica transazione (un fallimento a metà viene segnalato, poi risolto rieseguendo), e una rinomina non conserva il proprietario di un file appartenente a un altro utente."
+limitations_yqgloe: "<b>{0} non può essere riordinato.</b> {1} lo sostituisce in ordine con {2}; una lingua che richiede un ordine diverso non può esprimerlo con {3} — scrivi invece {4}/{5}, che una traduzione LLM <b>può</b> riordinare (vedi <6>messaggi ICU</6>). Lasciato come {7}, il prompt dice al modello di mantenere l'ordine di origine e di formulare attorno ad esso, e il validatore controlla solo il <i>conteggio</i>. 🧪 <8>{9} in qualsiasi ordine, dal vivo</8>."
+limitations_z0qqlr: "<b>Un template taggato {0} viene riconosciuto solo quando {1} proviene da {2} (o {3}) nello stesso file.</b> Passato come prop, destrutturato da un hook wrapper, o importato da un altro modulo, il template taggato raggiunge il runtime non compilato e viene trattato come un template ordinario, non marcato — con un avviso in console in sviluppo."
+limitations_zb73cb: "<b>La traduzione automatica LLM viene eseguita solo dalla CLI, mai da {0}.</b> Collegarla al plugin significherebbe una chiamata di rete — e un costo — a ogni avvio del dev server. Esegui invece {1} in un secondo terminale; il watcher del dev server rileva il {2} riscritto e ricarica."
+liveexamples_111pp2e: "<0>Cosa può stare nella posizione del testo</0>"
+liveexamples_12w7mql: "<0>Valori che non sono testo</0>"
+liveexamples_1349omc: "<0>Date e fusi orari</0>"
+liveexamples_13p59do: "Installazione, {0}, struttura delle cartelle"
+liveexamples_13slc5b: "<0>Il ristorante</0> — un'intera landing page, 228 frasi, quattro lingue compilate da {1}. Il suo modulo di prenotazione mostra il plurale degli ospiti, una data e un prezzo: vedi <2>messaggi ICU</2> e <3>configurazione LLM</3>. Sorgente in <4>{5}</4>."
+liveexamples_14jh4t: "<0>useTranslateToString</0>"
+liveexamples_15ji5g2: "<0>Select e argomenti con nome</0>"
+liveexamples_17fztni: "I formati di ogni lingua, la prop {0}"
+liveexamples_180bo8y: "<0>Plurali e ordinali</0>"
+liveexamples_18b5hn0: "Testo semplice, valori con nome, un tag di dialetto che resta testo, un link che diventa uno slot, {0}/{1}, template taggati in un componente"
+liveexamples_19a0zj5: "<0>Per iniziare</0>"
+liveexamples_1a5mmjh: "<0>Interpolazione {1}</0>"
+liveexamples_1ahgn4l: "Posizioni, nomi, graffe, apostrofi"
+liveexamples_1atkthw: "🧪 <0>Casi limite</0> — dove le cose si piegano: una riga per caso, cosa viene renderizzato accanto a cosa dovrebbe, prima le forme consigliate e per ultimi gli errori (<1>come leggerlo</1>)."
+liveexamples_1avqxnv: "Troppi, troppo pochi, {0}, {1}, {2}"
+liveexamples_1cj3wg5: "Entrambi cambiano lingua dal vivo, e il {0} accanto a ogni titolo è un link da condividere. Ogni pagina di questo manuale collega anche i propri casi dal vivo, proprio dove li spiega."
+liveexamples_1cnjvmb: "<0>Traduzione statica</0>"
+liveexamples_1dnlmko: "Ogni esempio dal vivo del sito, mappato alla pagina di questo manuale che lo spiega."
+liveexamples_1dwx7n9: "Numeri, {0}, funzioni, simboli — e {1}"
+liveexamples_1gno9oi: "{0}, {1} da un oggetto"
+liveexamples_1gor6g5: "<0>Testo non marcato e skipMark</0>"
+liveexamples_1haq3u0: "Sezione"
+liveexamples_1hknsno: "L'elenco delle lingue, il cambio pigro, i callback"
+liveexamples_1hulkov: "<0>Messaggi ICU</0>"
+liveexamples_1i1tg4w: "<0>Aggiungere una lingua</0>"
+liveexamples_1iok6w4: "🎮 <0>Playground</0> — ogni funzionalità in azione, accanto al codice che la produce."
+liveexamples_1j84m91: "Tag consentiti, attributi eliminati, markup rotto, entità"
+liveexamples_1juzuch: "<0>Opzioni del plugin</0>, <1>limiti</1>"
+liveexamples_1lfw2hp: "<0>Numeri, valute e date</0>"
+liveexamples_1ls1h8y: "<0>Interpolazione ICU standard</0>"
+liveexamples_1lsz317: "<0>Posizioni o nomi</0>"
+liveexamples_1n1eh52: "Il blocco {0}, {1}"
+liveexamples_1nl344y: "Esempi dal vivo"
+liveexamples_1nneal9: "Elementi come argomenti, e dove non appartengono"
+liveexamples_1oapck9: "<0>Prop incompatibili</0>"
+liveexamples_1po4hpe: "<0>Testo non marcato</0>"
+liveexamples_1q3cau8: "<0>Translate</0> ({1})"
+liveexamples_1ramxt4: "<0>Quando non c'è affatto testo</0>"
+liveexamples_1t5nd6a: "Il {0}, e quando silenziarlo"
+liveexamples_1udv7: "<0>useTranslateLanguage</0>"
+liveexamples_1um7xga: "<0>Translate</0>"
+liveexamples_1v5xkll: "Dieci casi, inclusi quelli che non riesce a riscrivere"
+liveexamples_1vah4ch: "La sincronizzazione automatica, {0} in CI"
+liveexamples_1vm9qqv: "<0>Argomenti che sono nodi React</0>"
+liveexamples_1wa0mfw: "Due testi per uno slot: quale sopravvive"
+liveexamples_1ykv3mj: "<0>TranslateContainer</0>"
+liveexamples_1yuti5a: "<0>Esecuzione in dev</0>"
+liveexamples_3nsd3c: "<0>Segnaposto e attributi</0>"
+liveexamples_43ll2x: "<0>Tradurre con un LLM</0>"
+liveexamples_4fa6xa: "<0>Scrivere JSX dentro Translate</0>"
+liveexamples_4jge2z: "<0>Cosa diventa un marker</0>"
+liveexamples_6l7i0t: "<0>Markup e segnaposto</0>"
+liveexamples_6lsc2d: "<0>Markup e nodi React</0>"
+liveexamples_8y77f9: "Copre"
+liveexamples_9fxwyo: "{0}, {1}, {2}"
+liveexamples_a0w32q: "Accenti, emoji, CJK, virgolette, nuove righe"
+liveexamples_bhjrb9: "Categoria"
+liveexamples_bkj2rk: "{0} attorno a una frase marcata"
+liveexamples_cf9fk1: "<0>Formato del file</0>"
+liveexamples_cszjrg: "{0}, {1}, {2} fino a {3}"
+liveexamples_dlu99z: "Due pagine, due compiti:"
+liveexamples_dsrk81: "<0>Caso per caso</0>"
+liveexamples_e2bnw: "Marker senza {0} attorno"
+liveexamples_e3hhiv: "{0} sull'HTML di un server"
+liveexamples_ezid8c: "Children, {0}, tupla, {1}, {2}, {3}"
+liveexamples_fdxwiz: "{0} compilato da {1}"
+liveexamples_fzqife: "<0>Aggiungere una nuova lingua</0>"
+liveexamples_ge1bwh: "<0>Forme di chiamata</0>"
+liveexamples_gjku3y: "<0>Prop</0>"
+liveexamples_hf8tjx: "<0>Dialetto HTML</0>"
+liveexamples_hk2k3m: "<0>Nomi brevi</0>"
+liveexamples_hz3g0b: "🧪 Casi limite"
+liveexamples_itx55l: "Mostra"
+liveexamples_jpilds: "Il dialetto HTML, un link come argomento"
+liveexamples_ju31z5: "<0>basicHtmlToNodes</0>"
+liveexamples_mmbdtf: "<0>Opzioni del plugin</0>"
+liveexamples_o64ht0: "<0>HTML dall'esterno</0>"
+liveexamples_pamo76: "{0} e {1}, {2} e {3}, un testo marcato passato a {4}, e {5}"
+liveexamples_pozo5w: "🍽️ Vetrina"
+liveexamples_prfr16: "<0>Cambio lingua</0>"
+liveexamples_rlnvi1: "{0}, il primo {1}"
+liveexamples_rrybae: "<0>CLI</0>"
+liveexamples_s6e5y4: "<0>Language build</0>"
+liveexamples_sazvb9: "<0>autoWrap</0>"
+liveexamples_smaicg: "Spiegato in"
+liveexamples_su3t6z: "<0>Il preprocessore: da JSX al messaggio</0>"
+liveexamples_t0iqhq: "Vuoto, annidato, costruito a runtime, a metà stringa, in un template"
+liveexamples_te5drk: "🎮 Playground"
+liveexamples_u1izpp: "{0}, poi gli {1} da riempire"
+liveexamples_ucsxtm: "<0>Limiti noti</0>"
+liveexamples_uka51q: "<0>Testi reali</0>"
+liveexamples_uqwgfu: "<0>Traduzione dinamica</0>"
+liveexamples_yqwx3w: "<0>Un esempio per costrutto</0>"
+liveexamples_yyxexf: "<0>Configurazione del plugin</0>"
+markers_11yq4r9: "predefinito ({0})"
+markers_1dtwq39: "Configurazione in {0}"
+markers_1goa7mk: "Gli argomenti sono i marker <b>ora nel tuo sorgente</b>: nessuno significa {0}, uno significa lo stesso a entrambe le estremità, due significano inizio e fine. Il target sono sempre i marker di {1}. Viene toccato solo {2}, tramite l'albero sintattico: commenti e import restano come sono, e cambiano solo i delimitatori, mai il testo all'interno."
+markers_1kvyv87: "<b>Consiglio:</b> almeno due caratteri, oppure un simbolo Unicode che non compare mai nei testi reali ({0}, {1}). Qualsiasi stringa che contenga un delimitatore senza esserne racchiusa genera un <2>avviso</2>, quindi un carattere singolo comune ne genererà molti."
+markers_1l9hdhu: "Una shell può richiedere le virgolette: {0}. In {1}, un {2} può essere letto come variabile. Non può essere combinato con {3}, {4}, {5}, {6} o qualsiasi flag {7}."
+markers_1lzhhjk: "Cosa succede"
+markers_1mi3zlh: "niente da riscrivere (uscita 1)"
+markers_1of295a: "{0} → {1}: ritorno al predefinito"
+markers_1ogjgch: "{0} è il delimitatore predefinito di una stringa marcata. Scegli il tuo con {1} (un delimitatore, entrambe le estremità) oppure {2} / {3}; quello specifico ha la precedenza:"
+markers_1s5xn9b: "<b>La chiave non cambia mai.</b> Deriva dal testo all'interno, non dai delimitatori (né dal nome del componente): cambiare delimitatori, o riscrivere {0} in {1}, conserva ogni traduzione. <2>{3}</2> fa la riscrittura per te, e si rifiuta di scrivere se anche una sola chiave cambierebbe."
+markers_1uvu5oq: "La decisione deriva solo dalla configurazione e dagli argomenti, prima che qualsiasi file venga letto: il comando non fa mai supposizioni dal tuo codice."
+markers_1wpz33o: "{0} esegue l'intero controllo e non scrive nulla; stampa lo stato delle traduzioni con i marker attuali e con quelli riscritti. {1} esegue <b>lo stesso controllo su ogni file</b> e solo dopo scrive: tutto o niente. Se anche una sola chiave cambierebbe (una macro il cui testo contiene il nuovo delimitatore, per esempio), o un file che contiene i vecchi marker non può essere analizzato, non scrive nulla, elenca i responsabili ed esce con {2}. Se una scrittura fallisce a metà (permessi, un file bloccato da un altro programma) si ferma ed elenca ciò che è stato e ciò che non è stato riscritto; le chiavi sono comunque le stesse, quindi rieseguire lo stesso comando completa il lavoro. Non viene eseguita alcuna sincronizzazione in seguito: tabelle e cache si aggiornano alla prossima."
+markers_2cvl9i: "<b>Non consentiti:</b> spazi, caratteri di controllo, {0} {1} {2} {3} {4} {5} un backtick, un backslash e {6} (ognuno significa già qualcosa in JSX, nelle stringhe o nei messaggi), {7}, e due delimitatori diversi in cui uno contiene l'altro. Un valore non valido arresta il plugin all'avvio, indicando l'opzione."
+markers_36seix: "personalizzato ({0})"
+markers_3ot51v: "{0} → {1}: il primo cambio"
+markers_flavrl: "Hai cambiato i delimitatori in {0}? Questi due riscrivono il sorgente dai vecchi ai nuovi:"
+markers_frf1zx: "<b>Vecchi marker:</b> con delimitatori personalizzati, un {0} rimasto nel sorgente genera l'avviso {1} e non estrae nulla. Una <2>macro</2> ({3}) non richiede alcun delimitatore."
+markers_k7q455: "{0} → {1}: da una coppia personalizzata a un'altra"
+markers_ontib5: "Marker e chiavi"
+markers_rbt5pa: "Riscrivere i marker"
+markers_s0jnjx: "La demo <0>{1}</0> lo mostra in funzione, e la <2>estensione VS Code</2> evidenzia i tuoi delimitatori (li legge da {3})."
+markers_sfpp0t: "nessuno"
+markers_xmp9z5: "Argomenti"
+markers_y4q8vv: "Come si marca una stringa, come scegliere i tuoi delimitatori e perché la chiave di una traduzione non cambia mai."
+migratingfrom3_1wtzsev: "Gli originali vengono rinominati in {0}, mai eliminati: controlla il risultato, poi rimuovili. Un file che il convertitore non riesce a leggere da solo (un modulo di lingua con import o valori calcolati) viene lasciato dov'è e segnalato, così nulla viene convertito a metà. Se avvii Vite con i vecchi file ancora presenti, il plugin si ferma e dice esattamente questo invece di segnalare una lingua di origine mancante."
+migratingfrom3_9utgzi: "Converti i moduli di lingua 3.x in file di dati con un solo comando, senza toccare il codice né il bundle."
+migratingfrom3_i3y5yr: "Il comando stesso è descritto nella <0>documentazione della CLI</0>."
+migratingfrom3_pdmdyp: "I file di lingua ora sono dati ({0}) invece di moduli JS. <b>Nulla cambia nel tuo codice o nel tuo bundle</b> — lo stesso chunk lazy per lingua, la stessa API — solo i file su disco e la loro estensione."
+migratingfrom3_yuvhyu: "Migrazione dalla 3.x"
+nav_149pu15: "Riferimento API"
+nav_152osw7: "Architettura"
+nav_15an5sn: "Tutorial"
+nav_1i6d12o: "Componenti"
+nav_1kywofd: "Estensione VS Code"
+nav_1q2gibn: "LLM"
+nav_1qw53kp: "Per iniziare"
+nav_4ilap0: "Hook e helper"
+nav_cnwihs: "Contribuire"
+nav_myqrkh: "Risorse"
+nav_qflz3l: "Concetti"
+nav_uj079i: "Changelog"
+overview_18gw32r: "<0>Configurazione LLM</0>"
+overview_1916ol: "Gestire plurali e date"
+overview_19wsv83: "Panoramica"
+overview_1dbchgv: "Vai a"
+overview_1fx06w6: "Funziona con Vite 5 fino a 8 e React 18 o 19. Dove si colloca rispetto a Lingui, FormatJS e i18next è nel <0>confronto</0>."
+overview_1gorazl: "<b>Scrivi</b> la frase dove appartiene: {0}. Nessuna chiave da inventare. <1>Uso</1>"
+overview_1hoq7vb: "<b>Sincronizza</b>: a ogni avvio di {0} e prima di ogni build, le nuove frasi entrano in {1}, quelle obsolete escono. <2>La tabella si scrive da sola</2>"
+overview_1lp9e8j: "Un plugin Vite e un piccolo runtime React, installati come un unico pacchetto. Il plugin legge il tuo sorgente, il runtime mostra la frase giusta per la lingua corrente."
+overview_1s8hk8v: "<0>La tua prima app tradotta</0>"
+overview_1tmxv8o: "<0>Migrazione dalla 3.x</0>"
+overview_1ucvhhj: "Dove andare adesso"
+overview_1w5ljcb: "Cos'è viteTranslate, i quattro passaggi da una frase in JSX a una lingua pubblicata, e dove andare adesso."
+overview_1yszoc0: "Cerca qualcosa"
+overview_275qvn: "<b>Pronto per interfacce reali.</b> <0>ICU</0> plurali, select, numeri e date; un chunk in lazy loading per lingua; il testo di origine come fallback finché non esiste una traduzione; un sottoinsieme sicuro di tag HTML."
+overview_3bbkzl: "Cos'è"
+overview_48nlby: "<b>Strumenti dove ti servono.</b> Una <0>CLI</0> per la sincronizzazione, i controlli CI e la traduzione LLM protetta; un'<1>estensione VS Code</1> che mostra ogni stringa e il suo stato."
+overview_4mlj3q: "Installalo in un progetto esistente"
+overview_61l2zr: "<b>Meno lavoro manuale.</b> Estrazione e sincronizzazione avvengono dentro Vite, non come un comando separato da ricordare."
+overview_6deyc0: "<0>Opzioni del plugin</0> · <1>CLI</1> · <2>Tipi TypeScript</2>"
+overview_7wamw2: "<0>Plurali e date</0>"
+overview_8bfhqh: "Lascia che gli utenti scelgano una lingua"
+overview_8uz3dt: "<b>Un runtime leggero.</b> Il lato browser pesa 5 kB gzip, helper ICU inclusi, e non analizza alcun messaggio: le tabelle sono compilate in fase di build."
+overview_9d885r: "Trova una risposta rapida"
+overview_as74sn: "<0>Un selettore di lingua</0>"
+overview_bf0yh0: "<0>Esempi dal vivo</0>"
+overview_cz60g5: "<0>Installazione</0>"
+overview_e2sltb: "Il flusso in quattro passaggi"
+overview_fvljmk: "Il runtime del browser pesa 5 kB gzip, React escluso. Gli helper ICU fanno parte di quel numero ma vengono inclusi solo quando una tabella usa ICU. Nient'altro entra nel tuo bundle: Babel e Vite girano sulla tua macchina in fase di {0} e {1} (<2>perché</2>)."
+overview_k5zkcu: "Costruisci qualcosa da zero, con comandi e output"
+overview_kvhdlx: "<0>FAQ</0>"
+overview_pd95dv: "Guardalo in funzione"
+overview_qlvjvc: "Vuoi"
+overview_r6yfyj: "<b>Traduci</b>: {0}, poi riempi i valori di {1} a mano o lascia che lo faccia un <2>LLM</2>. <3>Aggiungi una lingua</3>"
+overview_wmcc1p: "Vieni dalla versione 3"
+overview_xdoi8g: "Traduci con un modello"
+overview_xr0k4b: "<b>Pubblica</b>: {0} compila ogni lingua nel proprio chunk, caricato quando viene selezionata. <1>Cambia lingua e pubblica</1>"
+overview_z197qr: "Scrivi il testo in modo naturale in JSX. viteTranslate estrae le stringhe, mantiene sincronizzata una tabella {0} per lingua e compila le traduzioni come parte del tuo flusso di lavoro Vite. Nessuna chiave scritta a mano, nessun passaggio di estrazione separato, nessuna dipendenza runtime aggiuntiva."
+overview_z781et: "Dimensione del runtime"
+PageNav_1dxgcmp: "← Precedente"
+PageNav_1v03yl3: "Successivo →"
+panel_102bbjq: "Riquadro e cornice"
+panel_10ci3g7: "Passa il mouse su una voce per i dettagli: quali lingue mancano, cosa ha detto l'estrazione."
+panel_10l9zpg: "<i>non sincronizzato</i>: non ancora nei file di lingua. Esegui la sincronizzazione (questo è quello del pannello stesso)"
+panel_11e8lt1: "<b>Traduzioni</b>: i file di lingua in {0}, una riga ciascuno: il codice della lingua e il suo nome in quella lingua, prima la lingua di origine. Cliccane uno per aprirlo. Una voce selezionata in <b>Risultati</b>? Si apre proprio su quella chiave, cursore sulla traduzione: correggila lì. Un ♥ accanto al titolo lo indica (passa il mouse per la chiave); scegli un file o una cartella, oppure nascondi Risultati, e sparisce. L'icona ti dice come sta andando il file: verde per la lingua di origine, giallo quando mancano traduzioni (il badge dice quante), rosso quando non può essere letto, semplice quando è completo. Nessun file ancora? Una riga ne spiega il motivo."
+panel_11z1xyd: "<b>Chiave API</b>: <i>dove</i> si trova (una variabile d'ambiente, {0}, {1}, il portachiavi di sistema), mai cosa è. Non trovata? Dice dove ha cercato."
+panel_12tbiw: "<b>Configurazione Vite</b>: {0}, aperto proprio sulle opzioni {1}."
+panel_13ep6m5: "<b>Ping</b>: il modello risponde? Una piccola richiesta, in background, una volta per progetto. Nessuna chiave, nessun disturbo."
+panel_14pkfag: "✅"
+panel_14yx631: "Nessun blocco {0} nelle opzioni del plugin? Il pulsante mostra <b>LLM ?</b> e apre <b>Help</b>: come aggiungerne uno, e un pulsante che apre le opzioni in {1}."
+panel_1506gkm: "Progetto"
+panel_15a7396: "Accento parola chiave"
+panel_164zfge: "Libreria mancante o troppo vecchia"
+panel_179kdki: "Clicca <b>LLM ›</b> in <b>Project</b>. In alto, tre righe che rispondono a \"posso procedere?\":"
+panel_17s3fuk: "<b>La barra dei comandi</b>: <b>Sync</b> esegue il {0} del progetto stesso in un terminale, e <b>LLM</b> sostituisce <b>Results</b> con la <1>pagina LLM</1>. A destra: GitHub, ⚙ <2>Settings</2>, ↻ aggiorna."
+panel_182hcr8: "Clicca ⚙ in <b>Project</b>. In alto, il logo. Poi, sotto <b>CONFIG</b>, una riga per impostazione:"
+panel_18pyui: "{0}, o una frase marcata con tag e valori ({1})"
+panel_19he3o6: "Aspetto"
+panel_19kz63g: "Come la selezione"
+panel_1akrn1: "Results"
+panel_1atvrdq: "Stile"
+panel_1ay9h4c: "Effetto marcatore"
+panel_1b25j40: "Mentre si aggiorna, il pannello non spaccia mai vecchie notizie per fresche: un progetto ancora in caricamento dice <i>Loading…</i>, un file appena salvato mostra ⏳, uno con modifiche non salvate mostra ✎, e le sue voci smettono di saltare (le righe potrebbero essersi spostate) finché non arriva la nuova scansione."
+panel_1b4dxvq: "Il pannello di VS Code pezzo per pezzo: ogni sezione, glifo e pulsante, gli stili di evidenziazione e cosa succede sotto il cofano."
+panel_1bscuvw: "<i>non completamente tradotto</i>: ancora {0} da qualche parte"
+panel_1cqjubr: "Come gli inlay hint"
+panel_1dg9ni2: "Il pannello"
+panel_1djiaxf: "Barra di accento a sinistra"
+panel_1ecy5fr: "Quindici stili, tutti nei colori del tuo tema. Scegline uno in <0>Settings</0>, ognuno con un esempio. Oppure esegui <b>viteTranslate: Choose highlight style…</b>, che li prova sul tuo codice mentre scorri la lista: {1} lo mantiene, {2} non cambia nulla. Oppure imposta {3}, {4} incluso."
+panel_1eywx9z: "<b>Results</b> interroga il {0} <i>tuo</i> installato (e il suo {1}), in un processo separato: le stesse voci che troverebbe {2}, senza Babel incluso nell'estensione. È veloce perché ogni sync lascia un indice delle voci in {3}, e il pannello ri-analizza solo ciò che è cambiato da allora. Dopo un salvataggio Babel resta caldo per due minuti, poi il processo termina."
+panel_1fja3d5: "Clicca l'icona % nella Activity Bar. All'avvio una singola pagina <b>Loading</b> mostra il logo e cosa sta leggendo; <b>Selector</b>, <b>Results</b> e <b>Project</b> subentrano quando hanno qualcosa di vero da dire. Aprili e chiudili come qualsiasi sezione della barra laterale."
+panel_1fq1ev1: "<b>Highlight style</b>: ogni stile con un esempio; cliccane uno, gli editor cambiano subito."
+panel_1g78vuz: "Etichetta piena"
+panel_1gtyi8x: "<b>Quale runtime usano</b>: quello dell'editor stesso. Tranne su Windows, dove quel runtime tace in un terminale: lì usano il {0} nel tuo PATH, quello su cui gira Vite. Nessun Node nel PATH? Eseguono comunque e vedi l'output, ma non possono chiederti nulla (la conferma di <i>Translate</i>, la chiave API), e il terminale attende una chiave nel modo usuale. Un avviso lo segnala, una volta."
+panel_1gy72ul: "significa"
+panel_1it82lz: "Il progetto selezionato, e cosa farne. Le lingue scorrono; la barra dei comandi resta fissa in basso."
+panel_1ji84ms: "Sotto il cofano"
+panel_1jm3a9h: "Chip su contenuto"
+panel_1lmrijn: "Link puntinato"
+panel_1lpabch: "Solo corsivo"
+panel_1mfsq4h: "<b>Search</b>: restringe <b>Results</b> alle voci il cui testo, o percorso file, contiene ciò che digiti. Niente maiuscole, niente accenti: {0} trova <i>Città</i>. Compare quando c'è qualcosa da cercare, e resta mentre digiti, anche quando nulla corrisponde. {1}, o la × alla sua destra, lo cancella."
+panel_1muexbu: "<i>non tradotto</i>: {0} in ogni lingua di destinazione"
+panel_1n0xe4: "🔄"
+panel_1n9o8iz: "un template taggato {0}, o un template marcato con {1}"
+panel_1nev4ow: "Settings"
+panel_1pdqmt1: "Stringhe evidenziate nell'editor"
+panel_1posgx: "<b>vitetranslate</b>: le opzioni del plugin come risolte: lingua di origine, cartella locale, lingue precaricate, auto-sync, {0}, {1} (i tuoi delimitatori, {2} quando predefiniti), fuso orario ICU, il blocco {3} (modello, endpoint, budget, il <i>nome</i> della variabile della chiave, mai la chiave). Non impostato: {4}."
+panel_1q75ovc: "Un glifo davanti a ogni voce dice come sta andando. I problemi indossano gli stessi glifi che la tua app mostra sullo schermo: il tuo {0} (<1>diagnostics</1>), o quelli predefiniti."
+panel_1qixau6: "<b>Config</b>: ogni progetto Vite nel workspace, una riga ciascuno: il suo nome {0} e la sua cartella. Cliccane uno ed è <i>il</i> progetto, per <b>Results</b> e <b>Project</b>. Un solo progetto? Niente da scegliere, quindi nessuna lista."
+panel_1qlrv1z: "<b>vite.config</b>: plugin in ordine di caricamento, porta e host del server. Clicca per aprire."
+panel_1ukdv8o: "Le stringhe marcate risaltano mentre digiti, in {0}, {1}, {2} e {3}: {4} (o i <5>{6}/{7}</5> del tuo progetto, letti dal suo {8}), {9}, template taggati {10} (e i loro nomi lunghi). Stesse regole dell'estrazione: ciò che si illumina viene tradotto. Finché {11} non è stato letto — o in una libreria precedente alla 4.7.0, o in Restricted Mode, dove non viene mai eseguito — si usa il {12} predefinito. L'esempio in Settings resta su {13}: mostra in anteprima lo stile, non il tuo progetto. I commenti, e gli esempi di codice dentro le stringhe, restano semplici. Nessun pannello necessario."
+panel_1uswey1: "Evidenziazione"
+panel_1va1utk: "Ogni stringa che il progetto marca per la traduzione, file per file: le cartelle di {0}, solo i file che hanno qualcosa di marcato, e sotto ogni file le sue voci in ordine di origine. Clicca una voce e il cursore vi si posiziona. Salva un file (o un file di lingua) e la lista si aggiorna."
+panel_1x87voy: "Chip e righello"
+panel_3kqode: "La pagina LLM"
+panel_48xd1p: "Aprire un file JS o TS risveglia l'estensione solo per l'evidenziazione: {0} viene letto, e il progetto scansionato, quando apri il pannello."
+panel_4ju318: "<b>Sync</b> e le azioni LLM girano in un terminale che si ripulisce da solo: quando la CLI ha finito, premi {0} entro 10 secondi per tenerlo, qualsiasi altro tasto per chiuderlo subito, oppure distogli lo sguardo. Se qualcosa è fallito resta finché non premi un tasto: l'errore è la parte che vale la pena leggere."
+panel_4rwsck: "testo o attributo JSX marcato"
+panel_52ly6o: "LLM"
+panel_5bi27o: "Selector"
+panel_6wydkk: "<b>Stato dei file locali</b>: cosa dicono i file del progetto selezionato."
+panel_7xwr8h: "<b>Settings</b>: quale modello, su quale host, e se i prezzi sono impostati (senza di essi, costi e budget contano token, non denaro)."
+panel_7zqmxk: "scritto come"
+panel_85xbom: "Funziona anche al contrario: metti il cursore su una riga con una stringa marcata e <b>Results</b> seleziona quella voce (con <i>Filter</i> su <i>All</i>, <i>Search</i> vuoto e il file salvato). Il cursore resta dov'è."
+panel_8o2gtb: "✳️"
+panel_8q2aqb: "❇️"
+panel_98m59d: "Sottolineatura sottile"
+panel_bphmgh: "Mantieni <b>Project</b> almeno alto quanto la sua barra dei comandi: trascinalo a zero e sparisce anche la barra."
+panel_civ59p: "Chip con bordo"
+panel_csde8k: "‼️"
+panel_e15qk4: "Queste si prendono il pannello per sé: <b>Selector</b>, <b>Results</b> e <b>Project</b> si fanno da parte (niente da scegliere mentre sei qui) e lo sfondo prende una tinta dell'accento del tuo tema. La barra dei comandi resta, stesso aspetto: <b>← Back</b> a sinistra, più i comandi propri della pagina se ne ha; a destra, l'icona della pagina. Back rimette tutto dov'era (così fa anche la ← nel titolo della sezione)."
+panel_g2g9go: "🔸"
+panel_gcfv5n: "🔹"
+panel_h8rh4y: "<b>Results</b> richiede {0} 4.6.4 o successivo nel progetto. Nessuna libreria, o una più vecchia? <b>Results</b> e <b>Project</b> si fanno da parte per una pagina che dice cosa non va e il {1} che lo risolve (<b>Selector</b> resta solo se c'è un altro progetto su cui passare). Se ne va da sola una volta che la libreria c'è, oppure premi <b>Check again</b>."
+panel_hc0sxu: "Quello evidenziato in <b>Config</b>, e ti segue ovunque: passa a un file e il suo progetto prende l'evidenziazione, mentre <b>Results</b> salta a quel file con le sue voci aperte. Stesso progetto? Niente si ridisegna. Ne hai scelto un altro in <b>Config</b>? Resta finché non cambi editor, e tra un riavvio e l'altro. Finché non ce n'è uno, <b>Results</b> e <b>Project</b> ti aspettano."
+panel_hj95t4: "<b>Filter</b>: cosa mostra <b>Results</b>. <b>All</b>, <b>Malformed</b> (‼️, anche i file illeggibili), <b>Not synced</b> (🔄) o <b>Untranslated</b> (🔸 🔹), ognuno con il suo conteggio. Compaiono solo quelli con qualcosa dentro, e quando tutto va bene il filtro si fa da parte."
+panel_nrc4c7: "Stile snippet"
+panel_o6kg5s: "Sfondo incassato"
+panel_ogeqzl: "{0} (predefinito)"
+panel_pw36i1: "<b>vite.config</b> viene eseguito come lo esegue {0}: in un processo separato, mai tramite Vite. Nessun hook del plugin viene eseguito, nulla viene sincronizzato, nulla viene scritto. Una config che si blocca viene scartata dopo 15 secondi, e tutto ciò che stampa finisce nel canale di output <b>viteTranslate</b>. In <b>Restricted Mode</b> non viene eseguito nulla: ottieni solo {1}, niente <b>Results</b> e niente <b>Sync</b>. Considera attendibile il workspace per vedere il resto."
+panel_q9qics: "Pagine che prendono il sopravvento: Settings, LLM, Help"
+panel_qvinrj: "Ciò che guardi, e cosa farne. Dall'alto verso il basso:"
+panel_rivipb: "Quale progetto"
+panel_rolex: "<i>malformato</i>: l'estrazione ha segnalato un problema proprio lì ({0} annidato o non accoppiato, una macro rifiutata)"
+panel_rpv5dy: "🟢"
+panel_rtb8e2: "Sotto, le azioni {0}, ognuna spiegata: translate, stima il costo, retranslate, rigenera il contesto, status, ping, imposta / verifica / cancella la chiave API. Cliccane una e viene eseguita in un terminale, come Sync. <i>Check again</i>, nella barra, rifà le tre righe; se una è andata storta, il <b>?</b> accanto apre la guida alla configurazione. Altro sui flag: <1>Running and debugging</1>."
+panel_ry3ncz: "Results, con il suo filtro"
+panel_tiq9jm: "Sotto <b>VERSION</b>, chi è chi: questa estensione, la libreria installata nel progetto, la libreria più vecchia che l'estensione accetta, e l'API dell'IDE (come <b>Results</b> parla alla libreria), presente / richiesta. Giallo significa mancante o troppo vecchio; passa il mouse per il perché."
+panel_udj5qm: "<b>Detailed config</b>: le impostazioni proprie dell'estensione in VS Code (<0>commands and settings</0>)."
+panel_vcs5e6: "Il pannello viteTranslate"
+panel_vjul00: "Tutto a posto è verde, e la tonalità ti dice come è scritto:"
+panel_w4id7z: "Tutto si aggiorna da solo quando cambia un {0} o un {1} (e, per <b>Results</b>, un file sorgente o di lingua). ↻ lo fa su richiesta."
+panel_y2t4gn: "<b>package.json</b>: le dipendenze che contano ({0}, {1}, …) come <i>dichiarate → installate</i>, più gli script. Clicca per aprire."
+panel_y6z3ud: "{0} nel codice"
+pluginoptions_13wqxoe: "Output console semplice, senza riquadri, per il plugin e la CLI: nessuna colonna di etichette, nessuna riga, stessi colori — utile in CI o in un terminale stretto. Come il flag {0} della CLI, che ha sempre la precedenza su questa opzione"
+pluginoptions_14g98tk: "Cartella con i file di lingua ({0}), relativa a {1}"
+pluginoptions_152mgrj: "Prefisso per il testo che nessuno ha contrassegnato e per le prop non compatibili"
+pluginoptions_16y5d10: "Prefisso quando la voce è tradotta qui ma manca in qualche altra lingua"
+pluginoptions_17odye3: "Prefisso quando la lingua corrente non ha una traduzione per quella voce"
+pluginoptions_17rx2bm: "Cartella di origine analizzata dalla CLI"
+pluginoptions_19vy9jc: "off"
+pluginoptions_1bx3xpx: "Campo"
+pluginoptions_1cfdx5d: "La più bassa di tre precedenze: una data di calendario ({0}) è sempre UTC indipendentemente da questa opzione; la prop {1} di {2} ({3}) ha la precedenza su di essa; senza nessuna delle due, il messaggio usa qualunque fuso orario in cui si trovi il runtime stesso. Vedi <4>Messaggi ICU</4>."
+pluginoptions_1dcos3d: "Tag <0>BCP 47</0> della lingua di origine"
+pluginoptions_1hjpzkx: "Solo {0} disattiva {1} / {2} — qualsiasi altro valore vale come attivo. Impostare {3} (a qualsiasi valore non vuoto) disattiva entrambi senza toccare {4}, che è l'unico modo per raggiungere questo risultato da un checkout in sola lettura. Nessuno dei due viene mai eseguito sotto Vitest o {5}: un'esecuzione di test non dovrebbe riscrivere le tue tabelle, e un'anteprima non ha modifiche al sorgente da recuperare."
+pluginoptions_1hz296t: "In una build, nessun segno diagnostico sullo schermo — solo il fallback. Nemmeno i dati che li sostengono vengono inclusi"
+pluginoptions_1l43aau: "Opzione"
+pluginoptions_1lsh08m: "Fuso orario predefinito in fase di build per i messaggi ICU {0}/{1} — vedi sotto e <2>Messaggi ICU</2>"
+pluginoptions_1ofi82e: "Fa sì che il testo e gli attributi JSX contrassegnati vengano renderizzati davvero invece di mostrare il marcatore compilato, riscrivendoli in una chiamata a {0}/hook. Attiva anche le due forme di preprocessore che hanno bisogno di un punto in cui renderizzare: una frase {1} divisa tra elementi JSX adiacenti ({2}), e la stessa forma hook {3} in cui compila dentro un componente riconosciuto. {4} copre ogni tag host tranne {5}, {6}, {7} e {8} (solo testo, gestiti diversamente); un {9} si restringe ulteriormente ai tag che corrispondono. Vedi <10>limitazioni</10> per ciò che non copre"
+pluginoptions_1pxlmum: "Sostituisce un argomento senza valore — un {0}, un {1} o un {2} mancante dall'oggetto. Anche un oggetto semplice usato come <i>valore</i> stesso conta come mancante (è il contenitore degli argomenti, mai qualcosa da renderizzare). Rendering ordinario, non una diagnostica: si applica in dev <b>e</b> in una build, e {3} non lo tocca"
+pluginoptions_1r7b3t5: "Output della console del runtime in sviluppo"
+pluginoptions_1u0ji43: "Tipo"
+pluginoptions_1we9f69: "🎮 <0>Il blocco {1} e un'esecuzione, dal vivo</0>."
+pluginoptions_235ssc: "Predefinito"
+pluginoptions_53huvh: "Incorpora il testo originale come fallback nel marcatore compilato (solo in dev per impostazione predefinita)"
+pluginoptions_8eqr6z: "🎮 Dal vivo: <0>playground/#autowrap</0>; 🧪 dieci casi limite: <1>edge/#autowrap</1>."
+pluginoptions_98wkya: "Mostrato, seguito dal nome di ciò che è stato trovato ({0}), quando lo slot di testo contiene un valore che non è testo e non si può recuperare nulla. Disattivato, non viene renderizzato nulla"
+pluginoptions_9ly8vv: "Mai usato dal plugin stesso — l'LLM viene eseguito solo da {0}, mai dentro un hook di Vite. Il plugin valida il blocco solo al momento della costruzione, quindi un errore qui si manifesta all'avvio del dev server, non alla prima chiamata a pagamento, e passa il risultato normalizzato alla CLI tramite {1} (lo stesso meccanismo che usano {2}/{3}, vedi <4>le note sull'architettura</4>)."
+pluginoptions_9x7v35: "Sincronizza le tabelle prima di una build, con una scansione completa invece della verifica rapida — una build ottiene la certezza di tabelle ricostruite da zero. Rende {0} non necessario"
+pluginoptions_akk7nx: "{0}, oppure {1}"
+pluginoptions_behpy6: "Un nome di zona IANA ({0}, {1}, …). Validato alla costruzione del plugin — una zona sconosciuta è un errore in fase di build, non un fallback silenzioso"
+pluginoptions_bq4e4v: "Descrizione"
+pluginoptions_bzixwn: "🧪 Cosa fa ciascuno di questi effettivamente sullo schermo: <0>casi limite dal vivo</0>."
+pluginoptions_dse476: "Radice del progetto usata per risolvere {0} / {1}"
+pluginoptions_dx0nwa: "Diagnostica su schermo e in console per le stringhe che non sono arrivate dove dovrebbero — vedi <0>Diagnostica</0>"
+pluginoptions_e2b09f: "🎮 <0>La configurazione, dal vivo</0> — installazione, {1}, struttura delle cartelle; poi la <2>prima esecuzione in dev</2> e la <3>sincronizzazione automatica</3>."
+pluginoptions_fq933y: "Opzioni del plugin"
+pluginoptions_gmla1u: "Il delimitatore di una stringa contrassegnata, uguale a entrambe le estremità ({0} → {1}). Vedi <2>Marcatori</2>"
+pluginoptions_h0nxar: "Il delimitatore di chiusura. Ha la precedenza su {0} per la sua estremità"
+pluginoptions_hf5i4: "<code>%s</code>"
+pluginoptions_ioye08: "Sincronizza le tabelle all'avvio del dev server, usando la verifica rapida: non succede nulla, non viene stampato nulla, se nulla è cambiato dall'ultima sincronizzazione. Rende {0} non necessario"
+pluginoptions_k2nt1z: "Configurazione per {0} — vedi sotto. Validata alla costruzione del plugin, come {1}; assente significa che la funzionalità resta disattivata"
+pluginoptions_mby9g9: "<b>obbligatorio</b>"
+pluginoptions_n4iyjl: "{0} è il caso speculare: solo {1} o un {2} lo attivano, qualsiasi altro valore (compreso uno veritiero con un refuso) lo lascia disattivato — un errore qui dovrebbe ricadere sul comportamento predefinito, non attivarlo per sbaglio. È accettato anche un {3} con il flag {4} o {5} — quei flag vengono rimossi internamente, dato che un {6} con stato risponderebbe altrimenti in modo diverso per il secondo tag che controlla nello stesso file."
+pluginoptions_neatgi: "Vedi <0>Diagnostica</0> per il significato di ogni carattere sullo schermo e per quando si attiva."
+pluginoptions_pcthum: "Lingue incluse in modo eager per una prima pittura istantanea e non sospendente (vedi <0>Precaricamento</0>). Anche {1} è eager in dev, e in build solo quando questa lista è vuota"
+pluginoptions_ppn1ge: "Il delimitatore di apertura. Ha la precedenza su {0} per la sua estremità"
+pluginoptions_r17qai: "Output della console del runtime in produzione — <b>tutto</b> quanto, fallimenti inclusi"
+pluginoptions_sxt9j3: "vedi sotto"
+pluginoptions_t8bowc: "🎮 <0>Dal vivo</0>."
+pluginoptions_x3zmpc: "Il fuso orario predefinito in fase di build per i messaggi ICU {0} / {1} — gli orari di un ristorante, mostrati nel fuso del ristorante indipendentemente da chi guarda:"
+pluginoptions_xj83x5: "Ogni opzione di vitetranslate(options): cartelle, lingue, sincronizzazione, diagnostica, LLM e ICU."
+pluginoptions_xqdqf7: "Riferimento completo — ogni campo, i preset di budget, l'abstract del contesto, il keyring, il validatore, i flag: inizia da <0>Configurazione LLM</0>."
+pluralsanddates_12oxyl2: "Conteggio"
+pluralsanddates_172rj38: "Выбрано: 2 файла"
+pluralsanddates_18ms8y7: "Non manca nulla, ma una chiave non copre tutte le categorie plurali di cui il russo ha bisogno. È un avviso, non un errore: le forme mancanti ricadono su {0} in fase di esecuzione. Aggiungi le due forme che richiede, {1} e {2}:"
+pluralsanddates_18q4av: "Avvia Vite, o esegui {0}, e la tabella di origine ottiene entrambi i messaggi interi:"
+pluralsanddates_1bgr31n: "Выбрано: 5 файлов"
+pluralsanddates_1bq6f85: "Inglese"
+pluralsanddates_1dwlg4e: "Guardalo in entrambe le lingue"
+pluralsanddates_1e83fak: "I plurali e le date usano i messaggi ICU, scritti in una stringa contrassegnata e compilati in fase di build. Questo tutorial costruisce una piccola pagina con entrambi, in due lingue. La sintassi completa è in <0>Messaggi ICU</0>; qui lo vedi all'opera."
+pluralsanddates_1ixgsd1: "Выбрано: 21 файл"
+pluralsanddates_1j5ntiu: "La traduzione è libera di riordinare gli argomenti o di eliminare una forma plurale di cui la lingua non ha bisogno. Un nome come {0} è codice, non testo: resta come scritto in ogni lingua."
+pluralsanddates_1jge9o0: "Ora chiedi lo stato:"
+pluralsanddates_1nc1d4y: "21"
+pluralsanddates_1tqn8et: "{0} formatta una data per la lingua sullo schermo. Una stringa come {1} è una data di calendario, non un istante, quindi non scivola mai al giorno prima in un fuso orario occidentale (<2>fusi orari</2>)."
+pluralsanddates_1xi6hy9: "Aggiungi una lingua con più forme plurali"
+pluralsanddates_1yioljz: "Un contatore che dice \"1 file\" e \"5 file\" in ogni lingua, una data che si legge bene ovunque, e l'avviso che ti dice che a una traduzione manca una forma plurale."
+pluralsanddates_243eyo: "La data si legge <i>Oct 3, 2026</i> in inglese e <i>3 окт. 2026 г.</i> in russo, dallo stesso messaggio. Ogni lingua sceglie la propria regola plurale e il proprio ordine delle date: non li scrivi mai tu."
+pluralsanddates_3do4qk: "Traducilo con solo le due forme che conosci dall'inglese, come primo tentativo:"
+pluralsanddates_5kx4f4: "Un <0>LLM</0> riceve lo stesso controllo: una risposta a cui manca una categoria plurale per la lingua di destinazione viene rifiutata."
+pluralsanddates_baat3: "L'inglese ha due forme plurali. Il russo ne ha quattro. Aggiungilo:"
+pluralsanddates_dfbb72: "{0} sceglie un ramo dal numero in {1}. {2} corrisponde esattamente a zero, {3} e {4} sono le categorie plurali dell'inglese, e {5} sta per il numero stesso."
+pluralsanddates_fh49ic: "Russo"
+pluralsanddates_gx3r32: "Compila, visualizza in anteprima e clicca attraverso il contatore in russo:"
+pluralsanddates_ihmb8g: "Parti da un progetto con {0} come lingua di origine, come quello in <1>La tua prima app tradotta</1>."
+pluralsanddates_isj2cr: "Выбрано: 1 файл"
+pluralsanddates_l9k2vi: "5"
+pluralsanddates_m3ivyf: "2"
+pluralsanddates_m3li1c: "Nessun file selezionato"
+pluralsanddates_mdihne: "1"
+pluralsanddates_mexcdr: "Scrivi i messaggi"
+pluralsanddates_mm44vi: "Plurali e date"
+pluralsanddates_mni3cd: "0"
+pluralsanddates_tgueql: "La pagina si legge <i>3 file selezionati</i> e <i>Prenotato per Oct 3, 2026</i>. Premi {0} e si legge <i>Nessun file selezionato</i>; premi {1} ancora una volta e <i>1 file selezionato</i>."
+pluralsanddates_vmtgmp: "1 file selezionato"
+pluralsanddates_wc4f02: "Il testo JSX non può contenere la sintassi ICU (un {0} avvia un'espressione JSX lì), quindi questi usano la forma {1}."
+pluralsanddates_wty22q: "Выбрано: нет файлов"
+preloading_11zo11r: "Come si caricano le lingue al primo render, perché la lingua sbagliata non lampeggia mai, e quando vale la pena usare preloadedLanguages."
+preloading_12cixxu: "Il contenitore <b>sospende</b> (mostrando {0}) finché il chunk non si carica, poi renderizza la lingua giusta. Nessun lampeggio della lingua sbagliata, nessun doppio render"
+preloading_16w7waj: "La sua tabella è già nel bundle iniziale → renderizza <b>in modo sincrono</b>"
+preloading_17aa31v: "{0} è…"
+preloading_1b00ksw: "<b>qualsiasi altra lingua</b>"
+preloading_1b0m6xs: "Incluso in modo eager"
+preloading_1ksluek: "Comportamento"
+preloading_1nerzca: "{0} se ne hai dichiarata qualcuna, altrimenti {1}"
+preloading_1ok0fks: "{0} <b>più</b> {1} — la lingua in cui stai scrivendo, così i ricaricamenti non sospendono mai"
+preloading_1tx38zf: "{0} è un'<b>ottimizzazione</b>, non ciò che impedisce il lampeggio — Suspense lo fa già. Trasforma il breve frame di caricamento in una prima pittura istantanea, al costo di mettere quelle lingue nel bundle iniziale. Limitati alle poche lingue che mostri effettivamente per prime:"
+preloading_1vf1i9w: "<b>build</b>"
+preloading_25uzal: "Ogni lingua è un chunk separato caricato su richiesta, quindi potrebbe non essere pronta al <b>primo</b> render. {0} ha un boundary {1} integrato, e nessuno dei due percorsi mostra mai la lingua sbagliata:"
+preloading_3a8sdr: "<b>incluso in anticipo</b>"
+preloading_4km16l: "Precaricamento e Suspense"
+preloading_avrvu3: "Quali lingue sono in anticipo:"
+preloading_cy9iba: "Una build di produzione non spedisce la lingua di origine solo come fallback: ogni tabella compilata è <b>autosufficiente</b>, ogni chiave non tradotta contiene già il testo di origine. Un'app che parte in {0} con {1} spedisce una tabella, non due."
+preloading_k0xrc7: "<b>dev</b>"
+preloading_pkkqow: "Senza {0}, il container parte dalla prima lingua in anticipo ({1}) — lo stesso in dev e in build, di proposito. Partire da una lingua che non è in anticipo funziona comunque, ma costa un round trip prima del primo paint; viene segnalato una volta in console, anche in produzione (in dev la lingua di origine è sempre in anticipo, quindi il controllo non scatterebbe mai lì)."
+price_10qaut: "3k / 100"
+price_10t6qw1: "{0} ha bisogno di entrambi i prezzi — senza di essi non c'è una stima da confrontare. {1} mostra su quale lato sarebbe caduta l'esecuzione."
+price_11h3k7i: "Prima di inviare qualsiasi cosa, l'esecuzione ha bisogno di un via libera:"
+price_151mhh9: "Chiede {0}"
+price_159cv9w: "Ogni richiesta ripete il system prompt e il contesto: l'overhead <b>O</b>. Una classe ha un fattore <b>k</b> (1, 3, 4, 5, 6): un batch si chiude non appena il suo payload raggiunge {0}, quindi l'overhead è al massimo {1} dell'input."
+price_15ur7wq: "Lascialo attivo e dagli spazio: un <0>{1}</0> più grande, oppure uno personalizzato con un {2} più alto."
+price_166s6s: "4.096"
+price_17x5stv: "modelli locali piccoli"
+price_1bdug8v: "Classe"
+price_1dlrr2w: "Aggiorni da una versione precedente alla 4.6.1? {0}, che prima era un campo di budget, ora viene rifiutato come errore di configurazione: usa {1}/{2}, e {3} per la dimensione del batch."
+price_1eh3993: "Modelli tipici"
+price_1etis6e: "0,50"
+price_1farqim: "Anche una risposta interrotta a metà conta, <0>vedi sopra</0>: il run successivo invia già batch più piccoli."
+price_1fyjbg0: "5"
+price_1gcrojy: "Classe del modello"
+price_1ggtfe7: "{0} fino a"
+price_1gsopz2: "Il costo compare solo quando sono impostati sia {0} sia {1} — entrambi o nessuno, mezzo prezzo è una stima sbagliata. {2} (predefinito {3}) è il simbolo stampato davanti a ogni costo, sullo schermo e in {4}."
+price_1h2hq7w: "1"
+price_1ie4no4: "Nessun TTY (pipe, script)"
+price_1ik9pfq: "Esegue senza chiedere — anche senza un TTY"
+price_1iz8iye: "Esegue senza chiedere"
+price_1j80f9x: "2.000.000"
+price_1jppctn: "Modelli di ragionamento"
+price_1my3yc0: "12.288"
+price_1n8jz62: "Queste sono stime di partenza, non misurazioni. Un oggetto viene unito sopra {0}; {1} deve essere almeno {2}, altrimenti ogni batch completo sarebbe troncato per costruzione."
+price_1nv6j9e: "La stima"
+price_1oemlgj: "Il costo richiede entrambi i prezzi. Senza di essi gli stessi preset ricadono su limiti in token (input + output) — una unità alla volta. Un oggetto sovrascrive singoli campi sopra {0}: {1}, {2} (questi due richiedono i prezzi), {3}, {4}. Un campo esplicito conta sempre, in entrambe le unità. Qualsiasi altra cosa è un errore di configurazione."
+price_1ohpfmm: "La stima usa sempre i tuoi prezzi. Quanto spende il run usa invece la cifra che riporta il provider, quando la fornisce — OpenRouter lo fa, in {0} — per l'ultima riga, per la spesa di oggi e per i limiti di budget: tramite OpenRouter un batch può finire su un provider più costoso di quello da cui hai copiato i prezzi."
+price_1osfhnr: "Altri provider hanno il proprio campo. Per verificare che abbia funzionato, esegui con {0}: {1} nelle risposte dovrebbe riportare {2}."
+price_1r2fmbp: "Terminale interattivo"
+price_1ru7w4h: "∞"
+price_1rxbw19: "I numeri dei preset presuppongono una valuta di dimensioni dollaro o euro. Con {0} scrivi i tuoi limiti."
+price_1ta6bbr: "modelli flash e mini"
+price_1tw88wk: "Conferma"
+price_1u7a0nl: "200.000"
+price_1wgc7t1: "Rifiuta invece di bloccarsi"
+price_1x2rusb: "Ogni richiesta invia un {0} proprio: l'output atteso del batch × 2,5, almeno 1.024 e al massimo il {1} della classe. Paghi per ciò che il modello scrive, non per il limite: il margine serve perché la stima può sbagliare — le risposte sono arrivate a 1,3 volte la stima in francese e fino a 1,8 in cinese — e segue il batch, quindi una risposta fuori controllo su un batch di cinque chiavi resta economica. Va sotto il nome indicato in {2}; i modelli di ragionamento di OpenAI richiedono {3}."
+price_1xxkhmt: "modelli di fascia media"
+price_1ygic6a: "<b>Riga 2</b> — il provider (l'host {0}, senza {1} né una porta; assente con un tuo driver), quante tabelle hanno lavoro, quante chiavi, quante richieste."
+price_1yw4h0u: "Stampa la stima ed esce — non invia nulla, non chiede mai"
+price_20z66c: "4.5k / 150"
+price_2uswo5: "Ogni esecuzione stampa una stima prima di spendere qualsiasi cosa:"
+price_32lppp: "modelli di fascia alta"
+price_3onai2: "Prezzo"
+price_4pkqjp: "<b>Riga 1</b> — il modello e la sua <0>classe</0>."
+price_5uurni: "8k / 250"
+price_64h5v3: "Situazione"
+price_b70gx4: "Come viene tagliato un batch, in tre righe:"
+price_buqukr: "8.192"
+price_c58y6f: "Due idee separate, due unità. {0} è la <b>tua</b> spesa, in <b>costo</b>. <1>{2}</1> dice quanto <b>il modello</b> può prendere, in <b>token</b>, e dimensiona i batch. Chiavi, richieste e caratteri non sono limiti."
+price_db45ew: "Quanto costa un'esecuzione, i limiti che la tengono a freno e quando chiede prima di spendere."
+price_fwaxhk: "Un'esecuzione che supererebbe un limite viene rifiutata, e il messaggio nomina il limite. {0} aggira tutti e quattro. Se uno viene raggiunto a metà esecuzione, l'esecuzione si ferma ma conserva tutto ciò che è già stato convalidato — nulla di già pagato viene buttato via. I totali del giorno vengono scritti dopo <b>ogni</b> richiesta, quindi Ctrl+C non azzera la spesa di oggi."
+price_hihuxu: "0,10"
+price_hjqv3d: "{0} (predefinito)"
+price_id7f4g: "Tradurre stringhe di interfaccia raramente lo richiede. Disattivarlo dipende dal provider, quindi va in {0}:"
+price_k5mf3t: "Limiti di budget"
+price_kxj5b0: "50.000"
+price_llne8a: "<b>In CI</b> ({0} impostato) c'è una protezione in più, controllata per prima: l'esecuzione viene rifiutata a meno che non sia impostato {1} o {2}. Né {3} né {4} la superano, di proposito: nessuno guarda un log di CI che scorre."
+price_lltjbg: "500.000"
+price_m4amc5: "modelli di punta"
+price_m5e36r: "16.384"
+price_now0cj: "Una stringa non viene mai divisa: una singola enorme viaggia da sola."
+price_ovauuf: "20.480"
+price_qpyace: "Preset"
+price_rfp0v9: "Batch fino a"
+price_rh0xue: "1.5k token di output / 40 chiavi"
+price_sn605a: "Cosa succede"
+price_thuw9: "Senza prezzi: {0}"
+price_tzmgvy: "Due tetti rigidi lo chiudono prima: i token di output previsti e il numero di chiavi. Batch più piccoli significano meno allucinazioni, da cui il più piccolo che mantiene basso l'overhead."
+price_up47op: "<b>Riga 3</b> — token stimati, il costo quando i prezzi sono impostati, e il confronto con <0>{1}</0> quando è impostato."
+price_v10mgk: "Alcuni modelli pensano prima di rispondere, e fatturano il pensiero come token di output sotto lo stesso {0} della risposta. Nella demo del ristorante, {1} ha speso il 78% del suo output pensando, e ogni troncamento è venuto da lì. L'esecuzione lo misura a parte — da {2}, dove il provider lo riporta — per chiave e per lingua, dimensiona i batch per esso, e mostra la sua quota sull'ultima riga:"
+price_ydn5di: "Una risposta che torna <b>troncata</b> non viene mai reinviata così com'è: la stessa domanda con lo stesso limite si troncherebbe di nuovo, e ogni tentativo viene fatturato. Quello che è tornato completo viene conservato; le altre chiavi tornano al modello <b>nello stesso run</b>, in batch di al massimo metà dimensione, per un massimo di tre giri (100 → 50 → 25 → 12). Le chiavi ancora troncate dopo questo restano {0}, e una nota sotto il pannello lo segnala. La risposta troncata calibra anche il run successivo: le chiavi che ha restituito misurano la risposta, e il suo ragionamento, distribuito su tutto il batch, è un minimo — anche quando il modello ha esaurito tutti i {1} di ragionamento senza arrivare alla risposta."
+price_yrfndr: "La stima converte i caratteri in token con un rapporto fisso alla prima esecuzione: 4 caratteri per token, 1,5 quando la lingua <b>di origine</b> è cinese, giapponese o coreana. Da quel momento si fida di ciò che ha riportato {0} del provider — per modello, e per l'output per lingua di destinazione, diviso in due: la risposta stessa, e il pensiero di un <1>modello di ragionamento</1>, per chiave. Contano solo le ultime ~300 chiavi di ogni lingua, così un modello che cambia modo si nota entro un'esecuzione."
+price_zburfc: "Stima sotto {0}"
+price_zumd7h: "6k / 200"
+providers_1h8s6pk: "Provider"
+providers_1llhlrv: "Endpoint compatibili con OpenAI"
+providers_2qrkzu: "Provider Vercel opzionale"
+providers_2rzthv: "Il client integrato parla la forma Chat Completions ({0}, l'unico valore accettato) con semplice {1} — nessuna dipendenza aggiunta. {2} viene aggiunto a {3}. Gemini ({4}), OpenAI, OpenRouter, Groq, DeepSeek, Ollama, LM Studio e vLLM funzionano tutti così: imposta {5} e {6}, vedi <7>setup</7>."
+providers_3tj8mp: "Con quali modelli parla il client integrato, e come collegare qualsiasi altra API con il tuo driver."
+providers_6jcbbz: "Per un'API che non parla Chat Completions, o per passare da una libreria client, fornisci una tua {0}: una funzione, sincrona o asincrona, che riceve {1} (puoi ignorare {2} se vuoi) e restituisce {3} oppure {4}. {5} è {6}, più {7} e {8} se li hai: un {9} viene contato al posto dei tuoi prezzi. Lancia un errore con un {10} per ottenere la gestione integrata: 429 e 5xx vengono ritentati, 401/403/404 <11>fermano il run</11>. Con un driver, {12} e {13} non sono obbligatori. Ad esempio, con l'<14>SDK Vercel AI</14>:"
+providers_ld3477: "Qualsiasi altra cosa: vedi <0>Provider Vercel opzionale</0>."
+running_10dce2y: "Ogni flag LLM inizia con {0}, e uno non riconosciuto in quello namespace è un errore, non una sync silenziosa. Quali combinazioni vengono rifiutate: <1>guida CLI</1>."
+running_10y4iix: "Prima di spendere qualsiasi cosa, l'esecuzione fa i compiti: la sync con cui inizia (si ferma con gli stessi messaggi della <0>sync</0>, scansione incompleta inclusa) e, per {1}, un backup di ogni tabella che sta per sovrascrivere. Se una delle due fallisce, <b>nessuna richiesta viene inviata</b>, nemmeno l'abstract del contesto."
+running_13147xa: "Fa"
+running_1318k3s: "Aggira i limiti di budget e il registro delle chiavi fallite — non la protezione CI"
+running_132l3le: "ha un messaggio ICU valido dove ce l'ha l'origine ({0}) e non dove non ce l'ha ({1});"
+running_13jv17o: "Su un terminale, ogni richiesta ha una riga propria, ridisegnata sul posto una volta al secondo — niente fissare un prompt congelato mentre un modello di ragionamento pensa:"
+running_15z9bit: "{0} più una chiamata minima al modello"
+running_163pkya: "risposto — verde se ogni chiave è tornata valida, arancione se alcune no (la riga dice quante e perché). Poi quante chiavi ha ancora quella lingua a {0}, o {1} una volta che non ne ha"
+running_17dksj2: "Con le tre sopra: stampa la stima, non inviare nulla"
+running_195bduw: "{0} / {1} / {2}"
+running_1covbb2: "Per un <0>messaggio ICU</0>, gli ultimi tre vengono sostituiti dallo stesso controllo che usano la compilazione e {1}: la risposta"
+running_1dn5fu2: "Rifai anche le chiavi già tradotte. Tag richiesti; esegue prima il backup"
+running_1dp8rfj: "Gli esempi usano il comando globale; senza di esso, metti {0} davanti (<1>CLI</1>)."
+running_1ef4ges: "{0} registra ogni richiesta, risposta ed errore in una cartella dedicata, un file numerato per ogni passaggio. La chiave API viene sempre oscurata per prima."
+running_1exawet: "Flag"
+running_1f7un2m: "ha gli stessi tag inline ({0}, {1}, …) del sorgente, non incrociati;"
+running_1j1gqgy: "Un valore rifiutato resta {0}, viene conteggiato per motivo nel report e riceve <b>un</b> tentativo di riparazione con il motivo del rifiuto — codice e messaggio — rispedito al modello. Una chiave che fallisce due volte per la stessa lingua viene saltata nelle esecuzioni successive, e il report elenca quelle chiavi per lingua e motivo, così \"niente inviato\" non passa mai per \"tutto fatto\". {1} le ritenta."
+running_1klxw75: "Un {0} attende quanto indica il provider — {1}, oppure il reset che OpenRouter mette nell'errore — fino a 65 secondi. Un limite più lontano, come quello giornaliero, non viene atteso."
+running_1md2p9j: "non è molto più lungo del sorgente (al massimo {0})."
+running_1mowa36: "Flag"
+running_1og09vf: "A meno che l'errore non colpisca ogni batch allo stesso modo: {0} (la chiave viene rifiutata), {1} (il modello è negato a questa chiave o app), {2} (modello o endpoint inesistente), oppure un {3} che i tentativi non sono riusciti ad aspettare. Allora il run non invia più nulla, lascia terminare le richieste in corso, conserva quello che portano e spiega il motivo:"
+running_1tkalfy: "ha gli stessi argomenti del sorgente, numeri e nomi inclusi — {0};"
+running_1vapoc7: "ha tanti segnaposto {0} quanti ne ha il sorgente (il loro ordine non può essere verificato — vedi <1>limitazioni</1>);"
+running_1vnbeq7: "fallito definitivamente — il motivo segue: {0}, {1}, {2}, {3}, o {4} (la risposta ha raggiunto {5}, vedi <6>classe del modello</6>)"
+running_1w9giy3: "Una risposta troncata che ha comunque portato a casa alcune chiavi è una riga {0} che termina con {1}; le sue chiavi mancanti tornano come righe {2}. Anche il giro di riparazione e l'<3>abstract del contesto</3> hanno le loro righe. Quando l'ultima richiesta si chiude, il blocco diventa un log semplice, ogni riga termina con {4}:"
+running_1w9jcm3: "Debug di un'esecuzione"
+running_2g7jnh: "Mentre è in esecuzione"
+running_423ml4: "La stessa regola \"solo quando serve\" vale per i tag numerati: una lingua il cui batch contiene almeno un {0} riceve la regola extra di conservarli tutti, con il loro numero, attorno alle parole giuste — spostare un tag insieme alle sue parole va bene, rinumerarlo o annidarlo diversamente no. Alcuni elementi portano anche un campo {1}, un suggerimento su cosa rappresenta un segnaposto nel codice — {2} — presente per aiutare a scegliere le parole giuste, e mai scritto nella tabella {3}: viene calcolato ogni volta dal sorgente a ogni esecuzione, non fa parte della traduzione."
+running_5yog6k: "Cosa viene validato"
+running_a2n0aa: "In pipe, reindirizzato o in CI non c'è un blocco live, solo il log finale. Una richiesta fallita non ferma le altre: le sue chiavi restano {0} — una troncata esclusa, vedi sopra — e <1>{2}</1> ha la risposta completa."
+running_c4aywa: "Significato"
+running_c79f1s: "Cosa mostra il pannello live, cosa viene validato prima che una traduzione venga scritta, come tracciare un'esecuzione e ogni flag LLM."
+running_cnobtz: "{0} conta le chiavi ancora {1} in quella lingua dopo questa risposta, {2} significa che non ne restano; poi eventuali chiavi rifiutate o mancanti, o per un errore il motivo. L'ultima riga è il costo reale del run, sommato dal {3} del provider — al costo che il provider riporta quando lo fa (<4>OpenRouter</4>), altrimenti ai tuoi prezzi — più la quota di <5>ragionamento</5>, quando ce n'è stata. Con metà dell'output o più, segue un avviso con il link per disattivarlo. Con {6}, la cartella delle tracce viene stampata alla fine; la suddivisione per lingua si trova lì, in {7}."
+running_dzg7l5: "è una stringa non vuota, e non la chiave rimandata indietro;"
+running_gugtrf: "Una traduzione viene scritta solo se supera <b>tutte</b> queste condizioni:"
+running_j5mq6z: "Registra ogni richiesta, risposta ed errore in {0}"
+running_jdx2hv: "<b>Se una tabella non può essere salvata</b>, l'esecuzione conserva i risultati pagati, ritenta ai checkpoint successivi e alla fine, poi salva i candidati rimanenti come {0} (ignorati dalla sync), avvisa ed esce con codice {1}. Quando la tabella è leggibile, il recupero esclude le chiavi rimosse, i valori già salvati e le traduzioni umane; {2} permette comunque le sostituzioni. Se la tabella non può essere letta, il file viene etichettato come <b>archivio candidati</b>: il suo contenuto non è stato confrontato con le tue ultime modifiche. Confronta l'uno o l'altro file di recupero con la tabella corrente prima di unire, preservando le modifiche umane più recenti e le chiavi rimosse. Poi esegui la sync ed elimina il file di recupero una volta recuperato ciò che ti serve."
+running_kpmb21: "Sync, poi riempi i {0}. Nessun tag: ogni lingua con chiavi mancanti"
+running_lqw277: "Gestisci la voce del keyring, se installato"
+running_lz6r58: "copre ogni categoria plurale/ordinale richiesta da questa lingua di destinazione, e ogni chiave {0} che aveva il sorgente — {1} / {2}, anche qui rifiuti, non solo avvisi;"
+running_n0931i: "non è molto più lungo del sorgente (al massimo {0} — i rami plurali crescono con la lingua)."
+running_nehomc: "richiesto, in attesa della risposta"
+running_nsiqch: "conserva ogni tag numerato del sorgente, di apertura e chiusura, e non ne inventa nessuno ({0} / {1} — un tag numerato racchiude un link o un componente che vive nel codice, quindi perderne o inventarne uno perde o inventa l'elemento stesso, non solo il testo);"
+running_pfd07i: "Mark"
+running_qnpmx5: "Un batch inviato di nuovo dopo un troncamento viene tracciato come {0}, una riparazione come {1}. Il {2} di una risposta copre l'intera risposta, corpo incluso: alcuni provider inviano le intestazioni subito e la risposta quando è pronta."
+running_r9dti5: "A differenza di {0}, una traduzione ICU <b>può</b> riordinare i suoi argomenti ({1} per un sorgente {2}) — il prompt lo dice al modello solo per le lingue il cui batch contiene effettivamente una stringa ICU, tenendo le regole extra fuori dal conteggio token di ogni altro prompt. Gli apostrofi non richiedono alcuna regola: sono testo semplice per il compilatore ICU, quindi un modello che trasforma {3} in {4} o {5} cambia la punteggiatura, mai gli argomenti."
+running_rrcgz2: "Ogni risposta finisce nella sua {0} <b>non appena viene validata</b>, non alla fine: ferma un'esecuzione con Ctrl+C e perdi solo le richieste ancora in volo. Il file viene riletto prima di ogni scrittura, quindi una chiave che riempi a mano nel frattempo, o che una sync rimuove, viene lasciata stare. Un {1} in esecuzione accanto ricarica semplicemente la pagina a ogni scrittura — vedere apparire le traduzioni fa parte dello spettacolo."
+running_sbkpew: "Funziona con {0}, {1}, {2} e {3}. La cartella ({4}) è ignorata da git automaticamente; {5} ti dice quante ne esistono e quale è la più recente."
+running_smvf9i: "Rigenera ora l'abstract del contesto (da solo, o con i due sopra)"
+running_th7wid: "Non chiedere conferma (vedi anche <0>{1}</0>)"
+running_wkmi7b: "Vieni dalla 4.5? I vecchi nomi — {0}, {1}, {2} e il resto — non ci sono più: usa i flag {3} qui sotto."
+running_yftxs3: "Esecuzione e debug"
+running_yw5xun: "Connessione, origine della chiave, spesa di oggi, budget, classe del modello, l'abstract del contesto — nessuna rete"
+setup_12lnvgx: "Tutte le opzioni"
+setup_13djmet: "Quanto può gestire il modello: dimensiona i batch e limita {0} (<1>classe del modello</1>)"
+setup_16iqjjw: "<b>3. Verifica, stima, esegui:</b>"
+setup_16l9vpz: "Quali lingue riempie {0}; i tag sulla riga di comando restringono ulteriormente. La lingua di origine è sempre esclusa"
+setup_171n1vb: "DeepSeek"
+setup_17cguxr: "Il keyring è una peer dependency <b>opzionale</b>, per quando preferisci tenere la chiave nel portachiavi del sistema operativo piuttosto che in un file:"
+setup_1d1ag87: "Campi extra uniti al corpo della richiesta, per impostazioni specifiche del provider. Vince su tutto il resto, {0} incluso"
+setup_1d8j500: "★★★ ~20 s/lotto"
+setup_1dqzjk8: "Sotto questo costo stimato, nessuna conferma (<0>conferma</0>)"
+setup_1e7cx6l: "La lista cresce man mano che gli endpoint vengono testati. Ne hai fatto funzionare uno che non è qui? <0>Diccelo</0> con {1}, il modello e cosa hai messo in {2}."
+setup_1ef0b1s: "Nuovi tentativi su HTTP 429, 5xx ed errori di rete — mai su 400/401/403. Un 429 attende quanto indica il provider, fino a 65 s (<0>running</0>)"
+setup_1evbdga: "Nome della variabile d'ambiente che contiene la chiave (<0>chiave API</0>)"
+setup_1hcas14: "L'unico valore accettato"
+setup_1j2wfxh: "<b>Obbligatorio</b> senza un {0}. Endpoint compatibile con OpenAI (<1>primi passi</1>)"
+setup_1la7luv: "—"
+setup_1m7py3: "<b>2. Dagli la chiave</b>, per esempio in {0} (altre opzioni <1>qui sotto</1>):"
+setup_1mpfoyx: "Richieste in volo contemporaneamente"
+setup_1on1gsu: "GLM 4.7 Flash esegue a ~56 token/s. Assegnagli {0} (il valore predefinito è 60 secondi) e {1} in {2}, in modo che OpenRouter provi prima i provider più veloci. Nei modelli GLM 5.3 OpenRouter indica il ragionamento come obbligatorio e rifiuta {3} con un {4}."
+setup_1pms89j: "Affidabilità"
+setup_1qeopif: "Simbolo di valuta stampato davanti ai costi"
+setup_1qms01o: "Senza il pacchetto, o senza un Secret Service (Docker, WSL, una sessione SSH remota), quel passaggio viene saltato silenziosamente."
+setup_1teiv23: "Qualsiasi endpoint compatibile con OpenAI dovrebbe andare. Questi sono quelli provati end to end, con le impostazioni che li hanno fatti funzionare:"
+setup_1wh9oc9: "Per richiesta"
+setup_1yfgjgq: "Configurazione"
+setup_1yw3y38: "OpenRouter"
+setup_2o6jdw: "{0}, poi {1}, nella radice del progetto"
+setup_3iw4fx: "★★★ — ogni lotto ritorna al primo tentativo, ben entro il timeout predefinito."
+setup_3zffsz: "Aggiungi {0}/{1} (il prezzo del tuo provider per milione di token) per vedere il costo accanto alla stima — vedi <2>prezzo</2>."
+setup_59sd65: "La colonna del ragionamento conta più di quanto sembri. Un modello che ragiona per impostazione predefinita può passare l'intero {0} a ragionare e inviare una risposta vuota, lotto dopo lotto — vedi <1>modelli di ragionamento</1>. Il campo è proprio del provider: quello di un altro provider potrebbe essere ignorato senza preavviso o rifiutato con un {2}."
+setup_5zat7v: "Inviato con ogni richiesta"
+setup_6lv4sq: "Primi passi"
+setup_6nycn: "La chiave API"
+setup_8h5suh: "La chiave non va mai in {0}: non esiste un'opzione {1}, solo {2}, il <b>nome</b> di una variabile d'ambiente. Viene cercata in questo ordine, e mai registrata o scritta su disco:"
+setup_akfogm: "Reasoning disattivato"
+setup_awvfaq: "<b>Obbligatorio</b> senza un {0}"
+setup_clqh62: "Funziona <b>solo dalla CLI</b>, mai dal plugin Vite: una chiamata LLM dentro {0} significherebbe una chiamata di rete, e una bolletta, a ogni avvio del dev server e a ogni build CI (<1>perché</1>)."
+setup_gw78bi: "Endpoint testati"
+setup_gwa2pa: "<b>1. Punta {0} a un modello</b> — qualsiasi endpoint compatibile con OpenAI:"
+setup_jvskgq: "Predefinito"
+setup_l7o2gm: "Tutte opzionali tranne dove indicato. Ognuna è spiegata nella sua sezione qui sotto."
+setup_mbmbpe: "★★★"
+setup_mino7j: "{0} ti dice dove è stata trovata la chiave, insieme alla connessione, alla spesa di oggi, al budget e alla classe del modello in vigore, {1} e all'<2>abstract del contesto</2>. Non fa alcuna chiamata di rete; {3} aggiunge una richiesta minima per confermare che il modello risponde."
+setup_n8ev6v: "🎮 <0>Walkthrough live</0> — la configurazione e un'esecuzione. 🍽️ <1>Il ristorante</1> — un'intera landing page tradotta da questo comando, quattro lingue, quella giapponese che riordina i suoi argomenti ICU."
+setup_nkt2di: "{0} sincronizza le tabelle, poi riempie ogni chiave {1} tramite un LLM che configuri. Il flusso manuale — copia il blocco {2} in una chat, incolla la risposta (vedi <3>file di traduzione</3>) — funziona ancora e funzionerà sempre; questo fa la stessa cosa per te."
+setup_ox8jlx: "il portachiavi di sistema, se {0} è installato"
+setup_pl94gf: "{0} / {1}"
+setup_pr75nx: "★★ — funziona, ma un lotto completo richiede oltre un minuto: aumenta {0}."
+setup_qe6w6a: "I tuoi limiti di spesa, per esecuzione e al giorno, in costo (<0>budget</0>)"
+setup_r4oac2: "★★ ~65 s/lotto"
+setup_r8cenu: "Una tua funzione al posto del client integrato (<0>esempio Vercel</0>)"
+setup_sj3r1r: "Tutto ciò che non parla questa forma: vedi <0>Provider</0>."
+setup_t8jcnr: "Una riga di testo libero aggiunta a ogni prompt di traduzione, ad es. {0}"
+setup_tk6k2k: "Prezzo per milione di token. Entrambi o nessuno (<0>stima</0>)"
+setup_uzmc4s: "Il brief del progetto (<0>abstract del contesto</0>)"
+setup_vf11s0: "Endpoint"
+setup_vleos1: "Esempio eseguibile: <0>{1}</0> — tre lingue a {2}, il blocco {3} già collegato, un comando per riempirle."
+setup_w9n3f3: "Nome del campo del limite di output nella richiesta: {0}, {1} o {2} per non inviarne nessuno"
+setup_wi5egl: "ogni tabella in {0}"
+setup_yghas9: "Indica a viteTranslate un modello, forniscigli la chiave e riempi le chiavi nulle con un solo comando."
+setup_z87916: "I tempi si riferiscono a un lotto completo {0} (~85 chiavi) e provengono da un'unica esecuzione: i provider hanno giornate buone e cattive."
+setup_zhw51j: "niente da disattivare: non ragiona"
+Sidebar_1684n44: "Navigazione del manuale"
+ThemeToggle_1i35buc: "Cambia tema"
+Toc_1cxbknc: "In questa pagina"
+Toc_emb6cx: "Modifica questa pagina su GitHub"
+Toc_gv3lqf: "Torna in cima"
+translate_1288f6y: "una stringa non marcata, con {0}"
+translate_13n4ic1: "la traduzione"
+translate_14byyby: "{0}, {1}"
+translate_14pxdf1: "<b>Un'interruzione di riga tra testo e tag non è uno spazio</b> — stessa regola di qualsiasi JSX. Scrivi {0} dove ne vuoi uno."
+translate_15ztrq4: "🧪 Dal vivo: <0>stringhe non marcate</0>, <1>valori che non sono testo</1>, <2>nodi React</2>."
+translate_16pki59: "Nella posizione del testo"
+translate_179wxy5: "Formattazione che il traduttore vede e può spostare — compilata come il dialetto qui sotto"
+translate_19s2kw8: "Altre forme"
+translate_1andat4: "Spesso un componente foglia renderizza qualunque cosa gli passi il chiamante, e non sempre è testo a cui si potrebbe attaccare un marker:"
+translate_1crzzhd: "{0}, {1}, {2}… <b>senza attributi</b>, {3}"
+translate_1e7hw2c: "una stringa non marcata"
+translate_1f3d6yk: "una funzione, un symbol, un elemento come <i>primo</i> slot della tupla"
+translate_1glnpy5: "<b>Denominazione:</b> un identificatore diventa {0}; qualsiasi altra espressione, o un elemento senza contenuto, diventa un {1} posizionale — segnaposto e tag numerati condividono un unico contatore, nell'ordine in cui compaiono."
+translate_1hksxus: "i soliti <0>segni di diagnostica</0>"
+translate_1lozj7t: "<code>%s</code>: quando non marcato è il caso normale"
+translate_1lpoedk: "Il testo marcato, come figlio. Alternativa a {0}"
+translate_1n7enya: "Quindi non significa \"non tradurre\", significa \"non marcato non è un errore qui\" — esattamente ciò che serve a una prop che porta testo marcato su alcune righe e dati di dominio su altre. Le prop incompatibili restano comunque un errore in entrambi i casi."
+translate_1o0bs66: "Una stringa non marcata non è un errore: è il modo in cui un componente accetta sia testo traducibile sia dati di dominio senza che un wrapper decida al suo posto — il {0} mostra solo che nessuno la tradurrà. Un numero non può mai venire dal source, e un elemento non può essere un marker dimenticato, quindi nessuno dei due ha bisogno di una diagnostica. Nella tupla, però, il primo slot <b>è</b> il testo: un elemento lì è un errore (gli elementi tra gli <i>argomenti</i> vanno bene)."
+translate_1ondql1: "In sviluppo"
+translate_1pvl08t: "<b>Un {0} senza valore</b> renderizza {1} — nessun argomento, meno dei segnaposto, o {2}/{3} in quella posizione. {4} e {5} sono valori come qualsiasi altro. Il carattere è {6} (<7>Diagnostica</7>)."
+translate_1q68gpl: "un elemento React, ad es. {0}"
+translate_1qh6418: "Il testo marcato, la tupla {0} o l'oggetto {1}. Anche un numero o un elemento React — vedi <2>sotto</2>"
+translate_1s1ntvy: "🎮 <0>Markup e un link come argomento, dal vivo</0> · 🧪 caso per caso: <1>il dialetto HTML</1>, <2>{3}</2>, <4>nodi React come argomenti</4>."
+translate_1ua6eyw: "Un numero e un elemento dicono cosa sono. Una <b>stringa</b> no: non marcata può significare <i>marker dimenticato</i>, oppure <i>un valore che non ne avrà mai uno</i> — un numero di telefono, un URI, il nome di un campo da un pannello di amministrazione, un messaggio del server. Solo il punto di chiamata sa quale:"
+translate_1uhyuw4: "Gli <b>argomenti</b> possono essere qualsiasi nodo React, markup incluso. Un {0} è un vero figlio JSX, non un pezzo di stringa, quindi un argomento <b>non</b> viene mai interpretato come HTML: React lo fa l'escape come qualsiasi altro figlio."
+translate_1wbizr7: "{0}, {1} (senza contenuto)"
+translate_1wmwrkm: "L'alternativa che sembra equivalente non lo è: {0} disattiva la diagnostica <b>ovunque</b>, anche dove un marker era davvero dimenticato."
+translate_1xm2olb: "un numero — {0} incluso"
+translate_1yacv8t: "l'elemento, così com'è"
+translate_2hee74: "Renderizza"
+translate_2kg6ee: "<b>{0}, {1}, {2} e {3} non renderizzano nulla</b>, esattamente come JSX: {4} con {5} false non renderizza nulla, non la parola \"false\" (<6>{7}</6> è ciò che lo rende tale)."
+translate_39gb2k: "Markup e segnaposto"
+translate_3j2hsa: "{0} è {1} con un nome più corto: lo stesso componente, non una copia. Gli esempi sotto usano il nome corto; vedi <2>TranslateContainer</2> per il resto dell'API."
+translate_3rnq7n: "Testo marcato: la prop non fa nulla — il testo viene tradotto come al solito, e {0} / {1} restano attivi."
+translate_3xq1ij: "Figlio in JSX"
+translate_5bh3ad: "<b>TypeScript:</b> un argomento è {0}; {1} è uno di quelli, l'oggetto di argomenti con nome ({2}), o una lista di entrambi. Un {3} nudo in un {4}/{5} semplice non viene comunque formattato — {6} userebbe la locale del browser, non quella dell'app — usa {7} per quello (vedi <8>messaggi ICU</8>)."
+translate_5f8ja6: "Significato"
+translate_5j9gn7: "Valori per gli {0}/<1>argomenti ICU</1>, quando {2} non li porta già. Un array o uno scalare per {3}, un oggetto ({4}) per {5}"
+translate_75toll: "Scrivi la frase dove appartiene, valori e tag inclusi — il preprocessore a build time la trasforma nel messaggio e nei suoi argomenti, nessuna chiave da inventare:"
+translate_80wzex: "La forma a oggetto, per testo che viaggia già con i suoi argomenti. Alternativa a {0}"
+translate_83jlw3: "Testo <b>non</b> marcato: nessun {0}, nessun avviso in console. Tutto il resto è invariato, interpolazione {1} inclusa."
+translate_85n6d3: "un {0} davanti, e un avviso in console"
+translate_99cu2y: "il numero ({0})"
+translate_9n440t: "<b>Markup:</b> solo {0}, compilato a build time — nessun parser HTML a runtime."
+translate_cacju3: "Perché"
+translate_ckyxwv: "Translate"
+translate_cs0qgc: "Nel messaggio"
+translate_fmqwdc: "Scrivi JSX dentro <code>%s</code>"
+translate_fq9rvb: "🧪 Ogni forma, e quelle che vanno storte: <0>forme di chiamata</0>."
+translate_jo4fa1: "Un valore, come una variabile"
+translate_jsiqo: "nulla"
+translate_jut623: "Cosa può stare nella posizione del testo"
+translate_jzn1ma: "{0}, {1}, {2}"
+translate_m8nwhe: "🎮 <0>Markup come JSX, dal vivo</0> · 🧪 <1>il preprocessore, caso per caso</1>."
+translate_mlvnx4: "Una stringa <b>non</b> marcata è legittima qui: nessun {0}, nessun avviso in console — vedi <1>sotto</1>"
+translate_mso9de: "Prop"
+translate_nw267a: "🧪 Dal vivo: <0>testo non marcato e {1}</0>."
+translate_oa0gb7: "Prop"
+translate_q6w19c: "Gli <b><0>argomenti ICU</0></b> ({1}, {2}, {3}) funzionano allo stesso modo, e aggiungono una forma con <b>nome</b>: {4} o {5} per {6}, combinabile con le posizioni ({7} legge {8} e {9}). Solo un oggetto semplice conta come contenitore di argomenti — un'istanza di classe o un {10} viene renderizzato come se stesso."
+translate_qqs3kh: "Una stringa marcata costruita a runtime, o passata come prop, funziona ancora come ha sempre fatto:"
+translate_qynfmi: "la stringa così com'è"
+translate_ru2g2m: "<b>{0} viene mantenuto</b> sull'elemento, così {1} dentro una lista conserva la sua identità."
+translate_wavt60: "Gli attributi sono codice: restano nel source, una traduzione tocca solo il contenuto"
+translate_xh7a2b: "una stringa marcata, {0}"
+translate_xr72oa: "Testo tradotto in JSX: scrivi la frase dove appartiene, oppure passala in una delle forme di chiamata."
+translate_yv7zi7: "un avviso in console"
+translatecontainer_10or6r9: "Ciò che il preprocessore inietta attorno a un valore; raramente scritto a mano"
+translatecontainer_12jo4ix: "function"
+translatecontainer_12yut28: "Ciò che inietta l'opzione {0}; raramente scritto a mano"
+translatecontainer_14njcq4: "Nome corto"
+translatecontainer_196jggg: "Testo tradotto in JSX"
+translatecontainer_1bcr8ec: "Zona IANA ({0}) per i messaggi <1>ICU</1> {2}/{3}. Ha la precedenza sull'opzione {4} del plugin. A differenza di {5}, <b>può</b> cambiare dopo il mount"
+translatecontainer_1d6mpoq: "hook"
+translatecontainer_1drjlys: "Avvolge l'app una volta, alla radice: mantiene la lingua corrente, carica le tabelle"
+translatecontainer_1gaq9jh: "In breve"
+translatecontainer_1ih3oj: "—"
+translatecontainer_1ksaxkf: "L'albero dell'app che riceve il contesto di traduzione"
+translatecontainer_1mgw6xl: "I nomi suoneranno familiari da altre librerie i18n ({0} in react-i18next e Lingui). Mescolarli in un unico progetto è sicuro: il preprocessore e l'estensione per l'editor trattano {1} come nostro solo quando è importato da {2}."
+translatecontainer_1n81lfx: "Tipo"
+translatecontainer_1peajjb: "Una stringa con HTML di base → nodi React, senza {0}"
+translatecontainer_1pkn7x: "Nomi corti"
+translatecontainer_1r9f14x: "Lingua da cui <b>partire</b> (<0>BCP 47</0>). Letta una volta al mount: per cambiare lingua in seguito, usa <1>{2}</1>. Stesso default in dev e in build"
+translatecontainer_1scdd8o: "TranslateContainer"
+translatecontainer_1v33ye8: "Ogni esempio in questo manuale usa i <0>nomi corti</0>; il nome completo è la stessa funzione."
+translatecontainer_1vs5mmw: "string"
+translatecontainer_1xfxhfz: "Nome completo"
+translatecontainer_1yfwpl3: "Una lingua iniziale inclusa eagerly nel bundle renderizza in modo sincrono; qualsiasi altra fa sospendere il container finché il suo chunk non è pronto. Mai la lingua sbagliata — vedi <0>Precaricamento</0>."
+translatecontainer_25jq72: "Default"
+translatecontainer_3o5wjk: "component"
+translatecontainer_64fd7w: "la prima lingua eager: {0}"
+translatecontainer_78l976: "Esposto da {0}"
+translatecontainer_8cp87m: "🎮 Dal vivo: <0>la configurazione</0>, e <1>{2} in azione</1>."
+translatecontainer_ez7ayu: "{0}, {1}, {2} e {3} sono {4}, {5}, {6} e {7} con un nome più corto: <b>la stessa funzione</b>, non una copia ({8}), quindi React DevTools mostra il nome completo. Entrambi continuano a funzionare per sempre, e il preprocessore legge entrambi (anche con un alias {9}). Una chiave non dipende mai dal nome o dai delimitatori: rinominare {10} in {11} mantiene tutte le traduzioni. L'unica eccezione è un testo che contiene la parola {12} stessa — un sito su questa libreria — che è un nuovo messaggio. Il resto dell'API ({13}, {14}, {15}, {16}) non ha un nome corto."
+translatecontainer_g0yy8r: "Mostrato mentre si carica una lingua iniziale non precaricata. I chunk sono locali, quindi {0} è un frame vuoto quasi impercettibile"
+translatecontainer_jmq0f3: "E come si caricano le lingue al primo render: <0>Precaricamento, Suspense e il flash iniziale</0>."
+translatecontainer_k1jfip: "Props"
+translatecontainer_k7dvs4: "Un selettore di lingua: lingua corrente, quelle disponibili, <0>{1}</0>"
+translatecontainer_kbh0k0: "Per"
+translatecontainer_nzw4x5: "Descrizione"
+translatecontainer_pk5jt5: "Stringhe semplici tradotte — {0}, {1}, {2}. Per convenzione {3}"
+translatecontainer_pwm56r: "Tipo"
+translatecontainer_py9ego: "Prop"
+translatecontainer_vela5f: "Il componente che avvolge la tua app una volta, mantiene la lingua corrente e carica le tabelle, più la mappa dell'intera API React."
+translatecontainer_w6h4kq: "La versione del pacchetto installato"
+translationfiles_10bqtgu: "Ogni lingua è un file {0} in {1}, chiamato come il suo tag BCP 47 ({2}, {3}, …), che contiene la tabella di traduzione come mappa piatta. Il file della <b>lingua di origine</b> è completamente autogenerato dai marker trovati nel tuo codice — non lo scrivi mai a mano. Per aggiungere una lingua, vedi <4>Aggiungere una lingua</4>."
+translationfiles_1377m6b: "File di traduzione"
+translationfiles_1fjnly4: "Un commento di intestazione (nome della lingua, tag, numero di chiavi ancora mancanti, timestamp dell'ultima sincronizzazione, versione del formato) si trova in cima, rigenerato a ogni sincronizzazione — non modificarlo mai a mano. Tutto ciò che sta sotto è testo: il resto del file non contiene altro."
+translationfiles_1iv5cc3: "<b>Sostituzione atomica.</b> Una tabella viene scritta in un file temporaneo ({0}) e rinominata sopra quella vecchia, quindi un crash non lascia mai mezza tabella. Se un crash lascia dietro uno di questi file temporanei, eliminalo."
+translationfiles_1npo7k0: "La sincronizzazione è l'unica cosa che scrive le tue tabelle, quindi è prudente:"
+translationfiles_1p3j85i: "Formato del file"
+translationfiles_1u5wh1u: "<b>Tutto o niente, prima della prima scrittura.</b> Ogni file viene letto, pianificato e salvato in backup prima che qualsiasi tabella venga sostituita. Un file illeggibile, incluso un symlink di lingua rotto o inaccessibile, ferma l'intera sincronizzazione senza cambiare nulla."
+translationfiles_ag80ux: "Vieni dalla 3.x? I file di lingua erano moduli JS: vedi <0>migrare dalla 3.x</0>."
+translationfiles_e80by6: "I valori sono sempre tra virgolette doppie, una voce per riga, senza indentazione. È un <b>sottoinsieme rigoroso di YAML</b>: qualunque cosa accetti questo formato, un vero parser YAML la legge allo stesso modo, quindi il tuo editor la colora e qualsiasi strumento YAML può leggerla. Il sottoinsieme è ristretto di proposito — gli scalari YAML senza virgolette rovinano esattamente il testo che scrivono i traduttori ({0} è un errore di sintassi, {1} si tronca a {2}, {3} diventa il numero {4}). Qualunque cosa fuori dal sottoinsieme è un errore che indica il <b>numero di riga</b>, non un plausibile valore sbagliato."
+translationfiles_fth1yh: "I file di lingua .yml: il loro formato, e cosa li protegge mentre la sincronizzazione li riscrive."
+translationfiles_gsf4r5: "🧪 Come appare quel testo sullo schermo — accenti, emoji, CJK, virgolette, backslash, nuove righe: <0>testi reali, dal vivo</0>."
+translationfiles_h4afs3: "<b>Nessuna sovrascrittura.</b> Un file che hai salvato mentre la sincronizzazione era in corso non viene sovrascritto: la sincronizzazione si ferma con un messaggio e la esegui di nuovo."
+translationfiles_ov9sxt: "<b>Backup.</b> Prima che una tabella venga rigenerata perché era corrotta ({0}), o prima di una sospetta cancellazione di massa ({1}, uno per lingua), il file viene copiato byte per byte — qualunque sia la sua codifica. Se un backup non può essere scritto, nulla viene sovrascritto."
+translationfiles_t5lj77: "Cosa protegge i tuoi file"
+translationfiles_y304mw: "È prudente, non magico: il controllo viene fatto appena prima di ogni tentativo di rinomina, inclusi i retry di Windows (rimane una piccola finestra), non c'è un lock tra processi, e diverse tabelle vengono sostituite una dopo l'altra, non come un'unica transazione — vedi <0>limitazioni</0>. I messaggi e cosa fare sono nella <1>riferimento della CLI</1>."
+types_12ydohm: "Tipo"
+types_148gmmw: "Tipi TypeScript"
+types_14ij54v: "I glifi di {0}"
+types_16ijgqj: "Opzioni del plugin"
+types_17n7iou: "Un valore che sta in un placeholder: {0}"
+types_182e52j: "I tipi esportati dal pacchetto, una riga ciascuno, con un link a dove vengono usati."
+types_186bqrd: "L'opzione {0}: il fuso orario predefinito"
+types_1cl3qzz: "Un oggetto semplice di valori con nome, per {0}"
+types_1fs1sba: "<0>useTranslateLanguage</0>"
+types_1igzrx7: "Cos'è"
+types_1im6ry0: "<0>icu</0>"
+types_1lqvgx3: "Le props di {0} (nome corto {1})"
+types_1lrd75m: "<0>proposeNewLanguage()</0>"
+types_1mvkp5i: "La forma a oggetto: testo e argomenti insieme, {0}"
+types_1njmawa: "<0>Opzioni del plugin</0>"
+types_1tg0qi5: "Tutto ciò che può stare nella posizione del testo: una stringa, un numero, un elemento pronto, la lista compatta o la forma a oggetto"
+types_1uhq96n: "Le dichiarazioni arrivano con il pacchetto: niente da installare da {0}. I tipi React vengono da {1}, i tipi del plugin da {2}."
+types_7u4ncq: "L'opzione {0}: come i problemi appaiono sullo schermo"
+types_am071d: "Valori e argomenti"
+types_cbksdy: "<0>TranslateContainer</0>"
+types_fgp1sa: "Il terzo argomento della funzione da {0}: {1}"
+types_h0btx9: "<0>Translate</0>"
+types_hokizf: "<0>Diagnostica</0>"
+types_irou6q: "L'oggetto che {0} accetta"
+types_k48wjm: "L'argomento di {0}: {1} e i tre callback"
+types_m4bve4: "Una lingua: il suo {0} BCP 47 e il suo {1}"
+types_nrpe1h: "Cosa restituisce {0}: lingua corrente, quelle disponibili, la funzione di cambio"
+types_o9vd8g: "<0>Argomenti ICU</0>"
+types_pz9pn6: "<0>errorSolve</0>"
+types_rga4c2: "Hook"
+types_rhdxku: "Componenti"
+types_v3qnlr: "Un valore, l'oggetto con nome, o una lista di entrambi"
+types_ytdile: "Usato in"
+types_zuvsf4: "<0>useTranslateToString</0>"
+usage_13nid2r: "npx vitetranslate --add fr-FR: locale/fr-FR.yml creato, 1 chiave da tradurre"
+usage_188fwo: "Poi scrivi le frasi così come sono, valori e tag inclusi:"
+usage_1bqz9mo: "Poi controlla a che punto sei. {0} non scrive nulla, quindi vale anche come controllo CI:"
+usage_1i36bf2: "Aggiungere una lingua"
+usage_1jaac23: "<b>La riga di comando</b>: esegui {0} dalla radice del progetto. Stanco di {1}? Un piccolo <2>launcher</2> esegue la versione propria di ogni progetto. Ogni comando è nella <3>riferimento della CLI</3>."
+usage_1kdump5: "Avvolgi l'app una volta:"
+usage_1lut6n6: "Traduci"
+usage_1mzti2m: "<b>Plurali e date</b> vanno in una stringa marcata {0}: vedi <1>Messaggi ICU</1>. Preferisci altri delimitatori? {2}/{3} — vedi <4>Marker</4>."
+usage_1n7xson: "Sostituisci ogni {0} a mano (<1>formato del file</1>) o lascia che lo faccia un <2>LLM</2>:"
+usage_1nrh8ag: "Le chiavi sono generate per te. La sincronizzazione viene eseguita a ogni avvio di {0} e prima di ogni build: nuove chiavi entrano, quelle obsolete escono, e una stringa che si sposta mantiene la sua traduzione."
+usage_1q411o4: "<0><b>Scarica zip</b></0> · <1>Aprilo su StackBlitz</1>"
+usage_1sglzp3: "Cambia lingua e pubblica"
+usage_1uf55xf: "Prossimi passi: stringhe semplici, nomi corti, plurali e date"
+usage_1up8uov: "npx vitetranslate --status: en-US e fr-FR entrambi ok"
+usage_1xemg5b: "Avvia Vite: la tabella di origine si scrive da sola"
+usage_8d3yp6: "Da un secondo terminale, il dev server può continuare a girare:"
+usage_iki1ct: "Finché una chiave non è tradotta la pagina mostra il testo di origine, mai un vuoto. In dev, salvare una tabella ricarica la pagina."
+usage_kcg50: "{0}: ogni lingua viene compilata in un proprio chunk, caricato quando viene selezionata (<1>useTranslateLanguage</1>)."
+usage_lpf2j3: "<b>Stringhe semplici</b> — attributi, titoli, qualsiasi cosa che non sia JSX — passano da {0} usato come tagged template. Dal vivo nel <1>playground</1>:"
+usage_n333i6: "Nessuna chiave da inventare, nessuna stringa duplicata da mantenere."
+usage_n86pm7: "{0}, {1}, {2}, {3} sono i nomi corti di {4}, {5}, {6}, {7}: stesse funzioni, entrambi funzionano."
+usage_o92jeb: "Utilizzo"
+usage_tawyzt: "Dalla prima frase a una build pubblicata: scrivi il testo, lascia che la tabella si scriva da sola, aggiungi una lingua, traduci, cambia."
+usage_ucqswq: "Scrivi il testo dove appartiene"
+usage_xgioaj: "npm run dev: viteTranslate trova 1 frase e crea la tabella di origine, poi Vite si avvia"
+usetranslatelanguage_13cazda: "La prop {0} di {1}"
+usetranslatelanguage_13vho8g: "Descrizione"
+usetranslatelanguage_13xmeoc: "<b>Funziona fuori da {0}:</b> {1} e {2} vengono da un manifest costruito al momento della build — nessuna tabella viene caricata per elencarli — quindi puoi costruire un elenco di lingue sopra l'albero tradotto. Lì, {3} è {4} e {5} non fa nulla (segnalato una volta nella console, in sviluppo)."
+usetranslatelanguage_14zbzwo: "Lingue in {0}, lingua di origine per prima. {1} è l'autonimo"
+usetranslatelanguage_151eiy8: "Tag della lingua <b>sullo schermo</b> (<0>BCP 47</0>). {1} fuori da {2}. Dopo un cambio fallito, la lingua effettivamente mostrata — non quella richiesta"
+usetranslatelanguage_1777jyl: "<b>Stabile:</b> l'oggetto restituito mantiene la sua identità, quindi è sicuro negli array di dipendenze."
+usetranslatelanguage_1f1aywe: "Tipo"
+usetranslatelanguage_1f2mstn: "<code>%s</code>"
+usetranslatelanguage_1hgcsd6: "Campo"
+usetranslatelanguage_1neplk1: "Cambia lingua — vedi <0>sotto</0>"
+usetranslatelanguage_1tyyme0: "<b>Congelato</b>, {0} e le sue voci incluse: lo stesso array è condiviso da tutta l'app, quindi una scrittura lancia subito un {1} invece di corrompere la lista per tutti. Per riordinare o filtrare, copialo prima: {2}."
+usetranslatelanguage_1y42alr: "useTranslateLanguage"
+usetranslatelanguage_f5d8we: "Se il chunk non riesce a caricarsi (un intoppo di rete), il container ripiega sulla tabella eager e {0} segnala <b>quella</b> lingua. Il fallimento non viene ricordato: proporre di nuovo la stessa lingua la ritenta davvero. Quindi un pulsante di retry deve usare il tag che ha richiesto, non {1}:"
+usetranslatelanguage_gn7vx: "Carica il chunk della lingua richiesta e passa ad essa dentro una transizione React: la lingua corrente resta sullo schermo finché la nuova non è pronta, senza frame vuoti in mezzo."
+usetranslatelanguage_h0yp25: "🎮 Live: <0>cambio lingua</0>, con {1}/{2}/{3}."
+usetranslatelanguage_kcop6p: "Tutto ciò che serve a un selettore di lingua: la lingua corrente, quelle disponibili e come cambiare."
+usetranslatelanguage_qxsjha: "Tutto ciò che serve a un selettore di lingua:"
+usetranslatelanguage_tmq03o: "La lingua in cui sono scritte le stringhe"
+usetranslatenode_1akw6ha: "Accetta un marker <b>compilato</b> — la stringa che {0} riceve già — non un {1} che scrivi tu."
+usetranslatenode_1jo3lz7: "Un secondo argomento riempie il {0}, come {1}."
+usetranslatenode_97o4d1: "La forma hook di Translate: la lookup senza un elemento, ovvero ciò che inietta autoWrap."
+usetranslatenode_hcg7oz: "useTranslateNode"
+usetranslatenode_pkhgur: "🎮 Cosa ne fa {0}: <1>live</1> · 🧪 <2>dieci casi limite</2>."
+usetranslatenode_r4kvo0: "La forma hook di {0}: stessa lookup, senza un elemento. È ciò che inietta l'opzione {1} (<2>opzioni del plugin</2>), quindi quasi nessun progetto la scrive a mano."
+usetranslatenode_xn3vn3: "Dato qualcosa che non è un marker compilato, non ha alcuna chiave da cercare e restituisce il testo stesso, con i delimitatori rimossi — lo stesso fallback che {0} e {1} usano per ciò che il compilatore non ha mai visto."
+usetranslatetostring_14ib4aa: "Per i punti che richiedono una stringa semplice invece di JSX — {0}, {1}, {2}:"
+usetranslatetostring_18lclyq: "La forma con tagged template — {0} chiamato su un template literal, come sopra — funziona solo quando {1} proviene da {2} (o {3}) <b>nello stesso file</b>: il preprocessore cerca la chiamata, non il nome. Passato come prop, o racchiuso in un altro hook, arriva al runtime non compilato ed è trattato come un template semplice e non marcato."
+usetranslatetostring_1g72l3g: "useTranslateToString"
+usetranslatetostring_47vgdt: "{0} accetta anche le stesse forme di chiamata delle <2>altre forme</2> di {1}, con gli stessi <3>prefissi di diagnostica</3> e la stessa <4>regola {5}</4> per un {6} mancante:"
+usetranslatetostring_bsrje4: "Stringhe semplici tradotte per placeholder, aria-label, title e qualsiasi altra cosa che non sia JSX."
+usetranslatetostring_k80zyw: "🎮 Live: <0>placeholder e attributi</0>."
+usetranslatetostring_vt05bq: "Deve restituire una stringa primitiva, quindi un <b>elemento React</b> è l'unica forma che non accetta: un vero errore, con un messaggio tutto suo. Altri valori non testuali (una funzione, un symbol, un elemento dentro la tupla) restituiscono {0} con un avviso in console in sviluppo, come in {1}."

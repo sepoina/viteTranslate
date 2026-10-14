@@ -1,9 +1,36 @@
 /* Il manuale: layout a tre colonne e testo. Solo var(--…): i colori stanno in theme/tokens.css (un test lo controlla).
-   Le classi cominciano per d-: theme.css ha già .toc e .anchor per altre pagine. */
+   Le classi cominciano per d-: theme.css ha già .toc e .anchor per altre pagine.
+   Qui la leggibilità conta più della continuità col resto del sito: testo e colonne in Inter (caricato da
+   index.html), l'unico titolo in Alfa Slab è l'h1. */
 
 /* L'altezza della barra in alto: App.jsx la misura (a capo sui telefoni è più alta di --bar-h). */
 :root {
   --d-bar: var(--bar-h);
+  /* Inter non ha cinese né giapponese: dopo vengono i caratteri di sistema che li coprono, come in --font. */
+  --d-font: "Inter", system-ui, -apple-system, "Segoe UI", "PingFang SC", "Noto Sans CJK SC", "Microsoft YaHei", sans-serif;
+  /* Il guscio cresce con lo schermo fino a qui; oltre restano due fasce ai lati. */
+  --d-max: 1600px;
+  /* La riga del testo: oltre questa misura l'occhio fatica a tornare a capo. Codice, note, tabelle e
+     immagini stanno nella stessa colonna: un solo filo verticale. */
+  --d-measure: 46rem;
+  /* Il fondo della colonna di sinistra: un passo verso --bg-deep, in tutti e due i temi. */
+  --d-side-bg: color-mix(in srgb, var(--bg-deep) 85%, var(--bg));
+}
+
+body {
+  font-family: var(--d-font);
+  font-feature-settings: "cv11", "ss01";
+}
+
+/* La barra e il guscio vanno alla stessa larghezza, così il logo sta sopra la colonna di sinistra. */
+.wrap {
+  max-width: var(--d-max);
+}
+
+@media (min-width: 1200px) {
+  .wrap {
+    padding-inline: 40px;
+  }
 }
 
 /* ---------- Barra ---------- */
@@ -26,9 +53,16 @@
 .d-shell {
   display: grid;
   grid-template-columns: 260px minmax(0, 1fr) 220px;
-  gap: 0 40px;
+  gap: 0 48px;
   align-items: start;
   padding-bottom: 4rem;
+}
+
+@media (min-width: 1600px) {
+  .d-shell {
+    grid-template-columns: 280px minmax(0, 1fr) 240px;
+    gap: 0 56px;
+  }
 }
 
 .d-main {
@@ -36,8 +70,13 @@
   padding-top: 2.5rem;
 }
 
+/* Il testo sta al centro della sua colonna: lo spazio in più va ai lati, non alla riga. */
 .d-article {
-  max-width: 72ch;
+  max-width: var(--d-measure);
+  margin-inline: auto;
+  color: var(--text);
+  font-size: 1rem;
+  line-height: 1.75;
 }
 
 .d-scrim {
@@ -45,27 +84,135 @@
 }
 
 /* ---------- Colonna di sinistra ---------- */
+/* Alta quanto la finestra anche con i gruppi chiusi: il bordo destro scende fino in fondo. */
 .d-sidebar {
   position: sticky;
   top: var(--d-bar);
-  max-height: calc(100vh - var(--d-bar));
-  padding: 2rem 0 2rem;
+  height: calc(100vh - var(--d-bar));
+  padding: 2rem 12px 2rem 0;
+  border-right: 1px solid var(--line-soft);
+  background: var(--d-side-bg);
+  /* Il fondo arriva al bordo della finestra: l'ombra piena lo stende a sinistra e in altezza.
+     Un'ombra non conta nello scorrimento, e l'overflow della colonna non la taglia. */
+  box-shadow: -100vw 0 0 100vw var(--d-side-bg);
   overflow-y: auto;
   overscroll-behavior: contain;
+  font-size: 0.875rem;
 }
 
+/* Le due colonne scorrono da sole: barra sottile, non quella piena del sistema. */
+.d-sidebar,
+.d-toc {
+  scrollbar-width: thin;
+  scrollbar-color: var(--line-strong) transparent;
+}
+
+/* Un gruppo è un ramo: l'etichetta lo apre e lo chiude, le pagine rientrano sotto una linea guida. */
 .d-group + .d-group {
-  margin-top: 1.5rem;
+  margin-top: 0.25rem;
 }
 
 .d-group-label {
-  margin: 0 0 0.4rem 0.6rem;
-  color: var(--faint);
-  font-family: var(--mono);
-  font-size: 0.75rem;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.4rem 0.75rem;
+  border: 0;
+  border-radius: var(--r-md);
+  background: none;
+  color: var(--text);
+  font: inherit;
   font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  line-height: 1.45;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 150ms var(--ease);
+}
+
+.d-group:not([data-locked]) .d-group-label:hover {
+  background: var(--wash);
+}
+
+/* Il gruppo della pagina non si chiude: niente fondo né freccia al passaggio. */
+.d-group[data-locked] .d-group-label {
+  cursor: default;
+}
+
+/* La linea sotto l'etichetta: sempre lì, si colora solo se il gruppo è l'unico aperto. Uno pseudo-elemento e
+   non un border-bottom, che seguirebbe gli angoli arrotondati del fondo al passaggio. */
+.d-group-label::after {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 1px;
+  background: transparent;
+  content: "";
+  transition: background-color 200ms var(--ease);
+}
+
+.d-sidebar:not([data-multi]) .d-group[data-open] .d-group-label::after {
+  background: var(--line);
+}
+
+/* La freccia compare (non di colpo) sul gruppo aperto se è l'unico, e al passaggio o col fuoco da
+   tastiera sui gruppi che si possono aprire o chiudere. */
+.d-group-label svg {
+  flex: none;
+  color: var(--faint);
+  opacity: 0;
+  transition: transform 200ms var(--ease), opacity 200ms var(--ease);
+}
+
+.d-sidebar:not([data-multi]) .d-group[data-open] .d-group-label svg,
+.d-group:not([data-locked]) .d-group-label:is(:hover, :focus-visible) svg {
+  opacity: 1;
+}
+
+.d-group[data-open] .d-group-label svg {
+  transform: rotate(90deg);
+}
+
+/* Senza passaggio del mouse (touch) una freccia invisibile nasconderebbe che il gruppo si apre. */
+@media (hover: none) {
+  .d-group:not([data-locked]) .d-group-label svg {
+    opacity: 0.45;
+  }
+}
+
+/* Chiuso: righe a 0fr e niente fuoco sulle voci nascoste (visibility); aperto: righe a 1fr. */
+.d-group-body {
+  display: grid;
+  grid-template-rows: 0fr;
+  visibility: hidden;
+  transition: grid-template-rows 200ms var(--ease), visibility 0s linear 200ms;
+}
+
+.d-group[data-open] .d-group-body {
+  grid-template-rows: 1fr;
+  visibility: visible;
+  transition-delay: 0s;
+}
+
+.d-sidebar .d-group-body > ul {
+  min-height: 0;
+  overflow: hidden;
+  margin-left: 0.75rem;
+  padding-left: 0.4rem;
+  border-left: 1px solid var(--line);
+}
+
+/* Lo spazio sopra e sotto il ramo sta nei margini delle voci, non nel padding della lista: da chiuso
+   una riga a 0fr non comprime il padding, mentre i margini vengono tagliati con il resto. */
+.d-group-body li:first-child {
+  margin-top: 0.35rem;
+}
+
+.d-group-body li:last-child {
+  margin-bottom: 0.5rem;
 }
 
 .d-sidebar ul,
@@ -78,11 +225,10 @@
 
 .d-sidebar a {
   display: block;
-  padding: 0.3rem 0.6rem;
-  border-radius: var(--r-sm);
+  padding: 0.35rem 0.75rem;
+  border-radius: var(--r-md);
   color: var(--muted);
-  font-size: 0.9375rem;
-  line-height: 1.4;
+  line-height: 1.45;
   text-decoration: none;
   transition: color 150ms var(--ease), background-color 150ms var(--ease);
 }
@@ -106,32 +252,34 @@
   padding: 2.5rem 0 2rem;
   overflow-y: auto;
   font-size: 0.875rem;
+  line-height: 1.45;
 }
 
 .d-toc-label {
-  margin: 0 0 0.6rem;
-  color: var(--faint);
-  font-family: var(--mono);
-  font-size: 0.75rem;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0 0 0.75rem;
+  color: var(--muted);
+  font-weight: 500;
 }
 
-.d-toc ul,
-.d-toc-inline ul {
-  border-left: 1px solid var(--line);
+.d-toc-label svg,
+.d-toc-tools svg {
+  flex: none;
+  width: 16px;
+  height: 16px;
 }
 
+/* La linea a sinistra la disegnano le voci: sotto un h3 rientra con la voce. */
 .d-toc a,
 .d-toc-inline a {
   display: block;
-  margin-left: -1px;
-  padding: 0.25rem 0.75rem;
-  border-left: 1px solid transparent;
+  padding: 0.35rem 0 0.35rem 1rem;
+  border-left: 1px solid var(--line);
   color: var(--faint);
-  line-height: 1.4;
   text-decoration: none;
+  transition: color 150ms var(--ease), border-color 150ms var(--ease);
 }
 
 .d-toc a:hover,
@@ -140,13 +288,15 @@
 }
 
 .d-toc a[aria-current="location"] {
-  border-left-color: var(--accent);
+  border-left: 2px solid var(--accent);
+  padding-left: calc(1rem - 1px);
   color: var(--accent);
+  font-weight: 500;
 }
 
 .d-toc li[data-depth="3"] a,
 .d-toc-inline li[data-depth="3"] a {
-  padding-left: 1.5rem;
+  margin-left: 0.85rem;
 }
 
 .d-toc code,
@@ -154,7 +304,33 @@
   font-size: 0.92em;
 }
 
-/* Sotto i 1100 px l'indice passa sopra il testo, ripiegato. */
+/* In fondo all'indice: la pagina su GitHub e il ritorno in cima. */
+.d-toc-tools {
+  margin-top: 1.5rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--line-soft);
+}
+
+.d-toc .d-toc-tools a,
+.d-toc .d-toc-tools button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.3rem 0;
+  border: 0;
+  background: none;
+  color: var(--faint);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.d-toc .d-toc-tools :is(a, button):hover {
+  color: var(--text);
+}
+
+/* Sotto i 1280 px l'indice passa sopra il testo, ripiegato. */
 .d-toc-inline {
   display: none;
   margin-top: 1.5rem;
@@ -163,6 +339,7 @@
   border-radius: var(--r-md);
   background: var(--surface-2);
   font-size: 0.9375rem;
+  line-height: 1.45;
 }
 
 .d-toc-inline summary {
@@ -176,18 +353,31 @@
 }
 
 /* ---------- Testata della pagina ---------- */
+.d-article .eyebrow {
+  margin-bottom: 0.6rem;
+  color: var(--accent);
+  font-family: inherit;
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
 .d-title {
-  max-width: 50rem;
   font-family: var(--display);
-  font-size: clamp(2rem, 4.4vw, 2.9rem);
+  font-size: clamp(2rem, 3.4vw, 2.6rem);
   font-weight: 700;
   font-synthesis: none;
-  line-height: 1.1;
+  line-height: 1.15;
   text-wrap: balance;
 }
 
 .d-article .lead {
-  margin-top: 1rem;
+  max-width: none;
+  margin-top: 0.75rem;
+  color: var(--lead);
+  font-size: 1.125rem;
+  line-height: 1.6;
 }
 
 /* ---------- Testo ---------- */
@@ -197,34 +387,38 @@
 }
 
 .d-prose > * + * {
-  margin-top: 1rem;
+  margin-top: 1.25rem;
 }
 
 .d-prose a {
   color: var(--accent);
+  text-underline-offset: 0.2em;
+}
+
+.d-prose strong {
+  font-weight: 600;
 }
 
 .d-prose h2,
 .d-prose h3 {
   scroll-margin-top: calc(var(--d-bar) + 16px);
-}
-
-.d-prose h2 {
-  margin-top: 2.75rem;
-  padding-top: 0.5rem;
-  font-family: var(--display);
-  font-size: 1.6rem;
-  font-weight: 700;
-  font-synthesis: none;
-  line-height: 1.2;
+  color: var(--text-hi);
+  font-weight: 600;
   text-wrap: balance;
 }
 
-.d-prose h3 {
-  margin-top: 2rem;
-  font-size: 1.2rem;
-  font-weight: 600;
+.d-prose h2 {
+  margin-top: 3rem;
+  font-size: 1.5rem;
+  letter-spacing: -0.02em;
   line-height: 1.3;
+}
+
+.d-prose h3 {
+  margin-top: 2.25rem;
+  font-size: 1.1875rem;
+  letter-spacing: -0.01em;
+  line-height: 1.4;
 }
 
 .d-prose h2 + *,
@@ -264,29 +458,38 @@
 }
 
 .d-prose li + li {
-  margin-top: 0.35rem;
+  margin-top: 0.5rem;
 }
 
 .d-prose li > ul {
-  margin-top: 0.35rem;
+  margin-top: 0.5rem;
+}
+
+.d-prose li::marker {
+  color: var(--faint);
 }
 
 .ic {
-  padding: 0.05em 0.3em;
+  padding: 0.15em 0.4em;
+  border: 1px solid var(--line-soft);
   border-radius: var(--r-sm);
-  background: var(--wash-2);
+  background: var(--wash);
   font-family: var(--mono);
-  font-size: 0.88em;
+  font-size: 0.85em;
 }
 
 /* ---------- Note ---------- */
+/* Velatura e bordo largo vengono dal tema (--callout-*): staccano le note dai riquadri bianchi del
+   codice. Il fondo passa sotto il bordo, che lo scurisce appena: un'aura, non una cornice. Il tipo
+   lo dice il colore dell'etichetta (--c). */
 .d-callout {
   --c: var(--line-strong);
-  padding: 0.85rem 1rem;
-  border: 1px solid var(--line);
-  border-left: 3px solid var(--c);
-  border-radius: var(--r-md);
-  background: var(--surface-2);
+  padding: 0.55rem 0.85rem;
+  border: 12px solid var(--callout-rim);
+  border-radius: var(--r-lg);
+  background: var(--callout-bg);
+  font-size: 0.9375rem;
+  line-height: 1.7;
 }
 
 .d-callout-note {
@@ -310,13 +513,10 @@
 }
 
 .d-callout-label {
-  margin-bottom: 0.3rem;
+  margin-bottom: 0.25rem;
   color: var(--c);
-  font-family: var(--mono);
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  font-size: 0.875rem;
+  font-weight: 600;
 }
 
 .d-callout-body > p + p {
@@ -357,11 +557,12 @@
   width: 100%;
   min-width: 28rem;
   border-collapse: collapse;
-  font-size: 0.9375rem;
+  font-size: 0.875rem;
+  line-height: 1.55;
 }
 
 .table-scroll :is(th, td) {
-  padding: 0.55rem 0.8rem;
+  padding: 0.6rem 0.85rem;
   border-bottom: 1px solid var(--line-soft);
   text-align: left;
   vertical-align: top;
@@ -414,7 +615,9 @@
 }
 
 /* ---------- Piede della pagina ---------- */
+/* Da 1280 px in su "Modifica su GitHub" sta in fondo all'indice di destra (.d-toc-tools). */
 .d-foot {
+  display: none;
   margin-top: 3rem;
   font-size: 0.875rem;
 }
@@ -431,13 +634,14 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 1rem;
-  margin-top: 1.5rem;
+  margin-top: 3rem;
+  line-height: 1.45;
 }
 
 .d-pagenav a {
   display: flex;
   flex-direction: column;
-  gap: 0.15rem;
+  gap: 0.2rem;
   padding: 0.9rem 1.1rem;
   border: 1px solid var(--line);
   border-radius: var(--r-md);
@@ -468,11 +672,11 @@
   margin-top: 1rem;
 }
 
-/* ---------- 760–1099 px: niente colonna di destra ---------- */
-@media (max-width: 1099px) {
+/* ---------- 760–1279 px: niente colonna di destra ---------- */
+@media (max-width: 1279px) {
   .d-shell {
     grid-template-columns: 240px minmax(0, 1fr);
-    gap: 0 32px;
+    gap: 0 40px;
   }
 
   .d-toc {
@@ -481,6 +685,14 @@
 
   .d-toc-inline {
     display: block;
+  }
+
+  .d-foot {
+    display: block;
+  }
+
+  .d-foot + .d-pagenav {
+    margin-top: 1.5rem;
   }
 }
 
@@ -503,10 +715,11 @@
     left: 0;
     z-index: 35;
     width: min(86vw, 320px);
-    max-height: none;
+    height: auto;
     padding: 1rem 16px 2rem;
     border-right: 1px solid var(--line);
     background: var(--bg);
+    box-shadow: none;
     visibility: hidden;
     transform: translateX(-100%);
     transition: transform 200ms var(--ease), visibility 0s linear 200ms;

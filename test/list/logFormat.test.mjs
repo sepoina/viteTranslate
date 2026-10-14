@@ -250,6 +250,18 @@ console.log("\n== llmReport.js passa sempre da logEchoColored: stessa colonna, s
   eq("i token reali, interi e sommati", true, righeRun.some((r) => r.includes("real token: 70500 (≈ $0.0188)")));
   eq("le sconosciute restano un avviso", true, righeRun.some((r) => r.includes("2 unknown key(s) in the reply, ignored")));
   eq("nessuna riga oltre LOG_WIDTH", 0, righeRun.filter((r) => displayWidth(r) > LOG_WIDTH).length);
+  eq("senza ragionamento nessun avviso", false, righeRun.some((r) => r.includes("most of the output went to reasoning")));
+
+  const ragiona = (reasoningOut) => senzaColori(grezzo(() => printRunResult({ tokensIn: 1000, tokensOut: 1000, reasoningOut })));
+  const molto = ragiona(500);
+  eq("metà uscita in ragionamento: la quota", true, molto.some((r) => r.includes("· reasoning 50% of output")));
+  eq("metà uscita in ragionamento: l'avviso", true, molto.some((r) => r.includes("most of the output went to reasoning")));
+  eq("l'avviso rimanda alla pagina, link intero su una riga", true,
+    molto.some((r) => r.includes("https://sepoina.github.io/viteTranslate/docs/llm/price/#reasoning-models")));
+  eq("l'avviso sta in LOG_WIDTH", 0, molto.filter((r) => displayWidth(r) > LOG_WIDTH).length);
+  const poco = ragiona(400);
+  eq("sotto la metà: la quota sì", true, poco.some((r) => r.includes("· reasoning 40% of output")));
+  eq("sotto la metà: l'avviso no", false, poco.some((r) => r.includes("most of the output went to reasoning")));
 
   try {
     setLogStyle({ simple: true });

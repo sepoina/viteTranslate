@@ -308,18 +308,20 @@ The compiler reads `nav.js` as text (a regex on quoted `"section/page"` strings)
 ### Step 1.6 — Layout `src/App.jsx`, `src/layout/*`, `src/docs.css`
 
 - `App`: `<SiteBar home={siteUrl()} languageLabel=… themeLabel=…>` with a back link "_%_← viteTranslate_%_" and, on small screens, a "☰ _%_Menu_%_" button that opens the sidebar. Below it, a three-column grid:
-  - **Left `Sidebar`**: groups from `NAV`, page titles from `ROUTES[route].meta.title` via `<Trans t=…/>`, current page highlighted (`aria-current="page"`).
-  - **Center `<article>`**: eyebrow with the group name, `<h1>` title, description as lead, the page component, then `PageNav` (previous/next in `NAV` order) and "_%_Edit this page on GitHub_%_" (`repo:` + `meta.source`).
-  - **Right `Toc`**: "_%_On this page_%_" + `meta.headings` (h3 indented). Scroll-spy: the last heading whose top passed 25% of the viewport, measured as in `site/landing/src/Nav.jsx` (`useCurrentSection`). Clicking a heading uses `navigate('#id')`, so the URL always holds the exact section and can be copied.
+  - **Left `Sidebar`**: groups from `NAV`, page titles from `ROUTES[route].meta.title` via `<Trans t=…/>`, current page highlighted (`aria-current="page"`). Each group is a collapsible branch (label button with a chevron, pages indented under a guide line): on every page change (arrival, sidebar click or link in the text) only the current page's group stays open (the first one on a 404); other groups can be opened by hand until the next page change. The current page's group cannot be closed (`aria-disabled`, no hover cue). The open group shows its chevron and a thin bottom line only while it is the only open group; the chevron otherwise appears on hover/focus of groups that can be toggled.
+  - **Center `<article>`**: eyebrow with the group name, `<h1>` title, description as lead, the page component, then "_%_Edit this page on GitHub_%_" (`repo:` + `meta.source`, shown here only below 1280 px) and `PageNav` (previous/next in `NAV` order).
+  - **Right `Toc`**: "_%_On this page_%_" + `meta.headings` (h3 indented). Scroll-spy: the last heading whose top passed 25% of the viewport, measured as in `site/landing/src/Nav.jsx` (`useCurrentSection`). Clicking a heading uses `navigate('#id')`, so the URL always holds the exact section and can be copied. Below the headings: "_%_Edit this page on GitHub_%_" and "_%_Scroll to top_%_".
   - Each `h2`/`h3` shows a "#" link on hover (`<a href="#id" aria-label="_%_Link to this section_%_">`) to copy the address of that section.
 - Unknown route: a "_%_Page not found_%_" panel with a link to the overview.
 - `document.title = title + " · viteTranslate docs"` on route change (plain English from `routes.json` is fine).
 - `docs.css`, only `var(--…)` (test 10):
-  - ≥ 1100 px: `grid-template-columns: 260px minmax(0, 1fr) 220px`, sidebar and TOC sticky under the bar, each scrolling on its own.
-  - 760–1099 px: no TOC column. The TOC becomes a collapsible "On this page" `<details>` above the content.
+  - Type: Inter (loaded by `index.html`) for text and columns; Alfa Slab One only on the `h1`. Body 16 px, line height 1.75.
+  - The shell (and the bar above it) grows up to 1600 px (`--d-max`), then leaves margins on both sides.
+  - ≥ 1280 px: `grid-template-columns: 260px minmax(0, 1fr) 220px` (280 / 240 px from 1600 px), sidebar and TOC sticky under the bar, each scrolling on its own. The sidebar has its own background (`--d-side-bg`), stretched to the window edge.
+  - 760–1279 px: no TOC column. The TOC becomes a collapsible "On this page" `<details>` above the content.
   - < 760 px: one column, sidebar as a drawer (`position: fixed`, toggled by the Menu button, closed on navigation and on Esc), 16 px side gutter, no horizontal page scroll (wide tables and code scroll inside their own box).
-  - Reading width of the content column: max ~72ch.
-  - Callout colours: if existing tokens are not enough, add `--callout-*` tokens to `site/theme/tokens.css` (dark and both light blocks), then `npm run site:theme`. The contrast test must pass.
+  - Reading width: the article is centered in its column, max 46rem (`--d-measure`); code, callouts, tables and figures share the same width as the text.
+  - Callouts: theme tokens `--callout-bg` (a lime tint) and `--callout-rim` (a 12 px, barely visible border) in `site/theme/tokens.css` (dark and both light blocks, then `npm run site:theme`) set them apart from the white code boxes; the type is told by the label colour.
 
 ### Step 1.7 — The source ↔ page association `site/docsSources.mjs` (root)
 

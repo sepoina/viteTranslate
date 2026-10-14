@@ -160,7 +160,7 @@ console.log("\n== D9 --llm-status: righe budget e model class ==");
   const withPrices = await statusOf({ connection: priced, driver, budget: "normal" });
   eq("budget con prezzi", true, withPrices.includes("budget: normal — $1.00/run, $5.00/day"));
   eq("today con costo, token e chiavi", true, withPrices.includes("today: $0 · 0 tokens · 0 key(s)"));
-  eq("model class con nome del campo", true, withPrices.includes("model class: standard — batches up to 3.0k output tokens / 100 keys, max_tokens 4096 (max_tokens)"));
+  eq("model class con nome del campo", true, withPrices.includes("model class: standard — batches up to 3.0k output tokens / 100 keys, max_tokens up to 8192 (max_tokens)"));
 
   const noPrices = await statusOf({ connection: conn, driver, budget: "normal" });
   eq("budget senza prezzi, in token", true, noPrices.includes("budget: normal (no prices) — 500.0k tokens/run, 2.0M/day"));

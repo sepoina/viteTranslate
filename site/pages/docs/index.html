@@ -6,9 +6,12 @@
     <meta name="color-scheme" content="dark light" />
     <meta name="theme-color" content="#0b0f0d" />
     <link rel="icon" href="/src/theme/logo.svg" type="image/svg+xml" />
-    <!-- Font: li carica src/theme/theme.css (Alfa Slab One, Schibsted Grotesk, IBM Plex Mono); qui solo il preconnect -->
+    <!-- Font: li carica src/theme/theme.css (Alfa Slab One, Schibsted Grotesk, IBM Plex Mono). Qui i preconnect
+         e Inter, il carattere del solo manuale (docs.css, --d-font): un link e non un @import, che nel CSS
+         unito finirebbe dopo altre regole e il browser lo ignorerebbe. -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400..700&display=swap" />
     <title>viteTranslate docs</title>
   </head>
   <body>

@@ -3,6 +3,7 @@
 //   node test/list/llmCost.test.mjs
 import {
   estimateRun, costOf, formatCost, formatTokens, CHARS_PER_TOKEN, itemCharsIn, itemCharsOut, itemTokensOut, initialRatio,
+  requestMaxTokens, MAX_TOKENS_MARGIN, MIN_MAX_TOKENS, attemptCost,
 } from "../../lib/dev/llm/costModel.js";
 
 let fail = 0;
@@ -115,6 +116,21 @@ console.log("\n== T28 formatTokens ==");
 eq("62100 -> 62.1k", "62.1k", formatTokens(62100));
 eq("500 -> 500", "500", formatTokens(500));
 eq("1500000 -> 1.5M", "1.5M", formatTokens(1500000));
+
+console.log("\n== requestMaxTokens: la stima per 2,5, fra 1024 e il tetto ==");
+eq("lotto pieno di standard: 3000 -> 7500", 7500, requestMaxTokens(3000, 8192));
+eq("arrotonda per eccesso: 1000,2 x 2,5 -> 2501", 2501, requestMaxTokens(1000.2, 8192));
+eq("il margine è 2,5", 2.5, MAX_TOKENS_MARGIN);
+eq("lotto piccolo: il minimo", MIN_MAX_TOKENS, requestMaxTokens(20, 8192));
+eq("oltre il tetto: il tetto", 8192, requestMaxTokens(5000, 8192));
+eq("tetto sotto il minimo: il tetto", 400, requestMaxTokens(20, 400));
+
+console.log("\n== attemptCost: il costo del provider vince sui prezzi ==");
+const prezzi = { costMillionInput: 1, costMillionOutput: 2 };
+eq("usage.cost c'è: vince", 0.5, attemptCost({ tokensIn: 1e6, tokensOut: 1e6, cost: 0.5 }, prezzi));
+eq("anche quando è 0 (modello :free)", 0, attemptCost({ tokensIn: 1e6, tokensOut: 1e6, cost: 0 }, prezzi));
+eq("non c'è: i prezzi", 3, attemptCost({ tokensIn: 1e6, tokensOut: 1e6 }, prezzi));
+eq("né l'uno né gli altri: 0", 0, attemptCost({ tokensIn: 1e6, tokensOut: 1e6 }, {}));
 
 console.log(fail ? `\n${fail} asserzioni fallite` : "\ntutto ok");
 process.exit(fail ? 1 : 0);

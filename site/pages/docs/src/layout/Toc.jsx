@@ -58,12 +58,18 @@ function Links({ headings, active }) {
   );
 }
 
-// "In questa pagina". Da 1100 px in su è la colonna di destra (variant "side"); sotto è un
-// <details> sopra il testo (variant "inline"). Il CSS mostra l'una o l'altro.
-export default function Toc({ headings, active, variant }) {
+const ICON = { width: 16, height: 16, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: 1.75, strokeLinecap: "round", strokeLinejoin: "round", "aria-hidden": true };
+
+// In cima, lo stesso movimento dei salti di sezione: morbido, salvo chi ha chiesto meno animazioni.
+const toTop = () => scrollTo({ top: 0, behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+
+// "In questa pagina". Da 1280 px in su è la colonna di destra (variant "side"), con in fondo la pagina
+// su GitHub e il ritorno in cima; sotto è un <details> sopra il testo (variant "inline"), e "Modifica su
+// GitHub" sta nel piede dell'articolo (App.jsx). Il CSS mostra l'una o l'altro.
+export default function Toc({ headings, active, variant, editHref }) {
   const trans = useTrans();
-  if (!headings.length) return null;
   if (variant === "inline") {
+    if (!headings.length) return null;
     return (
       <details className="d-toc-inline">
         <summary>
@@ -73,12 +79,37 @@ export default function Toc({ headings, active, variant }) {
       </details>
     );
   }
+  if (!headings.length && !editHref) return null;
   return (
     <aside className="d-toc" aria-label={trans("_%_On this page_%_")}>
-      <p className="d-toc-label">
-        <Trans>_%_On this page_%_</Trans>
-      </p>
-      <Links headings={headings} active={active} />
+      {headings.length > 0 && (
+        <>
+          <p className="d-toc-label">
+            <svg {...ICON}>
+              <path d="M4 6h16M4 12h10M4 18h13" />
+            </svg>
+            <Trans>_%_On this page_%_</Trans>
+          </p>
+          <Links headings={headings} active={active} />
+        </>
+      )}
+      <div className="d-toc-tools">
+        {editHref && (
+          <a href={editHref} target="_blank" rel="noopener">
+            <svg {...ICON}>
+              <path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z" />
+            </svg>
+            <Trans>_%_Edit this page on GitHub_%_</Trans>
+          </a>
+        )}
+        <button type="button" onClick={toTop}>
+          <svg {...ICON}>
+            <circle cx="12" cy="12" r="9" />
+            <path d="m8 12 4-4 4 4M12 16V8" />
+          </svg>
+          <Trans>_%_Scroll to top_%_</Trans>
+        </button>
+      </div>
     </aside>
   );
 }

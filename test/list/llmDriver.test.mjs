@@ -1,8 +1,8 @@
 // Strato 9: fetchDriver.js e callModel.js. `fetch` è sempre una funzione finta: mai la rete vera.
 //
 //   node test/list/llmDriver.test.mjs
-import fetchDriver from "../../lib/dev/llm/fetchDriver.js";
-import { callModel, runWithConcurrency } from "../../lib/dev/llm/callModel.js";
+import fetchDriver, { rateLimitResetSeconds } from "../../lib/dev/llm/fetchDriver.js";
+import { callModel, runWithConcurrency, MAX_RETRY_WAIT_MS } from "../../lib/dev/llm/callModel.js";
 
 let fail = 0;
 const eq = (nome, atteso, ottenuto) => {
@@ -337,7 +337,7 @@ console.log("\n== M4 onUsage e maxTokens ==");
   });
   eq("maxTokens passato al driver, a ogni tentativo", [2048, 2048, 2048], seen);
   eq("onUsage: solo i tentativi con usage", [
-    { usage: { tokensIn: 5, tokensOut: 1 }, ok: false },
+    { usage: { tokensIn: 5, tokensOut: 1 }, ok: false, truncated: false },
     { usage: { tokensIn: 9, tokensOut: 2 }, ok: true, charsOut: 12 },
   ], usages);
 }
@@ -398,6 +398,59 @@ console.log("\n== M7 elapsedMs misura la risposta intera ==");
   });
   const response = events.find((e) => e.kind === "response");
   eq("il tempo del corpo è dentro", true, response.data.elapsedMs >= 50);
+}
+
+// M8 — il costo detto dal provider (`usage.cost`, OpenRouter) passa nell'usage
+console.log("\n== M8 usage.cost ==");
+{
+  const conCosto = await fetchDriver({ connection: conn, apiKey: "k", systemPrompt: "s", userPayload: "u",
+    fetchImpl: async () => okResponse('{"A":"b"}', { prompt_tokens: 10, completion_tokens: 5, cost: 0.0042 }) });
+  eq("c'è: passa", 0.0042, conCosto.usage.cost);
+  const senza = await fetchDriver({ connection: conn, apiKey: "k", systemPrompt: "s", userPayload: "u",
+    fetchImpl: async () => okResponse('{"A":"b"}', { prompt_tokens: 10, completion_tokens: 5 }) });
+  eq("non c'è: nessun campo", false, "cost" in senza.usage);
+}
+
+// M9 — il reset di un 429: nel corpo (OpenRouter) o nell'header
+console.log("\n== M9 rateLimitResetSeconds ==");
+{
+  const now = 1_791_993_240_000;
+  const nessunHeader = { get: () => null };
+  const corpo = (reset) => JSON.stringify({ error: { code: 429, metadata: { headers: { "X-RateLimit-Reset": reset } } } });
+  eq("ms epoch nel corpo", 60, rateLimitResetSeconds(nessunHeader, corpo(String(now + 60_000)), now));
+  eq("s epoch nel corpo", 30, rateLimitResetSeconds(nessunHeader, corpo(String(now / 1000 + 30)), now));
+  eq("secondi nell'header", 12, rateLimitResetSeconds({ get: (h) => (h === "x-ratelimit-reset" ? "12" : null) }, "", now));
+  eq("già passato: 0", 0, rateLimitResetSeconds(nessunHeader, corpo(String(now - 5000)), now));
+  eq("forma non letta (6m0s)", null, rateLimitResetSeconds({ get: () => "6m0s" }, "", now));
+  eq("corpo non JSON", null, rateLimitResetSeconds(nessunHeader, "Too Many Requests", now));
+  eq("niente da nessuna parte", null, rateLimitResetSeconds(nessunHeader, corpo(undefined), now));
+
+  let error;
+  try {
+    await fetchDriver({ connection: conn, apiKey: "k", systemPrompt: "s", userPayload: "u",
+      fetchImpl: async () => ({
+        ok: false, status: 429, statusText: "Too Many Requests", headers: { get: () => null },
+        text: async () => corpo(String(Date.now() + 20_000)),
+      }) });
+  } catch (e) {
+    error = e;
+  }
+  eq("il 429 porta il reset come retryAfter", true, error?.status === 429 && error.retryAfter >= 19 && error.retryAfter <= 20);
+}
+
+// M10 — un'attesa oltre MAX_RETRY_WAIT_MS non si fa
+console.log("\n== M10 attesa troppo lunga: nessun ritentativo ==");
+{
+  const prova = async (retryAfter) => {
+    let calls = 0;
+    const sleeps = [];
+    const driver = async () => { calls++; throw Object.assign(new Error("429"), { status: 429, retryAfter }); };
+    await callModel({ connection: conn, driver, apiKey: "k", systemPrompt: "s", userPayload: "u", sleepImpl: async (ms) => sleeps.push(ms) }).catch(() => {});
+    return { calls, sleeps };
+  };
+  eq("60 s: si aspetta e si ritenta", { calls: 4, sleeps: [60000, 60000, 60000] }, await prova("60"));
+  eq(`oltre ${MAX_RETRY_WAIT_MS / 1000} s: un tentativo solo`, { calls: 1, sleeps: [] }, await prova("3600"));
+  eq("Retry-After non numerico: backoff normale", 4, (await prova("Wed, 21 Oct 2026 07:28:00 GMT")).calls);
 }
 
 console.log(fail ? `\n${fail} asserzioni fallite` : "\ntutto ok");

@@ -118,7 +118,7 @@ export default function App() {
           )}
         </main>
 
-        <Toc headings={headings} active={active} variant="side" />
+        <Toc headings={headings} active={active} variant="side" editHref={page && `${REPO}/blob/main/${page.meta.source}`} />
       </div>
     </>
   );

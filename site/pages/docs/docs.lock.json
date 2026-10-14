@@ -11,25 +11,25 @@
       }
     },
     "api/plugin-options": {
-      "sealedAt": "32f6c57",
+      "sealedAt": "fd07ae1",
       "sources": {
-        "lib/index.d.ts": "8953057fd32c19a01d187801c41ca7ea395b88a800bd014facfc87864c08648b",
+        "lib/index.d.ts": "6d95042b357eea03d774430522a1a4ee759f5af03ccb99c081b177eb2d95ee55",
         "lib/dev/vite/vitetranslate.js": "005b20a89057dc28edf62e4951fa53ffa9b8bb9999f6ceb33ec04b7aa61e0d58",
         "lib/dev/vite/uty/icuOptions.js": "555e463386a5a3b5b3a44435b4e3d8aa7d3b0628e67c63e6cb7e7627dbabfa9c",
         "lib/errorSolve.js": "482019c69a89fa05500a999fafb078978ea05e17eaeff24ad9a73496470651f2"
       }
     },
     "api/types": {
-      "sealedAt": "32f6c57",
+      "sealedAt": "fd07ae1",
       "sources": {
-        "lib/react.d.ts": "d4f7461a2f3293bbe20637b1fc30959705cde82ca788127d14b2b033dee0ddcc",
-        "lib/index.d.ts": "8953057fd32c19a01d187801c41ca7ea395b88a800bd014facfc87864c08648b"
+        "lib/react.d.ts": "bb69a51f5ead3e81ccf60f8af44c0f65b02f9d75c587417be280905940a4bd18",
+        "lib/index.d.ts": "6d95042b357eea03d774430522a1a4ee759f5af03ccb99c081b177eb2d95ee55"
       }
     },
     "components/translate": {
-      "sealedAt": "32f6c57",
+      "sealedAt": "fd07ae1",
       "sources": {
-        "lib/react.d.ts": "d4f7461a2f3293bbe20637b1fc30959705cde82ca788127d14b2b033dee0ddcc",
+        "lib/react.d.ts": "bb69a51f5ead3e81ccf60f8af44c0f65b02f9d75c587417be280905940a4bd18",
         "lib/react/Translate.js": "b2483d19ab7755d72b5402feb92c020fc79815fe5a0d55488b2b4a705dbaba00",
         "lib/react/readSource.js": "28319f0096eec1a651a449ffeaa11172a7dd20f32f173cccd2edf5c70ff6de49",
         "lib/react/normalizeSource.js": "09ecaba6427de517108d701be5f1347a6e3d71cafebddeb68b4abbfc43dccc9e",
@@ -40,19 +40,19 @@
       }
     },
     "components/translate-container": {
-      "sealedAt": "32f6c57",
+      "sealedAt": "fd07ae1",
       "sources": {
-        "lib/react.d.ts": "d4f7461a2f3293bbe20637b1fc30959705cde82ca788127d14b2b033dee0ddcc",
+        "lib/react.d.ts": "bb69a51f5ead3e81ccf60f8af44c0f65b02f9d75c587417be280905940a4bd18",
         "lib/react/index.js": "d07f83ae871eb83545725eeb816996b2c8db319a6bb48f80705ed6b313b2df0e",
         "lib/react/TranslateContainer.jsx": "1e151f4ba714471a5f13ea45050eaa7b465d227033a8112086be82f034cf5d6d",
         "lib/react/TranslateContext.js": "cb9b13eea12ecead2e503194a7f5f64906f5f8fc55df7cd8dcc32af1a18ffebb"
       }
     },
     "concepts/diagnostics": {
-      "sealedAt": "32f6c57",
+      "sealedAt": "fd07ae1",
       "sources": {
         "lib/errorSolve.js": "482019c69a89fa05500a999fafb078978ea05e17eaeff24ad9a73496470651f2",
-        "lib/index.d.ts": "8953057fd32c19a01d187801c41ca7ea395b88a800bd014facfc87864c08648b",
+        "lib/index.d.ts": "6d95042b357eea03d774430522a1a4ee759f5af03ccb99c081b177eb2d95ee55",
         "lib/react/Translate.js": "b2483d19ab7755d72b5402feb92c020fc79815fe5a0d55488b2b4a705dbaba00",
         "lib/dev/vite/uty/devReporter.js": "d3b872d65f3f4f3505754439ab30d880c986906b38fc536546af077196e1c3bc",
         "lib/dev/vite/uty/languageStatus.js": "b14a6e25b632315070fb7386911ab66276522b0804f1c3b61ab8fbb39b7efd55",
@@ -125,10 +125,10 @@
       }
     },
     "getting-started/faq": {
-      "sealedAt": "32f6c57",
+      "sealedAt": "fd07ae1",
       "sources": {
-        "lib/index.d.ts": "8953057fd32c19a01d187801c41ca7ea395b88a800bd014facfc87864c08648b",
-        "lib/react.d.ts": "d4f7461a2f3293bbe20637b1fc30959705cde82ca788127d14b2b033dee0ddcc"
+        "lib/index.d.ts": "6d95042b357eea03d774430522a1a4ee759f5af03ccb99c081b177eb2d95ee55",
+        "lib/react.d.ts": "bb69a51f5ead3e81ccf60f8af44c0f65b02f9d75c587417be280905940a4bd18"
       }
     },
     "getting-started/installation": {
@@ -149,23 +149,23 @@
       }
     },
     "getting-started/overview": {
-      "sealedAt": "32f6c57",
+      "sealedAt": "fd07ae1",
       "sources": {
         "package.json#peerDependencies": "653d7a4b02362de8337d74378c1924744b7a8ac345031f5e433fdd0e874efd98",
-        "site/runtimeSize.json": "7dcf5c2ff32f961bc146239f65777aa258275d975e80348a2e5315172b2385be"
+        "site/runtimeSize.json": "bd2fd6470bde4229ec6379b0d03f5d7de5840c6e40a097b1a1600d2d15d06ba6"
       }
     },
     "getting-started/usage": {
-      "sealedAt": "32f6c57",
+      "sealedAt": "fd07ae1",
       "sources": {
-        "lib/react.d.ts": "d4f7461a2f3293bbe20637b1fc30959705cde82ca788127d14b2b033dee0ddcc",
+        "lib/react.d.ts": "bb69a51f5ead3e81ccf60f8af44c0f65b02f9d75c587417be280905940a4bd18",
         "lib/dev/vite/cli.js": "0d286d24ec084edb12d070e25dbb6f40d2587be6d36c963dc937b1a1827120fd"
       }
     },
     "hooks/helpers": {
-      "sealedAt": "32f6c57",
+      "sealedAt": "fd07ae1",
       "sources": {
-        "lib/react.d.ts": "d4f7461a2f3293bbe20637b1fc30959705cde82ca788127d14b2b033dee0ddcc",
+        "lib/react.d.ts": "bb69a51f5ead3e81ccf60f8af44c0f65b02f9d75c587417be280905940a4bd18",
         "lib/react/index.js": "d07f83ae871eb83545725eeb816996b2c8db319a6bb48f80705ed6b313b2df0e",
         "lib/react/jsxArg.js": "fca0af20e82a91088f3f5990508a87be2bbc53e8f020b5e332d85cd326d34643",
         "lib/react/basicHtmlToNodes.js": "310e82bf7631ea25157910ccf036b2028c52e5571e5af86af070ec24ad06a060",
@@ -173,93 +173,93 @@
       }
     },
     "hooks/use-translate-language": {
-      "sealedAt": "32f6c57",
+      "sealedAt": "fd07ae1",
       "sources": {
-        "lib/react.d.ts": "d4f7461a2f3293bbe20637b1fc30959705cde82ca788127d14b2b033dee0ddcc",
+        "lib/react.d.ts": "bb69a51f5ead3e81ccf60f8af44c0f65b02f9d75c587417be280905940a4bd18",
         "lib/react/useTranslateLanguage.js": "bbbf597a42385607c435c7b6ab5452011b84915b53477eea8bd0ba9b9e386d72",
         "lib/react/TranslateContainer.jsx": "1e151f4ba714471a5f13ea45050eaa7b465d227033a8112086be82f034cf5d6d",
         "lib/react/languageResource.js": "529dddc4e2f772bc3b808988d70816c22ef189afe2926e4acd8acc4e7d5290f4"
       }
     },
     "hooks/use-translate-node": {
-      "sealedAt": "32f6c57",
+      "sealedAt": "fd07ae1",
       "sources": {
-        "lib/react.d.ts": "d4f7461a2f3293bbe20637b1fc30959705cde82ca788127d14b2b033dee0ddcc",
+        "lib/react.d.ts": "bb69a51f5ead3e81ccf60f8af44c0f65b02f9d75c587417be280905940a4bd18",
         "lib/react/useTranslateNode.js": "b4c70520f8eb60b3bd84827654e8bc71b1ae9c1165dc8acefd237fb953fd1c99"
       }
     },
     "hooks/use-translate-to-string": {
-      "sealedAt": "32f6c57",
+      "sealedAt": "fd07ae1",
       "sources": {
-        "lib/react.d.ts": "d4f7461a2f3293bbe20637b1fc30959705cde82ca788127d14b2b033dee0ddcc",
+        "lib/react.d.ts": "bb69a51f5ead3e81ccf60f8af44c0f65b02f9d75c587417be280905940a4bd18",
         "lib/react/useTranslateToString.js": "caa93c143b609a9928675c85e363b3e613a1830fe5f80c5dcf71eaa3993b18e7",
         "lib/dev/babel/macroForms.js": "a52baf54b5b01f175c40321e8ef4f78b02ec174925af62682d7d961d938081ec"
       }
     },
     "llm/context": {
-      "sealedAt": "32f6c57",
+      "sealedAt": "fd07ae1",
       "sources": {
         "lib/dev/llm/contextFile.js": "4f7c8df6aa2639344bd5b35a2a8d2c2ff51ebe4e5e63beb66aebeff99e2053e2",
         "lib/dev/llm/contextSample.js": "cfbf709d71dc4e9e46323926688054e52560b49b268228cc1c4f46ce8d1fc97d",
-        "lib/dev/llm/llmOptions.js": "c97f11748cc8d607d9f4a8aea4fd09fe04fb8207971ce7ad8dbd4987a2d564cf"
+        "lib/dev/llm/llmOptions.js": "7b115b9f853b5ed81bd80791cd69641bcbd0475e91d9222e42b94213f8797008"
       }
     },
     "llm/price": {
-      "sealedAt": "32f6c57",
+      "sealedAt": "fd07ae1",
       "sources": {
-        "lib/dev/llm/costModel.js": "511f5bf33f86e43f92406bd786bcea80a92f1dd749b3581dc24c434e82762ed4",
+        "lib/dev/llm/costModel.js": "1fabc0bc9c231986a9863a8a89cbd473a9533fab75f9a2f182e319afcce225ba",
         "lib/dev/llm/budgetGuard.js": "03a7d6d09c302fb84bd12b49089c46f633d87b5ffd1a72b834eac651637323cb",
-        "lib/dev/llm/llmOptions.js": "c97f11748cc8d607d9f4a8aea4fd09fe04fb8207971ce7ad8dbd4987a2d564cf",
+        "lib/dev/llm/llmOptions.js": "7b115b9f853b5ed81bd80791cd69641bcbd0475e91d9222e42b94213f8797008",
         "lib/dev/llm/buildBatches.js": "2da25650ed525313d82ca70ee53affe38e9c5aaf2071063af5f385916fa131d5",
         "lib/dev/llm/llmLedger.js": "2908f63493ec3dfebe2385159398f280b7a6baa8d337c8ab710b14ba4b770b3b",
-        "lib/dev/llm/translatePass.js": "1e67dec819fdc0bad2ff7988e5f799e0e56640a64dd1cd74392aa97f9322c637"
+        "lib/dev/llm/translatePass.js": "f438313fd05c511baf0d9c344e148125ce68dc8a3211be792e293b03ecf9c4e0"
       }
     },
     "llm/providers": {
-      "sealedAt": "32f6c57",
+      "sealedAt": "fd07ae1",
       "sources": {
-        "lib/dev/llm/fetchDriver.js": "3821eac4496662fe00d6ed8664cf7d3731ceae6877fcffbb21003406a85fc0d4",
-        "lib/dev/llm/callModel.js": "0efa4a5db9f03a09128873bcfb7a81f38087fc8bb30b9c649bbb3a6f3182d349",
-        "lib/dev/llm/llmOptions.js": "c97f11748cc8d607d9f4a8aea4fd09fe04fb8207971ce7ad8dbd4987a2d564cf"
+        "lib/dev/llm/fetchDriver.js": "12772a79c0b5006a5d690067181ec5f0ab7ec12a581fb7c0be44cce90794a7c5",
+        "lib/dev/llm/callModel.js": "97c345237f84426fc33894e8ecc94d3413150ca0d669d4d78b18e1eee42a29e8",
+        "lib/dev/llm/llmOptions.js": "7b115b9f853b5ed81bd80791cd69641bcbd0475e91d9222e42b94213f8797008"
       }
     },
     "llm/running": {
-      "sealedAt": "32f6c57",
+      "sealedAt": "fd07ae1",
       "sources": {
-        "lib/dev/llm/llmCommands.js": "9f56b284dca417a0067e3efe0b2213a0797065924f66f4f4111efc98ad9e4d62",
+        "lib/dev/llm/llmCommands.js": "4dc48a879b6be4bc73a0738e08afb9fcfd75d8cd034f282b24d92e18f7f64cbd",
         "lib/dev/llm/requestPanel.js": "05f2cd21972a8d1b6d8f785a2af3de548c5400edace0e7068eec12ce9fe0a439",
-        "lib/dev/llm/llmReport.js": "287b5503caadb62817f5a2d2e262a67c8b5652112985bf2651d657d77c1608c5",
+        "lib/dev/llm/llmReport.js": "1fbb19ce78e2e49086225e2697bf977d22ab37f8d8c5937d628e9c423854fd51",
         "lib/dev/llm/validateTranslation.js": "4e87d4d1701260cc0986f8cfbb42a7fb48103af878a612cd9d3637bc5049372c",
         "lib/dev/llm/debugTrace.js": "b5c83c3e757fd57a18b065881556a402681d2d1e5d8a3dfd39ee0e5a04b89eec",
-        "lib/dev/llm/translatePass.js": "1e67dec819fdc0bad2ff7988e5f799e0e56640a64dd1cd74392aa97f9322c637",
+        "lib/dev/llm/translatePass.js": "f438313fd05c511baf0d9c344e148125ce68dc8a3211be792e293b03ecf9c4e0",
         "lib/dev/vite/cli.js": "0d286d24ec084edb12d070e25dbb6f40d2587be6d36c963dc937b1a1827120fd"
       }
     },
     "llm/setup": {
-      "sealedAt": "32f6c57",
+      "sealedAt": "fd07ae1",
       "sources": {
-        "lib/dev/llm/llmOptions.js": "c97f11748cc8d607d9f4a8aea4fd09fe04fb8207971ce7ad8dbd4987a2d564cf",
+        "lib/dev/llm/llmOptions.js": "7b115b9f853b5ed81bd80791cd69641bcbd0475e91d9222e42b94213f8797008",
         "lib/dev/llm/apiKey.js": "cd8f5941887d854b61f0812adbcee8b9050e40a5fcfd68e9a78c183b1dd85dbd",
         "lib/dev/llm/keyringPeer.js": "258dc8af27759f090bf941399f312123f3279e4a7378a14a7bf02c29700ccdc8",
-        "lib/dev/llm/fetchDriver.js": "3821eac4496662fe00d6ed8664cf7d3731ceae6877fcffbb21003406a85fc0d4",
-        "lib/dev/llm/llmCommands.js": "9f56b284dca417a0067e3efe0b2213a0797065924f66f4f4111efc98ad9e4d62"
+        "lib/dev/llm/fetchDriver.js": "12772a79c0b5006a5d690067181ec5f0ab7ec12a581fb7c0be44cce90794a7c5",
+        "lib/dev/llm/llmCommands.js": "4dc48a879b6be4bc73a0738e08afb9fcfd75d8cd034f282b24d92e18f7f64cbd"
       }
     },
     "tutorials/first-app": {
-      "sealedAt": "32f6c57",
+      "sealedAt": "fd07ae1",
       "sources": {
         "demo/Vite_8/quickApp/vite.config.js": "1f37d72ba3dbda1810a3f42b6a9992305e9843f1c386a0af2b3d4b800bda62b1",
         "demo/Vite_8/quickApp/src/main.jsx": "3f8d37ac29b7aa130951a39374103ff18d0a68e50bfffc40a78b3f1b90597f22",
         "lib/dev/vite/cli.js": "0d286d24ec084edb12d070e25dbb6f40d2587be6d36c963dc937b1a1827120fd",
-        "lib/react.d.ts": "d4f7461a2f3293bbe20637b1fc30959705cde82ca788127d14b2b033dee0ddcc"
+        "lib/react.d.ts": "bb69a51f5ead3e81ccf60f8af44c0f65b02f9d75c587417be280905940a4bd18"
       }
     },
     "tutorials/language-switcher": {
-      "sealedAt": "32f6c57",
+      "sealedAt": "fd07ae1",
       "sources": {
         "demo/Vite_8/minimal/src/RotateLanguageButton.jsx": "5120f4a6fb58e9d7cb2b084d490d4edad9a10c519d92238df74d21f3aca437d5",
         "lib/react/useTranslateLanguage.js": "bbbf597a42385607c435c7b6ab5452011b84915b53477eea8bd0ba9b9e386d72",
-        "lib/react.d.ts": "d4f7461a2f3293bbe20637b1fc30959705cde82ca788127d14b2b033dee0ddcc"
+        "lib/react.d.ts": "bb69a51f5ead3e81ccf60f8af44c0f65b02f9d75c587417be280905940a4bd18"
       }
     },
     "tutorials/migrating-from-3": {
@@ -428,6 +428,7 @@
     "llm/setup",
     "llm/setup#every-option",
     "llm/setup#getting-started",
+    "llm/setup#tested-endpoints",
     "llm/setup#the-api-key",
     "tutorials/first-app",
     "tutorials/first-app#add-french",

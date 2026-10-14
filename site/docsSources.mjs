@@ -151,7 +151,7 @@ export function scanScope(radice = RADICE) {
     ...sotto("idePlugin/src"),
     ...sotto("launcher"),
     ...sotto("demo").filter((f) => /\/README\.md$|\/vite\.config\.js$|\/src\//.test(f)),
-    ...sotto("lib").filter((f) => f.endsWith(".js") && !f.startsWith("lib/dist/")),
+    ...sotto("lib").filter((f) => (f.endsWith(".js") || f.endsWith(".d.ts")) && !f.startsWith("lib/dist/")),
     ...sotto("site/landing/src").filter((f) => !f.includes("/theme/")),
     ...sotto("site/pages").filter((f) => /^site\/pages\/[^/]+\/src\//.test(f) && !f.includes("/src/theme/") && !f.includes("/src/generated/")),
     ...sotto(`${PAGINA}/content`),

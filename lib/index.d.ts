@@ -74,7 +74,7 @@ export interface ErrorSolveOptions {
   warningBuild?: boolean;
 }
 
-/** Opzioni ICU (vedi doc/icu.md), il default di build per i messaggi `{n, date}`/`{n, time}`. */
+/** Opzioni ICU (vedi la guida ICU: https://sepoina.github.io/viteTranslate/docs/concepts/icu/), il default di build per i messaggi `{n, date}`/`{n, time}`. */
 export interface IcuOptions {
   /**
    * Fuso IANA di default (es. `"Europe/Rome"`) per i messaggi ICU `date`/`time`, quando non lo
@@ -162,7 +162,7 @@ export interface VitetranslateOptions {
    * Stessi colori, righe più corte. Utile in CI o in un terminale stretto. Default: `false`.
    */
   simpleLog?: boolean;
-  /** Il default di build per i messaggi ICU `date`/`time` (vedi doc/icu.md). */
+  /** Il default di build per i messaggi ICU `date`/`time` (vedi la guida ICU: https://sepoina.github.io/viteTranslate/docs/concepts/icu/). */
   icu?: IcuOptions;
 }
 

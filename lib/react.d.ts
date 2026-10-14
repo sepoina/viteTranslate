@@ -8,7 +8,7 @@
 import type { FC, ReactElement, ReactNode } from 'react';
 
 /**
- * Un valore interpolabile in un `%s`, `{n}` o `{nome}` (vedi doc/icu.md). `ReactNode` e non
+ * Un valore interpolabile in un `%s`, `{n}` o `{nome}` (vedi la guida ICU: https://sepoina.github.io/viteTranslate/docs/concepts/icu/). `ReactNode` e non
  * `unknown`: copre stringhe, numeri, bigint, booleani, `null`, `undefined` ed elementi React —
  * che sono esattamente le cose che la tabella compilata sa mettere in un buco — ed esclude
  * funzioni e simboli, che a runtime finivano stringificati dentro un aria-label. `Date` in più
@@ -18,7 +18,7 @@ import type { FC, ReactElement, ReactNode } from 'react';
 export type TranslateArg = ReactNode | Date | bigint;
 
 /**
- * L'oggetto degli argomenti con nome (`{nome}`, vedi doc/icu.md): un oggetto semplice, mai
+ * L'oggetto degli argomenti con nome (`{nome}`, vedi la guida ICU: https://sepoina.github.io/viteTranslate/docs/concepts/icu/): un oggetto semplice, mai
  * un'istanza di classe. `a={{ nome: "Aldo" }}` o `ts(t, { nome })`.
  */
 export type TranslateNamedArgs = Readonly<Record<string, TranslateArg>>;
@@ -119,7 +119,7 @@ export interface TranslateContainerProps {
   /** Esposto da `useTranslateLanguage()`. */
   debug?: boolean;
   /**
-   * Fuso IANA (es. `"Europe/Rome"`) per i messaggi ICU `{n, date}`/`{n, time}` (vedi doc/icu.md).
+   * Fuso IANA (es. `"Europe/Rome"`) per i messaggi ICU `{n, date}`/`{n, time}` (vedi la guida ICU: https://sepoina.github.io/viteTranslate/docs/concepts/icu/).
    * Precede l'opzione `icu.timeZone` del plugin. A differenza di `initialLanguage` si può
    * cambiare dopo il mount. In SSR va impostato esplicitamente (qui o nel plugin): senza,
    * server e browser possono formattare in fusi diversi e React segnala un mismatch di

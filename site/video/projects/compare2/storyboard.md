@@ -16,7 +16,7 @@
 - **Finale:** dopo "viteTranslate fa il resto" un attimo di pausa, poi, scherzando, la battuta del caffè, col timbro "open source". Il brano finisce, e negli ultimi 2 secondi almeno il video sfuma al nero.
 - **Respiro:** la voce copre quasi tutto il video, con pause corte tra le scene; dopo `hook` e dopo `together` un secondo senza voce, perché la musica si senta salire. Attese e pause il più corte possibile: tutto deve stare dentro il brano.
 - **Qualità:** il video finale è il master per YouTube: fino a 60 MB al minuto. Ne usa circa 29, il massimo che le riprese contengono: oltre, x264 è già quasi senza perdita.
-- **Fonti:** la tabella "⚡ Why viteTranslate" del README e le sue note; il peso del runtime dalla nota ⁴; il confronto della landing (`site/landing/src/Compare.jsx`); le pagine del sito da `doc/live-examples.md`. Se cambiano, il video va rivisto.
+- **Fonti:** la tabella "⚡ Why viteTranslate" del README e le sue note; il peso del runtime dalla nota ⁴; il confronto della landing (`site/landing/src/Compare.jsx`); le pagine del sito dalla pagina `getting-started/live-examples` del manuale. Se cambiano, il video va rivisto.
 - **Le dieci funzioni della tabella, scena per scena:**
   - testo naturale, senza chiavi → `write`
   - estensione ufficiale per VS Code → `extension`, `translate`
@@ -143,7 +143,7 @@
 - **Scena:** app, il sito
 - **Si vede:** il ristorante: la terrazza sul mare, il titolo grande. Dal menu delle lingue (il globo in alto a destra) si passa al francese; poi la pagina scorre tutta, dall'alto fino in fondo, come nel playground: la storia, il menù, la cantina, le recensioni, le prenotazioni, tutto in francese. In fondo, dal globo (la barra resta in alto), il giapponese.
 - **Si dice:** E un ristorante intero: duecentoventotto frasi, quattro lingue, tradotte dall'LLM.
-- **Note:** è la prova in grande dell'LLM appena visto: lo scorrimento fa sentire quanto testo c'è. I numeri vengono da `doc/live-examples.md`: 228 frasi, quattro lingue oltre all'italiano di partenza.
+- **Note:** è la prova in grande dell'LLM appena visto: lo scorrimento fa sentire quanto testo c'è. I numeri vengono dalla pagina `getting-started/live-examples` del manuale: 228 frasi, quattro lingue oltre all'italiano di partenza.
 
 ## compare · Il confronto
 

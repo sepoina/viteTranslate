@@ -17,7 +17,7 @@ Anything else: see [Optional Vercel Provider](#optional-vercel-provider).
 
 ## Optional Vercel Provider {#optional-vercel-provider}
 
-For an API that doesn't speak Chat Completions, or to go through a client library, pass your own `llm.driver`: a function, sync or async, receiving `{ connection, apiKey, systemPrompt, userPayload, mode, maxTokens }` (ignore `maxTokens` if you like) and returning either `Record<key, string>` or `{ translations, usage }`. With a driver, `baseURL` and `model` are not required. For example, with the [Vercel AI SDK](https://sdk.vercel.ai):
+For an API that doesn't speak Chat Completions, or to go through a client library, pass your own `llm.driver`: a function, sync or async, receiving `{ connection, apiKey, systemPrompt, userPayload, mode, maxTokens }` (ignore `maxTokens` if you like) and returning either `Record<key, string>` or `{ translations, usage }`. `usage` is `{ tokensIn, tokensOut }`, plus `reasoningOut` and `cost` if you have them: a `cost` is counted instead of your prices. Throw an error with a `status` to get the built-in handling: 429 and 5xx are retried, 401/403/404 [stop the run](/llm/running#while-it-runs). With a driver, `baseURL` and `model` are not required. For example, with the [Vercel AI SDK](https://sdk.vercel.ai):
 
 ```js
 llm: {

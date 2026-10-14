@@ -581,19 +581,28 @@ console.log("\n== R3 il troncamento: la stessa domanda mai, le chiavi in lotti d
   eq("una nota dice cosa resta e cosa fare", true, righe.some((r) => r.includes("2 key(s) still truncated: raise modelClass or turn reasoning off")));
 }
 
-console.log("\n== R4 maxTokens arriva al driver ==");
+console.log("\n== R4 maxTokens arriva al driver: la stima del lotto per 2,5, fra 1024 e il tetto della classe ==");
 {
-  const baseDir = progetto(SRC);
-  const seen = [];
-  const driver = async (args) => {
-    seen.push(args.maxTokens);
-    const { items } = JSON.parse(args.userPayload);
-    return { translations: Object.fromEntries(items.map((i) => [i.k, `TR:${i.t}`])) };
+  const tetti = async (src, modelClass) => {
+    const seen = [];
+    const driver = async (args) => {
+      seen.push(args.maxTokens);
+      const { items } = JSON.parse(args.userPayload);
+      return { translations: Object.fromEntries(items.map((i) => [i.k, `TR:${i.t}`])) };
+    };
+    const config = baseConfig(progetto(src), driver);
+    config.llm.connection = { ...config.llm.connection, modelClass };
+    await catturaAsync(() => translatePass({ config, noAsk: true, tags: ["fr-FR"] }));
+    return seen;
   };
-  const config = baseConfig(baseDir, driver);
-  config.llm.connection = { ...config.llm.connection, modelClass: "advanced" };
-  await catturaAsync(() => translatePass({ config, noAsk: true, tags: ["fr-FR"] }));
-  eq("il maxTokens della classe advanced", [6144], seen);
+  eq("lotto piccolo: il minimo, 1024", [1024], await tetti(SRC, "advanced"));
+  // ~4000 caratteri: ~1150 token stimati, x 2,5.
+  const lunga = await tetti(`export default function App() {
+  return <div>{"_%_${"Una frase lunga. ".repeat(235)}_%_"}</div>;
+}
+`, "standard");
+  eq("lotto grande: la stima per 2,5, sotto il tetto di standard (8192)", true, lunga.length === 1 && lunga[0] > 2500 && lunga[0] < 3500);
+  eq("il tetto della classe vince anche sul minimo", [400], await tetti(SRC, { maxOutputTokens: 300, maxTokens: 400 }));
 }
 
 console.log("\n== R5 maxCostPerDay tiene conto di costToday ==");
@@ -710,9 +719,9 @@ console.log("\n== S1 troncata con coppie complete: si tengono, il resto torna in
     const { items } = JSON.parse(userPayload);
     lotti.push(items.length);
     if (items.length === 4) {
-      // Arrivano due coppie e metà della terza, poi max_tokens.
+      // Arrivano due coppie e metà della terza, poi max_tokens: 30 token, quanti ne pesa davvero.
       const [a, b, c] = items;
-      throw troncata(`{"${a.k}":"TR:${a.t}","${b.k}":"TR:${b.t}","${c.k}":"TR:${c.t.slice(0, 1)}`);
+      throw troncata(`{"${a.k}":"TR:${a.t}","${b.k}":"TR:${b.t}","${c.k}":"TR:${c.t.slice(0, 1)}`, { tokensIn: 50, tokensOut: 30 });
     }
     return { translations: Object.fromEntries(items.map((i) => [i.k, `TR:${i.t}`])), usage: { tokensIn: 50, tokensOut: 20 } };
   };
@@ -723,7 +732,10 @@ console.log("\n== S1 troncata con coppie complete: si tengono, il resto torna in
   eq("la riga della troncata: cosa ha salvato, cosa manca", true, righe.some((r) => r.includes("✔ < 2 new keys français. 2 to do / truncated / 2 not returned")));
   eq("la riga del lotto rimandato", true, righe.some((r) => r.includes("✔ < 2 new keys français. Full translate!")));
   eq("nessuna nota: non resta niente di troncato", false, righe.some((r) => r.includes("still truncated")));
-  eq("la troncata non tara: una sola risposta nella finestra", 1, readLedger(baseDir).models["fake-model"].out["fr-FR"].samples.length);
+  const [taglio, intera] = readLedger(baseDir).models["fake-model"].out["fr-FR"].samples;
+  eq("la troncata tara: le 2 chiavi tornate contro i 30 token arrivati", true, taglio.chars > 0 && taglio.tokens === 30);
+  eq("la troncata tara il ragionamento sulle 4 chiavi del lotto", { reasoning: 0, keys: 4 }, { reasoning: taglio.reasoning, keys: taglio.keys });
+  eq("la risposta intera tara anche l'uscita", true, intera.chars > 0 && intera.tokens > 0);
 }
 
 console.log("\n== S2 i giri di metà recuperano un modello che ragiona troppo (8 -> 4 -> 2) ==");
@@ -813,6 +825,98 @@ console.log("\n== S5 il ragionamento si misura: riga finale, taratura, lotti del
   const baseDir = progetto(SRC);
   const { righe } = await catturaAsync(() => translatePass({ config: baseConfig(baseDir, riempie({ tokensIn: 10, tokensOut: 10 })), noAsk: true }));
   eq("senza ragionamento la riga non ne parla", false, righe.some((r) => r.includes("reasoning")));
+}
+
+console.log("\n== S5b un run tutto troncato dal ragionamento tara comunque: il run dopo fa lotti più piccoli ==");
+{
+  // Il caso visto con deepseek-v4.1-flash su OpenRouter: tutto max_tokens in ragionamento,
+  // contenuto vuoto, nessuna coppia da salvare. Senza taratura il run dopo rifarebbe gli stessi lotti.
+  const baseDir = progetto(QUATTRO);
+  const driver = async ({ userPayload }) => {
+    const pensati = 250 * JSON.parse(userPayload).items.length;
+    throw troncata("", { tokensIn: 50, tokensOut: pensati, reasoningOut: pensati });
+  };
+  const config = baseConfig(baseDir, driver);
+  config.llm.connection = { ...config.llm.connection, modelClass: { maxOutputTokens: 600 } };
+  const prima = (await catturaAsync(() => translatePass({ config, noAsk: true, dryRun: true, tags: ["fr-FR"] }))).valore;
+  eq("prima: un lotto solo", 1, prima.totalRequests);
+  await catturaAsync(() => translatePass({ config, noAsk: true, tags: ["fr-FR"] }));
+  eq("250 token di ragionamento per chiave, sui lotti troncati", 250, ratiosFor(readLedger(baseDir), "fake-model", "fr-FR").reasoningPerKey);
+  const dopo = (await catturaAsync(() => translatePass({ config, noAsk: true, dryRun: true, tags: ["fr-FR"] }))).valore;
+  eq("dopo: due chiavi per lotto sotto il soffitto di 600", 2, dopo.totalRequests);
+}
+
+// Sei chiavi, un lotto per chiave, una connessione alla volta: chi ferma il run si vede contando.
+const SEI = `export default function App() {
+  return <div>${Array.from({ length: 6 }, (_, i) => `{"_%_H${i + 1}_%_"}`).join("")}</div>;
+}
+`;
+const unaAllaVolta = (config) => {
+  config.llm.connection = { ...config.llm.connection, modelClass: { maxKeys: 1 }, maxConcurrency: 1 };
+  return config;
+};
+const fallisce = (status, extra = {}) => Object.assign(new Error(`HTTP ${status}`), { status, ...extra });
+
+console.log("\n== S7 un 403 ferma il run: gli altri lotti non partono ==");
+{
+  let chiamate = 0;
+  const driver = async () => { chiamate++; throw fallisce(403); };
+  const config = unaAllaVolta(baseConfig(progetto(SEI), driver));
+  const { valore: result, righe } = await catturaAsync(() => translatePass({ config, noAsk: true, tags: ["fr-FR"] }));
+  eq("una chiamata sola, non sei", 1, chiamate);
+  eq("il risultato dice chi l'ha fermato", 403, result.haltedBy);
+  eq("la nota: cosa è successo, cosa non è partito", true, righe.some((r) => r.includes("stopped on HTTP 403: 5 request(s) not sent")));
+  eq("la nota: cosa vuol dire", true, righe.some((r) => r.includes("the provider refuses this model to this key or app")));
+}
+
+console.log("\n== S8 un 429 che i ritentativi non smaltiscono ferma il run ==");
+{
+  let chiamate = 0;
+  const driver = async () => { chiamate++; throw fallisce(429, { retryAfter: "0" }); };
+  const config = unaAllaVolta(baseConfig(progetto(SEI), driver));
+  const { valore: result, righe } = await catturaAsync(() => translatePass({ config, noAsk: true, tags: ["fr-FR"] }));
+  eq("il primo lotto e i suoi 3 ritentativi, poi basta", 4, chiamate);
+  eq("fermato dal 429", 429, result.haltedBy);
+  eq("la nota", true, righe.some((r) => r.includes("stopped on HTTP 429: 5 request(s) not sent")));
+}
+
+console.log("\n== S9 un 429 che si azzera fra un'ora non si aspetta ==");
+{
+  let chiamate = 0;
+  const driver = async () => { chiamate++; throw fallisce(429, { retryAfter: "3600" }); };
+  const config = unaAllaVolta(baseConfig(progetto(SEI), driver));
+  const { valore: result } = await catturaAsync(() => translatePass({ config, noAsk: true, tags: ["fr-FR"] }));
+  eq("nessun ritentativo, nessun altro lotto", 1, chiamate);
+  eq("fermato dal 429", 429, result.haltedBy);
+}
+
+console.log("\n== S10 un errore di un lotto solo non ferma il run ==");
+{
+  let chiamate = 0;
+  const driver = async ({ userPayload }) => {
+    chiamate++;
+    if (chiamate === 1) throw fallisce(400);
+    const { items } = JSON.parse(userPayload);
+    return { translations: Object.fromEntries(items.map((i) => [i.k, `TR:${i.t}`])) };
+  };
+  const config = unaAllaVolta(baseConfig(progetto(SEI), driver));
+  const { valore: result } = await catturaAsync(() => translatePass({ config, noAsk: true, tags: ["fr-FR"] }));
+  eq("tutti e sei i lotti partono", 6, chiamate);
+  eq("cinque tradotte", 5, result.perLanguage[0].filled);
+  eq("nessuna fermata", undefined, result.haltedBy);
+}
+
+console.log("\n== S11 il costo detto dal provider vince sui prezzi della configurazione ==");
+{
+  const baseDir = progetto(SRC);
+  const driver = async ({ userPayload }) => {
+    const { items } = JSON.parse(userPayload);
+    return { translations: Object.fromEntries(items.map((i) => [i.k, `TR:${i.t}`])), usage: { tokensIn: 100, tokensOut: 100, cost: 0.5 } };
+  };
+  // Ai prezzi scritti (1 $ per milione) 200 token costerebbero $0.0002.
+  const { righe } = await catturaAsync(() => translatePass({ config: priced(baseConfig(baseDir, driver)), noAsk: true, tags: ["fr-FR"] }));
+  eq("la riga finale: il costo vero", true, righe.some((r) => r.includes("real token: 200 (≈ $0.5000)")));
+  eq("il giorno nel ledger: il costo vero", 0.5, readLedger(baseDir).costToday);
 }
 
 console.log("\n== S6 al primo run il rapporto d'uscita segue la lingua sorgente, non quella di destinazione ==");
