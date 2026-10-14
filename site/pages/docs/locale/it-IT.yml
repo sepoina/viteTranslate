@@ -1,8 +1,8 @@
 #  -------------------------------------------------
 #      italiano (Italia)
 #       |    code: it-IT
-#       |    missing key: 0
-#       |    processed: 2026-10-14 18:18
+#       |    missing key: 4
+#       |    processed: 2026-10-14 18:40
 #       |    TableVersion: 260905
 #  -------------------------------------------------
 #
@@ -961,7 +961,6 @@ setup_1on1gsu: "GLM 4.7 Flash esegue a ~56 token/s. Assegnagli {0} (il valore pr
 setup_1pms89j: "Affidabilità"
 setup_1qeopif: "Simbolo di valuta stampato davanti ai costi"
 setup_1qms01o: "Senza il pacchetto, o senza un Secret Service (Docker, WSL, una sessione SSH remota), quel passaggio viene saltato silenziosamente."
-setup_1teiv23: "Qualsiasi endpoint compatibile con OpenAI dovrebbe andare. Questi sono quelli provati end to end, con le impostazioni che li hanno fatti funzionare:"
 setup_1wh9oc9: "Per richiesta"
 setup_1yfgjgq: "Configurazione"
 setup_1yw3y38: "OpenRouter"
@@ -1216,3 +1215,9 @@ usetranslatetostring_47vgdt: "{0} accetta anche le stesse forme di chiamata dell
 usetranslatetostring_bsrje4: "Stringhe semplici tradotte per placeholder, aria-label, title e qualsiasi altra cosa che non sia JSX."
 usetranslatetostring_k80zyw: "🎮 Live: <0>placeholder e attributi</0>."
 usetranslatetostring_vt05bq: "Deve restituire una stringa primitiva, quindi un <b>elemento React</b> è l'unica forma che non accetta: un vero errore, con un messaggio tutto suo. Altri valori non testuali (una funzione, un symbol, un elemento dentro la tupla) restituiscono {0} con un avviso in console in sviluppo, come in {1}."
+
+#  ----to be translated------------------------------------------
+setup_1mx6udd: null
+setup_2gcdjy: null
+setup_c2glec: null
+setup_duh6bk: null

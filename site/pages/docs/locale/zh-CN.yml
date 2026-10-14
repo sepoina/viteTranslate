@@ -1,8 +1,8 @@
 #  -------------------------------------------------
 #      中文（中国）
 #       |    code: zh-CN
-#       |    missing key: 0
-#       |    processed: 2026-10-14 18:23
+#       |    missing key: 4
+#       |    processed: 2026-10-14 18:40
 #       |    TableVersion: 260905
 #  -------------------------------------------------
 #
@@ -961,7 +961,6 @@ setup_1on1gsu: "GLM 4.7 Flash 的运行速度约为 56 tokens/s。为其设置 {
 setup_1pms89j: "可靠性"
 setup_1qeopif: "打印在费用前面的货币符号"
 setup_1qms01o: "若未安装该包，或没有 Secret Service（如 Docker、WSL、远程 SSH 会话），该步骤会被静默跳过。"
-setup_1teiv23: "任何兼容 OpenAI 的端点应当都可以使用。以下是经过端到端测试的端点，以及使其正常工作的设置："
 setup_1wh9oc9: "每个请求"
 setup_1yfgjgq: "设置"
 setup_1yw3y38: "OpenRouter"
@@ -1216,3 +1215,9 @@ usetranslatetostring_47vgdt: "{0} 同样接受 {1} 的<2>其他形式</2>中的�
 usetranslatetostring_bsrje4: "用于 placeholder、aria-label、title 以及其他非 JSX 内容的翻译后普通字符串。"
 usetranslatetostring_k80zyw: "🎮 实时演示：<0>占位符与属性</0>。"
 usetranslatetostring_vt05bq: "它必须返回原始字符串，因此<b>React 元素</b>是唯一不被接受的形式：这是一个带有自身消息的真实错误。其他非文本值（函数、symbol、元组中的元素）在开发环境下返回 {0} 并输出控制台警告，与 {1} 中一致。"
+
+#  ----to be translated------------------------------------------
+setup_1mx6udd: null
+setup_2gcdjy: null
+setup_c2glec: null
+setup_duh6bk: null
