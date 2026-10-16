@@ -4,7 +4,7 @@ import { docsUrl, SITE_ROOT } from "./siteLinks.js";
 
 // I tasti in fondo a ogni card, pagine del sito e demo: il sorgente su GitHub, il progetto su
 // StackBlitz (letto da GitHub) e lo zip da scaricare. `source` è la cartella nel repo, `zip` il
-// percorso dello zip nel sito pubblicato: lo scrive site/build.mjs in site/dist/zip.
+// percorso dello zip nel sito pubblicato: lo scrive site/cli/build.mjs in site/dist/zip.
 // `manual` ("route#id", pages.js) adds a fourth one, first: the manual's page that explains the project.
 export default function ProjectLinks({ source, zip, manual }) {
   const trans = useTrans();

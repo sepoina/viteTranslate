@@ -3,13 +3,13 @@
 // basta la cartella, senza node_modules né build. Nessuna dipendenza: lo zip si scrive a mano
 // con node:zlib.
 //
-// Lo chiama site/build.mjs dopo aver riunito il sito: scrive site/dist/zip/<slug>.zip per ogni pagina.
+// Lo chiama site/cli/build.mjs dopo aver riunito il sito: scrive site/dist/zip/<slug>.zip per ogni pagina.
 import { mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 import { deflateRawSync } from "node:zlib";
 
-const RADICE = resolve(dirname(fileURLToPath(import.meta.url)), "..");
+const RADICE = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 
 // Cosa non entra mai in uno zip: ciò che si rigenera (node_modules, dist, cache) e ciò che è
 // locale o segreto. Un ".env" con la chiave dell'LLM non deve finire in un file da pubblicare:

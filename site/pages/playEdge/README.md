@@ -57,7 +57,7 @@ viceversa:
 Se i casi limite finissero nella `localeDir` del playground, le sue tabelle si porterebbero
 dietro marcatori deliberatamente malformati e un warning di sync a ogni build.
 
-In pubblicazione le build si ricongiungono: [`site/build.mjs`](../../build.mjs) builda la landing e ogni
+In pubblicazione le build si ricongiungono: [`site/cli/build.mjs`](../../cli/build.mjs) builda la landing e ogni
 pagina con la sua `base` e copia il `dist` di questa cartella in `site/dist/edge/` (vedi
 [`.github/workflows/publish.yml`](../../../.github/workflows/publish.yml), job `deploy-pages`).
 

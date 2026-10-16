@@ -14,7 +14,10 @@
       property="og:description"
       content="Extract translatable strings straight from your JSX. No keys to maintain, no runtime dependencies."
     />
-    <link rel="icon" href="/src/theme/logo.svg" type="image/svg+xml" />
+    <!-- Favicon from site/cli/favicon.mjs: the PNG goes first with its size, so browsers that read SVG pick the SVG -->
+    <link rel="icon" href="/src/theme/favicon-32.png" sizes="32x32" type="image/png" />
+    <link rel="icon" href="/src/theme/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/src/theme/apple-touch-icon.png" />
 
     <!-- Font: li carica src/theme/theme.css (Alfa Slab One, Schibsted Grotesk, IBM Plex Mono); qui solo il preconnect -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />

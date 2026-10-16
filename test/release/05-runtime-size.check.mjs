@@ -1,4 +1,4 @@
-// Il peso del runtime (npm run estimateSize): riscrive site/runtimeSize.json — è voluto, AGENTS.md
+// Il peso del runtime (npm run estimateSize): riscrive site/cli/runtimeSize.json — è voluto, AGENTS.md
 // lo chiede a ogni chiusura — e confronta il README. Senza "README: OK" nell'uscita il README è indietro.
 import { spawnSync } from "node:child_process";
 import { dirname, join } from "node:path";
@@ -7,7 +7,7 @@ import { fileURLToPath } from "node:url";
 const RADICE = join(dirname(fileURLToPath(import.meta.url)), "../..");
 
 export const name = "runtime-size";
-export const description = "runtime weight (rewrites site/runtimeSize.json) and the figures in README.md";
+export const description = "runtime weight (rewrites site/cli/runtimeSize.json) and the figures in README.md";
 
 export async function run({ log = () => {} } = {}) {
   log("node test/estimateSize.mjs: bundles the React runtime and the ICU helpers, minifies, gzips");

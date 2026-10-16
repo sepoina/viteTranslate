@@ -11,11 +11,12 @@ import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, 
 import { tmpdir } from "node:os";
 import { dirname, join, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
-import { sitePages } from "../../site/build.mjs";
+import { sitePages } from "../../site/cli/build.mjs";
 import { DEMOS, PAGES } from "../../site/landing/src/pages.js";
 import { sourceUrl, stackblitzUrl } from "../../site/landing/src/links.js";
-import { collectFiles, crc32, makeZip, zipDemos, zipPages } from "../../site/zip.mjs";
-import { checkTheme, syncTheme, themeTargets } from "../../site/syncTheme.mjs";
+import { collectFiles, crc32, makeZip, zipDemos, zipPages } from "../../site/cli/zip.mjs";
+import { checkTheme, syncTheme, themeTargets } from "../../site/cli/syncTheme.mjs";
+import { checkFavicon, themeColors } from "../../site/cli/favicon.mjs";
 import { demoDirs } from "../syncDemoDeps.mjs";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
@@ -167,6 +168,26 @@ for (const t of themeTargets(ROOT)) {
 }
 eq("site/theme/logo.svg è doc/logo.svg", true, readFileSync(join(ROOT, "site/theme/logo.svg")).equals(readFileSync(join(ROOT, "doc/logo.svg"))));
 
+// 8b. The favicon: redrawn from tokens.css it gives the same bytes (npm run site:favicon), and every themed page links it.
+eq("site/theme: favicon up to date (npm run site:favicon)", [], await checkFavicon(ROOT));
+const tokensFinti = `:root {\n  --bg-deep: #000000;\n  --badge-bg: var(--text);\n  --bg: #0B0F0D;\n  --accent: #4ade80;\n}\n:root[data-theme="light"] {\n  --bg: #f6f5f0;\n  --accent: #147a3a;\n}\n`;
+eq("themeColors: --bg and --accent of both blocks", { dark: { bg: "#0b0f0d", fg: "#4ade80" }, light: { bg: "#f6f5f0", fg: "#147a3a" } }, themeColors(tokensFinti));
+const erroreColori = (testo) => {
+  try {
+    themeColors(testo);
+    return "";
+  } catch (e) {
+    return e.message;
+  }
+};
+eq("themeColors: a token that isn't #rrggbb is an error", true, erroreColori(tokensFinti.replace("#147a3a", "var(--x)")).includes("--accent"));
+eq("themeColors: a missing block is an error", true, erroreColori(tokensFinti.slice(0, tokensFinti.indexOf(":root["))).includes("no "));
+for (const t of themeTargets(ROOT)) {
+  const html = readFileSync(join(ROOT, t, "index.html"), "utf8");
+  const icone = ["favicon-32.png", "favicon.svg", "apple-touch-icon.png"].map((f) => html.indexOf(`href="/src/theme/${f}"`));
+  eq(`${t}: index.html links the favicons, PNG before SVG`, true, icone.every((i) => i > 0) && icone[0] < icone[1]);
+}
+
 // 9. syncTheme su un albero finto: scrive, toglie i file che non ci sono più, lascia stare chi non lo chiede.
 const alberoTema = mkdtempSync(join(tmpdir(), "vt-theme-"));
 try {
@@ -176,7 +197,7 @@ try {
   };
   scrivi("site/theme/a.css", "a{}");
   scrivi("site/theme/B.jsx", "export default 1;");
-  scrivi("site/runtimeSize.json", "{}");
+  scrivi("site/cli/runtimeSize.json", "{}");
   scrivi("site/landing/package.json", "{}");
   scrivi("site/pages/p1/package.json", JSON.stringify({ vitetranslateSite: { slug: "p1", theme: true } }));
   scrivi("site/pages/p2/package.json", JSON.stringify({ vitetranslateSite: { slug: "p2" } }));

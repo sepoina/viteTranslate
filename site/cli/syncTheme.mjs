@@ -4,19 +4,19 @@
 // src/theme/ si riscrive tutta: i file tolti da site/theme/ spariscono anche dalle copie.
 // Con il tema viaggiano i dati del sito che le pagine mostrano (EXTRA).
 //
-//   node site/syncTheme.mjs            # riscrive le copie (npm run site:theme; lo fa anche site:build)
-//   node site/syncTheme.mjs --check    # non scrive: elenca le differenze, esce con 1 se ce ne sono
-//   node site/syncTheme.mjs --watch    # riscrive a ogni modifica, per lavorare al tema con un dev server aperto
+//   node site/cli/syncTheme.mjs            # riscrive le copie (npm run site:theme; lo fa anche site:build)
+//   node site/cli/syncTheme.mjs --check    # non scrive: elenca le differenze, esce con 1 se ce ne sono
+//   node site/cli/syncTheme.mjs --watch    # riscrive a ogni modifica, per lavorare al tema con un dev server aperto
 //
 // Chi riceve il tema: site/landing, e ogni site/pages/* con "vitetranslateSite": { "theme": true }.
 import { cpSync, existsSync, mkdirSync, readdirSync, readFileSync, rmSync, watch } from "node:fs";
 import { basename, dirname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
-const RADICE = resolve(dirname(fileURLToPath(import.meta.url)), "..");
+const RADICE = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 
-// runtimeSize.json lo scrive `npm run estimateSize` in site/ (AGENTS.md lo cerca lì) e lo leggono le pagine.
-const EXTRA = ["site/runtimeSize.json"];
+// runtimeSize.json lo scrive `npm run estimateSize` qui, in site/cli/ (AGENTS.md lo cerca lì), e lo leggono le pagine.
+const EXTRA = ["site/cli/runtimeSize.json"];
 
 /**
  * I file che ogni progetto riceve: quelli di site/theme/ più EXTRA.

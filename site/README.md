@@ -11,6 +11,9 @@ plus one page per demo, each a Vite project of its own.
 | [`pages/llmRestaurant/`](pages/llmRestaurant) | `/viteTranslate/llmrestaurant/` |
 | [`pages/docs/`](pages/docs) | `/viteTranslate/docs/` — the user manual (no card, no zip) |
 
+The scripts behind `npm run site*` and `docs:*` live in [`cli/`](cli), next to `runtimeSize.json` (the runtime
+weight the pages show, rewritten by `npm run estimateSize`).
+
 ## Run
 
 ```bash
@@ -54,11 +57,11 @@ npm run testRelease       # the release checks, the manual's among them
 
 ## Release checks
 
-`npm run testRelease` ([`test/testRelease.mjs`](../test/testRelease.mjs)) runs every `test/release/*.check.mjs` in name order and prints one table: `suite` (`npm test`), `theme`, `demos`, `readme` (size rule of AGENTS.md), `runtime-size` (runs `estimateSize`, which rewrites `site/runtimeSize.json`) and `docs`: it compiles the manual and runs eight checks (stale pages, `DOCS-PAGE` pointers, API coverage, published anchors, links into the manual — absolute addresses, and the site's own `docsUrl()`/`manual` targets — links to migrated files, `TODO(links)`, translation status). `--only <word>` runs the checks whose name has it. A check is a file exporting `name` and `run()` that returns `{ level: "ok" | "warn" | "ko", lines }`. Exit code 1 on any KO.
+`npm run testRelease` ([`test/testRelease.mjs`](../test/testRelease.mjs)) runs every `test/release/*.check.mjs` in name order and prints one table: `suite` (`npm test`), `theme` (copies and favicon), `demos`, `readme` (size rule of AGENTS.md), `runtime-size` (runs `estimateSize`, which rewrites `site/cli/runtimeSize.json`) and `docs`: it compiles the manual and runs eight checks (stale pages, `DOCS-PAGE` pointers, API coverage, published anchors, links into the manual — absolute addresses, and the site's own `docsUrl()`/`manual` targets — links to migrated files, `TODO(links)`, translation status). `--only <word>` runs the checks whose name has it. A check is a file exporting `name` and `run()` that returns `{ level: "ok" | "warn" | "ko", lines }`. Exit code 1 on any KO.
 
 ## Theme
 
-`site/theme/` is the theme: tokens, CSS, the top bar, language and theme switches, code blocks, the logo.
+`site/theme/` is the theme: tokens, CSS, the top bar, language and theme switches, code blocks, the logo, the favicon.
 Each project gets a copy in `src/theme/` (`npm run site:theme`; `site:build` and `estimateSize` do it too).
 Never edit a copy.
 
@@ -76,10 +79,16 @@ Why a copy: a page must build on its own (StackBlitz zip, a folder downloaded fr
 differs, or on a text/background pair below 4.5:1 (3:1 for `--dim` and `--mark-n`, kept for large text and symbols)
 — so a rebrand is one file and a test run.
 
+**Favicon.** [`cli/favicon.mjs`](cli/favicon.mjs) draws the logo's `%` on a tile in `--bg` and `--accent` and writes three
+files into `theme/`: `favicon.svg` (follows the system's light or dark), `favicon-32.png` for browsers without SVG
+favicons, `apple-touch-icon.png` (180 px, square: iOS rounds it). They're committed, so the build doesn't redraw
+them: after changing the glyph or those two tokens, `npm run site:favicon` (it refreshes the copies too). The
+site test and `testRelease` fail while they're stale. The restaurant demo keeps its own ⚓.
+
 Titles use `--display` (Alfa Slab One), which has no Chinese or Japanese glyphs. Give them `font-weight: 700` and
 `font-synthesis: none`: Latin stays as drawn, and the system CJK fallback comes out bold.
 
-Working on the theme with a dev server open: `node site/syncTheme.mjs --watch` in a second terminal.
+Working on the theme with a dev server open: `node site/cli/syncTheme.mjs --watch` in a second terminal.
 
 Need something dark on a light page (like the source panel of the edge page)? Put `data-theme="dark"` on it: its whole
 subtree keeps the dark tokens.
@@ -122,7 +131,7 @@ the Vite version, the big glyph what the demo is about). Every card ends with th
   straight from GitHub's `main`, so it shows the code as it is now, not as it was at the last site build.
 - **Zip** — `site:build` writes one per page to `site/dist/zip/<slug>.zip` and one per demo to
   `site/dist/zip/demo/<slug>.zip`. The folder as it is: it installs from npm, so no `node_modules`, no `dist`,
-  no lockfile, and never a `.env` (only `.env.example`). Written by [`zip.mjs`](zip.mjs), no dependency; the same
+  no lockfile, and never a `.env` (only `.env.example`). Written by [`cli/zip.mjs`](cli/zip.mjs), no dependency; the same
   content gives the same bytes.
 
 Both StackBlitz and the zip see the folder alone: the test fails on an import that leaves it, and on a project
@@ -160,7 +169,7 @@ magick playground.png -resize 960x600 -quality 82 landing/public/previews/playgr
 ## Why `VITE_SITE_ROOT`
 
 A page must work when downloaded alone, so it can't import anything from outside its folder — `test/list/site.test.mjs`
-checks it. Its links to the rest of the site go through `src/siteLinks.js`: `site/build.mjs` sets `VITE_SITE_ROOT`
+checks it. Its links to the rest of the site go through `src/siteLinks.js`: `site/cli/build.mjs` sets `VITE_SITE_ROOT`
 (`/viteTranslate/`, or `--root=/name/` for a fork), and without it the links point at the published site. So in
 `npm run dev` they lead to the live site; `npm run site:preview` shows the whole thing locally.
 

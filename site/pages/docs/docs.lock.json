@@ -141,18 +141,18 @@
       }
     },
     "getting-started/live-examples": {
-      "sealedAt": "e076796",
+      "sealedAt": "15359b4",
       "sources": {
         "site/pages/playground/src/App.jsx": "22676037e278b7dfe8f9152e4cebcb877469f69ff5f76bf7bace34910f2803b5",
         "site/pages/playEdge/src/testCases.jsx": "c881b30103ec8dd529af6247f4980adf33a77ef2b0f2ccd221ea58a31754266f",
-        "site/landing/src/pages.js": "3833399aaf344ff65d001f8dc71d790f0c6b4b2f3be8212b09232e94c9358b7f"
+        "site/landing/src/pages.js": "0813c2dd7b3285b26424c286deb959e551b6b3237e858acd353a453f8cdc2fd6"
       }
     },
     "getting-started/overview": {
-      "sealedAt": "fd07ae1",
+      "sealedAt": "15359b4",
       "sources": {
         "package.json#peerDependencies": "653d7a4b02362de8337d74378c1924744b7a8ac345031f5e433fdd0e874efd98",
-        "site/runtimeSize.json": "bd2fd6470bde4229ec6379b0d03f5d7de5840c6e40a097b1a1600d2d15d06ba6"
+        "site/cli/runtimeSize.json": "bd2fd6470bde4229ec6379b0d03f5d7de5840c6e40a097b1a1600d2d15d06ba6"
       }
     },
     "getting-started/usage": {

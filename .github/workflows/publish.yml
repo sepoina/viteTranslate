@@ -288,7 +288,7 @@ jobs:
       - name: Build library
         run: npm run build
 
-      # Landing alla radice, ogni pagina di site/pages/* nel suo slug (vedi site/build.mjs).
+      # Landing alla radice, ogni pagina di site/pages/* nel suo slug (vedi site/cli/build.mjs).
       - name: Build site
         run: npm run site:build -- --root=/${{ github.event.repository.name }}/
 

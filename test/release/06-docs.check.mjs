@@ -1,9 +1,9 @@
-// Il manuale (site/pages/docs): lo compila e lancia le verifiche di site/docsSources.mjs (pagine "stale",
+// Il manuale (site/pages/docs): lo compila e lancia le verifiche di site/cli/docsSources.mjs (pagine "stale",
 // puntatori DOCS-PAGE, copertura dell'API pubblica, ancore pubblicate, link, TODO(links), traduzione).
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { compileDocs } from "../../site/pages/docs/scripts/compileDocs.mjs";
-import { checks } from "../../site/docsSources.mjs";
+import { checks } from "../../site/cli/docsSources.mjs";
 
 const RADICE = join(dirname(fileURLToPath(import.meta.url)), "../..");
 

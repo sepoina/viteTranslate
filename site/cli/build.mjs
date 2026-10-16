@@ -1,14 +1,14 @@
 // Riunisce il sito pubblicato su GitHub Pages: la landing alla radice, ogni pagina di
 // site/pages/* nella sottocartella del suo slug. Ogni progetto si builda nella sua cartella,
 // da solo, con la sua `base`; qui si copiano i dist uno dentro l'altro.
-// Prima di buildare copia il tema in ogni progetto (site/syncTheme.mjs).
+// Prima di buildare copia il tema in ogni progetto (site/cli/syncTheme.mjs).
 //
-//   node site/build.mjs                          # site/dist per /viteTranslate/
-//   node site/build.mjs --root=/altroNome/       # un fork: la CI passa il nome del repo
-//   node site/build.mjs --preview                # dopo la build, vite preview su site/dist
+//   node site/cli/build.mjs                          # site/dist per /viteTranslate/
+//   node site/cli/build.mjs --root=/altroNome/       # un fork: la CI passa il nome del repo
+//   node site/cli/build.mjs --preview                # dopo la build, vite preview su site/dist
 //
 // In site/dist/zip ci sono anche gli zip delle pagine e, in zip/demo, quelli delle demo di demo/
-// (le card della landing, DEMOS di site/landing/src/pages.js): vedi site/zip.mjs.
+// (le card della landing, DEMOS di site/landing/src/pages.js): vedi site/cli/zip.mjs.
 //
 // Due configurazioni di vitetranslate() nella stessa build non convivono (il modulo virtuale
 // delle lingue ha un id unico): per questo sono build separate e non un'app sola con le route.
@@ -18,9 +18,9 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { zipDemos, zipPages } from "./zip.mjs";
 import { syncTheme } from "./syncTheme.mjs";
-import { DEMOS } from "./landing/src/pages.js";
+import { DEMOS } from "../landing/src/pages.js";
 
-const RADICE = resolve(dirname(fileURLToPath(import.meta.url)), "..");
+const RADICE = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 const ROOT_DEFAULT = "/viteTranslate/";
 // Cartelle che la landing usa per i suoi asset: uno slug uguale ne coprirebbe il contenuto.
 const SLUG_RISERVATI = ["assets"];
@@ -80,7 +80,7 @@ function main() {
     process.exit(1);
   }
 
-  // Il tema per primo: ogni progetto builda la sua copia in src/theme/ (vedi site/syncTheme.mjs).
+  // Il tema per primo: ogni progetto builda la sua copia in src/theme/ (vedi site/cli/syncTheme.mjs).
   console.log(`tema copiato in ${syncTheme().join(", ")}`);
 
   const pagine = sitePages();

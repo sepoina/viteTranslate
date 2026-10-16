@@ -4,7 +4,7 @@
 // si scrivono le cifre nei documenti (sizeLabels).
 //
 // Non è un test: non fa parte della suite (test/run.mjs scopre solo test/list/*.test.mjs).
-// Riscrive site/runtimeSize.json (le cifre del sito) e confronta README.md: in chiusura di ogni
+// Riscrive site/cli/runtimeSize.json (le cifre del sito) e confronta README.md: in chiusura di ogni
 // bundle di release, a ogni revisione di versione (regola di AGENTS.md), non solo "se cambia".
 //
 //   npm run estimateSize
@@ -12,7 +12,7 @@ import { readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { measureRuntime, sizeLabels, expectedReadme } from "./measureReactBundle.mjs";
-import { syncTheme } from "../site/syncTheme.mjs";
+import { syncTheme } from "../site/cli/syncTheme.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const KB = 1024;
@@ -32,7 +32,7 @@ Docs: write "${real}" (real weight, rounded down), "${note}" in the notes (READM
 and "${compare}" in comparisons.
 `);
 
-const runtimeSizePath = join(ROOT, "site/runtimeSize.json");
+const runtimeSizePath = join(ROOT, "site/cli/runtimeSize.json");
 const nextJson = JSON.stringify({ gzipBytes: gzip, real, compare }, null, 2) + "\n";
 const prevJson = (() => {
   try {
@@ -43,9 +43,9 @@ const prevJson = (() => {
 })();
 if (prevJson !== nextJson) {
   writeFileSync(runtimeSizePath, nextJson);
-  console.log("site/runtimeSize.json: updated");
+  console.log("site/cli/runtimeSize.json: updated");
 } else {
-  console.log("site/runtimeSize.json: unchanged");
+  console.log("site/cli/runtimeSize.json: unchanged");
 }
 
 // Le pagine leggono la loro copia (src/theme/runtimeSize.json): si riallineano subito.

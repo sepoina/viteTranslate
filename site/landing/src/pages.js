@@ -32,7 +32,7 @@ export const PAGES = [
 
 // Una card per demo di demo/: progetti minimi senza una pagina nel sito, quindi la card li apre su
 // StackBlitz. `source` è la cartella della demo (ognuna deve avere la sua card: lo controlla
-// test/list/site.test.mjs); `slug` dà il nome allo zip, che site/build.mjs scrive in zip/demo/<slug>.zip.
+// test/list/site.test.mjs); `slug` dà il nome allo zip, che site/cli/build.mjs scrive in zip/demo/<slug>.zip.
 // `stack` e `glyph` sono dati, non si traducono: `glyph` è il simbolo Unicode (mai un emoji) che fa
 // da fondale alla card e dice il contenuto della demo. La versione di Vite, che colora il fondo,
 // Starters.jsx la legge dalla cartella (demo/Vite_N). `manual` is the manual's page closest to the demo (the "Manuale" button).

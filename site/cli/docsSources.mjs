@@ -4,7 +4,7 @@
 //
 //   npm run docs:status                    # le pagine "stale": il codice è cambiato, la pagina no
 //   npm run docs:seal -- <route> [<route>…]  # dopo aver riletto il diff e aggiornato la pagina
-//   node site/docsSources.mjs checks       # le verifiche (le stesse di test/release/06-docs.check.mjs)
+//   node site/cli/docsSources.mjs checks       # le verifiche (le stesse di test/release/06-docs.check.mjs)
 //
 // Il lock si scrive solo con `seal`, una pagina alla volta: sigillare senza aver letto il diff
 // vanificherebbe tutto. Gli hash sono sul testo con i fine riga normalizzati a LF (CRLF/LF non conta).
@@ -14,9 +14,9 @@ import { existsSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 import { dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
-import { collectCode, collectLinks, jsonSubtree, listMdx, pageIds, parseMdx, splitSource } from "./pages/docs/scripts/compileDocs.mjs";
+import { collectCode, collectLinks, jsonSubtree, listMdx, pageIds, parseMdx, splitSource } from "../pages/docs/scripts/compileDocs.mjs";
 
-const RADICE = resolve(dirname(fileURLToPath(import.meta.url)), "..");
+const RADICE = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 const PAGINA = "site/pages/docs";
 const SITO = "https://sepoina.github.io/viteTranslate/docs/";
 
@@ -188,7 +188,7 @@ function checkBackPointers(radice, pages) {
     }
   }
   // l'altro verso: ogni rotta nominata nel codice esiste. Fuori: test/ (fixture finte), doc/, il sito pubblicato e questo file.
-  const escluso = (f) => /^(test|doc|node_modules)\//.test(f) || f === "site/docsSources.mjs" || f === "AGENTS.md" || f.includes("/dist/") || f.includes("/generated/");
+  const escluso = (f) => /^(test|doc|node_modules)\//.test(f) || f === "site/cli/docsSources.mjs" || f === "AGENTS.md" || f.includes("/dist/") || f.includes("/generated/");
   for (const f of cammina(radice)) {
     const r = relative(radice, f).split("\\").join("/");
     if (escluso(r) || !/\.(js|mjs|cjs|jsx|ts|tsx|css)$/.test(r) || r.startsWith("site/pages/docs/scripts/")) continue;
@@ -357,7 +357,7 @@ if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1]
         if (c.level !== "ok") for (const l of c.lines) console.log(l);
       }
     } else {
-      console.log("usage: node site/docsSources.mjs status | seal <route>… | checks");
+      console.log("usage: node site/cli/docsSources.mjs status | seal <route>… | checks");
       process.exit(1);
     }
   } catch (e) {

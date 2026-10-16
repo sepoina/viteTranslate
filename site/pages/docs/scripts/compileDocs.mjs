@@ -4,7 +4,7 @@
 //
 //   node scripts/compileDocs.mjs      # compila una volta (npm run compile)
 //
-// Si carica anche da vite.config.js (compileDocs() a ogni avvio) e dalle verifiche in site/docsSources.mjs
+// Si carica anche da vite.config.js (compileDocs() a ogni avvio) e dalle verifiche in site/cli/docsSources.mjs
 // (parseMdx). Regola d'oro del dialetto: ciò che non è elencato è un errore con `file:riga`.
 // LINKED-DATA: il dialetto è descritto in manual_v1.md e, in breve, in site/README.md ("The manual").
 import { existsSync, mkdirSync, readdirSync, readFileSync, rmdirSync, statSync, unlinkSync, watch, writeFileSync } from "node:fs";

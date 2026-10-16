@@ -1,4 +1,4 @@
-// Il legame fra il codice e il manuale (site/docsSources.mjs): quali pagine descrivono quali file, se il
+// Il legame fra il codice e il manuale (site/cli/docsSources.mjs): quali pagine descrivono quali file, se il
 // codice è cambiato dall'ultima rilettura, e le verifiche che `npm run testRelease` fa sul manuale.
 //
 // Perché è un test e non "si vede nell'uscita": questa è la rete che impedisce al manuale di restare
@@ -10,7 +10,7 @@
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
-import { checks, hashFile, hashSource, loadPages, readLock, scanScope, seal, status } from "../../site/docsSources.mjs";
+import { checks, hashFile, hashSource, loadPages, readLock, scanScope, seal, status } from "../../site/cli/docsSources.mjs";
 
 let fail = 0;
 const eq = (nome, atteso, ottenuto) => {

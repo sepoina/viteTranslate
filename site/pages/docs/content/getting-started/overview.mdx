@@ -3,7 +3,7 @@ title: Overview
 description: What viteTranslate is, the four steps from a sentence in JSX to a shipped language, and where to go next.
 sources:
   - package.json#peerDependencies
-  - site/runtimeSize.json
+  - site/cli/runtimeSize.json
 related:
   - /concepts/markers | Markers and keys | How a string is marked, and why its key never changes.
   - /components/translate#write-jsx-inside-translate | Write JSX inside Translate | Put values, tags and links right in the sentence; the preprocessor builds the message.
@@ -14,7 +14,7 @@ related:
   - /vscode/install#one-project-two-halves | Library and extension | What the npm package does, and what the editor extension adds on top.
 ---
 
-<!-- LINKED-DATA: the runtime weight comes from site/runtimeSize.json (npm run estimateSize), the same number the README and the landing page show. Round it as AGENTS.md says: down to the kB. -->
+<!-- LINKED-DATA: the runtime weight comes from site/cli/runtimeSize.json (npm run estimateSize), the same number the README and the landing page show. Round it as AGENTS.md says: down to the kB. -->
 
 Write text naturally in JSX. viteTranslate extracts the strings, keeps one `.yml` table per language in sync, and compiles the translations as part of your Vite workflow. ==No hand-written keys, no separate extraction step, no extra runtime dependencies.==
 

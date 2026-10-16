@@ -46,7 +46,7 @@ eq("nessuna traccia di parseMarkup (lib/markup/)", false, code.includes("parseMa
 eq("nessuna chiamata a un devRender importato direttamente (solo la proprietà)", false, /(?<!\.)\bdevRender\s*\(/.test(code));
 eq("jsxArg e' nel bundle (lo importa la macro)", true, code.includes("jsxArg"));
 
-// Il peso reale (React + helper ICU) confrontato con site/runtimeSize.json, che npm run
+// Il peso reale (React + helper ICU) confrontato con site/cli/runtimeSize.json, che npm run
 // estimateSize riscrive: un salto di un kB fa fallire questo test finché le cifre non vengono
 // aggiornate — è la guardia contro le fughe silenziose, legata a ciò che i documenti dicono
 // (piano 4.6.3, Fase 5 § 2b). I byte esatti NON si confrontano: cambiano con la versione di
@@ -58,12 +58,12 @@ eq("jsxArg e' nel bundle (lo importa la macro)", true, code.includes("jsxArg"));
   const KO_HINT = 'run "npm run estimateSize", then update README.md (plan 4.6.3, Fase 5 § 2b)';
   let runtimeSize;
   try {
-    runtimeSize = JSON.parse(readFileSync(join(ROOT, "site/runtimeSize.json"), "utf8"));
+    runtimeSize = JSON.parse(readFileSync(join(ROOT, "site/cli/runtimeSize.json"), "utf8"));
   } catch {
     runtimeSize = null;
   }
-  eq(`site/runtimeSize.json: real combacia — ${KO_HINT}`, real, runtimeSize?.real);
-  eq(`site/runtimeSize.json: compare combacia — ${KO_HINT}`, compare, runtimeSize?.compare);
+  eq(`site/cli/runtimeSize.json: real combacia — ${KO_HINT}`, real, runtimeSize?.real);
+  eq(`site/cli/runtimeSize.json: compare combacia — ${KO_HINT}`, compare, runtimeSize?.compare);
 }
 
 // --- La barra: Babel sta in "serve" e in "build", MAI nel bundle che l'utente produce ---

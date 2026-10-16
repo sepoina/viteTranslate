@@ -5,7 +5,7 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import { vitetranslate } from "@sepoina/vitetranslate";
 
-// Le pagine del sito sono build a sé (vedi site/build.mjs), con la loro `base` scritta negli asset.
+// Le pagine del sito sono build a sé (vedi site/cli/build.mjs), con la loro `base` scritta negli asset.
 // In dev la landing le serve dalle copie già buildate in site/dist, alla stessa radice della
 // pubblicazione, così le card portano a ciò che c'è sul disco e non al sito online. Se site/dist
 // non c'è (nessun `npm run site:build` fatto) non cambia niente: i link restano quelli pubblicati.
