@@ -1,8 +1,8 @@
-// Strato 9: fetchDriver.js e callModel.js. `fetch` è sempre una funzione finta: mai la rete vera.
+// Strato 9: fetchDriver.js e callModel.js (D1-D2: il driver utente che restituisce il testo e usa il fetch della libreria). `fetch` è sempre una funzione finta: mai la rete vera.
 //
 //   node test/list/llmDriver.test.mjs
 import fetchDriver, { rateLimitResetSeconds } from "../../lib/dev/llm/fetchDriver.js";
-import { callModel, runWithConcurrency, MAX_RETRY_WAIT_MS } from "../../lib/dev/llm/callModel.js";
+import { callModel, driverFetch, runWithConcurrency, MAX_RETRY_WAIT_MS } from "../../lib/dev/llm/callModel.js";
 
 let fail = 0;
 const eq = (nome, atteso, ottenuto) => {
@@ -451,6 +451,92 @@ console.log("\n== M10 attesa troppo lunga: nessun ritentativo ==");
   eq("60 s: si aspetta e si ritenta", { calls: 4, sleeps: [60000, 60000, 60000] }, await prova("60"));
   eq(`oltre ${MAX_RETRY_WAIT_MS / 1000} s: un tentativo solo`, { calls: 1, sleeps: [] }, await prova("3600"));
   eq("Retry-After non numerico: backoff normale", 4, (await prova("Wed, 21 Oct 2026 07:28:00 GMT")).calls);
+}
+
+// D1 — driver utente, terza forma: { content, truncated, usage } letto dalla libreria
+console.log("\n== D1 driver che restituisce il testo del modello ==");
+{
+  const chiama = (raw, extra = {}) => callModel({ connection: { ...conn, maxRetries: 0 }, driver: async () => raw, apiKey: "k", systemPrompt: "s", userPayload: "u", sleepImpl: async () => {}, ...extra });
+  const r = await chiama({ content: '```json\n{"A_1":"Ciao"}\n```</root>' });
+  eq("content: parser tollerante (fence e coda)", { A_1: "Ciao" }, r.translations);
+  eq("content: charsOut = lunghezza del testo", '```json\n{"A_1":"Ciao"}\n```</root>'.length, r.charsOut);
+  const u = await chiama({ content: '{"A":"b"}', usage: { prompt_tokens: 10, completion_tokens: 5, completion_tokens_details: { reasoning_tokens: 2 }, cost: 0.001 } });
+  eq("usage di Chat Completions mappato", { tokensIn: 10, tokensOut: 5, cachedIn: 0, reasoningOut: 2, cost: 0.001 }, u.usage);
+  const v = await chiama({ content: '{"A":"b"}', usage: { tokensIn: 3, tokensOut: 4 } });
+  eq("usage già nella forma della libreria: com'è", { tokensIn: 3, tokensOut: 4 }, v.usage);
+  const c = await chiama({ content: "  # Abstract\n", usage: { prompt_tokens: 1, completion_tokens: 2 } }, { mode: "context" });
+  eq("mode context: il testo, rifilato", "# Abstract", c.text);
+
+  const pagati = [];
+  let calls = 0;
+  let error;
+  try {
+    await callModel({
+      connection: conn, apiKey: "k", systemPrompt: "s", userPayload: "u", sleepImpl: async () => {},
+      driver: async () => { calls++; return { content: '{"A":"uno","B":"du', truncated: true, usage: { prompt_tokens: 7, completion_tokens: 9 } }; },
+      onUsage: (usage, info) => pagati.push([usage.tokensOut, info.ok, info.truncated]),
+    });
+  } catch (e) {
+    error = e;
+  }
+  eq("truncated: errore troncato con il testo arrivato", [true, '{"A":"uno","B":"du'], [error?.truncated, error?.partialContent]);
+  eq("truncated: non si ritenta, e il tentativo si paga", { calls: 1, pagati: [[9, false, true]] }, { calls, pagati });
+
+  let rotto;
+  try {
+    await chiama({ content: "non è JSON k", usage: { prompt_tokens: 1, completion_tokens: 1 } });
+  } catch (e) {
+    rotto = e;
+  }
+  eq("content non JSON: errore del driver, chiave oscurata", true, /^driver reply was not a JSON object/.test(rotto?.message) && !/ k$/.test(rotto.message));
+}
+
+// D2 — il fetch della libreria dato al driver
+console.log("\n== D2 fetch della libreria nel driver ==");
+{
+  const risposta = (status, body, headers = {}) => ({
+    ok: status >= 200 && status < 300, status, statusText: status === 200 ? "OK" : "Err",
+    headers: new Headers(headers), text: async () => body,
+  });
+  // Un driver alla Cline: la risposta di Chat Completions dentro { success, data }.
+  const driverCline = async ({ fetch }) => {
+    const reply = await fetch("http://x/chat/completions", { method: "POST", body: JSON.stringify({ model: "m" }) });
+    const { choices: [choice], usage } = (await reply.json()).data;
+    return { content: choice.message.content, truncated: choice.finish_reason === "length", usage };
+  };
+  const conFetch = (fetchImpl) => (params) => driverCline({ ...params, fetch: driverFetch({ connection: conn, apiKey: "segreta", fetchImpl }) });
+
+  const ok = await callModel({
+    connection: conn, apiKey: "segreta", systemPrompt: "s", userPayload: "u", sleepImpl: async () => {},
+    driver: conFetch(async () => risposta(200, JSON.stringify({ success: true, data: { choices: [{ message: { content: '{"A":"b"}' }, finish_reason: "stop" }], usage: { prompt_tokens: 4, completion_tokens: 2, cost: 0.0002 } } }))),
+  });
+  eq("risposta 2xx: Response standard, letta dal driver", { A: "b" }, ok.translations);
+  eq("il costo dichiarato dal provider arriva", 0.0002, ok.usage.cost);
+
+  let calls = 0;
+  const dopo429 = await callModel({
+    connection: conn, apiKey: "segreta", systemPrompt: "s", userPayload: "u", sleepImpl: async () => {},
+    driver: conFetch(async () => (++calls < 2
+      ? risposta(429, "slow down", { "retry-after": "1" })
+      : risposta(200, JSON.stringify({ data: { choices: [{ message: { content: '{"A":"c"}' } }] } })))),
+  });
+  eq("429: la libreria ritenta il driver", [2, { A: "c" }], [calls, dopo429.translations]);
+
+  let error;
+  try {
+    await callModel({
+      connection: conn, apiKey: "segreta", systemPrompt: "s", userPayload: "u", sleepImpl: async () => {},
+      driver: conFetch(async () => risposta(401, "bad key segreta")),
+    });
+  } catch (e) {
+    error = e;
+  }
+  eq("401: errore con status, chiave oscurata", [401, false], [error?.status, /segreta/.test(error?.message ?? "segreta")]);
+
+  // Il driver vero, passato da callModel: riceve `fetch` senza doverlo costruire.
+  let ricevuto;
+  await callModel({ connection: conn, apiKey: "k", systemPrompt: "s", userPayload: "u", driver: async (p) => { ricevuto = typeof p.fetch; return { A: "x" }; } });
+  eq("callModel dà al driver il suo fetch", "function", ricevuto);
 }
 
 console.log(fail ? `\n${fail} asserzioni fallite` : "\ntutto ok");

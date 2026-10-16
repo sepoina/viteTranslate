@@ -1,5 +1,6 @@
 import { Trans } from "@sepoina/vitetranslate/react";
 import { Code } from "./theme/Code.jsx";
+import ManualLink from "./theme/ManualLink.jsx";
 import SectionHead from "./SectionHead.jsx";
 
 const MARK = `<Trans>
@@ -18,6 +19,7 @@ const TRANSLATE = `$ npx vitetranslate --llm-translate
 ✓ validator: 0 rejected
 ✓ budget: within limit`;
 
+// Each step ends with the section of the manual's "Usage" that walks through it.
 export default function Steps() {
   return (
     <section className="band" data-section="how">
@@ -36,6 +38,9 @@ export default function Steps() {
               <Trans>Nel JSX, dove serve: variabili e tag compresi. Nessun file di chiavi, nessun nome da inventare.</Trans>
             </p>
             <Code code={MARK} lang="jsx" className="terminal" />
+            <ManualLink manual="getting-started/usage#write-text-where-it-belongs">
+              <Trans>_%_Scrivere il testo dove serve_%_</Trans>
+            </ManualLink>
           </li>
 
           <li className="step">
@@ -49,6 +54,9 @@ export default function Steps() {
               <Trans>_%_Un comando, oppure il server di sviluppo: le tabelle YAML restano allineate al codice._%_</Trans>
             </p>
             <Code code={SYNC} lang="sh" className="terminal" />
+            <ManualLink manual="getting-started/usage#start-vite-the-source-table-writes-itself">
+              <Trans>_%_La tabella che si scrive da sola_%_</Trans>
+            </ManualLink>
           </li>
 
           <li className="step">
@@ -62,6 +70,9 @@ export default function Steps() {
               <Trans>_%_A mano, da un traduttore, o con un LLM che rispetta segnaposto e tag. Poi pubblichi._%_</Trans>
             </p>
             <Code code={TRANSLATE} lang="sh" className="terminal" />
+            <ManualLink manual="getting-started/usage#translate">
+              <Trans>_%_Tradurre, a mano o con un LLM_%_</Trans>
+            </ManualLink>
           </li>
         </ol>
       </div>

@@ -65,6 +65,35 @@ export default defineConfig({
       localeDir: "locale",
       sourceLanguage: "it-IT",
       preloadedLanguages: ["en-US"],
+      // The OpenRouter setup template of the manual (llm/tested-endpoints), on a model being tried:
+      // ~openai/gpt-luna-latest (an alias, always the latest GPT Luna). The key goes in .env next to
+      // this file (git-ignored): OPENROUTER_API_KEY=…
+      // Read only by `npx vitetranslate --llm-…`: neither `vite dev` nor the build ever calls the model.
+      llm: {
+        connection: {
+          // OpenRouter's OpenAI-compatible API: the client adds /chat/completions to it.
+          baseURL: "https://openrouter.ai/api/v1",
+          model: "~openai/gpt-luna-latest",
+          // The NAME of the variable that holds the key, never the key: looked up in the
+          // environment, then in .env.local and .env in this folder.
+          apiKeyEnv: "OPENROUTER_API_KEY",
+          // The price per million tokens, input and output (OpenRouter, October 2026): the
+          // estimate, the budget and costGuard count with these.
+          costMillionInput: 0.1,
+          costMillionOutput: 0.5,
+          // How much the model takes at once: batches of up to 100 keys, ~3k output tokens.
+          modelClass: "standard",
+          // Added as is to every request, and the field is OpenRouter's own: reasoning off, since a
+          // model that thinks fills max_tokens before it answers.
+          providerOptions: { reasoning: { enabled: false } },
+        },
+        // The spending caps: $0.10 a run, $0.50 a day (the "safe" preset, with the prices above).
+        budget: "safe",
+        // Below this estimated cost, in $, the run starts without asking.
+        costGuard: 0.2,
+        // The context abstract (what the app is about, for the model) writes and refreshes itself.
+        context: { mode: "auto" },
+      },
     }),
   ],
   // Stesso inciampo di site/pages/playground/vite.config.js: la libreria è un link al

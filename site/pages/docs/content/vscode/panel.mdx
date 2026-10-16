@@ -43,7 +43,7 @@ Every string the project marks for translation, file by file: the folders of `sr
 
 ![Results, with its filter](img/results.png)
 
-One glyph in front of each entry says how it's doing. Trouble wears the same glyphs your app shows on screen: your `errorSolve.mark` ([diagnostics](/concepts/diagnostics)), or the defaults.
+One glyph in front of each entry says how it's doing. ==Trouble wears the same glyphs your app shows on screen==: your `errorSolve.mark` ([diagnostics](/concepts/diagnostics)), or the defaults.
 
 | | means |
 | --- | --- |
@@ -94,7 +94,7 @@ Under **VERSION**, who's who: this extension, the library installed in the proje
 
 Click **LLM ›** in **Project**. On top, three lines that answer "can I go?":
 
-- **API key**: *where* it is (an environment variable, `.env.local`, `.env`, the system keyring), never what it is. Not found? It says where it looked.
+- **API key**: *where* it is (an environment variable, `.env.local`, `.env`, the system keyring), ==never what it is==. Not found? It says where it looked.
 - **Settings**: which model, at which host, and whether prices are set (without them, costs and budgets count tokens, not money).
 - **Ping**: does the model answer? One tiny request, in the background, once per project. No key, no knocking.
 
@@ -110,7 +110,7 @@ No `llm` block in the plugin options? The button reads **LLM ?** and opens **Hel
 
 ## Highlighting {#highlighting}
 
-Marked strings stand out as you type, in `.js`, `.jsx`, `.ts` and `.tsx`: `_%_…_%_` (or your project's [`markerStart`/`markerEnd`](/concepts/markers), read from its `vite.config`), `<Trans>…</Trans>`, `trans` tagged templates (and their long names). Same rules as the extraction: what lights up gets translated. Until `vite.config` has been read — or in a library older than 4.7.0, or in Restricted Mode, where it is never run — the default `_%_` is used. The sample in Settings stays on `_%_`: it previews the style, not your project. Comments, and code samples inside strings, stay plain. No panel needed.
+Marked strings stand out as you type, in `.js`, `.jsx`, `.ts` and `.tsx`: `_%_…_%_` (or your project's [`markerStart`/`markerEnd`](/concepts/markers), read from its `vite.config`), `<Trans>…</Trans>`, `trans` tagged templates (and their long names). ==Same rules as the extraction: what lights up gets translated.== Until `vite.config` has been read — or in a library older than 4.7.0, or in Restricted Mode, where it is never run — the default `_%_` is used. The sample in Settings stays on `_%_`: it previews the style, not your project. Comments, and code samples inside strings, stay plain. No panel needed.
 
 ![Highlighted strings in the editor](img/highlight.png)
 
@@ -135,7 +135,7 @@ It works the other way too: put the cursor on a line with a marked string and **
 
 Everything refreshes by itself when a `package.json` or `vite.config.*` changes (and, for **Results**, a source or language file). ↻ does it on demand.
 
-While it catches up, the panel never passes off old news as fresh: a project still loading says *Loading…*, a file you just saved shows ⏳, one with unsaved edits shows ✎, and their entries stop jumping (the lines may have moved) until the new scan lands.
+While it catches up, ==the panel never passes off old news as fresh==: a project still loading says *Loading…*, a file you just saved shows ⏳, one with unsaved edits shows ✎, and their entries stop jumping (the lines may have moved) until the new scan lands.
 
 ## Under the hood {#under-the-hood}
 

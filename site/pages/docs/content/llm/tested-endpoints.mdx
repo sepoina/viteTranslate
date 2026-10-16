@@ -1,0 +1,429 @@
+---
+title: Tested endpoints
+description: The APIs the built-in client talks to as they are, and the ones run end to end, each with a vite.config.js ready to copy.
+sources:
+  - lib/dev/llm/fetchDriver.js
+  - lib/dev/llm/llmOptions.js
+  - lib/dev/llm/apiKey.js
+aliases:
+  - llm/providers#openai-compatible-endpoints -> openai-compatible
+  - llm/setup#tested-endpoints -> run-end-to-end
+related:
+  - /llm/setup#getting-started | Getting started | Point the llm block at a model, give it the key, fill the null keys.
+  - /llm/custom-endpoint | Custom endpoint | An API the built-in client can't read, through a custom LLM driver.
+  - /llm/price#reasoning-models | Reasoning models | Models that think before answering, and how their hidden tokens are counted.
+  - /llm/price#model-class | Model class | How much a model can take: the batch size and the max_tokens ceiling.
+  - /llm/running#debugging-a-run | Debugging a run | Log every request and reply to a folder, with the API key always redacted.
+---
+
+<!-- Moved here from llm/providers ("OpenAI-compatible endpoints") and llm/setup ("Tested endpoints"), both migrated from doc/llm.md. -->
+
+## OpenAI-compatible endpoints {#openai-compatible}
+
+The built-in client speaks the Chat Completions shape (`connection.protocol: "openai-chat"`, the only value accepted) with plain `fetch` — no dependency added. ==`/chat/completions` is appended to `baseURL`==. Gemini (`/v1beta/openai`), OpenAI, OpenRouter, Groq, DeepSeek, Ollama, LM Studio and vLLM all work this way: set `connection.baseURL` and `connection.model`, see [setup](/llm/setup#getting-started).
+
+An API that answers in another shape — a different request, a gateway that wraps the reply, a client library — goes through a [custom endpoint](/llm/custom-endpoint).
+
+## Run end to end {#run-end-to-end}
+
+Any OpenAI-compatible endpoint should do. These are the ones run end to end, the most reliable first. The code icon opens a row's setup template: a whole `vite.config.js`, every line of its `llm` block explained, ready to copy. The key goes in a `.env` next to it.
+
+| Code¹ | Provider :: model | Cost² | Reliability³ |
+| :- | :- | :- | :- |
+| {code:cline} | __Cline__ :: **deepseek-v4.1-flash**<br>Endpoint: `https://api.cline.bot/api/v1`<br>model id: `deepseek/deepseek-v4.1-flash`<hr>7–10 s per 100 keys.<br>Through a [custom LLM driver](/llm/custom-endpoint#cline-step-by-step): Cline sends the reply inside `{ success, data }`, which the built-in client doesn't read.<br>Measured: 7¢, the real cost in Cline's replies, almost twice the estimate. | ~4¢ | ★★★★★ |
+| {code:deepseek} | __DeepSeek__ :: **deepseek-flash**<br>Endpoint: `https://api.deepseek.com`<br>model id: `deepseek-flash`<hr>~10 s per 100 keys, with thinking switched off: on, it filled `max_tokens` and cut replies short. | ~10¢ | ★★★★★ |
+| {code:openrouter-glm} | __OpenRouter__ :: **glm-5.3-flash**<br>Endpoint: `https://openrouter.ai/api/v1`<br>model id: `z-ai/glm-5.3-flash`<hr>3–7 s per 100 keys, in one short run so far.<br>On GLM 5.3 OpenRouter marks reasoning as mandatory, and refuses `enabled: false` with a `400`: its template asks for `effort: "low"`, and the thinking was 1% of the output. | ~3¢ | ★★★★☆<hr>one short run −1 |
+| {code:openrouter-deepseek} | __OpenRouter__ :: **deepseek-v4.1-flash**<br>Endpoint: `https://openrouter.ai/api/v1`<br>model id: `deepseek/deepseek-v4.1-flash`<hr>~24 s per 100 keys. | ~4¢ | ★★★☆☆<hr>speed −2 |
+| {code:openrouter-luna} | __OpenRouter__ :: **gpt-luna-latest**<br>Endpoint: `https://openrouter.ai/api/v1`<br>model id: `~openai/gpt-luna-latest`<hr>15–33 s per 100 keys, over two short runs.<br>The `~` makes it an alias: it always points to the latest GPT Luna, so the model behind it can change without notice.<br>In Italian and French it once turned "template" into "modello" and "modèle", the words for the model itself: check the terms. | ~3¢ | ★★☆☆☆<hr>speed −2<br>terms −1 |
+| {code:openrouter-qwen} | __OpenRouter__ :: **qwen3-235b-a22b-2507**<br>Endpoint: `https://openrouter.ai/api/v1`<br>model id: `qwen/qwen3-235b-a22b-2507`<hr>62–87 s per 100 keys, past the default 60-second timeout: its template raises `timeoutMs` to 120000. | ~3¢ | ★☆☆☆☆<hr>speed −4 |
+
+<!-- The templates: deepseek is the llm block of site/pages/llmRestaurant/vite.config.js; the OpenRouter ones from the runs noted in site/pages/docs/vite.config.js, but glm-5.3-flash from the llm block of site/pages/playground/vite.config.js and gpt-luna-latest from site/pages/docs and site/landing (October 2026). test/list/docsCompiler.test.mjs passes each llm block to the library's validator. -->
+
+```js id="deepseek" title="vite.config.js"
+// Put a .env file in this folder, next to this vite.config.js, holding the key:
+//   DEEPSEEK_API_KEY=your-key-here
+// and keep it out of git: add .env to .gitignore. Then, from a terminal in this
+// folder, check the connection, see what it would cost, translate:
+//   npx vitetranslate --llm-ping
+//   npx vitetranslate --llm-dry-run --llm-translate
+//   npx vitetranslate --llm-translate
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
+import { vitetranslate } from "@sepoina/vitetranslate";
+
+export default defineConfig({
+  plugins: [
+    react(),
+    vitetranslate({
+      localeDir: "locale", // the folder of the translation tables
+      sourceLanguage: "en-US", // the language your code is written in
+      // Read only by `npx vitetranslate --llm-…`: neither `vite dev` nor the build
+      // ever calls the model. Every option, with its default:
+      // https://sepoina.github.io/viteTranslate/docs/llm/options/
+      llm: {
+        connection: {
+          // DeepSeek's OpenAI-compatible API: the client adds /chat/completions to
+          // it.
+          baseURL: "https://api.deepseek.com",
+          model: "deepseek-flash",
+          // The NAME of the variable that holds the key, never the key: looked up
+          // in the environment, then in .env.local and .env in this folder.
+          apiKeyEnv: "DEEPSEEK_API_KEY",
+          // The price per million tokens, input and output (DeepSeek, October
+          // 2026): the estimate, the budget and costGuard count with these.
+          costMillionInput: 0.6,
+          costMillionOutput: 1.2,
+          // How much the model takes at once: batches of up to 100 keys, ~3k output
+          // tokens.
+          modelClass: "standard",
+          // Added as is to every request, and the field is DeepSeek's own.
+          // deepseek-flash thinks by default, and the thinking fills the same
+          // max_tokens as the reply: translating doesn't need it.
+          providerOptions: { thinking: { type: "disabled" } },
+        },
+        // The spending caps: $1 a run, $5 a day (the "normal" preset, counted with
+        // the prices above).
+        budget: "normal",
+        // Below this estimated cost, in $, the run starts without asking.
+        costGuard: 0.2,
+        // The context abstract (what the app is about, for the model) writes and
+        // refreshes itself.
+        context: { mode: "auto" },
+      },
+    }),
+  ],
+});
+```
+
+```js id="openrouter-deepseek" title="vite.config.js"
+// Put a .env file in this folder, next to this vite.config.js, holding the key:
+//   OPENROUTER_API_KEY=your-key-here
+// and keep it out of git: add .env to .gitignore. Then, from a terminal in this
+// folder, check the connection, see what it would cost, translate:
+//   npx vitetranslate --llm-ping
+//   npx vitetranslate --llm-dry-run --llm-translate
+//   npx vitetranslate --llm-translate
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
+import { vitetranslate } from "@sepoina/vitetranslate";
+
+export default defineConfig({
+  plugins: [
+    react(),
+    vitetranslate({
+      localeDir: "locale", // the folder of the translation tables
+      sourceLanguage: "en-US", // the language your code is written in
+      // Read only by `npx vitetranslate --llm-…`: neither `vite dev` nor the build
+      // ever calls the model. Every option, with its default:
+      // https://sepoina.github.io/viteTranslate/docs/llm/options/
+      llm: {
+        connection: {
+          // OpenRouter's OpenAI-compatible API: the client adds /chat/completions
+          // to it.
+          baseURL: "https://openrouter.ai/api/v1",
+          model: "deepseek/deepseek-v4.1-flash",
+          // The NAME of the variable that holds the key, never the key: looked up
+          // in the environment, then in .env.local and .env in this folder.
+          apiKeyEnv: "OPENROUTER_API_KEY",
+          // The price per million tokens, input and output (OpenRouter, October
+          // 2026): the estimate, the budget and costGuard count with these.
+          costMillionInput: 0.15,
+          costMillionOutput: 0.6,
+          // How much the model takes at once: batches of up to 100 keys, ~3k output
+          // tokens.
+          modelClass: "standard",
+          // Added as is to every request, and the field is OpenRouter's own. The
+          // model thinks by default, and the thinking fills the same max_tokens as
+          // the reply: translating doesn't need it.
+          providerOptions: { reasoning: { enabled: false } },
+        },
+        // The spending caps: $1 a run, $5 a day (the "normal" preset, counted with
+        // the prices above).
+        budget: "normal",
+        // Below this estimated cost, in $, the run starts without asking.
+        costGuard: 0.2,
+        // The context abstract (what the app is about, for the model) writes and
+        // refreshes itself.
+        context: { mode: "auto" },
+      },
+    }),
+  ],
+});
+```
+
+```js id="openrouter-glm" title="vite.config.js"
+// Put a .env file in this folder, next to this vite.config.js, holding the key:
+//   OPENROUTER_API_KEY=your-key-here
+// and keep it out of git: add .env to .gitignore. Then, from a terminal in this
+// folder, check the connection, see what it would cost, translate:
+//   npx vitetranslate --llm-ping
+//   npx vitetranslate --llm-dry-run --llm-translate
+//   npx vitetranslate --llm-translate
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
+import { vitetranslate } from "@sepoina/vitetranslate";
+
+export default defineConfig({
+  plugins: [
+    react(),
+    vitetranslate({
+      localeDir: "locale", // the folder of the translation tables
+      sourceLanguage: "en-US", // the language your code is written in
+      // Read only by `npx vitetranslate --llm-…`: neither `vite dev` nor the build
+      // ever calls the model. Every option, with its default:
+      // https://sepoina.github.io/viteTranslate/docs/llm/options/
+      llm: {
+        connection: {
+          // OpenRouter's OpenAI-compatible API: the client adds /chat/completions
+          // to it.
+          baseURL: "https://openrouter.ai/api/v1",
+          model: "z-ai/glm-5.3-flash",
+          // The NAME of the variable that holds the key, never the key: looked up
+          // in the environment, then in .env.local and .env in this folder.
+          apiKeyEnv: "OPENROUTER_API_KEY",
+          // The price per million tokens, input and output (OpenRouter, October
+          // 2026): the estimate, the budget and costGuard count with these.
+          costMillionInput: 0.025,
+          costMillionOutput: 0.64,
+          // How much the model takes at once: batches of up to 100 keys, ~3k output
+          // tokens.
+          modelClass: "standard",
+          // Added as is to every request, and the field is OpenRouter's own. On
+          // GLM 5.3 reasoning can't be switched off (enabled: false gets a 400):
+          // the least of it, then. It was 1% of the output.
+          providerOptions: { reasoning: { effort: "low" } },
+        },
+        // The spending caps: $1 a run, $5 a day (the "normal" preset, counted with
+        // the prices above).
+        budget: "normal",
+        // Below this estimated cost, in $, the run starts without asking.
+        costGuard: 0.2,
+        // The context abstract (what the app is about, for the model) writes and
+        // refreshes itself.
+        context: { mode: "auto" },
+      },
+    }),
+  ],
+});
+```
+
+```js id="openrouter-luna" title="vite.config.js"
+// Put a .env file in this folder, next to this vite.config.js, holding the key:
+//   OPENROUTER_API_KEY=your-key-here
+// and keep it out of git: add .env to .gitignore. Then, from a terminal in this
+// folder, check the connection, see what it would cost, translate:
+//   npx vitetranslate --llm-ping
+//   npx vitetranslate --llm-dry-run --llm-translate
+//   npx vitetranslate --llm-translate
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
+import { vitetranslate } from "@sepoina/vitetranslate";
+
+export default defineConfig({
+  plugins: [
+    react(),
+    vitetranslate({
+      localeDir: "locale", // the folder of the translation tables
+      sourceLanguage: "en-US", // the language your code is written in
+      // Read only by `npx vitetranslate --llm-…`: neither `vite dev` nor the build
+      // ever calls the model. Every option, with its default:
+      // https://sepoina.github.io/viteTranslate/docs/llm/options/
+      llm: {
+        connection: {
+          // OpenRouter's OpenAI-compatible API: the client adds /chat/completions
+          // to it.
+          baseURL: "https://openrouter.ai/api/v1",
+          // "~" makes it an alias: always the latest GPT Luna.
+          model: "~openai/gpt-luna-latest",
+          // The NAME of the variable that holds the key, never the key: looked up
+          // in the environment, then in .env.local and .env in this folder.
+          apiKeyEnv: "OPENROUTER_API_KEY",
+          // The price per million tokens, input and output (OpenRouter, October
+          // 2026): the estimate, the budget and costGuard count with these.
+          costMillionInput: 0.1,
+          costMillionOutput: 0.5,
+          // How much the model takes at once: batches of up to 100 keys, ~3k output
+          // tokens.
+          modelClass: "standard",
+          // Added as is to every request, and the field is OpenRouter's own.
+          // Reasoning off: thinking would fill the same max_tokens as the reply.
+          providerOptions: { reasoning: { enabled: false } },
+        },
+        // The spending caps: $1 a run, $5 a day (the "normal" preset, counted with
+        // the prices above).
+        budget: "normal",
+        // Below this estimated cost, in $, the run starts without asking.
+        costGuard: 0.2,
+        // The context abstract (what the app is about, for the model) writes and
+        // refreshes itself.
+        context: { mode: "auto" },
+      },
+    }),
+  ],
+});
+```
+
+```js id="openrouter-qwen" title="vite.config.js"
+// Put a .env file in this folder, next to this vite.config.js, holding the key:
+//   OPENROUTER_API_KEY=your-key-here
+// and keep it out of git: add .env to .gitignore. Then, from a terminal in this
+// folder, check the connection, see what it would cost, translate:
+//   npx vitetranslate --llm-ping
+//   npx vitetranslate --llm-dry-run --llm-translate
+//   npx vitetranslate --llm-translate
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
+import { vitetranslate } from "@sepoina/vitetranslate";
+
+export default defineConfig({
+  plugins: [
+    react(),
+    vitetranslate({
+      localeDir: "locale", // the folder of the translation tables
+      sourceLanguage: "en-US", // the language your code is written in
+      // Read only by `npx vitetranslate --llm-…`: neither `vite dev` nor the build
+      // ever calls the model. Every option, with its default:
+      // https://sepoina.github.io/viteTranslate/docs/llm/options/
+      llm: {
+        connection: {
+          // OpenRouter's OpenAI-compatible API: the client adds /chat/completions
+          // to it.
+          baseURL: "https://openrouter.ai/api/v1",
+          model: "qwen/qwen3-235b-a22b-2507",
+          // The NAME of the variable that holds the key, never the key: looked up
+          // in the environment, then in .env.local and .env in this folder.
+          apiKeyEnv: "OPENROUTER_API_KEY",
+          // The price per million tokens, input and output (OpenRouter, October
+          // 2026): the estimate, the budget and costGuard count with these.
+          costMillionInput: 0.09,
+          costMillionOutput: 0.55,
+          // How much the model takes at once: batches of up to 100 keys, ~3k output
+          // tokens.
+          modelClass: "standard",
+          // A full batch takes 53-74 s: past the default 60 s, so the wait goes up
+          // to 120 s.
+          timeoutMs: 120000,
+          // No providerOptions: this model doesn't reason. OpenRouter may hand
+          // batches to pricier providers, so the real bill can come out above the
+          // estimate (~60% on one run).
+        },
+        // The spending caps: $1 a run, $5 a day (the "normal" preset, counted with
+        // the prices above).
+        budget: "normal",
+        // Below this estimated cost, in $, the run starts without asking.
+        costGuard: 0.2,
+        // The context abstract (what the app is about, for the model) writes and
+        // refreshes itself.
+        context: { mode: "auto" },
+      },
+    }),
+  ],
+});
+```
+
+<!-- LINKED-DATA: the cline template's driver is the one in content/llm/custom-endpoint.mdx (#cline-step-by-step), site/pages/docs/vite.config.js and site/pages/playEdge/vite.config.js: change them together. -->
+
+```js id="cline" title="vite.config.js"
+// Put a .env file in this folder, next to this vite.config.js, holding the key:
+//   CLINE_API_KEY=your-key-here
+// and keep it out of git: add .env to .gitignore. Then, from a terminal in this
+// folder, check the connection, see what it would cost, translate:
+//   npx vitetranslate --llm-ping
+//   npx vitetranslate --llm-dry-run --llm-translate
+//   npx vitetranslate --llm-translate
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
+import { vitetranslate } from "@sepoina/vitetranslate";
+
+export default defineConfig({
+  plugins: [
+    react(),
+    vitetranslate({
+      localeDir: "locale", // the folder of the translation tables
+      sourceLanguage: "en-US", // the language your code is written in
+      // Read only by `npx vitetranslate --llm-…`: neither `vite dev` nor the build
+      // ever calls the model. Every option, with its default:
+      // https://sepoina.github.io/viteTranslate/docs/llm/options/
+      llm: {
+        connection: {
+          // Cline's API speaks Chat Completions but wraps the reply: the driver
+          // below reads it.
+          baseURL: "https://api.cline.bot/api/v1",
+          model: "deepseek/deepseek-v4.1-flash",
+          // The NAME of the variable that holds the key, never the key: looked up
+          // in the environment, then in .env.local and .env in this folder.
+          apiKeyEnv: "CLINE_API_KEY",
+          // The price per million tokens, input and output (OpenRouter's for this
+          // model, October 2026): the estimate counts with these, then each Cline
+          // reply brings the real cost.
+          costMillionInput: 0.15,
+          costMillionOutput: 0.6,
+          // How much the model takes at once: batches of up to 100 keys, ~3k output
+          // tokens.
+          modelClass: "standard",
+          // Added as is to every request: OpenRouter's field, which Cline honours.
+          // The model thinks by default, and the thinking fills the same max_tokens
+          // as the reply.
+          providerOptions: { reasoning: { enabled: false } },
+        },
+        // A custom LLM driver: the library's fetch brings timeout, retries and the
+        // key; the driver sends the built-in request and hands back the text,
+        // unwrapped from Cline's { success, data }. Line by line:
+        // https://sepoina.github.io/viteTranslate/docs/llm/custom-endpoint/#cline-step-by-step
+        driver: async ({
+          connection, apiKey, systemPrompt, userPayload, mode, maxTokens, fetch,
+        }) => {
+          const reply = await fetch(`${connection.baseURL}/chat/completions`, {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${apiKey}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              model: connection.model,
+              temperature: connection.temperature,
+              messages: [
+                { role: "system", content: systemPrompt },
+                { role: "user", content: userPayload },
+              ],
+              ...(mode === "translate"
+                ? { response_format: { type: "json_object" } }
+                : {}),
+              ...(maxTokens ? { max_tokens: maxTokens } : {}),
+              ...connection.providerOptions,
+            }),
+          });
+          const { choices: [choice], usage } = (await reply.json()).data;
+          return {
+            content: choice.message.content ?? "",
+            truncated: choice.finish_reason === "length",
+            usage,
+          };
+        },
+        // The spending caps: $1 a run, $5 a day (the "normal" preset, counted with
+        // the prices above).
+        budget: "normal",
+        // Below this estimated cost, in $, the run starts without asking.
+        costGuard: 0.2,
+        // The context abstract (what the app is about, for the model) writes and
+        // refreshes itself.
+        context: { mode: "auto" },
+      },
+    }),
+  ],
+});
+```
+
+<!-- Cost column, October 2026: site/pages/docs/node_modules/.viteTranslate/llm.json and locale/.llm/runs.log after three runs
+     (fr-FR, it-IT, zh-CN; Cline, deepseek/deepseek-v4.1-flash): 1695 keys, 148.7k tokens in, 67.9k out, $0.1201.
+     Estimate per 1000 keys = (87.7k x costMillionInput + 40.1k x costMillionOutput) / 1M, with each template's prices
+     Change a template's prices, redo its cell. -->
+
+> [!NOTE] Notes
+> ¹ The templates switch reasoning off in `providerOptions` wherever the model has it, and that matters more than it looks. ==A model that thinks by default can spend the whole `max_tokens` thinking and send back an empty reply==, batch after batch — see [reasoning models](/llm/price#reasoning-models). The field is the provider's own: another provider's may be ignored without a word, or turned down with a `400`.
+>
+> ² For 1000 keys into one language: the model's price per million tokens times what this manual's own translation took per key, ~88 tokens in and ~40 out. Those keys are whole paragraphs: short interface strings cost less.
+>
+> ³ Five points, minus what went wrong in the runs seen, never below one. Speed, the median per 100 keys: under 10 s nothing, under 20 s −1, under 40 s −2, under 60 s −3, slower −4 (past the default timeout). Retries, batches sent again after a cut-off reply, a timeout or a `429`/`5xx`: some −1, over one batch in ten −2. Errors no check can see: wrong terms −1, wrong names or meaning −2. Only one short run so far: −1. Equal stars, the faster first. Providers have good days and bad ones: the numbers come from a few runs each.
+>
+> The list grows as endpoints get tested. Got one working that isn't here? [Tell us](https://github.com/sepoina/viteTranslate/issues) the `baseURL`, the model and what you put in `providerOptions`.

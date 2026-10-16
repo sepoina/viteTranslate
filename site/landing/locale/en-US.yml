@@ -1,8 +1,8 @@
 #  -------------------------------------------------
 #      American English
 #       |    code: en-US
-#       |    missing key: 9
-#       |    processed: 2026-10-15 23:21
+#       |    missing key: 0
+#       |    processed: 2026-10-17 00:32
 #       |    TableVersion: 260905
 #  -------------------------------------------------
 #
@@ -33,7 +33,10 @@ CopyCommand_1r0mqh1: "Copy"
 CopyCommand_gybco4: "Copied"
 Demos_1srutw6: "Play in the <em>real world</em>."
 Features_17y2azt: "Loaded with import() only when you pick it. Someone reading in Italian never downloads the Chinese."
+Features_191j7m8: "What goes to the browser"
 Features_1ag9tjh: "One command syncs every language: new keys added, stale ones removed. A sentence that moved takes its translation with it."
+Features_1eu6d47: "Markers and keys"
+Features_1kzomao: "What the validator checks"
 Features_1lai6qf: "Every language is its own file"
 Features_1p2da2r: "Tables become ready-made values at build time. No HTML parser in the browser, which is why translated text renders on the server too."
 Features_1sxsslu: "Write the sentence where you need it, between the delimiters. The plugin generates the key: you don't invent it, and you never have to keep an eye on it."
@@ -44,6 +47,8 @@ Features_elxbj2: "Every library in this category solves the same problem. They d
 Features_nsh4rn: "Compiled at build time, no runtime parser"
 Features_qlydjr: "<code>--llm-translate</code> fills the missing keys through the model you configure. The validator rejects whatever would break at runtime."
 Features_u5mby: "No keys to invent"
+Features_v7ljlr: "Loading languages"
+Features_y50icl: "Translation files"
 Hero_10s6wdy: "runtime dependencies"
 Hero_11jq5ef: "Babel and Vite run on your machine and never enter the bundle; React is the one your app already has."
 Hero_150etoz: "Try the playground"
@@ -57,6 +62,7 @@ HeroVideo_10an6gt: "Video: why viteTranslate, and how its ecosystem works"
 HeroVideo_1wfoiwd: "Why viteTranslate, and how its pieces work together."
 HeroVideo_l53cig: "The video"
 LanguageSwitch_gzrcyx: "Page language"
+ManualLink_5b31d1: "In the manual"
 Marquee_aimam1: "One source. As many languages as you like."
 Outro_16gmyec: "Read the documentation"
 Outro_1e9h002: "One package, one plugin, one line in vite.config. You watch the rest happen."
@@ -79,21 +85,33 @@ pages_nu5ths: "Italian written in the code, the other four languages filled in b
 pages_tu8r7m: "The same app with sentences marked <code>≼like this≽</code>: autoWrap does the rest, no <code>Trans</code> around them."
 pages_vv62gb: "The restaurant translated by an LLM"
 ProjectLinks_8ret13: "The project to download: npm install, then npm run dev"
+ProjectLinks_ckif6c: "Manual"
 ProjectLinks_gizfou: "Source"
 ProjectLinks_tkz1w2: "The project opened on stackblitz.com: it installs and runs in the browser"
+ProjectLinks_zrfrbq: "The manual page that explains it"
 sections_g0dv0o: "Demos"
 sections_i5t981: "Demos to start from"
 sections_lijk3t: "How it works"
 sections_q2tajl: "Comparison"
 sections_qqqkuc: "Why viteTranslate"
 sections_sf5vqh: "How it looks"
+SiteBar_135b08s: "The homepage: viteTranslate at a glance."
+SiteBar_16pt5e6: "The manual: installation, API, CLI, and translation with an LLM."
+SiteBar_184491n: "Switch to dark theme: your choice applies across the site."
+SiteBar_1lekqar: "Source code, issues, and releases."
+SiteBar_6hzcks: "Site sections"
+SiteBar_a5sjad: "Switch to light theme: your choice applies across the site."
+SiteBar_boj2og: "Home"
 SiteBar_d55hvs: "Demos"
+SiteBar_njusnx: "Try it in the real world: playground, edge cases, and a restaurant translated by an LLM."
+SiteBar_x7movm: "Theme"
 SiteBar_z8si1s: "Docs"
 Starters_135p9nt: "Previous demos"
 Starters_6vy2yj: "One click and it runs on StackBlitz, in the browser, nothing to install. The zip is the same project, to open locally."
 Starters_jx8aky: "One minimal project per idea."
 Starters_mtvbi5: "Next demos"
 Steps_13v2590: "Translate"
+Steps_178m7nm: "Write text where you need it"
 Steps_196we9t: "By hand, by a translator, or with an LLM that respects placeholders and tags. Then you publish."
 Steps_1c2u998: "Step %s"
 Steps_1ocrzwe: "Sync"
@@ -101,15 +119,6 @@ Steps_1r4qs32: "One command, or the dev server: the YAML tables stay aligned wit
 Steps_frrvbq: "In the JSX, wherever it belongs: variables and tags included. No key file, no name to invent."
 Steps_nrgj8g: "Write the sentence"
 Steps_q96bco: "Three steps, <em>zero</em> bureaucracy."
+Steps_u2x2og: "The table that writes itself"
+Steps_wejid2: "Translate manually or with an LLM"
 ThemeToggle_1i35buc: "Toggle theme"
-
-#  ----to be translated------------------------------------------
-SiteBar_135b08s: null
-SiteBar_16pt5e6: null
-SiteBar_184491n: null
-SiteBar_1lekqar: null
-SiteBar_6hzcks: null
-SiteBar_a5sjad: null
-SiteBar_boj2og: null
-SiteBar_njusnx: null
-SiteBar_x7movm: null

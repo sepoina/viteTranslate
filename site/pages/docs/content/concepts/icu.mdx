@@ -36,7 +36,7 @@ A text is an ICU message only if it contains an ICU **argument**: `{0}`, `{name}
 <Trans t="_%_{0, plural, one {# file} other {# files}}_%_" a={[count]} />
 ```
 
-A literal `{` isn't enough on its own — `{ t: null }` stays plain text — but a real argument always triggers ICU parsing, so a curly brace you mean literally needs an entity: `&#123;name}` or `&lbrace;name&rbrace;`. That includes `Press {Enter}`: it reads as an argument, and without a value it renders `⁇`.
+A literal `{` isn't enough on its own — `{ t: null }` stays plain text — but a real argument always triggers ICU parsing, so ==a curly brace you mean literally needs an entity==: `&#123;name}` or `&lbrace;name&rbrace;`. That includes `Press {Enter}`: it reads as an argument, and without a value it renders `⁇`.
 
 ## One example per construct {#one-example-per-construct}
 
@@ -97,7 +97,7 @@ A number under `1e11` in absolute value looks like Unix seconds, not millisecond
 Time zone, in order of precedence: a calendar date is always UTC; then the `timeZone` prop of `<TranslateContainer>` (the viewer's preference, or the request's zone in SSR); then the plugin's `icu: { timeZone: "Europe/Rome" }` option (a build-time default — a restaurant's hours, shown in the restaurant's zone regardless of who's looking); then, with none of the above, whatever zone the runtime itself is in.
 
 > [!IMPORTANT]
-> Doing SSR with dates? Set the time zone explicitly (prop or plugin option). Left to "whatever the runtime is in", the server and the browser can disagree, and React flags a hydration mismatch.
+> Doing SSR with dates? ==Set the time zone explicitly (prop or plugin option).== Left to "whatever the runtime is in", the server and the browser can disagree, and React flags a hydration mismatch.
 
 ## Apostrophes are just apostrophes {#apostrophes-are-just-apostrophes}
 
@@ -123,11 +123,11 @@ Why bother? Because every translator — human or LLM — "prettifies" `'` into 
 | `npx vitetranslate --status` | a warning note | a warning note |
 | `--llm-translate` | — | rejected, stays `null` for one repair round |
 
-Missing plural categories (a language needs `few`/`many` and the translation only has `one`/`other`) are a warning everywhere, never a hard failure — the missing category falls back to `other` at render time.
+Missing plural categories (a language needs `few`/`many` and the translation only has `one`/`other`) are ==a warning everywhere, never a hard failure== — the missing category falls back to `other` at render time.
 
 ## What ships {#what-ships}
 
-The ICU parser (`@formatjs/icu-messageformat-parser`) never reaches a production bundle — it only runs in the plugin, the CLI, and, in development, the dev-only interpreter for a key you just wrote and haven't synced yet. What ships is four small formatting helpers, shared in one chunk across every language and pulled in only if some table actually uses ICU — an app with no ICU messages pays nothing for this feature. See the [runtime size](/getting-started/overview#runtime-size).
+The ICU parser (`@formatjs/icu-messageformat-parser`) never reaches a production bundle — it only runs in the plugin, the CLI, and, in development, the dev-only interpreter for a key you just wrote and haven't synced yet. What ships is four small formatting helpers, shared in one chunk across every language and pulled in only if some table actually uses ICU — ==an app with no ICU messages pays nothing for this feature==. See the [runtime size](/getting-started/overview#runtime-size).
 
 ## Limits {#limits}
 

@@ -1,0 +1,51 @@
+---
+title: Options
+description: Every setting of the llm block, with its default and the page that explains it.
+sources:
+  - lib/dev/llm/llmOptions.js
+aliases:
+  - llm/setup#every-option -> connection
+related:
+  - /llm/setup#getting-started | Getting started | Point the llm block at a model, give it the key, fill the null keys.
+  - /api/plugin-options#llm | The llm option | How the plugin checks the LLM settings at startup, long before the first paid call.
+  - /api/types#llm-translation | LLM types | LlmOptions and the rest of the block, for TypeScript.
+  - /llm/custom-endpoint | Custom endpoint | An API the built-in client can't read, through a custom LLM driver.
+  - /llm/price#budget-caps | Budget caps | Limit what a run or a day may spend, in money or in tokens.
+---
+
+<!-- Moved here from llm/setup ("Every option"), migrated from doc/llm.md. -->
+
+Everything the `llm` block of `vitetranslate()` accepts, all optional except where noted. ==The plugin checks it when Vite starts, so a mistake shows up there and not on the first paid call==; only the CLI uses it ([setup](/llm/setup)). In TypeScript the block is `LlmOptions` ([types](/api/types#llm-translation)).
+
+## Connection {#connection}
+
+Where the model is, how to talk to it, and what it costs.
+
+| `llm.` | Default | |
+| :- | :- | :- |
+| `connection.baseURL` | — | **Required** without a `driver`. OpenAI-compatible endpoint ([getting started](/llm/setup#getting-started)) |
+| `connection.model` | — | **Required** without a `driver` |
+| `connection.apiKeyEnv` | `"VITETRANSLATE_API_KEY"` | Name of the env var holding the key ([API keys](/llm/api-keys#save)). With a `driver` too: the key found is its `apiKey` |
+| `connection.protocol` | `"openai-chat"` | The only value accepted |
+| `connection.temperature` | `0.2` | Sent with every request |
+| `connection.timeoutMs` | `60000` | Per request |
+| `connection.maxRetries` | `3` | Retries on HTTP 429, 5xx and network errors — ==never on 400/401/403==. A 429 waits as long as the provider says, up to 65 s ([running](/llm/running#while-it-runs)) |
+| `connection.maxConcurrency` | `4` | Requests in flight at the same time |
+| `connection.modelClass` | `"standard"` | How much the model can take: sizes the batches and caps `max_tokens` ([model class](/llm/price#model-class)) |
+| `connection.maxTokensField` | `"max_tokens"` | Name of the output-limit field in the request: `"max_tokens"`, `"max_completion_tokens"`, or `false` to send none |
+| `connection.providerOptions` | `{}` | Extra fields merged into the request body, for provider-specific settings. ==Wins over everything else, `max_tokens` included== |
+| `connection.costMillionInput` / `costMillionOutput` | — | Price per million tokens. Both or neither ([estimate](/llm/price#the-estimate)) |
+| `connection.costUnity` | `"$"` | Currency symbol printed in front of costs |
+
+## Everything else {#everything-else}
+
+Your own client, the spending caps, the project brief and which languages to fill.
+
+| `llm.` | Default | |
+| :- | :- | :- |
+| `driver` | — | Your own function instead of the built-in client; it can borrow the library's `fetch` and hand back the model's text ([custom endpoint](/llm/custom-endpoint)) |
+| `budget` | `"safe"` | Your spending caps, per run and per day, in cost ([budget](/llm/price#budget-caps)) |
+| `costGuard` | — | Below this estimated cost, no confirmation ([confirmation](/llm/price#confirmation)) |
+| `context` | `{ mode: "auto", refreshEvery: 40, sample: 300 }` | The project brief ([context abstract](/llm/context)) |
+| `languages` | every table in `localeDir` | Which languages `--llm-translate` fills; tags on the command line narrow it further. The source language is always excluded |
+| `tone` | — | A free-text line added to every translation prompt, e.g. `"informal, second person"` |

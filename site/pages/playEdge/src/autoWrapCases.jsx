@@ -133,7 +133,12 @@ export function AutoWrapNested() {
 
 // Titoli marcati come il resto, nella stessa lingua sorgente del file che estendono.
 const autoWrapCases = [
-  { id: 'autowrap', title: '_%_autoWrap: marcatori senza &lt;Translate&gt;_%_' },
+  {
+    id: 'autowrap',
+    title: '_%_autoWrap: marcatori senza &lt;Translate&gt;_%_',
+    manual: 'concepts/limitations#autowrap',
+    manualTitle: '_%_I limiti di autoWrap_%_',
+  },
   [
     '_%_1. Figlio nudo, componente riconosciuto_%_',
     <AutoWrapHost />,

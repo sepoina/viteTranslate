@@ -274,3 +274,8 @@
     width: 100%;
   }
 }
+
+/* Under a section's title: the manual's page that explains it (src/theme/ManualLink.jsx). */
+.doc-manual {
+  margin: -0.15rem 0 0.9rem;
+}

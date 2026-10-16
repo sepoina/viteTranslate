@@ -25,7 +25,7 @@ npx vitetranslate --add fr-FR
 npx vitetranslate --add fr-FR de-DE pt-BR
 ```
 
-The tag must be in `<language>-<REGION>` form and name a real language and region ([supported list](#bcp47)) — `fr-FF` is refused before anything is written to disk. A language already present is left untouched.
+The tag must be in `<language>-<REGION>` form and name a real language and region ([supported list](#bcp47)) — ==`fr-FF` is refused before anything is written to disk==. A language already present is left untouched.
 
 The new file comes out with every key found in source, not yet translated (`null`):
 
@@ -83,11 +83,11 @@ BasicExample_1nke42v: "Welcome to viteTranslate"
 DynamicExample_1wltsn1: "Hello %s, how are you?"
 ```
 
-No further registration needed: every `.yml` file in `localeDir` is automatically available — `useTranslateLanguage()` lists it and `TranslateContainer` loads it lazily on request.
+No further registration needed: ==every `.yml` file in `localeDir` is automatically available== — `useTranslateLanguage()` lists it and `TranslateContainer` loads it lazily on request.
 
 ## Numbered tags in the table {#numbered-tags-in-the-table}
 
-A value like `App_1jztuw0: "Bon retour, <b>{name}</b> !"` came from writing JSX inside `<Translate>` ([Translate](/components/translate#write-jsx-inside-translate)): `<b>` here has no attributes, so it's text — move it wherever the sentence needs it, the way any other tag moves. A `<1>…</1>` is different: it's a **slot**, standing in for a link or a component the source code provides — a `<a href>`, a `<Link to>`. Keep every numbered tag, opening and closing, with its number, around the words that belong inside it; you can move a tag together with its words, but never renumber one, drop one, or turn one into a different tag — the number is how the compiled table finds the right element, not a stylistic choice.
+A value like `App_1jztuw0: "Bon retour, <b>{name}</b> !"` came from writing JSX inside `<Translate>` ([Translate](/components/translate#write-jsx-inside-translate)): `<b>` here has no attributes, so it's text — move it wherever the sentence needs it, the way any other tag moves. A `<1>…</1>` is different: it's a **slot**, standing in for a link or a component the source code provides — a `<a href>`, a `<Link to>`. Keep every numbered tag, opening and closing, with its number, around the words that belong inside it; you can move a tag together with its words, but ==never renumber one, drop one, or turn one into a different tag== — the number is how the compiled table finds the right element, not a stylistic choice.
 
 ## Supported language tags {#bcp47}
 

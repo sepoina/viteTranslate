@@ -1189,3 +1189,10 @@ ul {
     padding: 22px;
   }
 }
+
+/* ---------- Link al manuale (theme/ManualLink.jsx) ---------- */
+/* Under a feature's text and at the foot of a step: as wide as its text, not as the column. */
+.feature-copy .manual-link,
+.step .manual-link {
+  align-self: flex-start;
+}

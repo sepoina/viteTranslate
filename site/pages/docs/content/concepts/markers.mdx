@@ -35,11 +35,13 @@ const steps = ["≼Choose≽", "≼Pay≽"]; // same key as "_%_Choose_%_" had
 <input title={trans("≼Filter≽")} />
 ```
 
-- **The key never changes.** It comes from the text inside, not from the delimiters (nor from the component name): switching delimiters, or rewriting `_%_x_%_` to `≼x≽`, keeps every translation. [`--rewriteMarker`](#rewriting-the-markers) does the rewriting for you, and refuses to write if a single key would change.
+- **The key never changes.** It comes from the text inside, not from the delimiters (nor from the component name): ==switching delimiters, or rewriting `_%_x_%_` to `≼x≽`, keeps every translation==. [`--rewriteMarker`](#rewriting-the-markers) does the rewriting for you, and refuses to write if a single key would change.
 - **Not allowed:** spaces, control characters, `<` `>` `{` `}` `"` `'` a backtick, a backslash and `&` (each already means something in JSX, strings or messages), `%s`, and two different delimiters where one contains the other. A bad value stops the plugin at startup, naming the option.
 - **Advice:** at least two characters, or a Unicode symbol that never shows up in real text (`≼ ≽`, `§`). Any string that contains a delimiter without being wrapped by it raises a [warning](/concepts/diagnostics), so a common single character will raise many.
 - **Old markers:** with custom delimiters, a leftover `_%_` in the source raises the `old-marker` warning and extracts nothing. A [macro](/components/translate-container#short-names) (`<Trans>…</Trans>`) needs no delimiters at all.
 - The demo [`customMarkers`](repo:demo/Vite_8/customMarkers) shows it working, and the [VS Code extension](/vscode/panel) highlights your delimiters (it reads them from `vite.config`).
+
+> 🧪 What becomes a marker and what doesn't — empty, nested, built at runtime, halfway through a string: [edge/#markers](site:edge#markers).
 
 ## Rewriting the markers {#rewriting-the-markers}
 
@@ -60,9 +62,9 @@ The arguments are the markers **now in your source**: none means `_%_`, one mean
 | default (`_%_`) | none | nothing to rewrite (exit 1) |
 | default (`_%_`) | `"≼" "≽"` | `≼ ≽` → `_%_`: back to the default |
 
-The decision comes from the setup and the arguments alone, before any file is read: the command never guesses from your code.
+The decision comes from the setup and the arguments alone, before any file is read: ==the command never guesses from your code==.
 
-`--rewriteMarkerDryRun` runs the whole check and writes nothing; it prints the translation status with the current markers and with the rewritten ones. `--rewriteMarker` runs **the same check on every file** and only then writes: all or nothing. If a single key would change (a macro whose text contains the new delimiter, for example), or a file that holds old markers cannot be parsed, it writes nothing, lists the culprits and exits `1`. If a write fails halfway (permissions, a file locked by another program) it stops and lists what was and wasn't rewritten; the keys are the same either way, so running the same command again finishes the job. No sync runs afterwards: tables and caches catch up on your next one.
+`--rewriteMarkerDryRun` runs the whole check and writes nothing; it prints the translation status with the current markers and with the rewritten ones. `--rewriteMarker` runs **the same check on every file** and only then writes: all or nothing. If a single key would change (a macro whose text contains the new delimiter, for example), or a file that holds old markers cannot be parsed, it writes nothing, lists the culprits and exits `1`. If a write fails halfway (permissions, a file locked by another program) it stops and lists what was and wasn't rewritten; the keys are the same either way, so ==running the same command again finishes the job==. No sync runs afterwards: tables and caches catch up on your next one.
 
 A shell may need quotes: `"≼"`. In `cmd.exe`, a `%` can be read as a variable. Can't be combined with `--add`, `--status`, `--migrate`, `--fastverify` or any `--llm-*` flag.
 

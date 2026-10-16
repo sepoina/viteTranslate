@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
 import { useTrans } from "@sepoina/vitetranslate/react";
-import { Code } from "../theme/Code.jsx";
-
-// Code.jsx colora jsx, yaml e sh: gli altri linguaggi del dialetto si appoggiano a questi o restano semplici.
-const LANG = { ts: "jsx", tsx: "jsx", json: "text" };
+import "../theme/code.css";
 
 // Un blocco di codice con il pulsante "Copia". Il testo non si traduce.
-export default function CodeBlock({ lang, title, code }) {
+// `html` is the code already coloured when the manual compiled (scripts/compileDocs.mjs, Shiki): finished
+// markup, the manual's own code, never user input. Without it ("text") the code shows as it is.
+// The colours come from the shared theme: code.css and codeScheme.css (a base16 scheme, Materia). A dark
+// scheme: the block carries data-theme="dark" and stays dark on the light page, bar and Copy included.
+export default function CodeBlock({ lang, title, code, html }) {
   const trans = useTrans();
   const [copied, setCopied] = useState(false);
   useEffect(() => {
@@ -25,8 +26,15 @@ export default function CodeBlock({ lang, title, code }) {
   };
 
   return (
-    <div className="d-code">
-      <Code code={code} lang={LANG[lang] ?? lang} title={title} />
+    <div className="d-code" data-theme="dark">
+      <div className="code hl" data-lang={lang}>
+        {title && (
+          <div className="code-bar">
+            <span>{title}</span>
+          </div>
+        )}
+        <pre>{html == null ? <code>{code.trim()}</code> : <code dangerouslySetInnerHTML={{ __html: html }} />}</pre>
+      </div>
       <button type="button" className="d-copy" onClick={copy}>
         {copied ? trans("_%_Copied_%_") : trans("_%_Copy_%_")}
       </button>

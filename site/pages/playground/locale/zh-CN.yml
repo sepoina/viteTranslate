@@ -1,8 +1,8 @@
 #  -------------------------------------------------
 #      中文（中国）
 #       |    code: zh-CN
-#       |    missing key: 12
-#       |    processed: 2026-10-15 23:21
+#       |    missing key: 0
+#       |    processed: 2026-10-17 00:17
 #       |    TableVersion: 260905
 #  -------------------------------------------------
 #
@@ -20,6 +20,7 @@ App_gh893s: "损坏的标记、缺失的参数、不是文本的值：这些边�
 App_jf2zf8: "Playground · v%s"
 App_n89y7l: "边界情况"
 App_nutn8e: "每个示例都在本页实时运行：在顶部切换语言，看它如何翻译。每个示例旁边都有生成它的代码。"
+App_oxtw6f: "每个标题下方是解释该示例的手册页面。反向路径——从手册直达每个示例和边界情况——只需一页："
 App_vwloc: "本页用意大利语（源语言）编写；默认以英语打开，或使用你在本站上次选择的语言。顶部的切换器会改变全部内容的语言，包括示例。"
 AutoWrapExample_1asr5l0: "即使中间有 <b>{nome}</b> 和一个标签也可以。"
 AutoWrapExample_1bkukij: "属性也可以，无需 trans()"
@@ -54,12 +55,18 @@ InstallSection_t5nanj: "把每个 null 替换为翻译后的文本（保持任�
 InstallSection_ten73a: "该命令依然可用，可以手动运行，也可以放进 CI 流程中："
 InstallSection_ye4k9g: "如需在 CI 中做只读检查，可以用 <code>--status</code>：它报告每张表的状态，只有发现错误时才以 1 退出。"
 installSubsections_14c8rcy: "添加新语言"
+installSubsections_1oidsh7: "添加一种语言"
+installSubsections_1qat548: "配置 LLM"
+installSubsections_3w1606: "CLI：同步与检查"
 installSubsections_4vmyzb: "语言构建"
 installSubsections_dxj27y: "用 LLM 翻译"
 installSubsections_nfxr02: "开发运行"
 installSubsections_p7mj0v: "插件配置"
+installSubsections_s1stir: "安装并注册插件"
+installSubsections_w04sax: "TranslateContainer 组件"
 LanguageSwitch_gzrcyx: "页面语言"
 LanguageSwitchExample_lbdkn8: "<b>请选择您的语言</b> (%s)"
+ManualLink_5b31d1: "在手册中"
 MarkupExample_emap24: "已以 <1>{user}</1> 身份登录"
 MarkupExample_l1xgjf: "<b>粗体</b>、<i>斜体</i>和<code>代码</code>混排：只需翻译一句话。"
 PlaceholderExample_nd4d0f: "占位符需要的是字符串而非 JSX，这里就是一个例子"
@@ -75,6 +82,17 @@ SelectExample_1le55yb: "{gender, select, f {<b>{name}</b> 到了：她的座位�
 SelectExample_1odfrxy: "男"
 SelectExample_1pvkqt3: "姓名"
 SelectExample_b31346: "女"
+SiteBar_135b08s: "主页面：viteTranslate 一览。"
+SiteBar_16pt5e6: "手册：安装、API、CLI 以及用 LLM 进行翻译。"
+SiteBar_184491n: "切换到深色主题：此选择适用于整个网站。"
+SiteBar_1lekqar: "源代码、issue 和 release。"
+SiteBar_6hzcks: "网站栏目"
+SiteBar_a5sjad: "切换到浅色主题：此选择适用于整个网站。"
+SiteBar_boj2og: "首页"
+SiteBar_d55hvs: "演示"
+SiteBar_njusnx: "在真实场景中试用：playground、边界情况，以及一个由 LLM 翻译的餐厅应用。"
+SiteBar_x7movm: "主题"
+SiteBar_z8si1s: "文档"
 StrengthsSection_15r2z3b: "<strong>自动检测新语言。</strong>只需在语言文件夹中添加一个 .yml 文件，无需在代码的其他地方注册。"
 StrengthsSection_18ktc1p: "<strong>在 CLI 中用 LLM 翻译。</strong>一个命令就能用你选择的模型填补缺失的键：先估算费用，并拒绝任何会在运行时出错的译文。"
 StrengthsSection_1dj4mdv: "<strong>ICU MessageFormat，构建时编译。</strong>复数、select、数字和日期，浏览器中无需解析器：只有当某张表用到时才会打包这些辅助函数。"
@@ -89,11 +107,19 @@ StrengthsSection_qebam7: "<strong>从 Vite 5 到 Vite 8，同一套代码。</st
 StrengthsSection_wv4ype: "<strong>自动同步翻译表。</strong> 一条命令即可更新所有语言并标出仍需翻译的内容。"
 StrengthsSection_ww3koi: "<strong>文本保留在 JSX 中，包括变量和标签。</strong>无需手动创建或维护键名。"
 ThemeToggle_1i35buc: "切换主题"
+TopBar_9nwoa2: "Playground"
+ZZZsnippetList_1005biv: "Translate 组件"
 ZZZsnippetList_1231a9k: "<code>&lt;Trans&gt;</code> 返回的是 React 节点：不能用在需要普通字符串的 HTML 属性上，比如 <code>placeholder</code>、<code>aria-label</code> 或 <code>title</code>。这些场合需要 <code>useTrans()</code> 这个 hook，以模板形式调用——<code>trans&#96;Write to $&#123;name}&#96;</code>——它解析同样的翻译，但返回的是原始字符串。这些属性在屏幕上看不到文字：用 F12 检查元素才能看到翻译结果。"
+ZZZsnippetList_1395a7c: "ICU、日期与时区"
+ZZZsnippetList_159bg7v: "basicHtmlToNodes() 辅助函数"
 ZZZsnippetList_1ba68a8: "开启 <code>autoWrap</code> 选项后，连 <code>&lt;Trans&gt;</code> 都不需要了：一段标记文本——哪怕中间被标签或变量隔开——都会自动变成正确的调用，无需手写 <code>trans()</code>。它覆盖不到的情况列在边缘用例页面中。"
 ZZZsnippetList_1cpi6bi: "autoWrap：无需组件的标记"
+ZZZsnippetList_1dj085i: "在 Translate 中编写 JSX"
 ZZZsnippetList_1f899uf: "有了 ICU，复数形式由语言决定：<code>&#123;0, plural, …}</code> 为每个数字选择正确的分支，<code>#</code> 就是已格式化的数字本身。每种语言都有自己的类别：意大利语序数词区分 “l’8º” 和 “il 7º”，英语则需要四种（1st、2nd、3rd、4th）。"
 ZZZsnippetList_1vw64t6: "标记与 React 节点"
+ZZZsnippetList_1wbp89l: "ICU：按位置或按名称传参"
+ZZZsnippetList_1y6mbgv: "用 useTranslateLanguage 切换语言"
+ZZZsnippetList_1yiec38: "插件选项，包括 autoWrap"
 ZZZsnippetList_49z8by: "文本直接写在需要的地方，放进 <code>&lt;Trans&gt;</code> 里：翻译 id 和备用文本由构建过程生成，无需手写任何标记。"
 ZZZsnippetList_51ffe2: "占位符与属性"
 ZZZsnippetList_6qxhzk: "<code>select</code> 按键选择分支；具名参数（<code>&#123;name}</code>）通过对象传入，<code>a=&#123;&#123; name, gender }}</code>。译者可以按自己语言的语法随意调整它们的位置，但名称在每种语言中都保持不变。"
@@ -104,22 +130,11 @@ ZZZsnippetList_c0apzk: "复数与序数（ICU）"
 ZZZsnippetList_cghb5q: "Select 与具名参数（ICU）"
 ZZZsnippetList_dhbcpz: "动态翻译"
 ZZZsnippetList_jbhldw: "静态翻译"
+ZZZsnippetList_k1vlxo: "ICU：每种语法结构一个示例"
 ZZZsnippetList_kq7s2m: "数字、货币、日期和时间都按当前语言的格式显示，无需任何库：切换语言，看分隔符和星期名称的变化。时区可通过 <code>TransContainer</code> 的 <code>timeZone</code> 属性设置，或用插件的 <code>icu.timeZone</code> 选项。"
 ZZZsnippetList_lu6qcc: "useTransLanguage() hook 一次性暴露当前语言（id）、在 localeDir 中找到的 BCP 47 标签（不加载，只列出）、debug 标志以及 proposeNewLanguage，用于在运行时请求延迟加载另一种语言，并提供 onStart/onDone/onError 回调以跟踪其结果。"
 ZZZsnippetList_nesane: "数字、货币与日期（ICU）"
 ZZZsnippetList_ns6u8j: "没有属性的方言标签（<code>&lt;b&gt;</code>、<code>&lt;i&gt;</code>、<code>&lt;code&gt;</code>、<code>&lt;br&gt;</code>……）仍然是文本，译者可以把它移到句子需要的位置。链接或组件则变成一个编号的插槽：属性留在代码里，绝不会出现在译文中。"
+ZZZsnippetList_rpwdua: "标记与占位符"
 ZZZsnippetList_ska6o3: "语言切换"
-
-#  ----to be translated------------------------------------------
-SiteBar_135b08s: null
-SiteBar_16pt5e6: null
-SiteBar_184491n: null
-SiteBar_1lekqar: null
-SiteBar_6hzcks: null
-SiteBar_a5sjad: null
-SiteBar_boj2og: null
-SiteBar_d55hvs: null
-SiteBar_njusnx: null
-SiteBar_x7movm: null
-SiteBar_z8si1s: null
-TopBar_9nwoa2: null
+ZZZsnippetList_wrvd2v: "用 useTranslateToString 处理简单字符串"

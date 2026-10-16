@@ -1,7 +1,7 @@
-<!-- vitetranslate:generated 2026-09-25 · 256 keys · deepseek-flash -->
+<!-- vitetranslate:generated 2026-10-16 · 341 keys · deepseek/deepseek-v4.1-flash -->
 ## Domain
-A demo/reference page for viteTranslate, a translation plugin/component used with Vite and React.
-It shows edge-case rows side by side: what you write, what the plugin actually renders, and what is expected — ICU interpolation, HTML/JSX markup, autoWrap markers.
+A demo/reference page for viteTranslate, a translation plugin/component for Vite and React.
+It shows edge-case rows side by side: what you write, what the plugin renders, and what is expected — ICU interpolation, HTML/JSX markup, autoWrap markers.
 The interface copy is in Italian.
 
 ## Register

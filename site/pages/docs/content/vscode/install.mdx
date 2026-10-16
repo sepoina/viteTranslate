@@ -11,13 +11,13 @@ related:
   - /getting-started/installation#requirements | Requirements | The Vite, React and Babel versions it works with, and which peers are optional.
   - /concepts/translation-files#what-protects-your-files | What protects your tables | Backups, atomic writes and locks: the sync never leaves a table half written.
   - /getting-started/faq#vscode | Is VS Code required? | No: everything runs from the CLI, and the extension is a view from the editor.
-  - /llm/setup#the-api-key | The API key | Where the key is looked up, in order, and why it never lives in vite.config.
+  - /llm/api-keys | API keys | Create the key, keep it out of git, and test it from the CLI or the panel.
 ---
 
 <!-- Migrated from idePlugin/README.md: "One project, two halves", "Getting started" and "Safe by design" (the Marketplace README stays as it is). -->
 
 > [!NOTE]
-> **Preview.** It reads your project and never writes to it. The only things that change files are **Sync** and the LLM actions, and they run the same CLI you'd type yourself.
+> **Preview.** ==It reads your project and never writes to it.== The only things that change files are **Sync** and the LLM actions, and they run the same CLI you'd type yourself.
 
 ![The viteTranslate panel next to the editor](img/panel.png)
 
@@ -31,7 +31,7 @@ related:
 | Fills `null` keys through an LLM, from the CLI | Runs Sync and the LLM actions in one click |
 | Reads its options from `vite.config` | Shows them as resolved, plus versions and the API key's whereabouts |
 
-It doesn't re-implement anything: **Results** asks the library installed in *your* project, so the panel and `npx vitetranslate` never disagree.
+It doesn't re-implement anything: **Results** asks the library installed in *your* project, so ==the panel and `npx vitetranslate` never disagree==.
 
 ## Getting started {#getting-started}
 
@@ -50,4 +50,4 @@ Next: [the panel, piece by piece](/vscode/panel), and [commands and settings](/v
 - **Read-only.** `vite.config` runs in a separate process, never through Vite: no plugin hook fires, nothing gets synced. A config that hangs is dropped after 15 seconds.
 - **Restricted Mode respected.** Untrusted workspace? Nothing runs: you get `package.json` only.
 - **Nothing heavy inside.** No Babel bundled: it uses the one your project already has, and lets it go after two idle minutes.
-- **Secrets stay secret.** The API key is located, never displayed.
+- **Secrets stay secret.** ==The API key is located, never displayed.==

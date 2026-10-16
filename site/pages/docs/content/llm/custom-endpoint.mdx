@@ -1,0 +1,94 @@
+---
+title: Custom endpoint
+description: An API the built-in client can't read, through a custom LLM driver — Cline's, step by step.
+sources:
+  - lib/dev/llm/callModel.js
+  - lib/dev/llm/fetchDriver.js
+  - lib/dev/llm/llmOptions.js
+  - lib/dev/llm/translatePass.js
+aliases:
+  - llm/providers
+  - llm/providers#optional-vercel-provider -> what-a-driver-receives
+  - llm/providers#a-gateway-that-wraps-the-reply -> cline-step-by-step
+related:
+  - /llm/tested-endpoints | Tested endpoints | The APIs the built-in client reads as they are, and the settings each one needs.
+  - /llm/api-keys#save | Where the key lives | The same lookup for the built-in client and for a driver.
+  - /llm/options | LLM options | Every setting of the llm block, with its default.
+  - /llm/running#debugging-a-run | Debugging a run | Log every request and reply to a folder, with the API key always redacted.
+  - /api/types#llm-translation | LLM types | LlmDriver and the rest of the contract, for TypeScript.
+  - /api/plugin-options#llm | The llm option | How the plugin checks the LLM settings at startup, long before the first paid call.
+---
+
+<!-- Was llm/providers, migrated from doc/llm.md ("Optional Vercel Provider"). -->
+
+The built-in client reads Chat Completions the way OpenAI sends it ([tested endpoints](/llm/tested-endpoints)). For anything else — a different request, a gateway that wraps the reply, a client library — write a **custom LLM driver**: a function in `llm.driver` that sends the request and hands back the model's answer. ==Everything around it stays the library's==: batches, prompts, validation, retries, budget caps, the live panel.
+
+## Cline, step by step {#cline-step-by-step}
+
+<!-- LINKED-DATA: the same driver runs in site/pages/docs/vite.config.js and site/pages/playEdge/vite.config.js, and is in the cline template of content/llm/tested-endpoints.mdx: change them together. -->
+
+[Cline's API](https://docs.cline.bot/api/overview) speaks Chat Completions, but sends the reply inside `{ success, data }`: the built-in client finds no answer there. This custom LLM driver is the one this manual is translated with:
+
+```js title="vite.config.js"
+llm: {
+  connection: {
+    baseURL: "https://api.cline.bot/api/v1",
+    model: "deepseek/deepseek-v4.1-flash",
+    apiKeyEnv: "CLINE_API_KEY",
+    costMillionInput: 0.15,
+    costMillionOutput: 0.6,
+    providerOptions: { reasoning: { enabled: false } },
+  },
+  driver: async ({ connection, apiKey, systemPrompt, userPayload, mode, maxTokens, fetch }) => {
+    const reply = await fetch(`${connection.baseURL}/chat/completions`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: connection.model,
+        temperature: connection.temperature,
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: userPayload },
+        ],
+        ...(mode === "translate" ? { response_format: { type: "json_object" } } : {}),
+        ...(maxTokens ? { max_tokens: maxTokens } : {}),
+        ...connection.providerOptions,
+      }),
+    });
+    const { choices: [choice], usage } = (await reply.json()).data;
+    return { content: choice.message.content ?? "", truncated: choice.finish_reason === "length", usage };
+  },
+},
+```
+
+1. **The settings stay in `connection`.** The driver reads `baseURL`, `model` and `providerOptions` from there, and so does the library: the estimate, the [budget caps](/llm/price#budget-caps) and `--llm-status` work as with the built-in client. `reasoning: { enabled: false }` keeps the model from spending `max_tokens` thinking.
+2. **The key is found for you.** `apiKeyEnv` names it, it is looked up like any other ([API keys](/llm/api-keys#save)) and arrives as `apiKey`. It goes in `.env`, never in the config.
+3. **`fetch` is the library's.** The same HTTP call as the built-in client: the timeout (`timeoutMs`), the retries on 429 and 5xx, the run stopped on 401, 403 and 404 ([while it runs](/llm/running#while-it-runs)), the key kept out of every message, the [`--llm-debug`](/llm/running#debugging-a-run) trace. ==A reply that isn't 2xx never reaches the driver.==
+4. **The body is the built-in one.** `response_format` only when translating (`mode: "context"` asks for the [context abstract](/llm/context), free text), `max_tokens` from `maxTokens`, `providerOptions` last so they win.
+5. **One line is Cline's own:** `.data`. One level down there is a plain Chat Completions reply.
+6. **The text goes back as it came.** `{ content, truncated, usage }`, and the library reads it like its own client does: a JSON in a code fence or with stray text after it still counts, ==a truncated reply keeps its finished pairs== and the rest is asked again in smaller batches. Cline's `usage` carries the real `cost`, which wins over the prices above.
+
+## What a driver receives {#what-a-driver-receives}
+
+A function, sync or async, called once per request with one object:
+
+| Field | What it is |
+| :- | :- |
+| `connection` | `llm.connection` with every default filled in |
+| `apiKey` | The key found through `connection.apiKeyEnv`, or `undefined`: a driver may not need one |
+| `systemPrompt`, `userPayload` | The two messages, exactly as the built-in client sends them |
+| `mode` | `"translate"`, or `"context"` for the context abstract |
+| `maxTokens` | The output limit this request is worth; ignore it if your API has none |
+| `fetch` | The library's HTTP call, same signature as `fetch` |
+
+==With a driver, `baseURL` and `model` are not required==: a driver built on a client library may not need them.
+
+## What it returns {#what-it-returns}
+
+| Return | When |
+| :- | :- |
+| `{ content, truncated, usage }` | The model's text as it came, `truncated: true` if the reply hit `maxTokens`. The library reads it, in both modes |
+| `{ translations, usage }`, or a plain `Record<key, string>` | Translations you parsed yourself |
+| `{ text, usage }`, or a string | With `mode: "context"`, the abstract you already have |
+
+`usage` is a Chat Completions `usage` as received (`prompt_tokens`, `completion_tokens`, `cost`…) or `{ tokensIn, tokensOut }`, plus `reasoningOut` and `cost` if you have them: a `cost` is counted instead of your prices. A driver that sends its requests some other way, through a client library, throws an error with a `status` to get the same retries and stops. In TypeScript the whole contract is `LlmDriver`, from `@sepoina/vitetranslate` ([types](/api/types#llm-translation)).

@@ -9,7 +9,7 @@ sources:
 related:
   - /getting-started/installation#install-and-register-the-plugin | Install and register | One npm install and three lines in vite.config, and the plugin is running.
   - /concepts/diagnostics#case-by-case | Each diagnostic mark | What every mark means, and what the same text looks like in a production build.
-  - /llm/setup#every-option | Every LLM option | All the settings of the llm block, with their defaults.
+  - /llm/options | LLM options | Every setting of the llm block, with its default.
   - /concepts/icu#dates-and-time-zones | Dates and time zones | How dates, timestamps and calendar days are read, and which time zone formats them.
   - /concepts/markers#rewriting-the-markers | Change your delimiters | Switch to new markers in vite.config, then rewrite the whole source in one pass.
   - /api/types#plugin-options | Plugin option types | The types behind vitetranslate(), the diagnostic marks and the ICU options.
@@ -43,7 +43,7 @@ vitetranslate(options)
 | `llm` | `object` | off | Configuration for `npx vitetranslate --llm-translate` — see below. Validated at plugin construction, like `localeDir`; absent means the feature stays off |
 | `icu` | `object` | off | Build-time default time zone for ICU `date`/`time` messages — see below and [ICU messages](/concepts/icu) |
 
-Only `false` turns `autoSyncDev` / `autoSyncBuild` off — any other value counts as on. Setting `VITETRANSLATE_NO_SYNC` (to anything non-empty) turns both off without touching `vite.config.*`, which is the only way to reach this from a read-only checkout. Neither one ever runs under Vitest or `vite preview`: a test run shouldn't rewrite your tables, and a preview has no source changes to catch up on.
+Only `false` turns `autoSyncDev` / `autoSyncBuild` off — any other value counts as on. Setting `VITETRANSLATE_NO_SYNC` (to anything non-empty) turns both off without touching `vite.config.*`, which is the only way to reach this from a read-only checkout. ==Neither one ever runs under Vitest or `vite preview`==: a test run shouldn't rewrite your tables, and a preview has no source changes to catch up on.
 
 `autoWrap` is the mirror case: only `true` or a `RegExp` turn it on, any other value (including a typo'd truthy one) leaves it off — a mistake here should fall back to the default behavior, not switch it on by accident. A `RegExp` with the `g` or `y` flag is accepted too — those flags are stripped internally, since a stateful `.test()` would otherwise answer differently for the second tag it checks in the same file.
 
@@ -68,7 +68,7 @@ See [Diagnostics](/concepts/diagnostics) for what each character means on screen
 
 ## `llm` {#llm}
 
-Never used by the plugin itself — the LLM only ever runs from `vitetranslate`, never inside a Vite hook. The plugin only validates the block at construction time, so a mistake here shows up when the dev server starts, not on the first paid call, and passes the normalized result to the CLI through `vitetranslateConfig` (the same mechanism `localeDir`/`sourceLanguage` use, see [the architecture notes](repo:doc/structure.md#no-separate-config-file)).
+==Never used by the plugin itself== — the LLM only ever runs from `vitetranslate`, never inside a Vite hook. The plugin only validates the block at construction time, so a mistake here shows up when the dev server starts, not on the first paid call, and passes the normalized result to the CLI through `vitetranslateConfig` (the same mechanism `localeDir`/`sourceLanguage` use, see [the architecture notes](repo:doc/structure.md#no-separate-config-file)).
 
 > 🎮 [The `llm` block and one run, live](site:playground#install-llm).
 
@@ -101,7 +101,7 @@ vitetranslate({
 
 | Field | Type | Description |
 | :- | :- | :- |
-| `timeZone` | `string` | An IANA zone name (`"Europe/Rome"`, `"UTC"`, …). Validated at plugin construction — an unknown zone is a build-time error, not a silent fallback |
+| `timeZone` | `string` | An IANA zone name (`"Europe/Rome"`, `"UTC"`, …). Validated at plugin construction — ==an unknown zone is a build-time error, not a silent fallback== |
 
 Lowest of three precedences: a calendar date (`"YYYY-MM-DD"`) is always UTC regardless of this option; the `timeZone` prop of `<TransContainer>` (`TranslateContainer`) wins over it; with neither, the message uses whatever zone the runtime itself is in. See [ICU messages](/concepts/icu#dates-and-time-zones).
 

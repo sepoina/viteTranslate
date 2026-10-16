@@ -2,6 +2,7 @@ import { Trans } from "@sepoina/vitetranslate/react";
 import { Code } from "../theme/Code.jsx";
 import { AnchorTitle } from "./DocSection.jsx";
 import installSubsections from "../snippets/installSubsections.js";
+import { docsUrl } from "../siteLinks.js";
 
 const [configPlugin, esecuzioneDev, buildLinguistico, nuovaLingua, llm] = installSubsections;
 
@@ -13,7 +14,7 @@ export default function InstallSection() {
       </h2>
 
       <section id={configPlugin.id} className="doc">
-        <AnchorTitle id={configPlugin.id}>
+        <AnchorTitle id={configPlugin.id} manual={configPlugin.manual} manualTitle={configPlugin.manualTitle}>
           <Trans t={configPlugin.title} />
         </AnchorTitle>
 
@@ -55,7 +56,7 @@ export default defineConfig({
       </section>
 
       <section id={esecuzioneDev.id} className="doc">
-        <AnchorTitle id={esecuzioneDev.id}>
+        <AnchorTitle id={esecuzioneDev.id} manual={esecuzioneDev.manual} manualTitle={esecuzioneDev.manualTitle}>
           <Trans t={esecuzioneDev.title} />
         </AnchorTitle>
 
@@ -75,7 +76,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
       </section>
 
       <section id={buildLinguistico.id} className="doc">
-        <AnchorTitle id={buildLinguistico.id}>
+        <AnchorTitle id={buildLinguistico.id} manual={buildLinguistico.manual} manualTitle={buildLinguistico.manualTitle}>
           <Trans t={buildLinguistico.title} />
         </AnchorTitle>
 
@@ -116,14 +117,14 @@ PlaceholderExample_1ebkbf3: "Il nome verrà usato nel saluto"`} />
       </section>
 
       <section id={nuovaLingua.id} className="doc">
-        <AnchorTitle id={nuovaLingua.id}>
+        <AnchorTitle id={nuovaLingua.id} manual={nuovaLingua.manual} manualTitle={nuovaLingua.manualTitle}>
           <Trans t={nuovaLingua.title} />
         </AnchorTitle>
 
         <p className="doc-text">
           <Trans>_%_Ogni lingua è un file .yml dentro localeDir, con lo stesso nome del suo tag_%_</Trans>
           {" "}
-          <a href="https://sepoina.github.io/viteTranslate/docs/concepts/languages/#bcp47" target="_blank" rel="noopener noreferrer">BCP 47</a>
+          <a href={docsUrl("concepts/languages#bcp47")}>BCP 47</a>
           <Trans>_%_. Il file della lingua di default viene creato e tenuto aggiornato in automatico dal comando di sincronizzazione: non va scritto a mano, solo tradotto se serve._%_</Trans>
         </p>
         <p className="doc-text">
@@ -190,7 +191,7 @@ PlaceholderExample_1ebkbf3: "Le nom sera utilisé dans la salutation"`} />
       </section>
 
       <section id={llm.id} className="doc">
-        <AnchorTitle id={llm.id}>
+        <AnchorTitle id={llm.id} manual={llm.manual} manualTitle={llm.manualTitle}>
           <Trans t={llm.title} />
         </AnchorTitle>
 
@@ -221,9 +222,7 @@ PlaceholderExample_1ebkbf3: "Le nom sera utilisé dans la salutation"`} />
 
         <p className="doc-text">
           <Trans>_%_Costi, limiti di spesa, la chiave nel portachiavi di sistema e tutte le opzioni:_%_</Trans>{" "}
-          <a href="https://sepoina.github.io/viteTranslate/docs/llm/setup/" target="_blank" rel="noopener noreferrer">
-            docs/llm/setup
-          </a>
+          <a href={docsUrl("llm/setup")}>docs/llm/setup</a>
         </p>
       </section>
     </section>

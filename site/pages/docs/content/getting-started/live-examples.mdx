@@ -15,21 +15,21 @@ related:
 ---
 
 <!-- Migrated from doc/live-examples.md (ids = the GitHub slugs of the old headings). -->
-<!-- LINKED-DATA: the sections of the playground and edge pages (site/pages/playground, site/pages/playEdge) are the rows below; add a section there, add a row here. -->
+<!-- LINKED-DATA: the sections of the playground and edge pages (site/pages/playground, site/pages/playEdge) are the rows below; add a section there, add a row here. The first link of "Explained in" is the `manual` of that section there (snippets/ZZZ_snippetList.js, snippets/installSubsections.js, testCases.jsx, autoWrapCases.jsx): change one, change the other. -->
 
 Two pages, two jobs:
 
 - 🎮 [Playground](site:playground) — each feature working, next to the code that produces it.
-- 🧪 [Edge cases](site:edge) — where things bend: one row per case, what renders next to what should, the recommended forms first and the mistakes last ([how to read it](site:edge#note)).
+- 🧪 [Edge cases](site:edge) — where things bend: one row per case, what renders next to what should, ==the recommended forms first and the mistakes last== ([how to read it](site:edge#note)).
 
-Both switch language live, and the `#` next to every title is a link to share. Each page of this manual links its own live cases too, right where it explains them.
+Both switch language live, and the `#` next to every title is a link to share. Each page of this manual links its own live cases too, right where it explains them, and every section of the two pages links back, under its title, to the page that explains it.
 
 ## 🎮 Playground {#playground}
 
 | Section | Shows | Explained in |
 | :- | :- | :- |
-| [Static translation](site:playground#static-text) | `<Trans>` around a marked sentence | [Translate](/components/translate) (`<Trans>`) |
-| [Dynamic translation](site:playground#dynamic-text) | `%s` filled by `t={[text, ...args]}` | [Props](/components/translate#props) |
+| [Static translation](site:playground#static-text) | `<Trans>` around a sentence, no marker to write | [Translate](/components/translate) (`<Trans>`) |
+| [Dynamic translation](site:playground#dynamic-text) | A value written as JSX, `{name}`, inside `<Trans>` | [Write JSX inside Translate](/components/translate#write-jsx-inside-translate) |
 | [Markup and React nodes](site:playground#markup) | The HTML dialect, a link as an argument | [Markup and placeholders](/components/translate#markup-and-placeholders) |
 | [Placeholders and attributes](site:playground#attributes) | `placeholder`, `aria-label`, `title` through `trans()` | [useTranslateToString](/hooks/use-translate-to-string) |
 | [Language switch](site:playground#language-switch) | The language list, lazy switching, callbacks | [useTranslateLanguage](/hooks/use-translate-language) |
@@ -38,7 +38,7 @@ Both switch language live, and the `#` next to every title is a link to share. E
 | [Numbers, currencies and dates](site:playground#icu-format) | Each language's formats, the `timeZone` prop | [Dates and time zones](/concepts/icu#dates-and-time-zones) |
 | [autoWrap](site:playground#autowrap) | Markers with no `<Trans>` around them | [Plugin options](/api/plugin-options), [limitations](/concepts/limitations) |
 | [HTML from outside](site:playground#html-to-nodes) | `basicHtmlToNodes()` on a server's HTML | [basicHtmlToNodes](/hooks/helpers#basichtmltonodes) |
-| [Plugin config](site:playground#install-config) | Install, `vite.config.js`, folder layout | [Plugin options](/api/plugin-options) |
+| [Plugin config](site:playground#install-config) | Install, `vite.config.js`, folder layout | [Installation](/getting-started/installation#install-and-register-the-plugin), [plugin options](/api/plugin-options) |
 | [Dev run](site:playground#install-dev) | `TransContainer`, the first `npm run dev` | [TranslateContainer](/components/translate-container) |
 | [Language build](site:playground#install-sync) | The automatic sync, `--status` in CI | [CLI](/api/cli) |
 | [Adding a new language](site:playground#install-new-language) | `--add`, then the `null`s to fill | [Adding a language](/concepts/languages) |
@@ -48,10 +48,10 @@ Both switch language live, and the `#` next to every title is a link to share. E
 
 | Category | Covers | Explained in |
 | :- | :- | :- |
-| [Call forms](site:edge#call-forms) | Children, `t`, tuple, `{ t, a }`, `o`, `a` | [Translate](/components/translate) |
+| [Call forms](site:edge#call-forms) | Children, `t`, tuple, `{ t, a }`, `o`, `a` | [Other forms](/components/translate#other-forms) |
 | [The preprocessor: JSX becomes the message](site:edge#macro) | Plain text, named values, a dialect tag staying text, a link becoming a slot, `null`/`false`, tagged templates in a component | [Write JSX inside Translate](/components/translate#write-jsx-inside-translate) |
 | [Short names](site:edge#aliases) | `<Translate>` and `<Trans>`, `ts` and `trans`, a marked text passed to `<Trans>`, and `Trans === Translate` | [Short names](/components/translate-container#short-names) |
-| [What becomes a marker](site:edge#markers) | Empty, nested, built at runtime, mid-string, in a template | [Known limitations](/concepts/limitations) |
+| [What becomes a marker](site:edge#markers) | Empty, nested, built at runtime, mid-string, in a template | [Markers and extraction](/concepts/limitations#markers-and-extraction) |
 | [%s interpolation](site:edge#percent-s) | Too many, too few, `null`, `0`, `""` | [Markup and placeholders](/components/translate#markup-and-placeholders) |
 | [Standard ICU interpolation](site:edge#icu) | Positions, names, braces, apostrophes | [ICU messages](/concepts/icu) |
 | [Arguments that are React nodes](site:edge#react-nodes) | Elements as arguments, and where they don't belong | [What can sit in the text position](/components/translate#what-can-sit-in-the-text-position) |
@@ -60,7 +60,7 @@ Both switch language live, and the `#` next to every title is a link to share. E
 | [Values that are not text](site:edge#not-text) | Numbers, `true`, functions, symbols — and `🚫[type]` | [When there is no text at all](/concepts/diagnostics#when-there-is-no-text-at-all) |
 | [Incompatible props](site:edge#conflicting-props) | Two texts for one slot: which one survives | [Case by case](/concepts/diagnostics#case-by-case) |
 | [Real texts](site:edge#real-text) | Accents, emoji, CJK, quotes, new lines | [File format](/concepts/translation-files#file-format) |
-| [autoWrap](site:edge#autowrap) | Ten cases, the ones it can't rewrite included | [Known limitations](/concepts/limitations) |
+| [autoWrap](site:edge#autowrap) | Ten cases, the ones it can't rewrite included | [autoWrap limits](/concepts/limitations#autowrap) |
 
 ## 🍽️ Showcase {#showcase}
 

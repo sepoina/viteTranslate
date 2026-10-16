@@ -11,19 +11,19 @@
       }
     },
     "api/plugin-options": {
-      "sealedAt": "fd07ae1",
+      "sealedAt": "e076796",
       "sources": {
-        "lib/index.d.ts": "6d95042b357eea03d774430522a1a4ee759f5af03ccb99c081b177eb2d95ee55",
+        "lib/index.d.ts": "b6a7f41e978fd4d11e1cca65db1561754abbbd4d1c41d631bf65a63687b49b9a",
         "lib/dev/vite/vitetranslate.js": "005b20a89057dc28edf62e4951fa53ffa9b8bb9999f6ceb33ec04b7aa61e0d58",
         "lib/dev/vite/uty/icuOptions.js": "555e463386a5a3b5b3a44435b4e3d8aa7d3b0628e67c63e6cb7e7627dbabfa9c",
         "lib/errorSolve.js": "482019c69a89fa05500a999fafb078978ea05e17eaeff24ad9a73496470651f2"
       }
     },
     "api/types": {
-      "sealedAt": "fd07ae1",
+      "sealedAt": "e076796",
       "sources": {
         "lib/react.d.ts": "bb69a51f5ead3e81ccf60f8af44c0f65b02f9d75c587417be280905940a4bd18",
-        "lib/index.d.ts": "6d95042b357eea03d774430522a1a4ee759f5af03ccb99c081b177eb2d95ee55"
+        "lib/index.d.ts": "b6a7f41e978fd4d11e1cca65db1561754abbbd4d1c41d631bf65a63687b49b9a"
       }
     },
     "components/translate": {
@@ -49,10 +49,10 @@
       }
     },
     "concepts/diagnostics": {
-      "sealedAt": "fd07ae1",
+      "sealedAt": "e076796",
       "sources": {
         "lib/errorSolve.js": "482019c69a89fa05500a999fafb078978ea05e17eaeff24ad9a73496470651f2",
-        "lib/index.d.ts": "6d95042b357eea03d774430522a1a4ee759f5af03ccb99c081b177eb2d95ee55",
+        "lib/index.d.ts": "b6a7f41e978fd4d11e1cca65db1561754abbbd4d1c41d631bf65a63687b49b9a",
         "lib/react/Translate.js": "b2483d19ab7755d72b5402feb92c020fc79815fe5a0d55488b2b4a705dbaba00",
         "lib/dev/vite/uty/devReporter.js": "d3b872d65f3f4f3505754439ab30d880c986906b38fc536546af077196e1c3bc",
         "lib/dev/vite/uty/languageStatus.js": "b14a6e25b632315070fb7386911ab66276522b0804f1c3b61ab8fbb39b7efd55",
@@ -125,27 +125,27 @@
       }
     },
     "getting-started/faq": {
-      "sealedAt": "fd07ae1",
+      "sealedAt": "e076796",
       "sources": {
-        "lib/index.d.ts": "6d95042b357eea03d774430522a1a4ee759f5af03ccb99c081b177eb2d95ee55",
+        "lib/index.d.ts": "b6a7f41e978fd4d11e1cca65db1561754abbbd4d1c41d631bf65a63687b49b9a",
         "lib/react.d.ts": "bb69a51f5ead3e81ccf60f8af44c0f65b02f9d75c587417be280905940a4bd18"
       }
     },
     "getting-started/installation": {
-      "sealedAt": "32f6c57",
+      "sealedAt": "e076796",
       "sources": {
         "package.json#peerDependencies": "653d7a4b02362de8337d74378c1924744b7a8ac345031f5e433fdd0e874efd98",
         "package.json#peerDependenciesMeta": "041d6b23b69f45752dde30a03ac15bc22e887a5ad70cc9bd209d7c200b9bdaed",
         "lib/dev/babel/babelPeer.js": "7ae9c376905d0079f5d6ad2731f2c02b257aef2c8c9a35f0cde34b70bd9650a7",
-        "lib/dev/llm/keyringPeer.js": "258dc8af27759f090bf941399f312123f3279e4a7378a14a7bf02c29700ccdc8"
+        "lib/dev/llm/keyringPeer.js": "fb71b9321cfde02e65a4dc96cb0bfc948527273982fe37acc775258ffbb2721f"
       }
     },
     "getting-started/live-examples": {
-      "sealedAt": "32f6c57",
+      "sealedAt": "e076796",
       "sources": {
-        "site/pages/playground/src/App.jsx": "99c365df1c1dbc01d437e33392ef19ae475463ab2e3a40b97438c2670214cc6b",
-        "site/pages/playEdge/src/testCases.jsx": "e03a3f6c5721ed24accb53077968e1db56600e1185df040492a14b89610dc2b3",
-        "site/landing/src/pages.js": "ec2b59c541adaeb4d3e100975725e803678c2fb8ee6d4d9f7f16ec5e0ca54f91"
+        "site/pages/playground/src/App.jsx": "22676037e278b7dfe8f9152e4cebcb877469f69ff5f76bf7bace34910f2803b5",
+        "site/pages/playEdge/src/testCases.jsx": "c881b30103ec8dd529af6247f4980adf33a77ef2b0f2ccd221ea58a31754266f",
+        "site/landing/src/pages.js": "3833399aaf344ff65d001f8dc71d790f0c6b4b2f3be8212b09232e94c9358b7f"
       }
     },
     "getting-started/overview": {
@@ -196,53 +196,83 @@
         "lib/dev/babel/macroForms.js": "a52baf54b5b01f175c40321e8ef4f78b02ec174925af62682d7d961d938081ec"
       }
     },
+    "llm/api-keys": {
+      "sealedAt": "e076796",
+      "sources": {
+        "lib/dev/llm/apiKey.js": "35844e9d468d5a713b6b84a5e57d273a7447ce0bf95d370ce7ce8db24c2e06fe",
+        "lib/dev/llm/keyringPeer.js": "fb71b9321cfde02e65a4dc96cb0bfc948527273982fe37acc775258ffbb2721f",
+        "lib/dev/llm/llmCommands.js": "676eabc7b41d24f1bfe08051668d30a30566c50e7836cf143ada51d12968b8fe"
+      }
+    },
     "llm/context": {
-      "sealedAt": "fd07ae1",
+      "sealedAt": "e076796",
       "sources": {
         "lib/dev/llm/contextFile.js": "4f7c8df6aa2639344bd5b35a2a8d2c2ff51ebe4e5e63beb66aebeff99e2053e2",
         "lib/dev/llm/contextSample.js": "cfbf709d71dc4e9e46323926688054e52560b49b268228cc1c4f46ce8d1fc97d",
-        "lib/dev/llm/llmOptions.js": "7b115b9f853b5ed81bd80791cd69641bcbd0475e91d9222e42b94213f8797008"
+        "lib/dev/llm/llmOptions.js": "944323f0e455a9fe869bc56e9aa4733acbb087f9317a06f8bec546987e2441c0"
+      }
+    },
+    "llm/custom-endpoint": {
+      "sealedAt": "e076796",
+      "sources": {
+        "lib/dev/llm/callModel.js": "7795b328adfa559322ef2f9049b28231301e8026c3d27d88096d67a642419ec2",
+        "lib/dev/llm/fetchDriver.js": "474373e9bd2d7193a3021dac849869ab934e71539201d82cf3ec85efa52eddb5",
+        "lib/dev/llm/llmOptions.js": "944323f0e455a9fe869bc56e9aa4733acbb087f9317a06f8bec546987e2441c0",
+        "lib/dev/llm/translatePass.js": "ca684d6b16fca996fc927f9a166ec32a56dedd2b603d39055cff6992e4b0703b"
+      }
+    },
+    "llm/options": {
+      "sealedAt": "e076796",
+      "sources": {
+        "lib/dev/llm/llmOptions.js": "944323f0e455a9fe869bc56e9aa4733acbb087f9317a06f8bec546987e2441c0"
       }
     },
     "llm/price": {
-      "sealedAt": "fd07ae1",
+      "sealedAt": "e076796",
       "sources": {
         "lib/dev/llm/costModel.js": "1fabc0bc9c231986a9863a8a89cbd473a9533fab75f9a2f182e319afcce225ba",
         "lib/dev/llm/budgetGuard.js": "03a7d6d09c302fb84bd12b49089c46f633d87b5ffd1a72b834eac651637323cb",
-        "lib/dev/llm/llmOptions.js": "7b115b9f853b5ed81bd80791cd69641bcbd0475e91d9222e42b94213f8797008",
+        "lib/dev/llm/llmOptions.js": "944323f0e455a9fe869bc56e9aa4733acbb087f9317a06f8bec546987e2441c0",
         "lib/dev/llm/buildBatches.js": "2da25650ed525313d82ca70ee53affe38e9c5aaf2071063af5f385916fa131d5",
         "lib/dev/llm/llmLedger.js": "2908f63493ec3dfebe2385159398f280b7a6baa8d337c8ab710b14ba4b770b3b",
-        "lib/dev/llm/translatePass.js": "f438313fd05c511baf0d9c344e148125ce68dc8a3211be792e293b03ecf9c4e0"
+        "lib/dev/llm/translatePass.js": "ca684d6b16fca996fc927f9a166ec32a56dedd2b603d39055cff6992e4b0703b"
       }
     },
     "llm/providers": {
-      "sealedAt": "fd07ae1",
+      "sealedAt": "e076796",
       "sources": {
-        "lib/dev/llm/fetchDriver.js": "12772a79c0b5006a5d690067181ec5f0ab7ec12a581fb7c0be44cce90794a7c5",
-        "lib/dev/llm/callModel.js": "97c345237f84426fc33894e8ecc94d3413150ca0d669d4d78b18e1eee42a29e8",
-        "lib/dev/llm/llmOptions.js": "7b115b9f853b5ed81bd80791cd69641bcbd0475e91d9222e42b94213f8797008"
+        "lib/dev/llm/fetchDriver.js": "679da36ecbea4410a20017e61db36d8aef42d4534aa4fcbd25a98013885c3467",
+        "lib/dev/llm/callModel.js": "e742e461cb5c8d74feb64ae6a6ae98f68d518935e490238e3740dc9bfdc53ece",
+        "lib/dev/llm/llmOptions.js": "7b115b9f853b5ed81bd80791cd69641bcbd0475e91d9222e42b94213f8797008",
+        "lib/dev/llm/translatePass.js": "065eefa8854bd9e0f9d62f4833e1ba457910d5284de291766fa22b0abd0a50a7"
       }
     },
     "llm/running": {
-      "sealedAt": "fd07ae1",
+      "sealedAt": "e076796",
       "sources": {
-        "lib/dev/llm/llmCommands.js": "4dc48a879b6be4bc73a0738e08afb9fcfd75d8cd034f282b24d92e18f7f64cbd",
+        "lib/dev/llm/llmCommands.js": "676eabc7b41d24f1bfe08051668d30a30566c50e7836cf143ada51d12968b8fe",
         "lib/dev/llm/requestPanel.js": "05f2cd21972a8d1b6d8f785a2af3de548c5400edace0e7068eec12ce9fe0a439",
         "lib/dev/llm/llmReport.js": "1fbb19ce78e2e49086225e2697bf977d22ab37f8d8c5937d628e9c423854fd51",
         "lib/dev/llm/validateTranslation.js": "4e87d4d1701260cc0986f8cfbb42a7fb48103af878a612cd9d3637bc5049372c",
         "lib/dev/llm/debugTrace.js": "b5c83c3e757fd57a18b065881556a402681d2d1e5d8a3dfd39ee0e5a04b89eec",
-        "lib/dev/llm/translatePass.js": "f438313fd05c511baf0d9c344e148125ce68dc8a3211be792e293b03ecf9c4e0",
+        "lib/dev/llm/translatePass.js": "ca684d6b16fca996fc927f9a166ec32a56dedd2b603d39055cff6992e4b0703b",
         "lib/dev/vite/cli.js": "0d286d24ec084edb12d070e25dbb6f40d2587be6d36c963dc937b1a1827120fd"
       }
     },
     "llm/setup": {
-      "sealedAt": "fd07ae1",
+      "sealedAt": "e076796",
       "sources": {
-        "lib/dev/llm/llmOptions.js": "7b115b9f853b5ed81bd80791cd69641bcbd0475e91d9222e42b94213f8797008",
-        "lib/dev/llm/apiKey.js": "cd8f5941887d854b61f0812adbcee8b9050e40a5fcfd68e9a78c183b1dd85dbd",
-        "lib/dev/llm/keyringPeer.js": "258dc8af27759f090bf941399f312123f3279e4a7378a14a7bf02c29700ccdc8",
-        "lib/dev/llm/fetchDriver.js": "12772a79c0b5006a5d690067181ec5f0ab7ec12a581fb7c0be44cce90794a7c5",
-        "lib/dev/llm/llmCommands.js": "4dc48a879b6be4bc73a0738e08afb9fcfd75d8cd034f282b24d92e18f7f64cbd"
+        "lib/dev/llm/llmOptions.js": "944323f0e455a9fe869bc56e9aa4733acbb087f9317a06f8bec546987e2441c0",
+        "lib/dev/llm/fetchDriver.js": "474373e9bd2d7193a3021dac849869ab934e71539201d82cf3ec85efa52eddb5",
+        "lib/dev/llm/llmCommands.js": "676eabc7b41d24f1bfe08051668d30a30566c50e7836cf143ada51d12968b8fe"
+      }
+    },
+    "llm/tested-endpoints": {
+      "sealedAt": "e076796",
+      "sources": {
+        "lib/dev/llm/fetchDriver.js": "474373e9bd2d7193a3021dac849869ab934e71539201d82cf3ec85efa52eddb5",
+        "lib/dev/llm/llmOptions.js": "944323f0e455a9fe869bc56e9aa4733acbb087f9317a06f8bec546987e2441c0",
+        "lib/dev/llm/apiKey.js": "35844e9d468d5a713b6b84a5e57d273a7447ce0bf95d370ce7ce8db24c2e06fe"
       }
     },
     "tutorials/first-app": {
@@ -325,6 +355,7 @@
     "api/types",
     "api/types#components",
     "api/types#hooks",
+    "api/types#llm-translation",
     "api/types#plugin-options",
     "api/types#values-and-arguments",
     "components/translate",
@@ -410,7 +441,24 @@
     "hooks/use-translate-language#proposenewlanguage",
     "hooks/use-translate-node",
     "hooks/use-translate-to-string",
+    "llm/api-keys",
+    "llm/api-keys#create",
+    "llm/api-keys#env-files",
+    "llm/api-keys#if-a-key-leaks",
+    "llm/api-keys#in-ci",
+    "llm/api-keys#keep-it-safe",
+    "llm/api-keys#keyring",
+    "llm/api-keys#out-of-git",
+    "llm/api-keys#save",
+    "llm/api-keys#test",
     "llm/context",
+    "llm/custom-endpoint",
+    "llm/custom-endpoint#cline-step-by-step",
+    "llm/custom-endpoint#what-a-driver-receives",
+    "llm/custom-endpoint#what-it-returns",
+    "llm/options",
+    "llm/options#connection",
+    "llm/options#everything-else",
     "llm/price",
     "llm/price#budget-caps",
     "llm/price#confirmation",
@@ -418,6 +466,7 @@
     "llm/price#reasoning-models",
     "llm/price#the-estimate",
     "llm/providers",
+    "llm/providers#a-gateway-that-wraps-the-reply",
     "llm/providers#openai-compatible-endpoints",
     "llm/providers#optional-vercel-provider",
     "llm/running",
@@ -430,6 +479,9 @@
     "llm/setup#getting-started",
     "llm/setup#tested-endpoints",
     "llm/setup#the-api-key",
+    "llm/tested-endpoints",
+    "llm/tested-endpoints#openai-compatible",
+    "llm/tested-endpoints#run-end-to-end",
     "tutorials/first-app",
     "tutorials/first-app#add-french",
     "tutorials/first-app#add-the-buttons",

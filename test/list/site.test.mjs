@@ -196,7 +196,7 @@ try {
 
 // 10. I colori stanno solo in tokens.css: nel resto del CSS del sito, solo var(--…).
 const senzaCommenti = (t) => t.replace(/\/\*[\s\S]*?\*\//g, "");
-for (const f of ["site/theme/theme.css", "site/landing/src/landing.css", "site/pages/playground/src/playground.css", "site/pages/playEdge/src/edge.css", "site/pages/docs/src/docs.css"]) {
+for (const f of ["site/theme/theme.css", "site/theme/code.css", "site/theme/codeTheme.js", "site/landing/src/landing.css", "site/pages/playground/src/playground.css", "site/pages/playEdge/src/edge.css", "site/pages/docs/src/docs.css"]) {
   const trovati = senzaCommenti(readFileSync(join(ROOT, f), "utf8")).match(/#[0-9a-fA-F]{3,8}\b|\b(?:rgba?|hsla?)\(/g) ?? [];
   eq(`${f}: nessun colore scritto a mano`, [], trovati);
 }
@@ -237,6 +237,9 @@ const COPPIE = [
   ...["tk-c", "tk-s", "tk-t", "tk-k", "tk-n", "code-text"].map((f) => [f, "code-bg"]),
   // The hint under the bar: name (accent) and description (muted) on both ends of its gradient.
   ...["muted", "accent"].flatMap((f) => ["hint-bg", "hint-bg-2"].map((b) => [f, b])),
+  // The manual's tables: the header on its fill, text and links on the body.
+  ["table-head-ink", "table-head-bg"],
+  ...["text", "muted", "accent"].map((f) => [f, "table-bg"]),
 ];
 // 3:1 basta per il testo grande e per i simboli (WCAG 1.4.3 e 1.4.11): --dim colora solo titoli e
 // testo decorativo, --mark-n è il ✕ del confronto, che ha accanto il suo significato per esteso.
@@ -253,6 +256,29 @@ for (const [nome, mappa] of [["scuro", scuro], ["chiaro", chiaro]]) {
     }).map(([f, b]) => `${f} su ${b}`);
     eq(`tema ${nome}: ogni coppia passa ${soglia}:1`, [], sotto);
   }
+}
+// The code blocks' base16 scheme (codeScheme.css, slots chosen by codeTheme.js, painted by code.css): every slot that colours text,
+// on the scheme's own background. base01, base02 (backgrounds), base06 and base07 colour no text.
+{
+  const schema = variabili(readFileSync(join(ROOT, "site/theme/codeScheme.css"), "utf8"));
+  const testo = ["base03", "base04", "base05", "base08", "base09", "base0A", "base0B", "base0C", "base0D", "base0E", "base0F"];
+  const sotto = testo.filter((b) => !esa.test(schema[b] ?? "") || !esa.test(schema.base00 ?? "") || contrasto(schema[b], schema.base00) < 4.5);
+  eq("codeScheme.css: ogni colore del testo passa 4.5:1 su base00", [], sotto);
+}
+// The manual's highlighter is see-through: its text is measured on the stroke laid over the page, the
+// cards and the table body.
+const sopra = (rgba, sotto) => {
+  const m = /^rgba\((\d+),\s*(\d+),\s*(\d+),\s*([\d.]+)\)$/.exec(rgba);
+  if (!m || !esa.test(sotto)) return "";
+  const a = Number(m[4]);
+  return "#" + [1, 2, 3].map((k) => Math.round(Number(m[k]) * a + parseInt(sotto.slice(2 * k - 1, 2 * k + 1), 16) * (1 - a)).toString(16).padStart(2, "0")).join("");
+};
+for (const [nome, mappa] of [["scuro", scuro], ["chiaro", chiaro]]) {
+  const sotto = ["bg", "surface-2", "table-bg"].filter((b) => {
+    const fondo = sopra(risolvi(mappa, "highlight-bg"), risolvi(mappa, b));
+    return !esa.test(fondo) || contrasto(risolvi(mappa, "highlight-ink"), fondo) < 4.5;
+  });
+  eq(`tema ${nome}: il testo evidenziato passa 4.5:1 (pagina, card, tabella)`, [], sotto);
 }
 
 // 12. Una pagina, o una demo, resta autonoma: nessun import relativo esce dalla sua cartella (né lo zip

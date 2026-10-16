@@ -34,8 +34,11 @@ two situations is the `base` and where the links to the other pages point.
 The user manual is [`pages/docs/`](pages/docs): pages are `.mdx` files in `content/<section>/<page>.mdx`, in a small dialect that a local compiler ([`scripts/compileDocs.mjs`](pages/docs/scripts/compileDocs.mjs)) turns into JSX under `src/generated/` (ignored by git). Every sentence becomes a `<Trans>`, so the Italian version is made by viteTranslate itself. Anything the dialect does not list is a compile error with `file:line`.
 
 - **Frontmatter:** `title`, `description`, `sources:` (the repo files the page describes; `file.json#key` for part of a JSON), optional `aliases:` and `related:` (up to 7 lines `/section/page#id | label | detail` for "On the same topic" in the right column: the detail shows on hover, all of them land in `src/generated/related.js`, and following one makes "Previous" lead back).
-- **Blocks:** `##` and `###` with a mandatory `{#id}`; paragraphs; lists (one line per item, one nesting level); callouts `> [!NOTE]` with paragraphs only; tables (`\|` for a literal bar); code fences with a language and optional `title="…"`; `![alt](img/x.png)` (PNG or WebP in `public/img`, size read from the file); `<Demo page="slug" anchor="id" />`.
+- **Blocks:** `##` and `###` with a mandatory `{#id}`; paragraphs; lists (one line per item, one nesting level); callouts `> [!NOTE]` with paragraphs only (`> [!NOTE] Notes` names the box otherwise); tables (`\|` for a literal bar, `<br>` for a new line in a cell, and one `<hr>` before the cell's small print, set under a line: the only HTML a cell takes); code fences with a language and optional `title="…"`; `![alt](img/x.png)` (PNG or WebP in `public/img`, size read from the file); `<Demo page="slug" anchor="id" />`.
 - **Inline:** code, bold, italic, links: `/route#id`, `#id`, `site:slug#id`, `repo:path#id`, `https://…`. A code span cannot contain a backtick.
+- **Code under a row:** a body cell that is only `{code:id}` becomes a code icon; it opens, in a row of its own below, the fence ```` ```lang id="id" ```` placed right after the table (one per row, each id once a page). Each row opens by itself. A `vite.config.js` opened this way is a template to copy: `test/list/docsCompiler.test.mjs` runs its `llm` block through the library's validator.
+- **Accent:** `__text__` becomes `<strong>`, bold in the accent colour; never in a heading, a link or a highlight, nor with one inside (it would pass for a link, or lose contrast).
+- **Highlight:** `==text==` becomes `<em>`, a marker stroke; italic (`*text*`, `<i>`) stays italic, for quoted interface text. At most four highlights a page, at least 300 characters of text apart, never in a heading, and never with a link inside or around it (green on green loses contrast).
 - **Special characters** in text (`{ } < > &`, `%s`, the marker delimiter) are emitted as values (`{K[n]}`), never as translatable text.
 
 ```bash
@@ -51,13 +54,21 @@ npm run testRelease       # the release checks, the manual's among them
 
 ## Release checks
 
-`npm run testRelease` ([`test/testRelease.mjs`](../test/testRelease.mjs)) runs every `test/release/*.check.mjs` in name order and prints one table: `suite` (`npm test`), `theme`, `demos`, `readme` (size rule of AGENTS.md), `runtime-size` (runs `estimateSize`, which rewrites `site/runtimeSize.json`) and `docs`: it compiles the manual and runs eight checks (stale pages, `DOCS-PAGE` pointers, API coverage, published anchors, links into the manual, links to migrated files, `TODO(links)`, translation status). `--only <word>` runs the checks whose name has it. A check is a file exporting `name` and `run()` that returns `{ level: "ok" | "warn" | "ko", lines }`. Exit code 1 on any KO.
+`npm run testRelease` ([`test/testRelease.mjs`](../test/testRelease.mjs)) runs every `test/release/*.check.mjs` in name order and prints one table: `suite` (`npm test`), `theme`, `demos`, `readme` (size rule of AGENTS.md), `runtime-size` (runs `estimateSize`, which rewrites `site/runtimeSize.json`) and `docs`: it compiles the manual and runs eight checks (stale pages, `DOCS-PAGE` pointers, API coverage, published anchors, links into the manual — absolute addresses, and the site's own `docsUrl()`/`manual` targets — links to migrated files, `TODO(links)`, translation status). `--only <word>` runs the checks whose name has it. A check is a file exporting `name` and `run()` that returns `{ level: "ok" | "warn" | "ko", lines }`. Exit code 1 on any KO.
 
 ## Theme
 
 `site/theme/` is the theme: tokens, CSS, the top bar, language and theme switches, code blocks, the logo.
 Each project gets a copy in `src/theme/` (`npm run site:theme`; `site:build` and `estimateSize` do it too).
 Never edit a copy.
+
+**Code colours.** Three files. `codeScheme.css` holds the sixteen slots of one base16 scheme (Materia
+now); `codeTheme.js` is the base16 template for TextMate, every kind of token pointed at a slot;
+`code.css` paints each slot (`.b0E` → `var(--base0E)`). The manual colours its code blocks when it
+compiles (Shiki, the grammars of VS Code), so the browser gets finished HTML and no highlighter. To change
+style, paste the header table of another base16 scheme into `codeScheme.css`
+([examples](https://highlightjs.org/examples)) and run `npm run site:theme`: the site test measures every
+slot that colours text at 4.5:1 on `base00`. The other pages still colour code with `Code.jsx`.
 
 Why a copy: a page must build on its own (StackBlitz zip, a folder downloaded from GitHub).
 
@@ -152,6 +163,11 @@ A page must work when downloaded alone, so it can't import anything from outside
 checks it. Its links to the rest of the site go through `src/siteLinks.js`: `site/build.mjs` sets `VITE_SITE_ROOT`
 (`/viteTranslate/`, or `--root=/name/` for a fork), and without it the links point at the published site. So in
 `npm run dev` they lead to the live site; `npm run site:preview` shows the whole thing locally.
+
+Links into the manual go through `docsUrl("route#id")`, or a `manual: "route#id"` field / `manual="route#id"` prop that
+reaches it ([`theme/ManualLink.jsx`](theme/ManualLink.jsx) draws the "Nel manuale" line under a section's title).
+Write the target as a literal: `testRelease`'s "links into the manual" check reads those three forms and fails on a
+page or section that doesn't exist.
 
 Landing and pages are separate builds because two `vitetranslate()` configurations can't share one build
 (the virtual language module has a single id).

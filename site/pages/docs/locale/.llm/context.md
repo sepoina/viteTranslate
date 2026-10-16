@@ -1,6 +1,6 @@
-<!-- vitetranslate:generated 2026-10-14 · 1188 keys · deepseek/deepseek-v4.1-flash -->
+<!-- vitetranslate:generated 2026-10-16 · 1608 keys · deepseek/deepseek-v4.1-flash -->
 ## Domain
-A Vite plugin plus a small React runtime (viteTranslate) that extracts marked strings from source, syncs them into per-language YAML tables, and renders the right sentence at runtime. Ships with a CLI, a VS Code extension, and optional LLM-powered translation. Docs cover installation, markers, ICU messages, plurals/dates, preloading, and migration from 3.x.
+A Vite plugin and React runtime (viteTranslate) that extracts marked strings from source, syncs them into per-language YAML tables, and renders the right sentence at runtime. Ships with a CLI, a VS Code extension, and optional LLM-powered translation. Docs cover installation, markers, ICU messages, plurals/dates, preloading, and migration from 3.x.
 
 ## Register
 Developer-facing technical documentation: direct, second-person, instructional, with occasional playful touches (emoji, "Ada", a restaurant example). Short UI labels and table headers are terse and noun-like, not sentences.

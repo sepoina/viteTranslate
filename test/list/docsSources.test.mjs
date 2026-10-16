@@ -216,6 +216,12 @@ try {
   scrivi("README.md", "Vedi https://sepoina.github.io/viteTranslate/docs/x/manca/ e https://sepoina.github.io/viteTranslate/docs/x/uno/#nonc.\n");
   v = checks(tmp);
   eq("link in entrata: pagina e sezione che non ci sono sono KO", ["no such page", "no such section"], righe(v, "links into the manual").map((r) => r.split("→ ")[1]));
+  scrivi("README.md", "Niente.\n");
+  scrivi("site/landing/src/l.jsx", `const A = [{ manual: "x/uno#s" }, { manual: 'x/uno' }];\nexport default () => <a manual="x/uno" href={docsUrl("x/uno#s")} />;\n`);
+  eq("link in entrata dal sito: docsUrl(), manual: e manual= che esistono vanno bene", "ok", livello(checks(tmp), "links into the manual"));
+  scrivi("site/landing/src/l.jsx", `const A = [{ manual: "x/manca" }];\nexport default () => <a manual='x/uno#nonc' href={docsUrl("x/uno#altra")} />;\n`);
+  eq("link in entrata dal sito: le tre forme, pagina o sezione che mancano sono KO", ['  site/landing/src/l.jsx: manual: "x/manca" → no such page', "  site/landing/src/l.jsx: manual='x/uno#nonc' → no such section", '  site/landing/src/l.jsx: docsUrl("x/uno#altra" → no such section'], righe(checks(tmp), "links into the manual"));
+  rmSync(join(tmp, "site/landing/src/l.jsx"));
   scrivi("README.md", "Vedi [la guida](doc/llm.md) e [un'altra](./cli.md) e doc/icu.md.\n");
   scrivi("doc/llm.md", "# stub\n");
   scrivi("doc/altro.md", "Vedi [la cli](cli.md) e [l'icu](./icu.md).\n");

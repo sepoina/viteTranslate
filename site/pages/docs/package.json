@@ -2,7 +2,11 @@
   "name": "site-docs",
   "private": true,
   "version": "0.0.0",
-  "vitetranslateSite": { "slug": "docs", "theme": true, "card": false },
+  "vitetranslateSite": {
+    "slug": "docs",
+    "theme": true,
+    "card": false
+  },
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -20,6 +24,7 @@
     "@rolldown/binding-wasm32-wasi": "^1.2.7",
     "@vitejs/plugin-react": "^6.1.1",
     "rolldown": "^1.2.7",
+    "shiki": "^4.5.0",
     "vite": "^8.2.2"
   }
 }

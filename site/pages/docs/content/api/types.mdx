@@ -13,7 +13,7 @@ related:
   - /hooks/helpers#jsxarg | jsxArg | The wrapper the preprocessor puts around values, so they render exactly as JSX would.
 ---
 
-The declarations ship with the package: nothing to install from `@types`. The React types come from `@sepoina/vitetranslate/react`, the plugin types from `@sepoina/vitetranslate`.
+The declarations ship with the package: ==nothing to install from `@types`==. The React types come from `@sepoina/vitetranslate/react`, the plugin types from `@sepoina/vitetranslate`.
 
 ```tsx
 import { Trans, type TranslateArg } from "@sepoina/vitetranslate/react";
@@ -57,3 +57,18 @@ export function Greeting({ name }: { name: TranslateArg }) {
 | `ErrorSolveOptions` | The `errorSolve` option: how problems show on screen | [errorSolve](/api/plugin-options#errorsolve) |
 | `ErrorSolveMarks` | The glyphs of `errorSolve.mark` | [Diagnostics](/concepts/diagnostics) |
 | `IcuOptions` | The `icu` option: the default time zone | [icu](/api/plugin-options#icu) |
+| `LlmOptions` | The `llm` option: connection, driver, budget, context, languages, tone | [llm](/api/plugin-options#llm) |
+
+## LLM translation {#llm-translation}
+
+| Type | What it is | Used in |
+| :- | :- | :- |
+| `LlmConnection` | `llm.connection`: endpoint, model, the key's variable, limits and prices | [Options](/llm/options#connection) |
+| `LlmModelClassName`, `LlmModelClass` | A model class by name, or one of your own | [Model class](/llm/price#model-class) |
+| `LlmBudget` | Spending caps of your own, in cost or in tokens | [Budget caps](/llm/price#budget-caps) |
+| `LlmContextOptions` | `llm.context`: when the project brief is regenerated | [The context abstract](/llm/context) |
+| `LlmDriver` | Your own client instead of the built-in one | [Custom endpoint](/llm/custom-endpoint#what-a-driver-receives) |
+| `LlmDriverParams` | What a driver receives, the library's `fetch` included | [Custom endpoint](/llm/custom-endpoint#what-a-driver-receives) |
+| `LlmResolvedConnection` | `llm.connection` with every default filled in, as a driver receives it | [Custom endpoint](/llm/custom-endpoint#what-a-driver-receives) |
+| `LlmDriverResult` | What a driver returns: the model's text, or translations already parsed | [Custom endpoint](/llm/custom-endpoint#what-it-returns) |
+| `LlmUsage`, `LlmChatCompletionsUsage` | A reply's tokens and cost, in the library's shape or as the provider sent it | [Custom endpoint](/llm/custom-endpoint#what-it-returns) |

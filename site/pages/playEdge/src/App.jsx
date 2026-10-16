@@ -3,6 +3,7 @@ import { Translate, version } from '@sepoina/vitetranslate/react';
 import testCases from './testCases.jsx';
 import autoWrapCases from './autoWrapCases.jsx';
 import CaseSection, { groupCases, SourceDock, STATUSES, StatusLabel } from './ShowAllRowTests.jsx';
+import ManualLink from './theme/ManualLink.jsx';
 import SiteBar from './theme/SiteBar.jsx';
 
 const groups = groupCases(testCases, autoWrapCases);
@@ -80,6 +81,12 @@ export default function App() {
               <Translate t={'_%_<code>🔸</code> (non tradotto qui) e <code>🔹</code> (non tradotto altrove) non sono riportati: dipendono dallo stato dei file di lingua, non dalla riga. <code>‼️</code>, <code>🚫</code> e <code>⁇</code> invece fanno parte del risultato atteso._%_'} />
             </li>
             <li>
+              <Translate>_%_Cosa vuol dire ogni mark, e come appare lo stesso testo in build:_%_</Translate>{' '}
+              <ManualLink manual="concepts/diagnostics#case-by-case">
+                <Translate>_%_Le diagnostiche, caso per caso_%_</Translate>
+              </ManualLink>
+            </li>
+            <li>
               <Translate t={'_%_In un’app vera i mark diagnostici spariscono in build — dove qui si legge <code>🚫[tipo]</code> non si rende più niente — mentre <code>⁇</code> resta: non è una diagnostica, è una resa normale. Questa pagina li tiene accesi anche in build, apposta._%_'} />
             </li>
             <li>
@@ -87,6 +94,12 @@ export default function App() {
             </li>
             <li>
               <Translate t={'_%_Ogni categoria ha un indirizzo suo (<code>#icu</code>, <code>#html</code>, <code>#not-text</code>…): il <code>#</code> accanto al titolo è il link da condividere._%_'} />
+            </li>
+            <li>
+              <Translate>_%_Sotto ogni titolo, la pagina del manuale che spiega la categoria. Il giro inverso, dal manuale a ogni caso, è in una pagina sola:_%_</Translate>{' '}
+              <ManualLink manual="getting-started/live-examples#edge-cases">
+                <Translate>_%_Esempi dal vivo_%_</Translate>
+              </ManualLink>
             </li>
           </ul>
         </footer>

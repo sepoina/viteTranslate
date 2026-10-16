@@ -1,6 +1,6 @@
 import { Trans, useTrans } from "@sepoina/vitetranslate/react";
 import { REPO } from "./links.js";
-import { siteUrl } from "./siteLinks.js";
+import { docsUrl } from "./siteLinks.js";
 import SectionHead from "./SectionHead.jsx";
 import SIZE from "./theme/runtimeSize.json";
 
@@ -55,12 +55,6 @@ const ROWS = [
   },
 ];
 
-// `route#id` del manuale -> https://…/docs/route/#id
-const manualUrl = (target) => {
-  const [route, id] = target.split("#");
-  return `${siteUrl("docs")}${route}/${id ? `#${id}` : ""}`;
-};
-
 const GLYPHS = { y: "✓", p: "–", n: "✕" };
 
 // Il segno si vede, il suo significato si legge: per i lettori di schermo "✓" non vuol dire niente.
@@ -113,7 +107,7 @@ export default function Compare() {
                 {ROWS.map((row) => (
                   <tr key={row.label}>
                     <th scope="row">
-                      <a href={row.manual ? manualUrl(row.manual) : `${REPO}/blob/main/${row.doc}`}>
+                      <a href={row.manual ? docsUrl(row.manual) : `${REPO}/blob/main/${row.doc}`}>
                         <Trans t={row.label} a={row.a} />
                       </a>
                     </th>

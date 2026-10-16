@@ -1,16 +1,29 @@
 import { Trans, useTrans } from "@sepoina/vitetranslate/react";
 import { Code } from "../theme/Code.jsx";
+import ManualLink from "../theme/ManualLink.jsx";
 
-/** Il titolo di una sezione con l'ancora da condividere: `#` porta a `…/playground/#id`. */
-export function AnchorTitle({ id, children }) {
+/**
+ * Il titolo di una sezione con l'ancora da condividere: `#` porta a `…/playground/#id`.
+ * Under it, the manual's page that explains the section (`manual`, "route#id"), named by `manualTitle`.
+ */
+export function AnchorTitle({ id, manual, manualTitle, children }) {
   const trans = useTrans();
   return (
-    <h3>
-      <a className="anchor" href={`#${id}`} aria-label={trans("_%_Link a questa sezione_%_")}>
-        #
-      </a>
-      {children}
-    </h3>
+    <>
+      <h3>
+        <a className="anchor" href={`#${id}`} aria-label={trans("_%_Link a questa sezione_%_")}>
+          #
+        </a>
+        {children}
+      </h3>
+      {manual && (
+        <p className="doc-manual">
+          <ManualLink manual={manual}>
+            <Trans t={manualTitle} />
+          </ManualLink>
+        </p>
+      )}
+    </>
   );
 }
 
@@ -21,10 +34,10 @@ function Description({ value }) {
 }
 
 /** Un esempio: descrizione, il componente che gira dal vivo e il suo sorgente, affiancati. */
-export default function DocSection({ id, title, description, code, file, children }) {
+export default function DocSection({ id, title, manual, manualTitle, description, code, file, children }) {
   return (
     <section id={id} className="doc">
-      <AnchorTitle id={id}>
+      <AnchorTitle id={id} manual={manual} manualTitle={manualTitle}>
         <Trans t={title} />
       </AnchorTitle>
       {description && (

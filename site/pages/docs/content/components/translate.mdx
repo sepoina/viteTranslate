@@ -26,7 +26,7 @@ related:
 
 ## Write JSX inside `<Translate>` {#write-jsx-inside-translate}
 
-Write the sentence where it belongs, values and tags included — the build-time preprocessor turns it into the message and its arguments, no key to invent:
+Write the sentence where it belongs, values and tags included — ==the build-time preprocessor turns it into the message and its arguments==, no key to invent:
 
 ```jsx
 <Trans>Welcome back, <b>{name}</b>!</Trans>
@@ -77,7 +77,7 @@ A marked string built at runtime, or handed down as a prop, still works the way 
 ```
 
 - **Markup:** only `<b> <strong> <i> <em> <u> <small> <code> <br> <hr> <wbr>`, compiled at build time — no HTML parser at runtime.
-- **Arguments** can be any React node, markup included. A `%s` is a real JSX child, not a piece of string, so an argument is **never** interpreted as HTML: React escapes it like any other child.
+- **Arguments** can be any React node, markup included. A `%s` is a real JSX child, not a piece of string, so ==an argument is **never** interpreted as HTML==: React escapes it like any other child.
 - **A `%s` without a value** renders `⁇` — no argument at all, fewer than the placeholders, or `null`/`undefined` in that position. `0` and `""` are values like any other. The character is `errorSolve.mark.absentDataInArray` ([Diagnostics](/concepts/diagnostics)).
 - **[ICU arguments](/concepts/icu)** (`{0}`, `{name}`, `{n, plural, …}`) work the same way, and add a **name** form: `a={{ name: "Aldo" }}` or `ts(t, { name })` for `{name}`, mixable with positions (`a={[{ name }, 3]}` reads `{name}` and `{1}`). Only a plain object counts as the arguments container — a class instance or a `Date` renders as itself instead.
 - **TypeScript:** an argument is `TranslateArg = ReactNode | Date | bigint`; `TranslateArgs` is one of those, the named-arguments object (`TranslateNamedArgs`), or a list of either. A bare `Date` in a plain `%s`/`{0}` still isn't formatted — `String()` would use the browser's locale, not the app's — use `{0, date}` for that (see [ICU messages](/concepts/icu)).
@@ -97,7 +97,7 @@ One leaf component often renders whatever its caller hands it, and that is not a
 | a React element, e.g. `t={<WaitingBarSpan />}` | the element, as it is | nothing |
 | a function, a symbol, an element as the *first* slot of the tuple | `""` | a console warning |
 
-An unmarked string is not an error: it is how one component accepts both translatable text and domain data without a wrapper deciding for it — the `‼️` just shows that nobody will translate it. A number can never come from the source, and an element can't be a forgotten marker, so neither needs a diagnostic. In the tuple, though, the first slot **is** the text: an element there is an error (elements among the *arguments* are fine).
+==An unmarked string is not an error==: it is how one component accepts both translatable text and domain data without a wrapper deciding for it — the `‼️` just shows that nobody will translate it. A number can never come from the source, and an element can't be a forgotten marker, so neither needs a diagnostic. In the tuple, though, the first slot **is** the text: an element there is an error (elements among the *arguments* are fine).
 
 > 🧪 Live: [unmarked strings](site:edge#unmarked), [values that aren't text](site:edge#not-text), [React nodes](site:edge#react-nodes).
 
@@ -114,6 +114,6 @@ A number and an element say what they are. A **string** doesn't: unmarked can me
 
 So it doesn't mean "don't translate", it means "unmarked is not an error here" — exactly what a prop needs that carries marked text on some rows and domain data on others. Incompatible props are still an error either way.
 
-The alternative that looks equivalent isn't: `errorSolve.mark.malformed = false` turns the diagnostic off **everywhere**, including where a marker really was forgotten.
+The alternative that looks equivalent isn't: ==`errorSolve.mark.malformed = false` turns the diagnostic off **everywhere**==, including where a marker really was forgotten.
 
 > 🧪 Live: [unmarked text and `skipMark`](site:edge#unmarked).

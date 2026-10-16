@@ -29,6 +29,9 @@ export const MARKER_EXAMPLE = createElement("code", null, `${M}testo${M}`);
 // Un esempio per voce: `id` è l'ancora pubblica (…/playground/#icu-plural), in inglese e mai
 // tradotta — la documentazione ci punta, e i vecchi id in italiano restano validi tramite
 // LEGACY_IDS in App.jsx. `file` è il nome mostrato sulla finestra del codice.
+// `manual` is the manual's page that explains the example ("route#id", src/siteLinks.js), `manualTitle`
+// its name under the title (src/theme/ManualLink.jsx).
+// LINKED-DATA: the same pairs are the "Explained in" column of site/pages/docs/content/getting-started/live-examples.mdx.
 //
 // Nelle descrizioni una graffa letterale si scrive &#123;: con una graffa vera il testo
 // diventerebbe un messaggio ICU, e "&#123;0, plural, …}" un argomento da riempire.
@@ -36,6 +39,8 @@ const snippetList = [
   {
     id: "static-text",
     title: "_%_Traduzione statica_%_",
+    manual: "components/translate",
+    manualTitle: "_%_Il componente Translate_%_",
     description:
       "_%_Il testo si scrive dove serve, dentro <code>&lt;Trans&gt;</code>: l'id di traduzione e il testo di riserva li genera il build, senza nessun marcatore da scrivere a mano._%_",
     file: "BasicExample.jsx",
@@ -45,6 +50,8 @@ const snippetList = [
   {
     id: "dynamic-text",
     title: "_%_Traduzione dinamica_%_",
+    manual: "components/translate#write-jsx-inside-translate",
+    manualTitle: "_%_Scrivere JSX dentro Translate_%_",
     description: "_%_Le variabili si scrivono come JSX, <code>&#123;nome}</code>, dentro <code>&lt;Trans&gt;</code>: la stessa sintassi di sempre._%_",
     file: "DynamicExample.jsx",
     code: dynamicCode,
@@ -53,6 +60,8 @@ const snippetList = [
   {
     id: "markup",
     title: "_%_Markup e nodi React_%_",
+    manual: "components/translate#markup-and-placeholders",
+    manualTitle: "_%_Markup e segnaposto_%_",
     description:
       "_%_Un tag del dialetto senza attributi (<code>&lt;b&gt;</code>, <code>&lt;i&gt;</code>, <code>&lt;code&gt;</code>, <code>&lt;br&gt;</code>…) resta testo, e chi traduce lo sposta dove serve. Un link o un componente diventano invece uno slot numerato: l'attributo resta nel codice, mai nella traduzione._%_",
     file: "MarkupExample.jsx",
@@ -62,6 +71,8 @@ const snippetList = [
   {
     id: "attributes",
     title: "_%_Placeholder e attributi_%_",
+    manual: "hooks/use-translate-to-string",
+    manualTitle: "_%_Stringhe semplici con useTranslateToString_%_",
     description:
       "_%_<code>&lt;Trans&gt;</code> restituisce nodi React: non può essere usato in attributi HTML che richiedono una stringa semplice, come <code>placeholder</code>, <code>aria-label</code> o <code>title</code>. In questi casi serve l'hook <code>useTrans()</code>, chiamato come template — <code>trans&#96;Scrivi a $&#123;nome}&#96;</code> — che risolve la stessa traduzione ma restituisce una stringa primitiva. Questi attributi non sono visibili come testo a schermo: per vederli tradotti ispeziona l'elemento con F12._%_",
     file: "PlaceholderExample.jsx",
@@ -71,6 +82,8 @@ const snippetList = [
   {
     id: "language-switch",
     title: "_%_Cambio lingua_%_",
+    manual: "hooks/use-translate-language",
+    manualTitle: "_%_Cambiare lingua con useTranslateLanguage_%_",
     description:
       "_%_L'hook useTransLanguage() espone in un colpo solo la lingua corrente (id), i tag BCP 47 trovati in localeDir (nessun caricamento, solo l'elenco), il flag debug e proposeNewLanguage per richiedere il caricamento pigro di un'altra lingua a runtime, con callback onStart/onDone/onError per seguirne l'esito._%_",
     file: "LanguageSwitchExample.jsx",
@@ -80,6 +93,8 @@ const snippetList = [
   {
     id: "icu-plural",
     title: "_%_Plurali e ordinali (ICU)_%_",
+    manual: "concepts/icu#one-example-per-construct",
+    manualTitle: "_%_ICU, un esempio per costrutto_%_",
     description:
       "_%_Con ICU il plurale lo decide la lingua: <code>&#123;0, plural, …}</code> sceglie il ramo giusto per ogni numero, e <code>#</code> è il numero stesso, già formattato. Ogni lingua ha le sue categorie: gli ordinali italiani distinguono “l’8º” da “il 7º”, l’inglese ne vuole quattro (1st, 2nd, 3rd, 4th)._%_",
     file: "PluralExample.jsx",
@@ -89,6 +104,8 @@ const snippetList = [
   {
     id: "icu-select",
     title: "_%_Select e argomenti con nome (ICU)_%_",
+    manual: "concepts/icu#arguments-positions-or-names",
+    manualTitle: "_%_ICU, argomenti per posizione o per nome_%_",
     description:
       "_%_<code>select</code> sceglie un ramo per chiave; gli argomenti con nome (<code>&#123;name}</code>) arrivano in un oggetto, <code>a=&#123;&#123; name, gender }}</code>. Chi traduce può spostarli dove vuole la sua grammatica, ma il nome resta lo stesso in ogni lingua._%_",
     file: "SelectExample.jsx",
@@ -98,6 +115,8 @@ const snippetList = [
   {
     id: "icu-format",
     title: "_%_Numeri, valute e date (ICU)_%_",
+    manual: "concepts/icu#dates-and-time-zones",
+    manualTitle: "_%_ICU, date e fusi orari_%_",
     description:
       "_%_Numeri, valute, date e ore nel formato della lingua corrente, senza librerie: cambia lingua e guarda separatori e nomi dei giorni. Il fuso orario si fissa con la prop <code>timeZone</code> di <code>TransContainer</code>, o con l’opzione <code>icu.timeZone</code> del plugin._%_",
     file: "FormatExample.jsx",
@@ -107,6 +126,8 @@ const snippetList = [
   {
     id: "autowrap",
     title: "_%_autoWrap: marcatori senza componente_%_",
+    manual: "api/plugin-options",
+    manualTitle: "_%_Le opzioni del plugin, autoWrap compreso_%_",
     description:
       "_%_Con l’opzione <code>autoWrap</code> accesa non serve nemmeno <code>&lt;Trans&gt;</code>: un testo marcato — anche con un tag o un valore in mezzo — diventa da solo la chiamata giusta, niente <code>trans()</code> a mano. I casi che non copre sono nella pagina dei casi limite._%_",
     file: "AutoWrapExample.jsx",
@@ -116,6 +137,8 @@ const snippetList = [
   {
     id: "html-to-nodes",
     title: "_%_HTML da fuori: basicHtmlToNodes()_%_",
+    manual: "hooks/helpers#basichtmltonodes",
+    manualTitle: "_%_L'helper basicHtmlToNodes()_%_",
     description:
       "_%_Lo stesso dialetto HTML, per un testo che non passa da una tabella, come la risposta di un server: i tag ammessi diventano nodi React, il resto è sciolto o scartato. Niente <code>dangerouslySetInnerHTML</code>, e l’<code>onerror</code> dell’immagine non parte._%_",
     file: "HtmlToNodesExample.jsx",

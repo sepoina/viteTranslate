@@ -36,14 +36,14 @@ function LanguageSwitcher() {
 
 | Field | Type | Description |
 | :- | :- | :- |
-| `id` | `string \| undefined` | Tag of the language **on screen** ([BCP 47](/concepts/languages#bcp47)). `undefined` outside `TranslateContainer`. After a failed switch, the language actually shown — not the one asked for |
+| `id` | `string \| undefined` | Tag of the language **on screen** ([BCP 47](/concepts/languages#bcp47)). `undefined` outside `TranslateContainer`. ==After a failed switch, the language actually shown — not the one asked for== |
 | `languages` | `{ tag, languageName }[]` | Languages in `localeDir`, source language first. `languageName` is the autonym |
 | `sourceLanguage` | `string` | The language the strings are written in |
 | `debug` | `boolean` | The `debug` prop of `TranslateContainer` |
 | `proposeNewLanguage` | `function` | Switches language — see [below](#proposenewlanguage) |
 
 - **Stable:** the returned object keeps its identity, so it is safe in dependency arrays.
-- **Frozen**, `languages` and its entries included: the same array is shared by the whole app, so a write throws a `TypeError` on the spot instead of corrupting the list for everyone. To reorder or filter, copy it first: `[...languages]`.
+- **Frozen**, `languages` and its entries included: the same array is shared by the whole app, so ==a write throws a `TypeError` on the spot== instead of corrupting the list for everyone. To reorder or filter, copy it first: `[...languages]`.
 - **Works outside `TranslateContainer`:** `languages` and `sourceLanguage` come from a manifest built at build time — no table is loaded to list them — so you can build a language list above the translated tree. There, `id` is `undefined` and `proposeNewLanguage` does nothing (reported once in the console, in development).
 
 > 🎮 Live: [language switch](site:playground#language-switch), with `onStart`/`onDone`/`onError`.
@@ -57,7 +57,7 @@ proposeNewLanguage({ lang, onStart, onDone, onError });
 
 Loads the requested language's chunk and switches to it inside a React transition: the current language stays on screen until the new one is ready, with no blank frame in between.
 
-If the chunk fails to load (a network hiccup), the container falls back to the eager table and `id` reports **that** language. The failure is not remembered: proposing the same language again really retries it. So a retry button must use the tag it asked for, not `id`:
+If the chunk fails to load (a network hiccup), the container falls back to the eager table and `id` reports **that** language. The failure is not remembered: proposing the same language again really retries it. ==So a retry button must use the tag it asked for, not `id`==:
 
 ```jsx
 const [wanted, setWanted] = useState(null);

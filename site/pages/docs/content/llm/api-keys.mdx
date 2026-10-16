@@ -1,0 +1,127 @@
+---
+title: API keys
+description: Create a key at your provider, keep it out of git, and check it works before the first paid run.
+sources:
+  - lib/dev/llm/apiKey.js
+  - lib/dev/llm/keyringPeer.js
+  - lib/dev/llm/llmCommands.js
+aliases:
+  - llm/setup#the-api-key -> save
+related:
+  - /llm/setup#getting-started | Getting started | Point the llm block at a model, give it the key, fill the null keys.
+  - /llm/tested-endpoints | Tested endpoints | The endpoints run end to end, with the settings each one needs.
+  - /llm/custom-endpoint#what-a-driver-receives | What a driver receives | The key arrives as apiKey, found through the same lookup.
+  - /llm/price#confirmation | Confirmation | Why a run in CI is refused unless you say so.
+  - /llm/running#while-it-runs | While it runs | Which HTTP errors stop the whole run, and which only one batch.
+  - /vscode/panel#llm | The LLM page | Where the key was found, and a ping, from inside the editor.
+  - /getting-started/installation#napi-rskeyring-is-optional-and-stays-that-way | The keyring package | An optional peer: install it only for the OS keychain.
+---
+
+<!-- "Save it" absorbs the old llm/setup section "The API key" (alias above); getting-started/installation keeps only a short note on the keyring peer, pointing here. -->
+
+The key is the one secret in the whole setup, and only the CLI ever reads it. ==The key never goes in `vite.config.*`==: there is no `connection.apiKey` option, only `apiKeyEnv`, the **name** of the environment variable that holds it (`VITETRANSLATE_API_KEY` unless you pick another).
+
+## Create a key {#create}
+
+Every provider hands out keys from its dashboard. Wherever you are, ask for the same things:
+
+- **One key per project**, named after it: you can revoke it without breaking anything else.
+- ==A spending limit on the key==, where the provider offers one. The [budget caps](/llm/price#budget-caps) count what viteTranslate spends; the provider's limit counts everything the key does.
+- **Nothing more than it needs**: chat completions on the model you configured. No admin or management scope.
+- **Copy it at once**: most dashboards show the full key only when it is created.
+
+| Provider | Create the key at | Good to know |
+| :- | :- | :- |
+| DeepSeek | [platform.deepseek.com](https://platform.deepseek.com/api_keys) → API keys | Prepaid: top up the balance first. An empty balance answers `HTTP 402` |
+| OpenRouter | [openrouter.ai](https://openrouter.ai/settings/keys) → Settings → Keys | Give each key a credit limit. One key reaches every model it lists |
+| Cline | [app.cline.bot](https://app.cline.bot) → Settings → API Keys | Needs a [custom LLM driver](/llm/custom-endpoint#cline-step-by-step) |
+| OpenAI | [platform.openai.com](https://platform.openai.com/api-keys) → API keys | Create it inside a project, and give the project a budget |
+| Google Gemini | [aistudio.google.com](https://aistudio.google.com/apikey) → Get API key | The key belongs to a Google Cloud project |
+| Groq | [console.groq.com](https://console.groq.com/keys) → API Keys | |
+| Ollama, LM Studio, vLLM | nowhere: they run on your machine | No key is checked, but the client wants one: any value will do, `VITETRANSLATE_API_KEY=local` |
+
+The `baseURL` and the settings each one needs are in [tested endpoints](/llm/tested-endpoints).
+
+## Save it {#save}
+
+The key is looked up in this order, and the first one found wins. viteTranslate never logs it and never writes it to disk:
+
+1. `process.env[apiKeyEnv]`, the environment variable;
+2. `.env.local`, then `.env`, in the project root;
+3. the system keyring, if `@napi-rs/keyring` is installed.
+
+### `.env.local` and `.env` {#env-files}
+
+One line per variable, `NAME=value`. A leading `export` and quotes around the value are fine; nothing is expanded:
+
+```sh
+VITETRANSLATE_API_KEY=your-key-here
+```
+
+Prefer `.env.local`: the `.gitignore` of a new Vite project already ignores `*.local`. A `.env` works the same, but nothing ignores it for you.
+
+Don't call the variable `VITE_…`. Vite hands every `VITE_` variable of these files to your app's code through `import.meta.env`, and from there it can end up in the bundle you ship.
+
+### Keep it out of git {#out-of-git}
+
+Make sure the file can't be committed:
+
+```text title=".gitignore"
+.env
+.env.local
+*.local
+```
+
+The same lines in `.git/info/exclude` ignore the files in your clone only, without touching the shared `.gitignore`. `git check-ignore -v .env.local` prints the rule that ignores the file; no output means git would commit it.
+
+Already committed? Deleting the file in a new commit is not enough: the key is in the history. Treat it as [leaked](#if-a-key-leaks).
+
+### The system keyring {#keyring}
+
+For when you'd rather keep the key in the OS keychain than in a file. The package is an **optional** peer dependency:
+
+```bash
+npm i -D @napi-rs/keyring
+vitetranslate --llm-key-set       # asks for the key, input hidden
+vitetranslate --llm-key-status    # is there one?
+vitetranslate --llm-key-clear
+```
+
+The entry is stored under the service `vitetranslate`, with the `apiKeyEnv` name as account: projects that use the same name share one key, a different name keeps them apart. The `--llm-key-*` commands need an `llm.connection`; with a `driver`, use the variable or a file.
+
+Without the package, or without a Secret Service (Docker, WSL, a remote SSH session), the lookup skips this step in silence, while the `--llm-key-*` commands say what is missing.
+
+### In CI {#in-ci}
+
+Store the key as a secret of your CI and expose it as the environment variable named by `apiKeyEnv`: it comes first in the lookup, no file needed. A run in CI also needs `--llm-noask` or `VITETRANSLATE_LLM_ALLOW_CI`, or it is refused ([confirmation](/llm/price#confirmation)).
+
+## Test it {#test}
+
+```bash
+vitetranslate --llm-status   # where the key was found; no network call
+vitetranslate --llm-ping     # the same, plus one minimal request to the model
+```
+
+`--llm-status` prints the key's source on the `API key:` line, never the key: `env:VITETRANSLATE_API_KEY`, `.env.local`, `.env`, `keyring`, or `not found`. With a [custom LLM driver](/llm/custom-endpoint) and no key, it reads `n/a (llm.driver is set)`: a driver may not need one.
+
+`--llm-ping` closes with `ping: ok`, or `ping: failed` and the reason. What the usual reasons mean:
+
+| Reply | Means |
+| :- | :- |
+| `HTTP 401` | The key is rejected: mistyped, revoked, or meant for another provider |
+| `HTTP 403` | The key works, but not for this model |
+| `HTTP 402` | No credit left (DeepSeek and other prepaid providers) |
+| `HTTP 404` | No such model or endpoint: check `model` and `baseURL`, not the key |
+
+A real run stops at the first `401`, `403` or `404`: the same error would hit every batch ([while it runs](/llm/running#while-it-runs)). In VS Code the [LLM page](/vscode/panel#llm) shows where the key is and pings the model in the background.
+
+## Keep it safe {#keep-it-safe}
+
+- Every message and every [`--llm-debug`](/llm/running#debugging-a-run) trace shows the key as `«redacted»`.
+- The model never sees it: it receives the strings to translate and the project brief, nothing else.
+- A [custom LLM driver](/llm/custom-endpoint#what-a-driver-receives) receives it as `apiKey`. From there it is your code: don't print it.
+- The VS Code extension shows where the key is, never what it is.
+
+### If a key leaks {#if-a-key-leaks}
+
+==Revoke it first==, in the provider's dashboard: until then anyone who saw it can spend on your account, whatever you delete afterwards. Then create a new one, save it as above, and look at the provider's usage page for calls you didn't make.

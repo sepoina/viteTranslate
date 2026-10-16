@@ -1,5 +1,6 @@
 import { Trans } from "@sepoina/vitetranslate/react";
 import { Code, M } from "./theme/Code.jsx";
+import ManualLink from "./theme/ManualLink.jsx";
 import SectionHead from "./SectionHead.jsx";
 
 const KEYLESS = `<Trans t={["${M}Ciao %s, come stai?${M}", nome]} />
@@ -16,7 +17,7 @@ Nav_1t0ndv: "Fonctions"`;
 // La prima è la lingua di chi legge, l'unica scaricata; le altre restano tratteggiate.
 const CHUNKS = ["it-IT", "en-US", "fr-FR", "de-DE", "pt-BR", "zh-CN", "ja-JP"];
 
-// Cinque righe: a sinistra cosa fa, a destra come si vede.
+// Cinque righe: a sinistra cosa fa, a destra come si vede. Under each text, the manual's page that tells the rest.
 export default function Features() {
   return (
     <section className="section" data-section="features">
@@ -44,6 +45,9 @@ export default function Features() {
                   d'occhio._%_
                 </Trans>
               </p>
+              <ManualLink manual="concepts/markers">
+                <Trans>_%_Marcatori e chiavi_%_</Trans>
+              </ManualLink>
             </div>
             <div className="feature-visual">
               <Code code={KEYLESS} lang="jsx" className="snippet" />
@@ -61,6 +65,9 @@ export default function Features() {
                   traduzione._%_
                 </Trans>
               </p>
+              <ManualLink manual="concepts/translation-files">
+                <Trans>_%_I file di traduzione_%_</Trans>
+              </ManualLink>
             </div>
             <div className="feature-visual">
               <Code code={TABLE} lang="yaml" className="snippet" />
@@ -75,6 +82,9 @@ export default function Features() {
               <p>
                 <Trans t="_%_<code>--llm-translate</code> riempie le chiavi mancanti con il modello che configuri. Il validatore scarta ciò che si romperebbe a runtime._%_" />
               </p>
+              <ManualLink manual="llm/running#what-gets-validated">
+                <Trans>_%_Cosa controlla il validatore_%_</Trans>
+              </ManualLink>
             </div>
             <div className="feature-visual">
               <ul className="verdicts">
@@ -101,6 +111,9 @@ export default function Features() {
                   si rende anche lato server._%_
                 </Trans>
               </p>
+              <ManualLink manual="getting-started/overview#runtime-size">
+                <Trans>_%_Cosa arriva nel browser_%_</Trans>
+              </ManualLink>
             </div>
             <div className="feature-visual">
               <div className="flow" aria-hidden="true">
@@ -123,6 +136,9 @@ export default function Features() {
               <p>
                 <Trans>_%_Caricata con import() solo quando la scegli. Chi legge in italiano non scarica mai il cinese._%_</Trans>
               </p>
+              <ManualLink manual="concepts/preloading">
+                <Trans>_%_Il caricamento delle lingue_%_</Trans>
+              </ManualLink>
             </div>
             <div className="feature-visual">
               <div className="chunks" aria-hidden="true">

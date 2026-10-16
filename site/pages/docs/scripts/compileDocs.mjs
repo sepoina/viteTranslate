@@ -1,6 +1,6 @@
 // Il compilatore del manuale: legge content/**/*.mdx (il dialetto descritto in
 // doc/ImplementationPlans/docs/manual_v1.md), lo valida e scrive src/generated/ (pagine JSX,
-// routes.js, routes.json). Solo node, nessuna dipendenza, nessun import fuori da questa cartella.
+// routes.js, routes.json). Node, più Shiki per colorare i blocchi di codice; nessun import fuori da questa cartella.
 //
 //   node scripts/compileDocs.mjs      # compila una volta (npm run compile)
 //
@@ -10,6 +10,14 @@
 import { existsSync, mkdirSync, readdirSync, readFileSync, rmdirSync, statSync, unlinkSync, watch, writeFileSync } from "node:fs";
 import { dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
+import { createHighlighterCoreSync } from "shiki/core";
+import { createJavaScriptRegexEngine } from "shiki/engine/javascript";
+import jsxGrammar from "shiki/langs/jsx.mjs";
+import jsonGrammar from "shiki/langs/json.mjs";
+import shellGrammar from "shiki/langs/shellscript.mjs";
+import tsxGrammar from "shiki/langs/tsx.mjs";
+import yamlGrammar from "shiki/langs/yaml.mjs";
+import codeTheme from "../src/theme/codeTheme.js";
 
 const PAGE_DIR = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const SOURCE_PREFIX = "site/pages/docs/content/";
@@ -27,6 +35,50 @@ const FRONT_KEYS = { title: "scalar", description: "scalar", sources: "list", al
 // "On the same topic", in the right column: links to other pages of the manual, at most this many.
 const RELATED_MAX = 7;
 const ROUTE_RE = /^[a-z0-9-]+\/[a-z0-9-]+$/;
+
+// ───────────────────── i blocchi di codice ─────────────────────
+//
+// Colored here, when the manual compiles: Shiki reads them with the TextMate grammars of VS Code (JSX
+// expressions in attributes included) and the theme of the shared site theme (codeTheme.js: the base16
+// template, every colour a slot of codeScheme.css). The page gets finished HTML, one class per slot
+// (`b0E`, code.css); the browser gets no highlighter.
+const GRAMMAR = { jsx: "jsx", js: "jsx", tsx: "tsx", ts: "tsx", yaml: "yaml", sh: "shellscript", bash: "shellscript", json: "json" };
+const SLOT_RE = /^var\(--base([0-9A-F]{2})\)$/;
+const MARKER_RE = new RegExp(`${DELIM}[^<\n]*?${DELIM}`, "g");
+const escapeHtml = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+let highlighter = null;
+const shiki = () =>
+  (highlighter ??= createHighlighterCoreSync({
+    themes: [codeTheme],
+    langs: [jsxGrammar, tsxGrammar, yamlGrammar, shellGrammar, jsonGrammar],
+    engine: createJavaScriptRegexEngine(),
+  }));
+
+/**
+ * Il codice di un blocco come HTML colorato: uno `<span class="bXX">` per token (XX: lo slot di
+ * codeScheme.css; il testo del colore di base, base05, resta senza span), `bi`/`bb` per corsivo e
+ * grassetto. Il marcatore `_%_…_%_` tiene il suo segno del sito (`tk-m`). `null` per "text".
+ * @param {string} code
+ * @param {string} lang
+ * @returns {string | null}
+ */
+export function highlightCode(code, lang) {
+  if (!GRAMMAR[lang]) return null;
+  const { tokens } = shiki().codeToTokens(code, { lang: GRAMMAR[lang], theme: codeTheme.name });
+  const line = (toks) => {
+    const parts = [];
+    for (const t of toks) {
+      const n = SLOT_RE.exec(t.color ?? "")?.[1];
+      const style = t.fontStyle > 0 ? t.fontStyle : 0;
+      const cls = [n && n !== "05" ? `b${n}` : "", style & 1 ? "bi" : "", style & 2 ? "bb" : ""].filter(Boolean).join(" ");
+      const last = parts.at(-1);
+      if (last && last.cls === cls) last.text += t.content;
+      else parts.push({ cls, text: t.content });
+    }
+    return parts.map(({ cls, text }) => (cls ? `<span class="${cls}">${escapeHtml(text)}</span>` : escapeHtml(text))).join("");
+  };
+  return tokens.map(line).join("\n").replace(MARKER_RE, (m) => `<span class="tk-m">${m}</span>`);
+}
 
 /** Un id di sezione valido: `[a-z0-9-]+`. */
 export const slugOk = (id) => /^[a-z0-9-]+$/.test(id);
@@ -200,16 +252,30 @@ function parseBody(lines, start, fail) {
     if (/^(-{3,}|\*{3,}|_{3,})$/.test(raw)) fail(n, "horizontal rules are not allowed");
     // blocco di codice
     if (raw.startsWith("```")) {
-      const info = /^([A-Za-z0-9]*)(?: +title="([^"]*)")?$/.exec(raw.slice(3).trim());
+      const info = /^([A-Za-z0-9]*)((?: +[A-Za-z]+="[^"]*")*)$/.exec(raw.slice(3).trim());
       if (!info) fail(n, 'code fence: expected ```lang title="file"');
       const lang = info[1] || "text";
       if (!LANGS.has(lang)) fail(n, `unknown code language "${lang}" (${[...LANGS].join(" ")})`);
-      if (info[2]?.includes(DELIM)) fail(n, "code fence title: the marker delimiter is not allowed");
+      const attrs = {};
+      for (const a of info[2].matchAll(/([A-Za-z]+)="([^"]*)"/g)) {
+        if (a[1] !== "title" && a[1] !== "id") fail(n, `code fence: unknown attribute "${a[1]}" (title, id)`);
+        if (a[1] in attrs) fail(n, `code fence: "${a[1]}" given twice`);
+        attrs[a[1]] = a[2];
+      }
+      if (attrs.title?.includes(DELIM)) fail(n, "code fence title: the marker delimiter is not allowed");
       const body = [];
       let j = i + 1;
       while (j < N && !/^```\s*$/.test(lines[j])) body.push(lines[j++]);
       if (j >= N) fail(n, "unclosed code fence");
-      blocks.push({ type: "code", lang, title: info[2] ?? null, code: body.join("\n"), line: n });
+      const code = { type: "code", lang, title: attrs.title ?? null, code: body.join("\n"), line: n };
+      if (attrs.id === undefined) blocks.push(code);
+      else {
+        // A fence with an id belongs to the table right above it: it opens in the row below the one
+        // whose cell says `{code:id}` (checkCodeRows).
+        if (!slugOk(attrs.id)) fail(n, `code fence id "${attrs.id}": use only a-z, 0-9 and "-"`);
+        if (blocks.at(-1)?.type !== "table") fail(n, `code fence id="${attrs.id}": it opens from a table row, so it goes right after that table`);
+        blocks.at(-1).codes.push({ id: attrs.id, ...code });
+      }
       i = j + 1;
       continue;
     }
@@ -232,12 +298,15 @@ function parseBody(lines, start, fail) {
       const body = [];
       while (j < N && lines[j].startsWith(">")) body.push(lines[j++].replace(/\s+$/, "").replace(/^> ?/, ""));
       let kind = "aside";
-      const head = /^\[!(\w+)\]$/.exec(body[0]);
+      let title = null;
+      // `> [!NOTE]`, or `> [!NOTE] Notes` to name the box otherwise (plain text).
+      const head = /^\[!(\w+)\](?: +(\S.*))?$/.exec(body[0]);
       if (head) {
         kind = head[1].toLowerCase();
         if (!ALERTS.has(kind)) fail(n, `unknown alert "[!${head[1]}]" (NOTE TIP IMPORTANT WARNING CAUTION)`);
+        if (head[2] !== undefined) title = plainText(head[2], n, fail, "callout title");
         body.shift();
-      } else if (body[0].startsWith("[!")) fail(n, "malformed alert marker: write `> [!NOTE]` alone on the first line");
+      } else if (body[0].startsWith("[!")) fail(n, "malformed alert marker: write `> [!NOTE]` on the first line, optionally followed by a title");
       const paras = [];
       let cur = [];
       let curLine = n;
@@ -255,7 +324,7 @@ function parseBody(lines, start, fail) {
       });
       if (cur.length) paras.push({ text: cur.join(" "), line: curLine });
       if (!paras.length) fail(n, "empty callout");
-      blocks.push({ type: "callout", kind, paras: paras.map((p) => inl(p.text, p.line)), line: n });
+      blocks.push({ type: "callout", kind, title, paras: paras.map((p) => inl(p.text, p.line)), line: n });
       i = j;
       continue;
     }
@@ -304,11 +373,29 @@ function parseBody(lines, start, fail) {
       rows.forEach((r, k) => {
         if (r.length !== width) fail(n + k, `table: row has ${r.length} cell(s), the header has ${width}`);
       });
-      const cell = (c, k) => (c === "" ? null : inl(c, n + k));
+      // `{code:id}`, alone in a body cell: the button that opens the fence with that id (see above).
+      // The only HTML a cell takes, outside code: `<br>` breaks the line, and one `<hr>` draws a line under
+      // which the rest is the cell's small print ({ t: "hr" } between the two, emitted apart).
+      const brNodes = (c, line) => splitTag(c, "br").flatMap((part, x) => [...(x ? [{ t: "br" }] : []), ...inl(part.trim(), line)]);
+      const cellNodes = (c, line) => {
+        const [main, notes, more] = splitTag(c, "hr");
+        if (notes === undefined) return brNodes(c, line);
+        if (more !== undefined) fail(line, "table: one `<hr>` per cell (what follows it is the cell's small print)");
+        if (notes.trim() === "") fail(line, "table: nothing after `<hr>`");
+        return [...brNodes(main, line), { t: "hr" }, ...brNodes(notes, line)];
+      };
+      const cell = (c, k) => {
+        if (c === "") return null;
+        if (!c.includes("{code:")) return cellNodes(c, n + k);
+        const t = /^\{code:([^}]*)\}$/.exec(c);
+        if (!t || k === 0) fail(n + k, k === 0 ? "table: `{code:id}` goes in a body cell, not in the header" : "table: `{code:id}` is the whole cell");
+        return { toggle: t[1], line: n + k };
+      };
       blocks.push({
         type: "table",
         head: rows[0].map((c) => cell(c, 0)),
         rows: rows.slice(2).map((r, k) => r.map((c) => cell(c, k + 2))),
+        codes: [],
         line: n,
       });
       i = j;
@@ -349,7 +436,53 @@ function parseBody(lines, start, fail) {
     blocks.push({ type: "p", inline: inl(text.join(" "), n), line: n });
     i = j;
   }
+  checkCodeRows(blocks, fail);
   return blocks;
+}
+
+// A table's code rows: every `{code:id}` has its fence after the table, every fence its cell, one per row,
+// and each id once on the page (the open row is `code-<id>` in the page, so not a heading's id either).
+function checkCodeRows(blocks, fail) {
+  const seen = new Map();
+  const headings = new Set(blocks.filter((b) => b.type === "heading").map((b) => b.id));
+  for (const t of blocks) {
+    if (t.type !== "table") continue;
+    const used = new Set();
+    for (const r of t.rows) {
+      const toggles = r.filter((c) => c?.toggle !== undefined);
+      if (toggles.length > 1) fail(toggles[1].line, "table: one `{code:id}` per row (its code opens in the row below)");
+      for (const g of toggles) {
+        if (!t.codes.some((c) => c.id === g.toggle)) fail(g.line, `table: \`{code:${g.toggle}}\` has no \`\`\`lang id="${g.toggle}" fence after the table`);
+        if (used.has(g.toggle)) fail(g.line, `table: \`{code:${g.toggle}}\` is already in another row`);
+        used.add(g.toggle);
+      }
+    }
+    for (const c of t.codes) {
+      if (!used.has(c.id)) fail(c.line, `code fence id="${c.id}": no \`{code:${c.id}}\` cell in the table above`);
+      if (seen.has(c.id)) fail(c.line, `code fence id="${c.id}": already used at line ${seen.get(c.id)}`);
+      if (headings.has(`code-${c.id}`)) fail(c.line, `code fence id="${c.id}": its row would be "code-${c.id}", a heading's id`);
+      seen.set(c.id, c.line);
+    }
+  }
+}
+
+// A table cell split at its `<br>`s (or `<hr>`s); inside inline code the tag is just text.
+function splitTag(s, tag) {
+  const re = new RegExp(`^<${tag} *\\/?>`, "i");
+  const parts = [];
+  let cur = "";
+  let code = false;
+  for (let k = 0; k < s.length; k++) {
+    if (s[k] === "`") code = !code;
+    const br = code ? null : re.exec(s.slice(k));
+    if (br) {
+      parts.push(cur);
+      cur = "";
+      k += br[0].length - 1;
+    } else cur += s[k];
+  }
+  parts.push(cur);
+  return parts;
 }
 
 // Le celle di una riga di tabella. `\|` è una barra letterale; dentro il codice in linea la barra non divide.
@@ -393,12 +526,33 @@ function checkPage(front, blocks, fail) {
     if (olds.has(key)) fail(a.line, `alias "${a.raw}": "${key}" is already redirected`);
     olds.add(key);
   }
+  // A highlight is rare or it stops meaning anything: at most HIGHLIGHT_MAX on a page, each at least
+  // HIGHLIGHT_GAP characters of text after the previous one (start to start).
+  let at = 0;
+  let last = null;
+  let count = 0;
+  eachInline(blocks, (nd, line) => {
+    if (nd.t === "em") {
+      if (++count > HIGHLIGHT_MAX) fail(line, `highlight number ${count} on this page: at most ${HIGHLIGHT_MAX} per page`);
+      if (last && at - last.at < HIGHLIGHT_GAP) fail(line, `highlight ${at - last.at} characters after the one at line ${last.line}: at most one every ${HIGHLIGHT_GAP}`);
+      last = { at, line };
+    }
+    if (nd.v) at += nd.v.length;
+  });
 }
+
+const HIGHLIGHT_MAX = 4;
+const HIGHLIGHT_GAP = 300;
 
 // ───────────────────── il testo in linea ─────────────────────
 //
-// Nodi: { t: "text", v } | { t: "code", v } | { t: "b"|"i", children } | { t: "link", to, kind, children, line }.
-// mode: "full" (tutto), "link" (dentro un link: niente altri link), "heading" (testo e codice).
+// Nodi: { t: "text", v } | { t: "code", v } | { t: "b"|"i"|"em"|"strong", children } | { t: "link", to, kind, children, line }.
+// "strong" is accent text (`__text__`): bold, in the accent colour.
+// A table cell adds { t: "br" } and { t: "hr" }, from its `<br>`s and its `<hr>` (splitTag).
+// "em" is the highlighter (`==text==`); "i" stays italic, for quoted interface text.
+// mode: "full" (tutto), "link" (dentro un link: niente altri link), "heading" (testo e codice),
+// "em" (dentro un evidenziatore: niente link, che sul verde perderebbero contrasto).
+// "accent" (inside accent text: no link, no highlight, no other accent text).
 
 // Cerca `token` da `from` saltando i codici in linea (-1 se manca).
 function findClose(s, from, token) {
@@ -443,6 +597,33 @@ export function parseInline(s, line, fail, mode = "full") {
     }
     if (c === "!" && s[i + 1] === "[") fail(line, "images are block-level: put `![alt](img/name.png)` alone on a line");
     if ((c === "*" || c === "[") && mode === "heading") fail(line, `"${c}": headings take plain text and code only`);
+    if (c === "=" && s[i + 1] === "=") {
+      if (mode === "heading") fail(line, `"==": headings take plain text and code only`);
+      if (mode === "link") fail(line, "a link cannot contain a highlight: the link's colour would lose contrast on it");
+      if (mode === "accent") fail(line, "accent text cannot contain a highlight: green on green loses contrast");
+      const j = findClose(s, i + 2, "==");
+      if (j < 0) fail(line, "unclosed highlight: close it with ==, or put the == in a code span");
+      const inner = s.slice(i + 2, j);
+      if (!inner.trim()) fail(line, "empty highlight");
+      flush();
+      out.push({ t: "em", children: parseInline(inner, line, fail, "em") });
+      i = j + 1;
+      continue;
+    }
+    if (c === "_" && s[i + 1] === "_") {
+      if (mode === "heading") fail(line, `"__": headings take plain text and code only`);
+      if (mode === "link") fail(line, "a link cannot contain accent text: it would look like the link itself");
+      if (mode === "em") fail(line, "a highlight cannot contain accent text: green on green loses contrast");
+      if (mode === "accent") fail(line, "nested accent text is not supported");
+      const j = findClose(s, i + 2, "__");
+      if (j < 0) fail(line, "unclosed accent text: close it with __, or put the __ in a code span");
+      const inner = s.slice(i + 2, j);
+      if (!inner.trim()) fail(line, "empty accent text");
+      flush();
+      out.push({ t: "strong", children: parseInline(inner, line, fail, "accent") });
+      i = j + 1;
+      continue;
+    }
     if (c === "*") {
       const bold = s[i + 1] === "*";
       const tok = bold ? "**" : "*";
@@ -458,6 +639,8 @@ export function parseInline(s, line, fail, mode = "full") {
     }
     if (c === "[") {
       if (mode === "link") fail(line, "a link cannot contain another link");
+      if (mode === "em") fail(line, "a highlight cannot contain a link: the link's colour would lose contrast on it");
+      if (mode === "accent") fail(line, "accent text cannot contain a link: it would look like the link itself");
       const j = findClose(s, i + 1, "]");
       if (j < 0 || s[j + 1] !== "(") fail(line, "`[` without `](target)`: write brackets in a code span");
       const e = s.indexOf(")", j + 2);
@@ -476,19 +659,19 @@ export function parseInline(s, line, fail, mode = "full") {
   return out;
 }
 
-// Visita ogni lista di nodi in linea della pagina (e i nodi annidati).
+// Visita ogni lista di nodi in linea della pagina (e i nodi annidati), in ordine, con la riga del blocco.
 function eachInline(blocks, cb) {
-  const walk = (nodes) => {
+  const walk = (nodes, line) => {
     for (const nd of nodes) {
-      cb(nd);
-      if (nd.children) walk(nd.children);
+      cb(nd, line);
+      if (nd.children) walk(nd.children, line);
     }
   };
   for (const b of blocks) {
-    if (b.inline) walk(b.inline);
-    if (b.paras) b.paras.forEach(walk);
-    if (b.items) for (const it of b.items) [it, ...it.children].forEach((x) => walk(x.inline));
-    if (b.type === "table") [b.head, ...b.rows].flat().forEach((c) => c && walk(c));
+    if (b.inline) walk(b.inline, b.line);
+    if (b.paras) b.paras.forEach((p) => walk(p, b.line));
+    if (b.items) for (const it of b.items) [it, ...it.children].forEach((x) => walk(x.inline, x.line));
+    if (b.type === "table") [b.head, ...b.rows].flat().forEach((c) => Array.isArray(c) && walk(c, b.line));
   }
 }
 
@@ -530,6 +713,7 @@ export function emitPage(parsed, route, { realRoutes = new Set(), imageSize = ()
     }
     return `K[${slots.get(s)}]`;
   };
+  const marked = (s) => JSON.stringify(`${DELIM}${s}${DELIM}`);
 
   const inline = (nodes) =>
     nodes
@@ -539,6 +723,9 @@ export function emitPage(parsed, route, { realRoutes = new Set(), imageSize = ()
           case "code": return `<InlineCode v={${slot(nd.v)}} />`;
           case "b": return `<b>${inline(nd.children)}</b>`;
           case "i": return `<i>${inline(nd.children)}</i>`;
+          case "em": return `<em>${inline(nd.children)}</em>`;
+          case "strong": return `<strong>${inline(nd.children)}</strong>`;
+          case "br": return "<br />";
           default: return `<DocLink to="${nd.to}">${inline(nd.children)}</DocLink>`;
         }
       })
@@ -564,7 +751,17 @@ export function emitPage(parsed, route, { realRoutes = new Set(), imageSize = ()
 
   const metaHeadings = [];
   const out = [];
-  const cellsOf = (tag, cells) => cells.map((c) => (c ? `<${tag}>${trans(c)}</${tag}>` : `<${tag} />`)).join("");
+  // A cell's small print (after its `<hr>`) is a sentence of its own, under the line.
+  const cellBody = (c) => {
+    const hr = c.findIndex((nd) => nd.t === "hr");
+    return hr < 0 ? trans(c) : `${trans(c.slice(0, hr))}<small className="d-cell-notes">${trans(c.slice(hr + 1))}</small>`;
+  };
+  const cellsOf = (tag, cells) => cells.map((c) => (c?.toggle !== undefined ? `<${tag}><CodeToggle /></${tag}>` : c ? `<${tag}>${cellBody(c)}</${tag}>` : `<${tag} />`)).join("");
+  // The props of a code block, coloured here (Shiki): CodeBlock, and CodeRow that opens one in a table.
+  const codeProps = (c) => {
+    const html = highlightCode(c.code.trim(), c.lang);
+    return `lang="${c.lang}"${c.title === null ? "" : ` title={${JSON.stringify(c.title)}}`} code={${slot(c.code)}}${html === null ? "" : ` html={${slot(html)}}`}`;
+  };
   const emit = (b, ind) => {
     switch (b.type) {
       case "heading": {
@@ -592,16 +789,20 @@ export function emitPage(parsed, route, { realRoutes = new Set(), imageSize = ()
         break;
       }
       case "callout":
-        out.push(`${ind}<Callout kind="${b.kind}">`);
+        out.push(`${ind}<Callout kind="${b.kind}"${b.title === null ? "" : ` title={${marked(b.title)}}`}>`);
         for (const p of b.paras) out.push(`${ind}  <p>${trans(p)}</p>`);
         out.push(`${ind}</Callout>`);
         break;
       case "code":
-        out.push(`${ind}<CodeBlock lang="${b.lang}"${b.title === null ? "" : ` title={${JSON.stringify(b.title)}}`} code={${slot(b.code)}} />`);
+        out.push(`${ind}<CodeBlock ${codeProps(b)} />`);
         break;
       case "table":
         out.push(`${ind}<div className="table-scroll">`, `${ind}  <table>`, `${ind}    <thead><tr>${cellsOf("th", b.head)}</tr></thead>`, `${ind}    <tbody>`);
-        for (const r of b.rows) out.push(`${ind}      <tr>${cellsOf("td", r)}</tr>`);
+        for (const r of b.rows) {
+          const id = r.find((c) => c?.toggle !== undefined)?.toggle;
+          if (id === undefined) out.push(`${ind}      <tr>${cellsOf("td", r)}</tr>`);
+          else out.push(`${ind}      <CodeRow id="code-${id}" span={${r.length}} ${codeProps(b.codes.find((c) => c.id === id))}>${cellsOf("td", r)}</CodeRow>`);
+        }
         out.push(`${ind}    </tbody>`, `${ind}  </table>`, `${ind}</div>`);
         break;
       case "figure": {
@@ -616,11 +817,10 @@ export function emitPage(parsed, route, { realRoutes = new Set(), imageSize = ()
   };
   for (const b of blocks) emit(b, "      ");
 
-  const marked = (s) => JSON.stringify(`${DELIM}${s}${DELIM}`);
   return [
     `// GENERATO da scripts/compileDocs.mjs a partire da content/${route}.mdx: non modificare.`,
     `import { Trans } from "@sepoina/vitetranslate/react";`,
-    `import { CodeBlock, InlineCode, DocLink, Callout, Demo, Figure, Heading } from "${UI}";`,
+    `import { CodeBlock, CodeRow, CodeToggle, InlineCode, DocLink, Callout, Demo, Figure, Heading } from "${UI}";`,
     ``,
     `// Il delimitatore composto a runtime: scritto per intero verrebbe estratto come frase.`,
     `const M = ["_", "%", "_"].join("");`,

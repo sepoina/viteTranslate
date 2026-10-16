@@ -36,16 +36,47 @@ export default defineConfig({
       // legge solo il comando (`vitetranslate --llm-translate`, da terminale), mai `vite dev` e mai la build.
       llm: {
         connection: {
-          // endpoint OpenAI-compatibile
-          baseURL: 'https://api.deepseek.com',
-          // model to use
-          model: 'deepseek-flash',
+          // Cline's API (docs.cline.bot/api): the same setup the manual is translated with.
+          // Before: baseURL 'https://api.deepseek.com', model 'deepseek-flash', apiKeyEnv 'DEEPSEEK_API_KEY',
+          // costMillionInput 0.6, costMillionOutput 1.2, no driver.
+          baseURL: 'https://api.cline.bot/api/v1',
+          model: 'deepseek/deepseek-v4.1-flash',
           // generic name for api key
-          apiKeyEnv: 'DEEPSEEK_API_KEY',
-          // $ per milione di token
-          costMillionInput: 0.6,
-          costMillionOutput: 1.2,
+          apiKeyEnv: 'CLINE_API_KEY',
+          // $ per milione di token (OpenRouter's for this model; Cline's reply says the real cost)
+          costMillionInput: 0.15,
+          costMillionOutput: 0.6,
+          // Di suo il modello ragiona: riempiva max_tokens e la risposta tornava vuota.
+          providerOptions: { reasoning: { enabled: false } },
           modelClass: 'standard', // lotti fino a ~3k token di output / 100 chiavi
+        },
+        // LINKED-DATA: the same driver is in site/pages/docs/vite.config.js, in the example of
+        // site/pages/docs/content/llm/custom-endpoint.mdx (#cline-step-by-step) and in the cline template
+        // of site/pages/docs/content/llm/tested-endpoints.mdx: change them together.
+        // Cline wraps a Chat Completions reply in { success, data }, which the built-in client doesn't read.
+        // The library's `fetch` handles timeout, errors, retries and the key; `{ content, truncated, usage }`
+        // hands the text back to the library's own parser.
+        driver: async ({ connection, apiKey, systemPrompt, userPayload, mode, maxTokens, fetch }) => {
+          const reply = await fetch(`${connection.baseURL}/chat/completions`, {
+            method: 'POST',
+            headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              model: connection.model,
+              temperature: connection.temperature,
+              messages: [
+                { role: 'system', content: systemPrompt },
+                { role: 'user', content: userPayload },
+              ],
+              ...(mode === 'translate' ? { response_format: { type: 'json_object' } } : {}),
+              ...(maxTokens ? { max_tokens: maxTokens } : {}),
+              ...connection.providerOptions,
+            }),
+          });
+          const {
+            choices: [choice],
+            usage,
+          } = (await reply.json()).data;
+          return { content: choice.message.content ?? '', truncated: choice.finish_reason === 'length', usage };
         },
         budget: 'safe', // $0.10 per run, $0.50 al giorno (con i prezzi qui sopra)
         context: { mode: 'auto' }, // l'abstract di contesto nasce (e si aggiorna) da solo

@@ -26,7 +26,7 @@ The config shape is in [plugin options](/api/plugin-options#errorsolve).
 
 > 🧪 [Edge cases, live](site:edge) — every case below, rendered next to what it is supposed to render ([how to read the marks there](site:edge#note)).
 
-A string that doesn't reach the screen translated is not always a bug you can see. A key nobody has translated yet still renders — in the source language, indistinguishable from a real translation. A text nobody marked renders too. Both look fine, and that is the problem.
+A string that doesn't reach the screen translated is not always a bug you can see. A key nobody has translated yet still renders — in the source language, indistinguishable from a real translation. A text nobody marked renders too. ==Both look fine, and that is the problem.==
 
 `errorSolve` puts a character in front of them, **in development only**, so you spot them by reading the page instead of by auditing the tables. Every field is optional; these are the defaults:
 
@@ -53,7 +53,7 @@ Two questions, kept apart: `mark` is **what** you see, everything else is **when
 
 One prefix per string, the worst one wins: `‼️` → `🔸` → `🔹`. Set any of them to `""` or `false` to turn that one off. `🚫` never competes with the other three — it fires only where there is no text for a prefix to sit in front of; see [below](#when-there-is-no-text-at-all).
 
-With `markOnlyDev: true` (the default) a production build ships none of this — not the characters, and not the data behind them: the untranslated-key lists never enter the language chunks and the global set stays empty. `mark.absentDataInArray` is the exception: it isn't a diagnostic but ordinary rendering, so it applies in development and in a build alike. A plain object passed as the *value* itself — not as the arguments container — renders the same character: it's what would otherwise make React throw ("Objects are not valid as a React child"), see [ICU messages](/concepts/icu#arguments-positions-or-names).
+With `markOnlyDev: true` (the default) ==a production build ships none of this== — not the characters, and not the data behind them: the untranslated-key lists never enter the language chunks and the global set stays empty. `mark.absentDataInArray` is the exception: it isn't a diagnostic but ordinary rendering, so it applies in development and in a build alike. A plain object passed as the *value* itself — not as the arguments container — renders the same character: it's what would otherwise make React throw ("Objects are not valid as a React child"), see [ICU messages](/concepts/icu#arguments-positions-or-names).
 
 ## Case by case {#case-by-case}
 
@@ -93,7 +93,7 @@ The name comes from the **first slot that mattered** — the first element of th
 
 ## Unmarked text is domain data, not an error {#unmarked-text-is-domain-data-not-an-error}
 
-Plenty of text is not translatable and never will be: a phone number, a field name configured in an admin panel, an exception message, a description coming from the server. So the marker is the discriminator and the component applies it: marked text is translated, unmarked text is rendered as it is. A leaf component can take whatever its caller has, with no wrapper deciding beforehand:
+Plenty of text is not translatable and never will be: a phone number, a field name configured in an admin panel, an exception message, a description coming from the server. So the marker is the discriminator and the component applies it: ==marked text is translated, unmarked text is rendered as it is==. A leaf component can take whatever its caller has, with no wrapper deciding beforehand:
 
 ```jsx
 // all six of these work, and none of them needs a wrapper
@@ -118,7 +118,7 @@ A number and a React element don't need the declaration: neither can ever come f
 `warningDev` and `warningBuild` are the switch for **everything the library prints in the browser** — the diagnostics above, the missing-key report, the unknown-language and failed-chunk errors, the warning about an `initialLanguage` that isn't preloaded.
 
 > [!IMPORTANT]
-> With `warningBuild: false` (the default) a published app is completely silent, including the messages that report a real failure — a language chunk that didn't load, a tag that doesn't exist. Set `warningBuild: true` to keep them.
+> With `warningBuild: false` (the default) ==a published app is completely silent, including the messages that report a real failure== — a language chunk that didn't load, a tag that doesn't exist. Set `warningBuild: true` to keep them.
 
 Plugin messages (build time, prefixed `[vitetranslate]`) are not affected: they are not runtime output.
 

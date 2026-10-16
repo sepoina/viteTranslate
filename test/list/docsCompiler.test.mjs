@@ -11,8 +11,9 @@
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 import {
-  collectCode, collectLinks, compileDocs, emitPage, escapeCode, imageSize, jsonSubtree, listMdx, pageIds, parseInline, parseMdx, slugOk, splitProse, splitSource,
+  collectCode, collectLinks, compileDocs, emitPage, escapeCode, highlightCode, imageSize, jsonSubtree, listMdx, pageIds, parseInline, parseMdx, slugOk, splitProse, splitSource,
 } from "../../site/pages/docs/scripts/compileDocs.mjs";
 
 let fail = 0;
@@ -136,6 +137,10 @@ console.log("\n== blocchi ==");
   respinge("callout annidato", pagina("> [!NOTE]\n> > x\n"), "nested blockquotes");
   respinge("callout vuoto", pagina("> [!NOTE]\n"), "empty callout");
   accetta("callout con due paragrafi", pagina("> [!TIP]\n> uno\n>\n> due\n"));
+  eq("callout con un titolo dopo il segno", "Notes", parseMdx(pagina("> [!NOTE] Notes\n> x\n")).blocks[0].title);
+  eq("callout senza titolo: null", null, parseMdx(pagina("> [!NOTE]\n> x\n")).blocks[0].title);
+  eq("emitPage: il titolo arriva marcato a Callout", true, emetti("> [!NOTE] Notes\n> x\n").includes('<Callout kind="note" title={"_%_Notes_%_"}>'));
+  respinge("titolo del callout con markup", pagina("> [!NOTE] Le `note`\n> x\n"), "callout title: plain text only");
   respinge("filetto orizzontale", pagina("---\n"), "horizontal rules");
   respinge("HTML grezzo", pagina("<div>x</div>\n"), "raw HTML and unknown components");
   respinge("componente sconosciuto", pagina('<Foo a="b" />\n'), "raw HTML and unknown components");
@@ -184,6 +189,88 @@ console.log("\n== testo in linea ==");
   eq("collectLinks: kind e dati", ["route", "hash", "site", "repo", "https"], collectLinks(parseMdx(pagina("[a](/sez/pag#x) [b](#x) [c](site:play#x) [d](repo:README.md#x) [e](https://x.it/y)\n")).blocks).map((l) => l.kind));
   eq("collectCode: anche nei titoli e nelle tabelle", ["a", "b", "c"], collectCode(parseMdx(pagina("## Titolo `a` {#t}\n\n| `b` |\n| - |\n| `c` |\n")).blocks));
   eq("parseInline: grassetto, testo e corsivo", ["b", "text", "i"],prova("**a** *b*").map((n) => n.t));
+  eq("parseInline: l'evidenziatore, anche con codice dentro", ["text", "em", "text"], prova("a ==b `c`== d").map((n) => n.t));
+  respinge("evidenziatore non chiuso", pagina("un ==testo senza fine\n"), "unclosed highlight");
+  respinge("evidenziatore vuoto", pagina("un ==  == vuoto\n"), "empty highlight");
+  respinge("evidenziatore in un titolo", pagina("## Un ==titolo== {#t}\n"), "headings take plain text");
+  respinge("link dentro un evidenziatore", pagina("==vedi [qui](#a)==\n"), "a highlight cannot contain a link");
+  respinge("evidenziatore dentro un link", pagina("[un ==link==](#a)\n"), "a link cannot contain a highlight");
+  accetta("== dentro un code span non conta", pagina("confronta con `a == b`\n"));
+  eq("l'evidenziatore emette <em>, il corsivo resta <i>", [true, true], ((e) => [e.includes("<em>punto</em>"), e.includes("<i>tasto</i>")])(emetti("Un ==punto== e un *tasto*.\n")));
+  respinge("due evidenziatori a meno di 300 caratteri", pagina(`==uno== ${"x".repeat(290)}\n\n==due==\n`), "at most one every 300");
+  accetta("due evidenziatori a 300 caratteri o più", pagina(`==uno== ${"x".repeat(300)}\n\n==due==\n`));
+  const distanti = (n) => pagina(Array.from({ length: n }, (_, k) => `==e${k}== ${"x".repeat(300)}`).join("\n\n") + "\n");
+  accetta("quattro evidenziatori in una pagina", distanti(4));
+  respinge("il quinto evidenziatore della pagina", distanti(5), "at most 4 per page");
+}
+
+// ------------------------------------------------------- testo in accento
+console.log("\n== __testo__: grassetto nel colore accent ==");
+{
+  const n = parseMdx(pagina("Il fornitore __OpenRouter__ e `x`.\n")).blocks[0].inline;
+  eq("__testo__ diventa un nodo strong", ["text", "strong", "text", "code", "text"], n.map((x) => x.t));
+  eq("emitPage: <strong> dentro la <Trans>", true, emetti("a __b__ c\n").includes("<Trans>a <strong>b</strong> c</Trans>"));
+  eq("dentro il codice in linea __ resta testo", "__x__", parseMdx(pagina("`__x__`\n")).blocks[0].inline[0].v);
+  respinge("accent non chiuso", pagina("a __b\n"), "unclosed accent text");
+  respinge("accent vuoto", pagina("a __ __ b\n"), "empty accent text");
+  respinge("accent in un titolo", pagina("## A __b__ {#a}\n"), "headings take plain text and code only");
+  respinge("link dentro l'accent", pagina("__a [b](/x/y)__\n"), "accent text cannot contain a link");
+  respinge("accent dentro un link", pagina("[a __b__](/x/y)\n"), "a link cannot contain accent text");
+  respinge("accent dentro l'evidenziatore", pagina("==a __b__==\n"), "a highlight cannot contain accent text");
+  respinge("evidenziatore dentro l'accent", pagina("__a ==b==__\n"), "accent text cannot contain a highlight");
+}
+
+// ------------------------------------------------------- blocchi di codice colorati
+console.log("\n== blocchi di codice: colorati in compilazione (Shiki) ==");
+{
+  const jsx = highlightCode('<Trans t={["_%_Hi %s_%_", user]} />', "jsx");
+  eq("jsx: il componente prende lo slot delle classi", true, jsx.includes('<span class="b0A">Trans</span>'));
+  eq("jsx: l'espressione nell'attributo è JavaScript (la stringa intera, la variabile)", [true, true], [jsx.includes('<span class="b0B">"<span class="tk-m">_%_Hi %s_%_</span>"</span>'), jsx.includes('<span class="b08">user</span>')]);
+  eq("jsx: un blocco che apre con un tag è letto come JSX dalla prima riga", true, highlightCode("<a href=\"/x\">y</a>", "jsx").includes('<span class="b09">href</span>'));
+  eq("sh: comando, flag e commento", true, ((h) => h.includes('<span class="b0D">vitetranslate</span>') && h.includes('<span class="b09">--status</span>') && h.includes('<span class="b03"># ok</span>'))(highlightCode("vitetranslate --status # ok", "sh")));
+  eq("yaml: chiave, stringa, null", true, ((h) => h.includes('<span class="b08">k</span>') && h.includes('<span class="b0B">"v"</span>') && h.includes('<span class="b09">null</span>'))(highlightCode('k: "v"\nn: null', "yaml")));
+  eq("il testo è escapato, il colore di base resta senza span", true, highlightCode("a < b && c", "js").includes("&lt;") && !highlightCode("x", "js").includes("b05"));
+  eq("text resta senza colori", null, highlightCode("plain", "text"));
+  eq("la pagina passa a CodeBlock l'HTML colorato", true, emetti("```jsx\nconst a = 1;\n```\n").includes(" html={K["));
+}
+
+// ------------------------------------------------------- righe di tabella che aprono un codice
+console.log("\n== tabelle: la cella {code:id} apre sotto la riga la fence con quell'id ==");
+{
+  const T = '| a | b |\n| - | - |\n| x | {code:uno} |\n| y | z |\n\n```js id="uno" title="f.js"\nconst a = 1;\n```\n';
+  const t = parseMdx(pagina(T)).blocks;
+  eq("la fence con id entra nella tabella, non tra i blocchi", [1, "uno"], [t.length, t[0].codes[0].id]);
+  eq("la cella {code:id} diventa il pulsante", "uno", t[0].rows[0][1].toggle);
+  const e = emetti(T);
+  eq("emitPage: la riga diventa CodeRow, con id, colonne e codice colorato", true, e.includes('<CodeRow id="code-uno" span={2} lang="js" title={"f.js"} code={K[') && e.includes(" html={K["));
+  eq("emitPage: la cella porta CodeToggle, le altre righe restano <tr>", true, e.includes("<td><CodeToggle /></td></CodeRow>") && e.includes("<tr><td><Trans>y</Trans></td>"));
+  eq("collectCode e i link saltano la cella del pulsante", [[], []], [collectCode(t), collectLinks(t)]);
+  accetta("un commento fra la tabella e la fence", pagina(T.replace("\n\n```", "\n\n<!-- nota -->\n\n```")));
+  respinge("fence con id senza una tabella sopra", pagina('testo\n\n```js id="uno"\nx\n```\n'), "goes right after that table");
+  respinge("{code:id} senza la sua fence", pagina("| a |\n| - |\n| {code:due} |\n"), "has no");
+  respinge("fence con id che nessuna cella apre", pagina(T.replace("{code:uno}", "w")), "no `{code:uno}` cell");
+  respinge("{code:id} con altro testo nella cella", pagina(T.replace("{code:uno}", "vedi {code:uno}")), "is the whole cell");
+  respinge("{code:id} nell'intestazione", pagina(T.replace("| a | b |", "| a | {code:uno} |")), "not in the header");
+  respinge("due {code:id} nella stessa riga", pagina(`${T.replace("| x |", "| {code:due} |")}\n\`\`\`js id="due"\ny\n\`\`\`\n`), "one `{code:id}` per row");
+  respinge("la stessa fence aperta da due righe", pagina(T.replace("| z |", "| {code:uno} |")), "already in another row");
+  respinge("id della fence non valido", pagina(T.replace('id="uno"', 'id="Uno"')), "use only a-z");
+  respinge("attributo sconosciuto nella fence", pagina('```js lang="x"\ny\n```\n'), 'unknown attribute "lang"');
+  respinge("la riga aperta avrebbe l'id di un titolo", pagina(`## T {#code-uno}\n\n${T}`), "a heading's id");
+}
+
+// ------------------------------------------------------- a capo nelle celle
+console.log("\n== tabelle: <br> va a capo in una cella, <hr> apre le sue note; e solo lì ==");
+{
+  const c = parseMdx(pagina("| x |\n| - |\n| **A**<br>url: `u` <br/> b |\n")).blocks[0].rows[0][0];
+  eq("la cella si divide ai <br> (anche <br/>), senza spazi ai bordi", ["b", "br", "text", "code", "br", "text"], c.map((n) => n.t));
+  eq("dentro il codice in linea <br> resta testo", "a<br>b", parseMdx(pagina("| x |\n| - |\n| `a<br>b` |\n")).blocks[0].rows[0][0][0].v);
+  eq("emitPage: <br /> dentro la stessa <Trans>", true, emetti("| x |\n| - |\n| a<br>b |\n").includes("<td><Trans>a<br />b</Trans></td>"));
+  eq("in un paragrafo <br> resta testo (un valore di K)", false, emetti("a<br>b\n").includes("<br />"));
+  eq("<hr> divide la cella: prima il testo, dopo le note (anche con <br>)", ["text", "hr", "text", "br", "text"], parseMdx(pagina("| x |\n| - |\n| a <hr> b<br>c |\n")).blocks[0].rows[0][0].map((n) => n.t));
+  eq("emitPage: le note sono un'altra <Trans>, in <small> sotto la linea", true, emetti("| x |\n| - |\n| a<hr>b |\n").includes('<td><Trans>a</Trans><small className="d-cell-notes"><Trans>b</Trans></small></td>'));
+  eq("dentro il codice in linea <hr> resta testo", "a<hr>b", parseMdx(pagina("| x |\n| - |\n| `a<hr>b` |\n")).blocks[0].rows[0][0][0].v);
+  respinge("due <hr> nella stessa cella", pagina("| x |\n| - |\n| a<hr>b<hr>c |\n"), "one `<hr>` per cell");
+  respinge("<hr> senza niente dopo", pagina("| x |\n| - |\n| a<hr> |\n"), "nothing after `<hr>`");
 }
 
 // ------------------------------------------------------- alias
@@ -438,6 +525,38 @@ console.log("\n== compileDocs su un albero finto: i controlli tra pagine e sul d
   } finally {
     rmSync(tmp, { recursive: true, force: true });
   }
+}
+
+// ------------------------------------------------------- i template del manuale
+// Le tabelle del manuale aprono vite.config.js interi da copiare (llm/tested-endpoints): il blocco llm di
+// ognuno passa per il validatore della libreria, e il .env del commento in testa nomina la sua apiKeyEnv.
+// Un'opzione rinominata o un valore fuori misura fallisce qui, non nel progetto di chi l'ha copiato.
+console.log("\n== i vite.config.js nelle tabelle del manuale: llm passa il validatore della libreria ==");
+{
+  const { default: normalizeLlmOptions } = await import("../../lib/dev/llm/llmOptions.js");
+  const content = fileURLToPath(new URL("../../site/pages/docs/content", import.meta.url));
+  let n = 0;
+  for (const file of listMdx(content)) {
+    for (const b of parseMdx(readFileSync(join(content, file), "utf8"), file).blocks) {
+      if (b.type !== "table") continue;
+      for (const c of b.codes.filter((x) => x.title === "vite.config.js")) {
+        n++;
+        const nome = `${file} ${c.id}`;
+        let opts = null;
+        let msg = null;
+        try {
+          const run = new Function("defineConfig", "react", "vitetranslate", c.code.replace(/^import .*$/gm, "").replace("export default", "return"));
+          opts = run((x) => x, () => null, (o) => o).plugins.find((p) => p?.llm);
+          normalizeLlmOptions(opts);
+        } catch (e) {
+          msg = e.message;
+        }
+        eq(`${nome}: llm passa il validatore`, null, msg);
+        eq(`${nome}: il .env in testa nomina apiKeyEnv`, opts?.llm.connection.apiKeyEnv, /^\/\/ +([A-Z][A-Z0-9_]*)=/m.exec(c.code)?.[1]);
+      }
+    }
+  }
+  eq("ci sono template da controllare", true, n > 0);
 }
 
 console.log(fail ? `\n${fail} asserzioni fallite` : "\ntutto ok");

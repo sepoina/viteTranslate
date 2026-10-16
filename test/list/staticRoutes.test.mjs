@@ -86,5 +86,35 @@ console.log("\n== writeStaticRoutes: una pagina per route, un rimando per alias 
   }
 }
 
+// ------------------------------------------------------- una pagina rinominata che cede una sezione
+console.log("\n== rinominata e divisa: ogni vecchia ancora al suo posto ==");
+{
+  // Lo script del rimando, eseguito con un `location` finto: dove porta `#hash`.
+  const segui = (html, hash) => {
+    const script = /<script>([\s\S]*?)<\/script>/.exec(html)[1];
+    let dove = null;
+    new Function("location", script)({ hash, replace: (u) => (dove = u) });
+    return dove;
+  };
+  const custom = { route: "llm/custom-endpoint", title: "Custom", description: "D", aliases: ["llm/providers", "llm/providers#optional-vercel-provider -> what-a-driver-receives"] };
+  const tested = { route: "llm/tested-endpoints", title: "Tested", description: "D", aliases: ["llm/providers#openai-compatible-endpoints -> openai-compatible-endpoints", "llm/setup-old#tested-endpoints -> run-end-to-end"] };
+  for (const [nome, routes] of [["custom prima", [custom, tested]], ["tested prima", [tested, custom]]]) {
+    const tmp = mkdtempSync(join(tmpdir(), "vt-static-"));
+    try {
+      writeFileSync(join(tmp, "index.html"), HTML);
+      writeStaticRoutes({ outDir: tmp, base: "/d/", routes });
+      const vecchia = readFileSync(join(tmp, "llm/providers/index.html"), "utf8");
+      eq(`${nome}: la sezione ceduta va all'altra pagina`, "/d/llm/tested-endpoints/#openai-compatible-endpoints", segui(vecchia, "#openai-compatible-endpoints"));
+      eq(`${nome}: la sezione rinominata va al nuovo id`, "/d/llm/custom-endpoint/#what-a-driver-receives", segui(vecchia, "#optional-vercel-provider"));
+      eq(`${nome}: il resto alla pagina che ha preso la route`, ["/d/llm/custom-endpoint/#altro", "/d/llm/custom-endpoint/"], [segui(vecchia, "#altro"), segui(vecchia, "")]);
+      eq(`${nome}: la vecchia route di sola ancora porta al nuovo id`, "/d/llm/tested-endpoints/#run-end-to-end", segui(readFileSync(join(tmp, "llm/setup-old/index.html"), "utf8"), "#tested-endpoints"));
+    } finally {
+      rmSync(tmp, { recursive: true, force: true });
+    }
+  }
+  eq("senza sezioni spostate lo script resta quello di sempre", true, redirectPage("/d/", "a/b", {}).includes('<script>location.replace("/d/a/b/" + location.hash);</script>'));
+  eq("un'ancora codificata nell'indirizzo si riconosce", "/d/x/y/#nuova", segui(redirectPage("/d/", "x/z", { "città": "x/y#nuova" }), "#citt%C3%A0"));
+}
+
 console.log(fail ? `\n${fail} asserzioni fallite` : "\ntutto ok");
 process.exit(fail ? 1 : 0);

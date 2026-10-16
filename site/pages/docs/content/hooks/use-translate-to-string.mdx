@@ -27,7 +27,7 @@ function SearchInput({ name }) {
 }
 ```
 
-The tagged-template form — `trans` called on a template literal, as above — works only when `trans` comes from `useTrans()` (or `useTranslateToString()`) **in the same file**: the preprocessor looks for the call, not for the name. Passed as a prop, or wrapped in another hook, it reaches the runtime uncompiled and is treated as a plain, unmarked template.
+The tagged-template form — `trans` called on a template literal, as above — works only when `trans` comes from `useTrans()` (or `useTranslateToString()`) **in the same file**: ==the preprocessor looks for the call, not for the name==. Passed as a prop, or wrapped in another hook, it reaches the runtime uncompiled and is treated as a plain, unmarked template.
 
 `trans()` also accepts the same call forms as `<Trans>`'s [other forms](/components/translate#other-forms), with the same [diagnostic prefixes](/concepts/diagnostics) and the same [`⁇` rule](/components/translate#markup-and-placeholders) for a missing `%s`:
 
@@ -38,6 +38,6 @@ trans({ t: "_%_Hello %s_%_", a: [name] })
 trans(field.label, undefined, { skipMark: true })   // third argument: what are props on <Trans>
 ```
 
-It has to return a primitive string, so a **React element** is the one form it doesn't take: a real error, with a message of its own. Other non-text values (a function, a symbol, an element inside the tuple) return `""` with a console warning in development, as in `<Translate>`.
+It has to return a primitive string, so ==a **React element** is the one form it doesn't take==: a real error, with a message of its own. Other non-text values (a function, a symbol, an element inside the tuple) return `""` with a console warning in development, as in `<Translate>`.
 
 > 🎮 Live: [placeholders and attributes](site:playground#attributes).

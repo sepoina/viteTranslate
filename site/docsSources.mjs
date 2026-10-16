@@ -251,18 +251,23 @@ function checkAnchors(radice, pages) {
 
 const URL_MANUALE = /https:\/\/sepoina\.github\.io\/viteTranslate\/docs\/([a-z0-9-]+(?:\/[a-z0-9-]*)?)?\/?(?:#([\w-]+))?/g;
 
+// The site's own pages build their links into the manual with docsUrl() (src/siteLinks.js), so the address is
+// never written out: the target is a literal "route#id" in docsUrl("…"), in a field `manual: "…"` or in a prop `manual="…"`.
+const META_MANUALE = /\b(?:manual\s*[:=]\s*|docsUrl\(\s*)(["'])([a-z0-9-]+(?:\/[a-z0-9-]+)?)(?:#([\w-]+))?\1/g;
+
 function checkInbound(radice, pages) {
   const byRoute = new Map(pages.map((p) => [p.route, p]));
   const aliasRoute = new Set(pages.flatMap((p) => p.front.aliases.filter((a) => a.old === undefined).map((a) => a.route)));
   const aliasAnchor = new Set(pages.flatMap((p) => p.front.aliases.filter((a) => a.old).map((a) => `${a.route}#${a.old}`)));
   const righe = [];
   for (const f of scanScope(radice)) {
-    for (const m of readFileSync(join(radice, f), "utf8").matchAll(URL_MANUALE)) {
-      const [, ruota, id] = m;
+    const testo = readFileSync(join(radice, f), "utf8");
+    const trovati = [...[...testo.matchAll(URL_MANUALE)].map((m) => [m[0], m[1], m[2]]), ...[...testo.matchAll(META_MANUALE)].map((m) => [m[0], m[2], m[3]])];
+    for (const [visto, ruota, id] of trovati) {
       if (!ruota) continue; // la radice del manuale
       const page = byRoute.get(ruota);
-      if (!page && !aliasRoute.has(ruota)) righe.push(`  ${f}: ${m[0]} → no such page`);
-      else if (id && !(page && pageIds(page.blocks).includes(id)) && !aliasAnchor.has(`${ruota}#${id}`)) righe.push(`  ${f}: ${m[0]} → no such section`);
+      if (!page && !aliasRoute.has(ruota)) righe.push(`  ${f}: ${visto} → no such page`);
+      else if (id && !(page && pageIds(page.blocks).includes(id)) && !aliasAnchor.has(`${ruota}#${id}`)) righe.push(`  ${f}: ${visto} → no such section`);
     }
   }
   return righe.length ? ko("links into the manual", righe) : ok("links into the manual");

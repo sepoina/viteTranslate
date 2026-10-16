@@ -564,8 +564,29 @@ body {
   text-underline-offset: 0.2em;
 }
 
+/* Accent text (__text__ in the manual's dialect): bold, in the accent colour. Never next to a link's
+   colour or on the highlighter (the compiler refuses both); on a table header's accent fill it takes the
+   header's ink. */
 .d-prose strong {
-  font-weight: 600;
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.table-scroll th strong {
+  color: inherit;
+}
+
+/* The highlighter (==text== in the manual's dialect): a see-through marker stroke as tall as the line,
+   drawn again on every line it wraps to. Vertical padding widens an inline box's background and leaves
+   the lines where they are. Italic (*text*) stays italic: it quotes the interface. */
+.d-prose em {
+  padding: 0.17em 0.3em;
+  border-radius: 0.2em 0.5em 0.25em 0.45em;
+  background: var(--highlight-bg);
+  color: var(--highlight-ink);
+  font-style: normal;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
 }
 
 .d-prose h2,
@@ -704,7 +725,7 @@ body {
   padding: 0.2rem 0.55rem;
   border: 1px solid var(--line);
   border-radius: var(--r-sm);
-  background: var(--surface);
+  background: var(--base00);
   color: var(--muted);
   font-family: var(--mono);
   font-size: 0.75rem;
@@ -720,6 +741,7 @@ body {
   overflow-x: auto;
   border: 1px solid var(--line);
   border-radius: var(--r-md);
+  background: var(--table-bg);
 }
 
 .table-scroll table {
@@ -738,14 +760,87 @@ body {
 }
 
 .table-scroll th {
-  border-bottom-color: var(--line-hard);
-  color: var(--text);
+  border-bottom: 0;
+  background: var(--table-head-bg);
+  color: var(--table-head-ink);
   font-weight: 600;
   white-space: nowrap;
 }
 
-.table-scroll tbody tr:last-child td {
+/* On the header's fill a chip would read as a stain: the mono face is enough, as in .d-heading. */
+.table-scroll th .ic {
+  padding: 0;
+  border: 0;
+  background: none;
+}
+
+.table-scroll tbody tr:last-child td,
+.table-scroll tbody tr:has(+ tr[hidden]:last-child) td {
   border-bottom: 0;
+}
+
+/* A cell's small print (`<hr>` in the page's cell): under a line, smaller, its text at 70% (still over
+   6:1 on the table, in both themes). Only the text: links and code keep their full colour, which opacity
+   would take below 4.5:1 on the light theme. */
+.table-scroll .d-cell-notes {
+  display: block;
+  margin-top: 0.55rem;
+  padding-top: 0.45rem;
+  border-top: 1px solid var(--line);
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: color-mix(in srgb, var(--text) 70%, transparent);
+}
+
+/* A row whose code opens below it (ui/CodeRow.jsx): the code icon, filled while the row is open, and the
+   code row across every column, tied to its row (no line between them). */
+.d-toggle {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 26px;
+  margin: -0.15rem 0;
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  background: none;
+  color: var(--accent);
+  cursor: pointer;
+  transition: color 150ms var(--ease), background-color 150ms var(--ease), border-color 150ms var(--ease);
+}
+
+/* The icon's column as narrow as the icon (or its header): the rest goes to the text. */
+.table-scroll td:has(> .d-toggle) {
+  width: 1%;
+}
+
+.d-toggle:hover {
+  border-color: var(--accent);
+}
+
+.d-toggle[aria-expanded="true"] {
+  border-color: var(--accent-fill);
+  background: var(--accent-fill);
+  color: var(--accent-ink);
+}
+
+.table-scroll .d-row-open td {
+  border-bottom: 0;
+}
+
+.table-scroll .d-row-code > td {
+  padding: 0 0.85rem 0.85rem;
+}
+
+/* The code is as wide as the table's visible part, not as the table: it never widens the columns, and on a
+   phone, where the table scrolls sideways, it stays in view (Copy included) and scrolls inside its own box. */
+.table-scroll:has(.d-row-code) {
+  container-type: inline-size;
+}
+
+.d-row-code-box {
+  position: sticky;
+  left: 0.85rem;
+  width: calc(100cqw - 1.7rem);
 }
 
 .d-figure {

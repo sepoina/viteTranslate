@@ -72,7 +72,7 @@ export default function Starters() {
                     <Trans t={demo.text} />
                   </p>
                 </a>
-                <ProjectLinks source={demo.source} zip={`zip/demo/${demo.slug}.zip`} />
+                <ProjectLinks source={demo.source} zip={`zip/demo/${demo.slug}.zip`} manual={demo.manual} />
               </article>
             ))}
           </div>

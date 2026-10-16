@@ -1,0 +1,70 @@
+/* Code blocks coloured when a page compiles (Shiki, the TextMate grammars of VS Code): codeTheme.js
+   says which kind of token takes which slot of the base16 scheme, the compiler writes that slot into
+   the page as a class (`b0E`), and here each class reads its slot from codeScheme.css. No colour is
+   written here: to change style, change the scheme. A project that wants it imports this file (it
+   brings the scheme along) and puts the class `hl` on the theme's `.code` box.
+   SOURCE in site/theme/: the copies in src/theme/ are made by `npm run site:theme`. */
+@import "./codeScheme.css";
+
+/* The box: the theme's .code (theme.css) on the scheme's background, its text in the default slot. */
+.code.hl {
+  background: var(--base00);
+}
+
+.code.hl code {
+  color: var(--base05);
+}
+
+.code.hl ::selection {
+  background-color: var(--base02);
+  color: var(--base05);
+}
+
+/* One class per slot that colours text (base05, the default, needs none). */
+.hl .b03 {
+  color: var(--base03);
+}
+
+.hl .b04 {
+  color: var(--base04);
+}
+
+.hl .b08 {
+  color: var(--base08);
+}
+
+.hl .b09 {
+  color: var(--base09);
+}
+
+.hl .b0A {
+  color: var(--base0A);
+}
+
+.hl .b0B {
+  color: var(--base0B);
+}
+
+.hl .b0C {
+  color: var(--base0C);
+}
+
+.hl .b0D {
+  color: var(--base0D);
+}
+
+.hl .b0E {
+  color: var(--base0E);
+}
+
+.hl .b0F {
+  color: var(--base0F);
+}
+
+.hl .bi {
+  font-style: italic;
+}
+
+.hl .bb {
+  font-weight: bold;
+}

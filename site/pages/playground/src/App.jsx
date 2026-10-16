@@ -8,6 +8,7 @@ import InstallSection from "./playgroundComponents/InstallSection.jsx";
 import snippetList, { MARKER_EXAMPLE } from "./snippets/ZZZ_snippetList.js";
 import installSubsections from "./snippets/installSubsections.js";
 import { siteUrl } from "./siteLinks.js";
+import ManualLink from "./theme/ManualLink.jsx";
 
 // Gli id in italiano di prima della 4.6.3: stanno nei README già pubblicati (anche su npm) e
 // nei vecchi link alla landing, che li gira qui. Si riscrivono nell'id nuovo, senza rompere nulla.
@@ -97,8 +98,8 @@ function App() {
           <h2>
             <Trans>_%_Esempi dal vivo_%_</Trans>
           </h2>
-          {snippetList.map(({ id, title, description, code, file, Example }) => (
-            <DocSection key={id} id={id} title={title} description={description} code={code} file={file}>
+          {snippetList.map(({ id, title, manual, manualTitle, description, code, file, Example }) => (
+            <DocSection key={id} id={id} title={title} manual={manual} manualTitle={manualTitle} description={description} code={code} file={file}>
               <Example />
             </DocSection>
           ))}
@@ -124,6 +125,12 @@ function App() {
             </li>
             <li>
               <Trans t={"_%_Ogni sezione ha un indirizzo suo (<code>#icu-plural</code>, <code>#autowrap</code>, <code>#install-llm</code>…): il <code>#</code> accanto al titolo è il link da condividere. I vecchi indirizzi in italiano portano ancora al posto giusto._%_"} />
+            </li>
+            <li>
+              <Trans>_%_Sotto ogni titolo, la pagina del manuale che spiega l’esempio. Il giro inverso, dal manuale a ogni esempio e caso limite, è in una pagina sola:_%_</Trans>{" "}
+              <ManualLink manual="getting-started/live-examples#playground">
+                <Trans>_%_Esempi dal vivo_%_</Trans>
+              </ManualLink>
             </li>
             <li>
               <Trans t={"_%_Marcatori rotti, argomenti mancanti, valori che testo non sono: i comportamenti di confine stanno nella pagina dei casi limite, uno per riga._%_"} />{" "}

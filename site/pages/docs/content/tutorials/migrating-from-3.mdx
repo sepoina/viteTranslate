@@ -22,6 +22,6 @@ npx vitetranslate --migrate   # <tag>.js  ->  <tag>.yml
 npx vitetranslate             # re-sync as usual
 ```
 
-The originals are renamed to `.bak-migrated-*`, never deleted: check the result, then remove them. A file the converter can't read on its own (a language module with imports or computed values) is left where it is and reported, so nothing is converted halfway. If you start Vite with the old files still in place, the plugin stops and says exactly this instead of reporting a missing source language.
+The originals are renamed to `.bak-migrated-*`, ==never deleted==: check the result, then remove them. A file the converter can't read on its own (a language module with imports or computed values) is left where it is and reported, so nothing is converted halfway. If you start Vite with the old files still in place, the plugin stops and says exactly this instead of reporting a missing source language.
 
 The command itself is described in the [CLI reference](/api/cli#migrate).

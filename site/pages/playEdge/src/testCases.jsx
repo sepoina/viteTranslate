@@ -26,7 +26,12 @@ function TransRiga() {
 // ShowAllRowTests.jsx.
 const testCases = [
   // ============================================================
-  { id: 'call-forms', title: '_%_Forme di chiamata_%_' },
+  {
+    id: 'call-forms',
+    title: '_%_Forme di chiamata_%_',
+    manual: 'components/translate#other-forms',
+    manualTitle: '_%_Translate, le altre forme_%_',
+  },
   // ============================================================
   [
     '_%_children marcati_%_',
@@ -108,7 +113,12 @@ const testCases = [
   ],
 
   // ============================================================
-  { id: 'macro', title: '_%_Il preprocessore: il JSX diventa il messaggio_%_' },
+  {
+    id: 'macro',
+    title: '_%_Il preprocessore: il JSX diventa il messaggio_%_',
+    manual: 'components/translate#write-jsx-inside-translate',
+    manualTitle: '_%_Scrivere JSX dentro Translate_%_',
+  },
   // ============================================================
   [
     '_%_Il preprocessore: testo senza marcatori_%_',
@@ -187,7 +197,12 @@ const testCases = [
   ],
 
   // ============================================================
-  { id: 'aliases', title: '_%_I nomi brevi: Trans, useTrans, TransContainer, useTransLanguage_%_' },
+  {
+    id: 'aliases',
+    title: '_%_I nomi brevi: Trans, useTrans, TransContainer, useTransLanguage_%_',
+    manual: 'components/translate-container#short-names',
+    manualTitle: '_%_I nomi brevi_%_',
+  },
   // ============================================================
   [
     '_%_Translate: il nome esteso_%_',
@@ -227,7 +242,12 @@ const testCases = [
   ],
 
   // ============================================================
-  { id: 'markers', title: '_%_Cosa diventa un marcatore, e cosa no_%_' },
+  {
+    id: 'markers',
+    title: '_%_Cosa diventa un marcatore, e cosa no_%_',
+    manual: 'concepts/limitations#markers-and-extraction',
+    manualTitle: '_%_Limiti di marcatori ed estrazione_%_',
+  },
   // ============================================================
   [
     '_%_Marcatore vuoto_%_',
@@ -284,7 +304,12 @@ const testCases = [
   ],
 
   // ============================================================
-  { id: 'percent-s', title: '_%_Interpolazione %s_%_' },
+  {
+    id: 'percent-s',
+    title: '_%_Interpolazione %s_%_',
+    manual: 'components/translate#markup-and-placeholders',
+    manualTitle: '_%_Markup e segnaposto_%_',
+  },
   // ============================================================
   [
     '_%_Solo %s_%_',
@@ -398,7 +423,12 @@ const testCases = [
   ],
 
   // ============================================================
-  { id: 'icu', title: '_%_Interpolazione standard ICU_%_' },
+  {
+    id: 'icu',
+    title: '_%_Interpolazione standard ICU_%_',
+    manual: 'concepts/icu',
+    manualTitle: '_%_Messaggi ICU_%_',
+  },
   // ============================================================
   //
   // Gli stessi casi di "Interpolazione %s", scritti con {0}, {1}, … più quello che
@@ -663,7 +693,12 @@ const testCases = [
   ],
 
   // ============================================================
-  { id: 'react-nodes', title: '_%_Argomenti che sono nodi React_%_' },
+  {
+    id: 'react-nodes',
+    title: '_%_Argomenti che sono nodi React_%_',
+    manual: 'components/translate#what-can-sit-in-the-text-position',
+    manualTitle: '_%_Cosa può stare al posto del testo_%_',
+  },
   // ============================================================
   [
     '_%_Elemento come argomento_%_',
@@ -703,7 +738,12 @@ const testCases = [
   ],
 
   // ============================================================
-  { id: 'html', title: '_%_Dialetto HTML dentro il marcatore_%_' },
+  {
+    id: 'html',
+    title: '_%_Dialetto HTML dentro il marcatore_%_',
+    manual: 'components/translate#markup-and-placeholders',
+    manualTitle: '_%_Markup e segnaposto_%_',
+  },
   // ============================================================
   [
     '_%_b / i_%_',
@@ -810,7 +850,12 @@ const testCases = [
   ],
 
   // ============================================================
-  { id: 'unmarked', title: '_%_Testo non marcato e skipMark_%_' },
+  {
+    id: 'unmarked',
+    title: '_%_Testo non marcato e skipMark_%_',
+    manual: 'concepts/diagnostics#unmarked-text-is-domain-data-not-an-error',
+    manualTitle: '_%_Il testo non marcato è un dato, non un errore_%_',
+  },
   // ============================================================
   [
     '_%_Non marcato_%_',
@@ -859,7 +904,12 @@ const testCases = [
   ],
 
   // ============================================================
-  { id: 'not-text', title: '_%_Valori che testo non sono_%_' },
+  {
+    id: 'not-text',
+    title: '_%_Valori che testo non sono_%_',
+    manual: 'concepts/diagnostics#when-there-is-no-text-at-all',
+    manualTitle: '_%_Quando non c’è alcun testo_%_',
+  },
   // ============================================================
   [
     '_%_Numero_%_',
@@ -928,7 +978,12 @@ const testCases = [
   ],
 
   // ============================================================
-  { id: 'conflicting-props', title: '_%_Prop incompatibili: il testo non si perde più_%_' },
+  {
+    id: 'conflicting-props',
+    title: '_%_Prop incompatibili: il testo non si perde più_%_',
+    manual: 'concepts/diagnostics#case-by-case',
+    manualTitle: '_%_Le diagnostiche, caso per caso_%_',
+  },
   // ============================================================
   [
     '_%_o + t_%_',
@@ -976,7 +1031,12 @@ const testCases = [
   ],
 
   // ============================================================
-  { id: 'real-text', title: '_%_Testi veri_%_' },
+  {
+    id: 'real-text',
+    title: '_%_Testi veri_%_',
+    manual: 'concepts/translation-files#file-format',
+    manualTitle: '_%_Il formato dei file di lingua_%_',
+  },
   // ============================================================
   [
     '_%_Accenti marcati_%_',

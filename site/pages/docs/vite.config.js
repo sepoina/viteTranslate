@@ -31,6 +31,33 @@ function docsRoutes() {
   };
 }
 
+// The Cline setup's driver, parked while OpenRouter is on trial (see the llm block below).
+// LINKED-DATA: the same driver is in site/pages/playEdge/vite.config.js, in the example of
+// content/llm/custom-endpoint.mdx (#cline-step-by-step) and in the cline template of
+// content/llm/tested-endpoints.mdx: change them together.
+// Cline speaks Chat Completions but wraps a reply in { success, data }, which the built-in client
+// doesn't read. So a driver: the library's `fetch` handles timeout, errors, retries and the key;
+// `{ content, truncated, usage }` hands the text back to the library's own parser (llm/custom-endpoint).
+const clineDriver = async ({ connection, apiKey, systemPrompt, userPayload, mode, maxTokens, fetch }) => {
+  const reply = await fetch(`${connection.baseURL}/chat/completions`, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
+    body: JSON.stringify({
+      model: connection.model,
+      temperature: connection.temperature,
+      messages: [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: userPayload },
+      ],
+      ...(mode === "translate" ? { response_format: { type: "json_object" } } : {}),
+      ...(maxTokens ? { max_tokens: maxTokens } : {}),
+      ...connection.providerOptions,
+    }),
+  });
+  const { choices: [choice], usage } = (await reply.json()).data;
+  return { content: choice.message.content ?? "", truncated: choice.finish_reason === "length", usage };
+};
+
 export default defineConfig({
   plugins: [
     react(),
@@ -45,14 +72,17 @@ export default defineConfig({
          // OPENROUTER_API_KEY to VS Code's terminals (vscode.env in the YAML).
       llm: {
         connection: {
+          // On trial, October 2026: OpenRouter with ~openai/gpt-luna-latest (an alias, always the latest
+          // GPT Luna). Before it, Cline: baseURL "https://api.cline.bot/api/v1", model
+          // "deepseek/deepseek-v4.1-flash", apiKeyEnv "CLINE_API_KEY", costs 0.15 / 0.6, reasoning
+          // { enabled: false }, and `driver: clineDriver` in this block (7-10 s per batch of 100 keys).
           baseURL: "https://openrouter.ai/api/v1",
-          // Il modello ★★★ della tabella di llm/setup (#tested-endpoints): ~20 s per lotto.
-          model: "deepseek/deepseek-v4.1-flash",
+          model: "~openai/gpt-luna-latest",
           apiKeyEnv: "OPENROUTER_API_KEY",
-          costMillionInput: 0.15, // OpenRouter, October 2026
-          costMillionOutput: 0.6,
-          // Di suo il modello ragiona: riempiva max_tokens e ogni risposta tornava vuota.
-          providerOptions: { reasoning: { enabled: false } }, // il campo di OpenRouter
+          costMillionInput: 0.1, // OpenRouter, October 2026
+          costMillionOutput: 0.5,
+          // Reasoning off: a model that thinks fills max_tokens before it answers.
+          providerOptions: { reasoning: { enabled: false } },
           // Provati anche, ottobre 2026 (i promossi sono nella tabella di llm/setup):
           // - anthropic/claude-haiku-5.5 ($0.10 / $0.50, reasoning { enabled: false }): veloce,
           //   7-20 s per lotto, buon cinese, ma un lotto intero (100 chiavi) restituito in inglese,

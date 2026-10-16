@@ -2,7 +2,8 @@
    del sito usa solo var(--…) (un test lo controlla, insieme al contrasto delle coppie di testo).
    SORGENTE in site/theme/. Le cartelle src/theme/ dei progetti sono copie generate da
    `npm run site:theme`: si modifica qui e si rilancia, mai la copia.
-   Palette e caratteri vengono dal redesign "dark v4" (verde quasi nero, slab nei titoli). */
+   Palette e caratteri vengono dal redesign "dark v4" (verde quasi nero, slab nei titoli).
+   The colours of code blocks are the other exception: a base16 scheme, in codeScheme.css. */
 
 /* Il tema scuro: quello di partenza, e quello di ogni elemento con data-theme="dark", che resta
    scuro anche nella pagina chiara (il riquadro del sorgente di edge). I blocchi chiari qui sotto
@@ -119,6 +120,17 @@
   --callout-bg: rgba(190, 222, 74, 0.08);
   --callout-rim: rgba(255, 255, 255, 0.02);
 
+  /* The manual's tables: the header filled with the accent, the body a step off the page. Here the
+     bright green would glare (and fail light text), so the header takes a deep green instead. */
+  --table-head-bg: #166534;
+  --table-head-ink: var(--text-hi);
+  --table-bg: var(--surface);
+
+  /* The manual's highlighter (==text==): a see-through marker stroke. A lighter dose on the dark page,
+     where the text over it goes to full white. */
+  --highlight-bg: rgba(74, 222, 128, 0.26);
+  --highlight-ink: var(--text-hi);
+
   /* Forma e movimento. */
   --r-sm: 4px;
   --r-md: 8px;
@@ -191,6 +203,11 @@
     --tk-n: #c2410c;
     --callout-bg: rgba(190, 222, 74, 0.14);
     --callout-rim: rgba(0, 0, 0, 0.02);
+    --table-head-bg: var(--accent);
+    --table-head-ink: #ffffff;
+    --table-bg: #efeee8; /* a touch lighter than --surface-3: the accent's links keep 4.5:1 */
+    --highlight-bg: rgba(74, 222, 128, 0.42);
+    --highlight-ink: var(--text);
   }
 }
 
@@ -249,4 +266,9 @@
   --tk-n: #c2410c;
   --callout-bg: rgba(190, 222, 74, 0.14);
   --callout-rim: rgba(0, 0, 0, 0.02);
+  --table-head-bg: var(--accent);
+  --table-head-ink: #ffffff;
+  --table-bg: #efeee8; /* a touch lighter than --surface-3: the accent's links keep 4.5:1 */
+  --highlight-bg: rgba(74, 222, 128, 0.42);
+  --highlight-ink: var(--text);
 }

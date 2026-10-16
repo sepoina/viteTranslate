@@ -19,7 +19,7 @@ related:
 `<localeDir>/.llm/context.md` is a short brief the model reads before every translation, in four sections: **Domain** (what the app is about), **Register** (its tone), **Glossary** (terms to keep consistent, or untranslated) and **Ambiguities** (strings that need context to translate right). The file has two parts:
 
 - **between the `<!-- vitetranslate:generated -->` markers** — written by the model from a sample of your strings, replaced on every refresh;
-- **below them** — yours, never touched, and fed back into every future refresh. A correction written there ("we call it 'Ordine', not 'Ordinazione'") sticks.
+- **below them** — ==yours, never touched, and fed back into every future refresh==. A correction written there ("we call it 'Ordine', not 'Ordinazione'") sticks.
 
 A name the brief says to *keep* stays exactly as written, in its own script, even inside a Japanese or Russian sentence: no transliteration. Want katakana? Say so below the markers.
 
@@ -39,7 +39,7 @@ llm: {
 | `"manual"` | only on `--llm-context` |
 | `"off"` | never — but still reads the file if it exists |
 
-A file written entirely by hand (no generated markers) is never overwritten in any mode; you get a one-time warning.
+==A file written entirely by hand (no generated markers) is never overwritten in any mode==; you get a one-time warning.
 
 ```bash
 vitetranslate --llm-context   # regenerate now

@@ -17,6 +17,37 @@ export default defineConfig({
       // Acceso per l'esempio "autoWrap" (src/snippets/AutoWrapExample.jsx): il testo JSX e gli
       // attributi marcati sotto un tag HTML si traducono senza <Translate> né ts().
       autoWrap: true,
+      // The OpenRouter setup template of the manual (llm/tested-endpoints), on a model being tried:
+      // z-ai/glm-5.3-flash (before it: qwen/qwen3.8-flash, $0.15 / $0.47, reasoning off). The key goes
+      // in .env next to this file (git-ignored): OPENROUTER_API_KEY=…
+      // Read only by `npx vitetranslate --llm-…`: neither `vite dev` nor the build ever calls the model.
+      llm: {
+        connection: {
+          // OpenRouter's OpenAI-compatible API: the client adds /chat/completions to it.
+          baseURL: "https://openrouter.ai/api/v1",
+          model: "z-ai/glm-5.3-flash",
+          // The NAME of the variable that holds the key, never the key: looked up in the
+          // environment, then in .env.local and .env in this folder.
+          apiKeyEnv: "OPENROUTER_API_KEY",
+          // The price per million tokens, input and output (OpenRouter, October 2026): the
+          // estimate, the budget and costGuard count with these.
+          costMillionInput: 0.025,
+          costMillionOutput: 0.64,
+          // How much the model takes at once: batches of up to 100 keys, ~3k output tokens.
+          modelClass: "standard",
+          // A GLM 4.7 batch took ~65 s: past the default 60 s, so the wait goes up to 120 s.
+          timeoutMs: 120000,
+          // Added as is to every request, and the field is OpenRouter's own. On GLM 5.3 reasoning
+          // can't be switched off (enabled: false gets a 400): the least of it, then.
+          providerOptions: { reasoning: { effort: "low" } },
+        },
+        // The spending caps: $0.10 a run, $0.50 a day (the "safe" preset, with the prices above).
+        budget: "safe",
+        // Below this estimated cost, in $, the run starts without asking.
+        costGuard: 0.2,
+        // The context abstract (what the app is about, for the model) writes and refreshes itself.
+        context: { mode: "auto" },
+      },
     }),
     react(),
     // HTTPS in dev con un certificato locale. Non su StackBlitz: nel WebContainer (che si

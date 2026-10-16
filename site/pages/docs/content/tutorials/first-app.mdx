@@ -31,7 +31,7 @@ npm install
 npm install @sepoina/vitetranslate
 ```
 
-npm also installs the required peer `@babel/core` ([why](/getting-started/installation#why-babelcore-is-required)). The finished project is `demo/Vite_8/quickApp` in the [repository](repo:demo/Vite_8/quickApp).
+npm also installs the required peer `@babel/core` ([why](/getting-started/installation#why-babelcore-is-required)). The finished project is `demo/Vite_8/quickApp` in the [repository](repo:demo/Vite_8/quickApp), and it opens on [StackBlitz](https://stackblitz.com/github/sepoina/viteTranslate/tree/main/demo/Vite_8/quickApp?file=src/App.jsx) with nothing to install.
 
 ## Register the plugin {#register-the-plugin}
 
@@ -84,7 +84,7 @@ export default function App({ name }) {
 }
 ```
 
-No key to invent. The sentence is the source.
+No key to invent. ==The sentence is the source.==
 
 ## Start Vite {#start-vite}
 
@@ -150,7 +150,7 @@ npx vitetranslate --status
 :::                      ║  2 language(s): 2 ok
 ```
 
-Until a key is translated the page shows the source text, never a blank. In dev, saving a table reloads the page.
+==Until a key is translated the page shows the source text, never a blank.== In dev, saving a table reloads the page.
 
 ## Add the buttons {#add-the-buttons}
 
@@ -190,7 +190,7 @@ dist/assets/fr-FR-Bh-JA_Rl.js    0.46 kB │ gzip:  0.33 kB
 dist/assets/index-pInvpJH9.js  231.98 kB │ gzip: 73.08 kB
 ```
 
-The sync runs again before the build, so a table that is out of date never ships. French is its own 0.46 kB chunk, loaded when someone picks it. The source language is already in the main bundle.
+The sync runs again before the build, so ==a table that is out of date never ships==. French is its own 0.46 kB chunk, loaded when someone picks it. The source language is already in the main bundle.
 
 ## Where next {#where-next}
 
@@ -198,3 +198,4 @@ The sync runs again before the build, so a table that is out of date never ships
 - Add a third language with `npx vitetranslate --add de-DE`.
 - Plain strings, such as a `placeholder`, go through `useTrans`: see [useTranslateToString](/hooks/use-translate-to-string).
 - Plurals and dates: [Plurals and dates](/tutorials/plurals-and-dates).
+- The same steps live, with the files they write: [plugin config](site:playground#install-config), [first run](site:playground#install-dev), [a new language](site:playground#install-new-language). Every other feature runs in the [playground](site:playground) too, next to its code.

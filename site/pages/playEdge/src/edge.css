@@ -348,3 +348,8 @@ body {
     text-transform: uppercase;
   }
 }
+
+/* Under a category's title: the manual's page that explains it (src/theme/ManualLink.jsx). */
+.cases-manual {
+  margin: -0.35rem 0 1rem;
+}

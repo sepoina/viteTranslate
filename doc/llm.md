@@ -6,8 +6,8 @@ This page now lives in the [viteTranslate manual](https://sepoina.github.io/vite
 | Section | Now at |
 | :- | :- |
 | Getting started | [llm/setup#getting-started](https://sepoina.github.io/viteTranslate/docs/llm/setup/#getting-started) |
-| Every option | [llm/setup#every-option](https://sepoina.github.io/viteTranslate/docs/llm/setup/#every-option) |
-| The API key | [llm/setup#the-api-key](https://sepoina.github.io/viteTranslate/docs/llm/setup/#the-api-key) |
+| Every option | [llm/options](https://sepoina.github.io/viteTranslate/docs/llm/options/) |
+| The API key | [llm/api-keys#save](https://sepoina.github.io/viteTranslate/docs/llm/api-keys/#save) |
 | Costs, budget and confirmation | [llm/price](https://sepoina.github.io/viteTranslate/docs/llm/price/) |
 | The estimate | [llm/price#the-estimate](https://sepoina.github.io/viteTranslate/docs/llm/price/#the-estimate) |
 | Budget caps | [llm/price#budget-caps](https://sepoina.github.io/viteTranslate/docs/llm/price/#budget-caps) |
@@ -19,4 +19,4 @@ This page now lives in the [viteTranslate manual](https://sepoina.github.io/vite
 | What gets validated | [llm/running#what-gets-validated](https://sepoina.github.io/viteTranslate/docs/llm/running/#what-gets-validated) |
 | Debugging a run | [llm/running#debugging-a-run](https://sepoina.github.io/viteTranslate/docs/llm/running/#debugging-a-run) |
 | Flags | [llm/running#flags](https://sepoina.github.io/viteTranslate/docs/llm/running/#flags) |
-| Optional Vercel Provider | [llm/providers](https://sepoina.github.io/viteTranslate/docs/llm/providers/) |
+| Optional Vercel Provider | [llm/custom-endpoint](https://sepoina.github.io/viteTranslate/docs/llm/custom-endpoint/) |

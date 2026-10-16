@@ -63,8 +63,11 @@ export const NAV = [
     label: "_%_LLM_%_",
     items: [
       "llm/setup",
+      "llm/api-keys",
+      "llm/options",
+      "llm/tested-endpoints",
+      "llm/custom-endpoint",
       "llm/price",
-      "llm/providers",
       "llm/context",
       "llm/running",
     ],

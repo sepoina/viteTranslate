@@ -1,14 +1,18 @@
 import { useMemo } from 'react';
 import { Translate, useTranslateToString } from '@sepoina/vitetranslate/react';
 import { highlight } from './theme/Code.jsx';
+import ManualLink from './theme/ManualLink.jsx';
 //
 // I dati (testCases.jsx, autoWrapCases.jsx) sono una lista piatta di due forme:
 //
-//   { id, title }                                   apre una categoria
+//   { id, title, manual, manualTitle }              apre una categoria
 //   [ titolo, elemento, atteso, sorgente, stato? ]  un caso
 //
 // `id` è l'ancora della categoria (…/edge/#icu): in inglese e mai tradotto, perché la
 // documentazione ci punta. Va trattato come un URL pubblico: rinominarlo rompe i link.
+// `manual` is the manual's page that explains the category ("route#id", src/siteLinks.js), shown under
+// the title with its name, `manualTitle` (src/theme/ManualLink.jsx).
+// LINKED-DATA: the same pairs are the "Explained in" column of site/pages/docs/content/getting-started/live-examples.mdx.
 //
 // `stato` manca per i casi ottimali; altrimenti è 'warn' (rende, ma qualcosa si perde o
 // sorprende: un ⁇, un tag scartato, un avviso di build) o 'error' (un mark ‼️/🚫 o un errore
@@ -57,7 +61,7 @@ export function StatusLabel({ status }) {
 
 export default function CaseSection({ group, active, onShow }) {
   const ts = useTranslateToString();
-  const { id, title, rows } = group;
+  const { id, title, manual, manualTitle, rows } = group;
   const labels = {
     case: ts('_%_caso_%_'),
     result: ts('_%_risultato_%_'),
@@ -71,6 +75,13 @@ export default function CaseSection({ group, active, onShow }) {
         </a>
         <Translate t={title} a={S} />
       </h2>
+      {manual && (
+        <p className="cases-manual">
+          <ManualLink manual={manual}>
+            <Translate t={manualTitle} />
+          </ManualLink>
+        </p>
+      )}
       <table>
         <thead>
           <tr>

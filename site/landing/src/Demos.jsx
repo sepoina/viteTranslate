@@ -29,7 +29,7 @@ export default function Demos() {
                   </p>
                 </div>
               </a>
-              <ProjectLinks source={page.source} zip={`zip/${page.slug}.zip`} />
+              <ProjectLinks source={page.source} zip={`zip/${page.slug}.zip`} manual={page.manual} />
             </article>
           ))}
         </div>

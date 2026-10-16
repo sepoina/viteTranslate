@@ -3,25 +3,23 @@ title: Setup
 description: Point viteTranslate at a model, give it the key, and fill your null keys with one command.
 sources:
   - lib/dev/llm/llmOptions.js
-  - lib/dev/llm/apiKey.js
-  - lib/dev/llm/keyringPeer.js
   - lib/dev/llm/fetchDriver.js
   - lib/dev/llm/llmCommands.js
 related:
   - /llm/price#budget-caps | Budget caps | Limit what a run or a day may spend, in money or in tokens.
-  - /llm/providers#openai-compatible-endpoints | Compatible endpoints | Gemini, OpenAI, OpenRouter, DeepSeek, Ollama and others work with two settings.
+  - /llm/tested-endpoints | Tested endpoints | Gemini, OpenAI, OpenRouter, DeepSeek, Ollama and others, with the settings each one needs.
   - /llm/context | The context brief | The short project description the model reads before translating, kept up to date.
   - /api/plugin-options#llm | The llm option | How the plugin checks the LLM settings at startup, long before the first paid call.
   - /api/cli#llm-auto-translation | LLM flags on the CLI | Where the twelve llm flags live, and which combinations the CLI refuses.
   - /vscode/panel#llm | The LLM page | Check key, settings and model, then run every LLM action from the panel.
-  - /concepts/languages | Adding a language | One command to add a language, then fill it by hand or with an LLM.
+  - /llm/api-keys | API keys | Create the key, keep it out of git, and test it before the first paid run.
 ---
 
-<!-- Migrated from doc/llm.md: the introduction, "Getting started", "Every option" and "The API key" (ids = the GitHub slugs of the old headings). -->
+<!-- Migrated from doc/llm.md: the introduction, "Getting started", "Every option" and "The API key" (ids = the GitHub slugs of the old headings). "Every option" now lives in llm/options, "The API key" in llm/api-keys. -->
 
 `vitetranslate --llm-translate` syncs the tables, then fills every `null` key through an LLM you configure. The manual workflow — copy the `----to be translated----` block into a chat, paste the answer back (see [translation files](/concepts/translation-files)) — still works and always will; this does the same thing for you.
 
-It runs **only from the CLI**, never from the Vite plugin: an LLM call inside `vite dev` would mean a network call, and a bill, on every dev server start and every CI build ([why](repo:doc/structure.md#phase-5--llm-auto-translation)).
+It runs **only from the CLI**, never from the Vite plugin: ==an LLM call inside `vite dev` would mean a network call, and a bill, on every dev server start== and every CI build ([why](repo:doc/structure.md#phase-5--llm-auto-translation)).
 
 Runnable example: [`demo/Vite_8/llmTranslate`](repo:demo/Vite_8/llmTranslate) — three languages at `null`, the `llm` block already wired, one command to fill them.
 
@@ -46,9 +44,9 @@ vitetranslate({
 });
 ```
 
-Anything that does not speak this shape: see [Providers](/llm/providers).
+Which endpoints work as they are, and the settings of the ones run end to end: [tested endpoints](/llm/tested-endpoints). An API that doesn't speak this shape: a [custom endpoint](/llm/custom-endpoint).
 
-**2. Give it the key**, for example in `.env.local` (other options [below](#the-api-key)):
+**2. Give it the key**, for example in `.env.local`. Where else it can live, and how to keep it out of git: [API keys](/llm/api-keys).
 
 ```sh
 VITETRANSLATE_API_KEY=your-key-here
@@ -64,76 +62,5 @@ vitetranslate --llm-translate     # prints the estimate, asks, then translates
 
 Add `costMillionInput`/`costMillionOutput` (your provider's price per million tokens) to see the cost next to the estimate — see [price](/llm/price).
 
-## Tested endpoints {#tested-endpoints}
+Every other setting of the block, with its default: [options](/llm/options).
 
-Any OpenAI-compatible endpoint should do. These are the ones run end to end, with the settings they need:
-
-| Endpoint | `baseURL` | `model` | Reasoning off | Reliability |
-| :- | :- | :- | :- | :- |
-| DeepSeek | `https://api.deepseek.com` | `deepseek-flash` | `providerOptions: { thinking: { type: "disabled" } }` | ★★★ |
-| OpenRouter | `https://openrouter.ai/api/v1` | `deepseek/deepseek-v4.1-flash` | `providerOptions: { reasoning: { enabled: false } }` | ★★★ ~20 s/batch |
-| OpenRouter | `https://openrouter.ai/api/v1` | `z-ai/glm-4.7-flash` | `providerOptions: { reasoning: { enabled: false } }` | ★★ ~65 s/batch |
-| OpenRouter | `https://openrouter.ai/api/v1` | `qwen/qwen3-235b-a22b-2507` | nothing to switch off: it doesn't reason | ★★ ~65 s/batch |
-| OpenRouter | `https://openrouter.ai/api/v1` | `anthropic/claude-haiku-5.5` | `providerOptions: { reasoning: { enabled: false } }` | ★ fast, but echoed a batch |
-
-- ★★★ — every batch back on the first try, well within the default timeout.
-- ★★ — works, but a full batch takes over a minute: raise `timeoutMs`.
-- ★ — answers, but not to be trusted unchecked.
-
-The times are for a full `standard` batch (~85 keys) and come from one run: providers have good days and bad ones.
-
-Claude Haiku 5.5 is quick (7–20 s a batch) and its Chinese reads well, but once it sent a whole batch of 100 keys back in English, identical to the source. Valid JSON, tags and arguments in place: no check can tell an echo from a translation, so those keys landed in the table as if translated. If you use it, read the table afterwards.
-
-GLM 4.7 Flash runs at ~56 tokens/s. Give it `timeoutMs: 120000` (the default is 60 seconds), and `provider: { sort: "throughput" }` in `providerOptions`, so OpenRouter tries the fastest providers first. On the GLM 5.3 models OpenRouter marks reasoning as mandatory, and refuses `enabled: false` with a `400`.
-
-The reasoning column matters more than it looks. A model that thinks by default can spend the whole `max_tokens` thinking and send back an empty reply, batch after batch — see [reasoning models](/llm/price#reasoning-models). The field is the provider's own: another provider's may be ignored without a word, or turned down with a `400`.
-
-> [!NOTE]
-> The list grows as endpoints get tested. Got one working that isn't here? [Tell us](https://github.com/sepoina/viteTranslate/issues) the `baseURL`, the model and what you put in `providerOptions`.
-
-## Every option {#every-option}
-
-All optional except where noted. Each is explained in its section below.
-
-| `llm.` | Default | |
-| :- | :- | :- |
-| `connection.baseURL` | — | **Required** without a `driver`. OpenAI-compatible endpoint ([getting started](#getting-started)) |
-| `connection.model` | — | **Required** without a `driver` |
-| `connection.apiKeyEnv` | `"VITETRANSLATE_API_KEY"` | Name of the env var holding the key ([API key](#the-api-key)) |
-| `connection.protocol` | `"openai-chat"` | The only value accepted |
-| `connection.temperature` | `0.2` | Sent with every request |
-| `connection.timeoutMs` | `60000` | Per request |
-| `connection.maxRetries` | `3` | Retries on HTTP 429, 5xx and network errors — never on 400/401/403. A 429 waits as long as the provider says, up to 65 s ([running](/llm/running#while-it-runs)) |
-| `connection.maxConcurrency` | `4` | Requests in flight at the same time |
-| `connection.modelClass` | `"standard"` | How much the model can take: sizes the batches and caps `max_tokens` ([model class](/llm/price#model-class)) |
-| `connection.maxTokensField` | `"max_tokens"` | Name of the output-limit field in the request: `"max_tokens"`, `"max_completion_tokens"`, or `false` to send none |
-| `connection.providerOptions` | `{}` | Extra fields merged into the request body, for provider-specific settings. Wins over everything else, `max_tokens` included |
-| `connection.costMillionInput` / `costMillionOutput` | — | Price per million tokens. Both or neither ([estimate](/llm/price#the-estimate)) |
-| `connection.costUnity` | `"$"` | Currency symbol printed in front of costs |
-| `driver` | — | Your own function instead of the built-in client ([Vercel example](/llm/providers#optional-vercel-provider)) |
-| `budget` | `"safe"` | Your spending caps, per run and per day, in cost ([budget](/llm/price#budget-caps)) |
-| `costGuard` | — | Below this estimated cost, no confirmation ([confirmation](/llm/price#confirmation)) |
-| `context` | `{ mode: "auto", refreshEvery: 40, sample: 300 }` | The project brief ([context abstract](/llm/context)) |
-| `languages` | every table in `localeDir` | Which languages `--llm-translate` fills; tags on the command line narrow it further. The source language is always excluded |
-| `tone` | — | A free-text line added to every translation prompt, e.g. `"informal, second person"` |
-
-## The API key {#the-api-key}
-
-The key never goes in `vite.config.*`: there is no `connection.apiKey` option, only `apiKeyEnv`, the **name** of an environment variable. It is looked up in this order, and never logged or written to disk:
-
-1. `process.env[apiKeyEnv]`
-2. `.env.local`, then `.env`, in the project root
-3. the system keyring, if `@napi-rs/keyring` is installed
-
-The keyring is an **optional** peer dependency, for when you'd rather keep the key in the OS keychain than in a file:
-
-```bash
-npm i -D @napi-rs/keyring
-vitetranslate --llm-key-set       # reads the key from stdin, input hidden
-vitetranslate --llm-key-status
-vitetranslate --llm-key-clear
-```
-
-Without the package, or without a Secret Service (Docker, WSL, a remote SSH session), that step is skipped silently.
-
-`vitetranslate --llm-status` tells you where the key was found, along with the connection, today's spend, the budget and model class in force, `llm.costGuard` and the [context abstract](/llm/context). It makes no network call; `--llm-ping` adds one minimal request to confirm the model answers.

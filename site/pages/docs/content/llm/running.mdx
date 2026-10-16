@@ -11,15 +11,17 @@ sources:
   - lib/dev/vite/cli.js
 related:
   - /llm/price#confirmation | Confirmation before spending | When a run asks before sending anything, and when it goes ahead on its own.
-  - /llm/setup#every-option | Every LLM option | All the settings of the llm block, with their defaults.
+  - /llm/options | LLM options | Every setting of the llm block, with its default.
   - /api/cli#llm-auto-translation | LLM flags on the CLI | Where the twelve llm flags live, and which combinations the CLI refuses.
   - /concepts/icu#what-checks-it | How ICU is checked | What the compiler, the status report and an LLM run do with a broken message.
   - /concepts/translation-files#what-protects-your-files | What protects your tables | Backups, atomic writes and locks: the sync never leaves a table half written.
   - /vscode/panel#llm | The LLM page | Check key, settings and model, then run every LLM action from the panel.
-  - /llm/providers | LLM providers | Which APIs the built-in client talks to, and how to plug in any other.
+  - /llm/custom-endpoint | Custom endpoint | An API the built-in client can't read, through a custom LLM driver.
 ---
 
 <!-- Migrated from doc/llm.md: "While it runs", "What gets validated", "Debugging a run" and "Flags" (ids = the GitHub slugs of the old headings). -->
+
+> 🎮 [One run, live](site:playground#install-llm) — the `llm` block and what the command prints. 🍽️ [The restaurant](site:llmrestaurant) — 228 sentences in four languages, all filled in by this command.
 
 ## While it runs {#while-it-runs}
 
@@ -53,7 +55,7 @@ A truncated reply that still brought some keys home is a `<` line ending in `tru
 
 `N to do` counts the keys still `null` in that language after this reply, `Full translate!` means none are left; then any rejected or missing keys, or for an error the reason. The last line is the real cost of the run, summed from the provider's `usage` — at the cost the provider reports when it does ([OpenRouter](/llm/price#the-estimate)), at your prices otherwise — plus the share of [reasoning](/llm/price#reasoning-models), when there was any. At half the output or more, a warning follows with the link to switch it off. With `--llm-debug`, the trace folder is printed at the end; the per-language breakdown lives there, in `summary.json`.
 
-Piped, redirected or in CI there is no live block, only the final log. A failed request doesn't stop the others: its keys stay `null` — a truncated one excepted, see above — and [`--llm-debug`](#debugging-a-run) has the full reply.
+Piped, redirected or in CI there is no live block, only the final log. ==A failed request doesn't stop the others==: its keys stay `null` — a truncated one excepted, see above — and [`--llm-debug`](#debugging-a-run) has the full reply.
 
 Unless the error would hit every batch alike: `HTTP 401` (the key is rejected), `403` (the model is refused to this key or app), `404` (no such model or endpoint), or a `429` the retries couldn't wait out. Then the run sends nothing more, lets the requests in flight finish, keeps what they bring, and says why:
 
@@ -66,7 +68,7 @@ A `429` waits as long as the provider says — `Retry-After`, or the reset OpenR
 
 Before it spends anything, the run does its homework: the sync it starts with (it stops with the same messages as the [sync](/api/cli#when-the-sync-stops), an incomplete scan included) and, for `--llm-retranslate`, a backup of each table it is about to overwrite. If either fails, **no request is sent**, not even the context abstract.
 
-Every reply lands in its `.yml` **as soon as it is validated**, not at the end: stop a run with Ctrl+C and you lose only the requests still in flight. The file is re-read before each write, so a key you fill by hand meanwhile, or one a sync removes, is left alone. A `vite dev` running next to it just reloads the page on each write — watching the translations appear is part of the show.
+Every reply lands in its `.yml` **as soon as it is validated**, not at the end: ==stop a run with Ctrl+C and you lose only the requests still in flight==. The file is re-read before each write, so a key you fill by hand meanwhile, or one a sync removes, is left alone. A `vite dev` running next to it just reloads the page on each write — watching the translations appear is part of the show.
 
 **If a table cannot be saved**, the run keeps the paid results, retries at later checkpoints and at the end, then saves the remaining candidates as `<tag>.yml.unsaved-<timestamp>` (ignored by sync), warns, and exits with code `1`. When the table is readable, recovery excludes removed keys, already saved values and human translations; `--llm-retranslate` still permits replacements. If the table cannot be read, the file is labeled a **candidate archive**: its contents have not been checked against your latest edits. Compare either recovery file with the current table before merging, preserving newer human edits and removed keys. Then run the sync and delete the recovery file once you have recovered what you need.
 
@@ -95,7 +97,7 @@ A rejected value stays `null`, is counted by reason in the report, and gets **on
 
 ## Debugging a run {#debugging-a-run}
 
-`--llm-debug` logs every request, reply and error to a folder of its own, one numbered file per step. The API key is always redacted first.
+`--llm-debug` logs every request, reply and error to a folder of its own, one numbered file per step. ==The API key is always redacted first.==
 
 ```bash
 vitetranslate --llm-translate --llm-debug
@@ -118,7 +120,7 @@ It works with `--llm-translate`, `--llm-retranslate`, `--llm-context` and `--llm
 
 ## Flags {#flags}
 
-Every LLM flag starts with `--llm-`, and an unrecognised one in that namespace is an error, not a silent sync. Which combinations are rejected: [CLI guide](/api/cli#llm-auto-translation).
+Every LLM flag starts with `--llm-`, and ==an unrecognised one in that namespace is an error, not a silent sync==. Which combinations are rejected: [CLI guide](/api/cli#llm-auto-translation).
 
 > [!NOTE]
 > Coming from 4.5? The old names — `--translate`, `--force`, `--key set` and the rest — are gone: use the `--llm-` flags below.
@@ -134,6 +136,6 @@ Every LLM flag starts with `--llm-`, and an unrecognised one in that namespace i
 | `--llm-debug` | Log every request, reply and error to `<localeDir>/.llm/<YYMMDDHHmmss>/` |
 | `--llm-status` | Connection, key source, today's spend, budget, model class, the context abstract — no network |
 | `--llm-ping` | `--llm-status` plus one minimal call to the model |
-| `--llm-key-set` / `--llm-key-status` / `--llm-key-clear` | Manage the keyring entry, if installed |
+| `--llm-key-set` / `--llm-key-status` / `--llm-key-clear` | Manage the keyring entry, if installed ([API keys](/llm/api-keys#keyring)) |
 
 Examples use the global command; without it, put `npx` in front ([CLI](/api/cli)).

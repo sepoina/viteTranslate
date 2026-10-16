@@ -1,8 +1,8 @@
 #  -------------------------------------------------
 #      中文（中国）
 #       |    code: zh-CN
-#       |    missing key: 9
-#       |    processed: 2026-10-15 23:21
+#       |    missing key: 0
+#       |    processed: 2026-10-17 00:32
 #       |    TableVersion: 260905
 #  -------------------------------------------------
 #
@@ -33,7 +33,10 @@ CopyCommand_1r0mqh1: "复制"
 CopyCommand_gybco4: "已复制"
 Demos_1srutw6: "在<em>真实世界</em>里试玩。"
 Features_17y2azt: "只有在你选择时才通过 import() 加载。用意大利语阅读的人永远不会下载中文。"
+Features_191j7m8: "浏览器中会加载什么"
 Features_1ag9tjh: "一条命令同步所有语言：新增键被添加，过期键被移除。移动过的句子会带着它的译文一起走。"
+Features_1eu6d47: "标记和键"
+Features_1kzomao: "验证器会检查什么"
 Features_1lai6qf: "每种语言都是独立文件"
 Features_1p2da2r: "表在构建时就变成现成的值。浏览器中没有 HTML 解析器，因此译文在服务器端同样可以渲染。"
 Features_1sxsslu: "把句子写在需要的地方，放在分隔符之间。键由插件生成：你不用发明它，也不用盯着它。"
@@ -44,6 +47,8 @@ Features_elxbj2: "这一类的每个库解决的都是同一个问题。区别�
 Features_nsh4rn: "构建时编译，运行时无需解析器"
 Features_qlydjr: "<code>--llm-translate</code> 通过你配置的模型填充缺失的键。验证器会拒绝任何会在运行时出错的内容。"
 Features_u5mby: "无需发明键"
+Features_v7ljlr: "语言加载"
+Features_y50icl: "翻译文件"
 Hero_10s6wdy: "个运行时依赖"
 Hero_11jq5ef: "Babel 和 Vite 在你的机器上运行，永远不会进入包中；React 就是你的应用本来就有的那一份。"
 Hero_150etoz: "试用 Playground"
@@ -57,6 +62,7 @@ HeroVideo_10an6gt: "视频：为什么选择 viteTranslate，以及它的生态�
 HeroVideo_1wfoiwd: "为什么选择 viteTranslate，以及它的各个部分如何协同工作。"
 HeroVideo_l53cig: "视频"
 LanguageSwitch_gzrcyx: "页面语言"
+ManualLink_5b31d1: "参阅手册"
 Marquee_aimam1: "一份源码，想要多少语言都行。"
 Outro_16gmyec: "阅读文档"
 Outro_1e9h002: "一个包，一个插件，vite.config 里加一行。剩下的你会亲眼看到发生。"
@@ -79,21 +85,33 @@ pages_nu5ths: "意大利语写在代码里，另外四种语言由模型通过 <
 pages_tu8r7m: "同一个应用，句子用 <code>≼这样≽</code> 标记：其余交给 autoWrap，无需外包 <code>Trans</code>。"
 pages_vv62gb: "由 LLM 翻译的餐厅"
 ProjectLinks_8ret13: "下载项目：npm install，然后 npm run dev"
+ProjectLinks_ckif6c: "手册"
 ProjectLinks_gizfou: "源码"
 ProjectLinks_tkz1w2: "在 stackblitz.com 上打开项目：在浏览器中安装并运行"
+ProjectLinks_zrfrbq: "手册中的说明页面"
 sections_g0dv0o: "演示"
 sections_i5t981: "从这些示例开始"
 sections_lijk3t: "工作原理"
 sections_q2tajl: "对比"
 sections_qqqkuc: "为什么选择 viteTranslate"
 sections_sf5vqh: "效果如何"
+SiteBar_135b08s: "主页：一览 viteTranslate。"
+SiteBar_16pt5e6: "手册：安装、API、CLI 和使用 LLM 翻译。"
+SiteBar_184491n: "切换到深色主题：此选择适用于整个网站。"
+SiteBar_1lekqar: "源代码、问题和版本发布。"
+SiteBar_6hzcks: "网站版块"
+SiteBar_a5sjad: "切换到浅色主题：此选择适用于整个网站。"
+SiteBar_boj2og: "首页"
 SiteBar_d55hvs: "演示"
+SiteBar_njusnx: "在真实场景中试用：交互演示、边缘案例，以及由 LLM 翻译的餐厅。"
+SiteBar_x7movm: "主题"
 SiteBar_z8si1s: "文档"
 Starters_135p9nt: "上一组示例"
 Starters_6vy2yj: "点一下即可在 StackBlitz 上运行，就在浏览器里，无需安装。zip 是同一个项目，可在本地打开。"
 Starters_jx8aky: "每个想法一个最小项目。"
 Starters_mtvbi5: "下一组示例"
 Steps_13v2590: "翻译"
+Steps_178m7nm: "在需要的地方编写文本"
 Steps_196we9t: "手动翻译、交给译者，或使用会保留占位符和标签的 LLM。然后发布。"
 Steps_1c2u998: "第 %s 步"
 Steps_1ocrzwe: "同步"
@@ -101,15 +119,6 @@ Steps_1r4qs32: "一条命令，或者开发服务器：YAML 表始终与代码�
 Steps_frrvbq: "写在 JSX 里，需要的地方：变量和标签都包含在内。无需打开键文件，无需发明名字。"
 Steps_nrgj8g: "写下这句话"
 Steps_q96bco: "三步搞定，<em>零</em>繁琐。"
+Steps_u2x2og: "自动生成的翻译表"
+Steps_wejid2: "手动翻译或使用 LLM 翻译"
 ThemeToggle_1i35buc: "切换主题"
-
-#  ----to be translated------------------------------------------
-SiteBar_135b08s: null
-SiteBar_16pt5e6: null
-SiteBar_184491n: null
-SiteBar_1lekqar: null
-SiteBar_6hzcks: null
-SiteBar_a5sjad: null
-SiteBar_boj2og: null
-SiteBar_njusnx: null
-SiteBar_x7movm: null

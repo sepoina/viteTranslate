@@ -16,7 +16,7 @@ related:
 
 ## Do I have to invent keys? {#keys}
 
-No. The sentence you write is the source: its key is generated from the text and the file it lives in, so there is nothing to invent. When a sentence moves, the sync carries its translation over, and changing the delimiters never changes a key. See [Markers and keys](/concepts/markers).
+No. The sentence you write is the source: its key is generated from the text and the file it lives in, so there is nothing to invent. ==When a sentence moves, the sync carries its translation over==, and changing the delimiters never changes a key. See [Markers and keys](/concepts/markers).
 
 ## Does it work with TypeScript? {#typescript}
 
@@ -24,7 +24,7 @@ Yes. `.ts` and `.tsx` files are scanned like the rest, and the declarations ship
 
 ## Does it work with server-side rendering? {#ssr}
 
-The plugin is a Vite plugin, so the app has to be built with Vite. If you render on the server, set the time zone explicitly (the `timeZone` prop or the plugin option), or dates can differ between server and browser. See [Dates and time zones](/concepts/icu#dates-and-time-zones) and, for where the package goes in `package.json`, [It never reaches your bundle](/getting-started/installation#it-never-reaches-your-bundle).
+The plugin is a Vite plugin, so the app has to be built with Vite. If you render on the server, ==set the time zone explicitly== (the `timeZone` prop or the plugin option), or dates can differ between server and browser. See [Dates and time zones](/concepts/icu#dates-and-time-zones) and, for where the package goes in `package.json`, [It never reaches your bundle](/getting-started/installation#it-never-reaches-your-bundle).
 
 ## What do I see before a text is translated? {#untranslated}
 
@@ -40,7 +40,7 @@ Yes: `marker` for one delimiter on both ends, or `markerStart` and `markerEnd`. 
 
 ## What does the LLM see? {#llm-sees}
 
-The strings still `null` for the language being filled, each with the name of the component it comes from, and a short project brief you can read and edit. Not your source files, and not your API key. See [The context abstract](/llm/context).
+The strings still `null` for the language being filled, each with the name of the component it comes from, and a short project brief you can read and edit. ==Not your source files, and not your API key.== See [The context abstract](/llm/context).
 
 ## Does it translate while I run `vite dev`? {#llm-dev}
 
@@ -48,7 +48,7 @@ Never. The LLM runs only from the CLI, when you ask, and prints the estimated co
 
 ## Can I edit the YAML by hand? {#yaml}
 
-The translations, yes: replace each `null` with your text. The source language file and the header comments are generated, so leave them alone. See [File format](/concepts/translation-files#file-format).
+The translations, yes: replace each `null` with your text. ==The source language file and the header comments are generated, so leave them alone.== See [File format](/concepts/translation-files#file-format).
 
 ## Do I need VS Code? {#vscode}
 

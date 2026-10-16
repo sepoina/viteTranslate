@@ -60,7 +60,7 @@ basicHtmlToNodes("no markup here");             // "no markup here" (same string
 > [!IMPORTANT]
 > Read before using it outside the library:
 
-- It is meant for **strings you control** — typically your own translation tables — not as a sanitiser for hostile input.
+- It is meant for **strings you control** — typically your own translation tables — ==not as a sanitiser for hostile input==.
 - `args` are interpolated **before** parsing, so an argument containing markup is itself interpreted as HTML (unlike `<Translate>`).
 - It needs the DOM (it uses a `<template>` element). Where `document` doesn't exist, as in server-side rendering, it returns the original string unconverted.
 

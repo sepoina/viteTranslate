@@ -837,6 +837,61 @@ li code {
   font-weight: 600;
 }
 
+/* ---------- Link al manuale (ManualLink.jsx) ---------- */
+/* The bar's book, "NEL MANUALE ･" like the bar's crumb, then where it lands. */
+.manual-link {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.2rem 0.5rem;
+  color: var(--muted);
+  font-size: 0.875rem;
+  line-height: 1.4;
+  text-decoration: none;
+}
+
+.manual-link svg {
+  flex: none;
+  color: var(--faint);
+  transition: color 150ms var(--ease);
+}
+
+.manual-link-k {
+  font-family: var(--mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.manual-link-k::after {
+  content: "\FF65";
+  margin-left: 0.5rem;
+  color: var(--faint);
+}
+
+.manual-link-t {
+  color: var(--text);
+  font-weight: 500;
+  text-decoration: underline;
+  text-decoration-color: var(--link-line);
+  text-underline-offset: 0.2em;
+  transition: color 150ms var(--ease), text-decoration-color 150ms var(--ease);
+}
+
+.manual-link-go {
+  transition: transform 150ms var(--ease);
+}
+
+.manual-link:hover svg,
+.manual-link:hover .manual-link-t {
+  color: var(--accent);
+  text-decoration-color: var(--accent);
+}
+
+.manual-link:hover .manual-link-go {
+  transform: translateX(3px);
+}
+
 /* ---------- Movimento ---------- */
 /* Entrata in cascata: --i è la posizione dell'elemento (0, 1, 2…), la scrive il JSX. */
 .rise {

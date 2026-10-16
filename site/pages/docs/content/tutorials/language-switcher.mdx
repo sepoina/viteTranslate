@@ -18,6 +18,8 @@ related:
 
 A switcher needs three things: which language is on screen, which ones exist, and a way to ask for another. One hook gives you all of them. This tutorial assumes a project with at least two languages, like the one in [Your first translated app](/tutorials/first-app).
 
+> 🎮 [A switcher, live](site:playground#language-switch) — the list, the switch, and the `onStart`/`onDone` callbacks showing the load.
+
 ## List the languages {#list-the-languages}
 
 ```jsx title="src/LanguageSwitcher.jsx"
@@ -56,7 +58,7 @@ export default function App({ name }) {
 }
 ```
 
-Click *Deutsch (Deutschland)* and the sentence reads *Willkommen zurück, Ada!*; click *français (France)* and it reads *Bon retour, Ada !*. The language you leave stays on screen until the new one has loaded, so there is no blank frame in between ([how it works](/hooks/use-translate-language#proposenewlanguage)).
+Click *Deutsch (Deutschland)* and the sentence reads *Willkommen zurück, Ada!*; click *français (France)* and it reads *Bon retour, Ada !*. ==The language you leave stays on screen until the new one has loaded==, so there is no blank frame in between ([how it works](/hooks/use-translate-language#proposenewlanguage)).
 
 ## Remember the choice {#remember-the-choice}
 
@@ -73,14 +75,14 @@ const switchTo = (tag) =>
 </TransContainer>
 ```
 
-After choosing German and reloading, the page reads *Willkommen zurück, Ada!*. `onDone` receives the real outcome, so a failed load is not remembered.
+After choosing German and reloading, the page reads *Willkommen zurück, Ada!*. ==`onDone` receives the real outcome, so a failed load is not remembered.==
 
 > [!NOTE]
 > `initialLanguage` is read once, at mount. Starting from a language that is not preloaded works, but costs a round trip before the first paint, and the container says so once in the console. If most visitors start in the same language, see [Preloading](/concepts/preloading).
 
 ## One button that rotates {#one-button-that-rotates}
 
-For a demo, or a page with three languages and no room for a menu: one button that names the current language and the next one. This is what `demo/Vite_8/minimal` does.
+For a demo, or a page with three languages and no room for a menu: one button that names the current language and the next one. This is what [`demo/Vite_8/minimal`](repo:demo/Vite_8/minimal) does.
 
 ```jsx title="src/LanguageSwitcher.jsx"
 import { useTransLanguage } from "@sepoina/vitetranslate/react";
@@ -103,6 +105,6 @@ Click four times and the page goes *American English → Deutsch (Deutschland)*,
 
 ## Good to know {#good-to-know}
 
-- The `languages` array is frozen and shared by the whole app. To sort or filter it, copy it first: `[...languages]`.
+- ==The `languages` array is frozen and shared by the whole app.== To sort or filter it, copy it first: `[...languages]`.
 - `languages` also works above the container, so a header outside the translated tree can list the languages. There `id` is `undefined` and switching does nothing.
 - A failed load falls back to the eager language, and `id` tells you which one is really on screen. See [useTranslateLanguage](/hooks/use-translate-language) for the retry pattern and the `onStart` and `onError` callbacks.

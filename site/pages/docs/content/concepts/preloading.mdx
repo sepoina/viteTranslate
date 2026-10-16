@@ -17,12 +17,14 @@ related:
 
 <!-- Migrated from doc/react-api.md, "Preloading, Suspense and the initial flash" (ids = the GitHub slugs of the old headings; the parent heading is the page itself). -->
 
-Each language is a separate chunk loaded on demand, so it may not be ready on the **first** render. `TranslateContainer` has a built-in `Suspense` boundary, and neither path ever shows the wrong language:
+Each language is a separate chunk loaded on demand, so it may not be ready on the **first** render. `TranslateContainer` has a built-in `Suspense` boundary, and ==neither path ever shows the wrong language==:
 
 | `initialLanguage` is… | Behaviour |
 | :- | :- |
 | **eagerly bundled** | Its table is already in the initial bundle → renders **synchronously** |
 | **any other language** | The container **suspends** (showing `fallback`) until the chunk loads, then renders the right language. No wrong-language flash, no double render |
+
+> 🎮 [Switching, live](site:playground#language-switch) — the status line shows `…` between `onStart` and `onDone`, while a language that isn't preloaded loads its chunk.
 
 Which languages are eager:
 
@@ -34,7 +36,7 @@ Which languages are eager:
 > [!NOTE]
 > A production build doesn't ship the source language just as a fallback: every compiled table is **self-contained**, each untranslated key already carrying the source text. An app that starts in `en-US` with `preloadedLanguages: ["en-US"]` ships one table, not two.
 
-`preloadedLanguages` is an **optimization**, not what prevents the flash — Suspense already does that. It turns the brief loading frame into an instant first paint, at the cost of putting those languages in the initial bundle. Keep it to the few languages you actually show first:
+==`preloadedLanguages` is an **optimization**, not what prevents the flash== — Suspense already does that. It turns the brief loading frame into an instant first paint, at the cost of putting those languages in the initial bundle. Keep it to the few languages you actually show first:
 
 ```js
 vitetranslate({

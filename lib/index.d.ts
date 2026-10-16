@@ -84,6 +84,156 @@ export interface IcuOptions {
   timeZone?: string;
 }
 
+// LINKED-DATA: the `llm` types mirror what lib/dev/llm/llmOptions.js accepts (LLM_KEYS, CONNECTION_KEYS, the
+// presets) and the driver contract of lib/dev/llm/callModel.js: change one, change the other.
+
+/** How much a model can take: sizes the batches and caps `max_tokens` (https://sepoina.github.io/viteTranslate/docs/llm/price/#model-class). */
+export type LlmModelClassName = "basic" | "standard" | "advanced" | "expert" | "frontier";
+
+/** A model class of your own, merged over `"standard"`. */
+export interface LlmModelClass {
+  /** A batch closes when its payload reaches `k` times the prompt overhead. `(0, 20]`. */
+  k?: number;
+  /** Expected output tokens of a full batch, reasoning included. Integer, at least 200. */
+  maxOutputTokens?: number;
+  /** Keys per batch, at most. Integer within `[1, 1000]`. */
+  maxKeys?: number;
+  /** The ceiling of the `max_tokens` a request sends. Integer, at least `maxOutputTokens`. */
+  maxTokens?: number;
+}
+
+/** `llm.connection`: where the model is and how to talk to it (https://sepoina.github.io/viteTranslate/docs/llm/options/#connection). */
+export interface LlmConnection {
+  /** The only value accepted; for anything else, `llm.driver`. Default `"openai-chat"`. */
+  protocol?: "openai-chat";
+  /** Chat Completions endpoint, `/chat/completions` is appended. Required without a `driver`. */
+  baseURL?: string;
+  /** Required without a `driver`. */
+  model?: string;
+  /** The NAME of the variable holding the key, never the key. Looked up in the environment, `.env.local`, `.env`, the keyring. Default `"VITETRANSLATE_API_KEY"`. */
+  apiKeyEnv?: string;
+  /** `[0, 2]`. Default `0.2`. */
+  temperature?: number;
+  /** Per request, at least 1000. Default `60000`. */
+  timeoutMs?: number;
+  /** Retries on 429, 5xx and network errors, `[0, 10]`. Default `3`. */
+  maxRetries?: number;
+  /** Requests in flight at the same time, `[1, 16]`. Default `4`. */
+  maxConcurrency?: number;
+  /** Price per million input tokens. Both prices or neither. */
+  costMillionInput?: number;
+  /** Price per million output tokens. Both prices or neither. */
+  costMillionOutput?: number;
+  /** Currency symbol printed in front of costs, at most 8 characters. Default `"$"`. */
+  costUnity?: string;
+  /** Extra fields merged last into the request body, for provider-specific settings (`reasoning`, `thinking`…). */
+  providerOptions?: Record<string, unknown>;
+  /** Default `"standard"`. */
+  modelClass?: LlmModelClassName | LlmModelClass;
+  /** Name of the output-limit field, or `false` to send none. Default `"max_tokens"`. */
+  maxTokensField?: "max_tokens" | "max_completion_tokens" | false;
+}
+
+/** `llm.connection` as a driver receives it: every default filled in. */
+export interface LlmResolvedConnection extends LlmConnection {
+  protocol: "openai-chat";
+  apiKeyEnv: string;
+  temperature: number;
+  timeoutMs: number;
+  maxRetries: number;
+  maxConcurrency: number;
+  costUnity: string;
+  providerOptions: Record<string, unknown>;
+  maxTokensField: "max_tokens" | "max_completion_tokens" | false;
+  modelClass: Required<LlmModelClass> & { name: LlmModelClassName | "custom" };
+}
+
+/** Spending caps of your own, merged over `"safe"`: in cost with prices set, in tokens (input + output) without (https://sepoina.github.io/viteTranslate/docs/llm/price/#budget-caps). */
+export interface LlmBudget {
+  maxCostPerRun?: number;
+  maxCostPerDay?: number;
+  maxTokensPerRun?: number;
+  maxTokensPerDay?: number;
+}
+
+/** `llm.context`: the project brief the model reads before every translation (https://sepoina.github.io/viteTranslate/docs/llm/context/). */
+export interface LlmContextOptions {
+  /** `"auto"` regenerates it when missing or grown, `"manual"` only on `--llm-context`, `"off"` never (but reads it). Default `"auto"`. */
+  mode?: "auto" | "manual" | "off";
+  /** Regenerate after this many new keys, at least 1. Default `40`. */
+  refreshEvery?: number;
+  /** Strings that feed the abstract, at least 10. Default `300`. */
+  sample?: number;
+}
+
+/** A reply's token count in the library's shape. A `cost` is counted instead of your prices. */
+export interface LlmUsage {
+  tokensIn: number;
+  tokensOut: number;
+  /** The part of `tokensOut` spent reasoning. */
+  reasoningOut?: number;
+  cachedIn?: number;
+  cost?: number;
+}
+
+/** A Chat Completions `usage` as the provider sent it: the library maps it to `LlmUsage`. */
+export interface LlmChatCompletionsUsage {
+  prompt_tokens: number;
+  completion_tokens: number;
+  prompt_tokens_details?: { cached_tokens?: number };
+  completion_tokens_details?: { reasoning_tokens?: number };
+  cost?: number;
+  [field: string]: unknown;
+}
+
+/** What a driver receives (https://sepoina.github.io/viteTranslate/docs/llm/custom-endpoint/#what-a-driver-receives). */
+export interface LlmDriverParams {
+  connection: LlmResolvedConnection;
+  /** Found through `connection.apiKeyEnv` like the built-in client's, `undefined` if there is none. */
+  apiKey: string | undefined;
+  systemPrompt: string;
+  userPayload: string;
+  /** `"context"` asks for the project brief as free text, not for translations. */
+  mode: "translate" | "context";
+  /** The output limit this request is worth; ignore it if your API has none. */
+  maxTokens: number | undefined;
+  /**
+   * The library's HTTP call, same signature as `fetch`: timeout, a non-2xx reply turned into the
+   * error the retries read, the key kept out of every message, the `--llm-debug` trace.
+   */
+  fetch: typeof fetch;
+}
+
+/**
+ * What a driver returns. `{ content, truncated, usage }` hands the model's text to the library, which reads
+ * it like its own client (tolerant parser, truncated replies salvaged, `mode: "context"` included). The
+ * others are already parsed: translations keyed like the request, or for `mode: "context"` the text.
+ */
+export type LlmDriverResult =
+  | { content: string; truncated?: boolean; usage?: LlmUsage | LlmChatCompletionsUsage | null }
+  | { translations: Record<string, string>; usage?: LlmUsage | LlmChatCompletionsUsage | null }
+  | Record<string, string>
+  | { text: string; usage?: LlmUsage | LlmChatCompletionsUsage | null }
+  | string;
+
+/** Your own client instead of the built-in one. Throw an error with a `status` to get the built-in retries and stops. */
+export type LlmDriver = (params: LlmDriverParams) => LlmDriverResult | Promise<LlmDriverResult>;
+
+/** The `llm` option: what `vitetranslate --llm-translate` uses. The plugin only validates it (https://sepoina.github.io/viteTranslate/docs/llm/options/). */
+export interface LlmOptions {
+  connection?: LlmConnection;
+  driver?: LlmDriver;
+  /** A preset or caps of your own. Default `"safe"`. */
+  budget?: "safe" | "normal" | "unlimited" | LlmBudget;
+  /** Below this estimated cost, no confirmation. Needs both prices. */
+  costGuard?: number;
+  context?: LlmContextOptions;
+  /** Which languages `--llm-translate` fills. Default: every table in `localeDir`, the source language excluded. */
+  languages?: string[];
+  /** A free-text line added to every translation prompt, e.g. `"informal, second person"`. */
+  tone?: string;
+}
+
 /** Opzioni di `vitetranslate(...)`, da registrare fra i `plugins` di vite.config. */
 export interface VitetranslateOptions {
   /** Cartella con i file di lingua (`.yml`), relativa a `baseDir` (es. `"src/locale"`). */
@@ -164,6 +314,8 @@ export interface VitetranslateOptions {
   simpleLog?: boolean;
   /** Il default di build per i messaggi ICU `date`/`time` (vedi la guida ICU: https://sepoina.github.io/viteTranslate/docs/concepts/icu/). */
   icu?: IcuOptions;
+  /** Translation through an LLM, from the CLI only (`vitetranslate --llm-translate`): never inside a Vite hook. */
+  llm?: LlmOptions;
 }
 
 /**
