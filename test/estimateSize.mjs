@@ -19,7 +19,7 @@ const KB = 1024;
 const asKB = (bytes) => `${(bytes / KB).toFixed(2)} kB`;
 
 const { react, icu, gzip } = await measureRuntime();
-const { real, compare } = sizeLabels(gzip);
+const { real, compare, note } = sizeLabels(gzip);
 
 console.log(`
 viteTranslate — runtime size (minified, gzip)
@@ -28,7 +28,8 @@ viteTranslate — runtime size (minified, gzip)
   ICU helpers     ${icu.gzip} B   (only in apps whose tables use ICU)
   total           ${gzip} B   (${asKB(gzip)})
 
-Docs: write "${real}" (real weight, rounded down) and "${compare}" in comparisons.
+Docs: write "${real}" (real weight, rounded down), "${note}" in the notes (README ⁴)
+and "${compare}" in comparisons.
 `);
 
 const runtimeSizePath = join(ROOT, "site/runtimeSize.json");

@@ -1,8 +1,8 @@
 #  -------------------------------------------------
 #      italiano (Italia) (sourceLanguage)
 #       |    code: it-IT
-#       |    missing key: 0
-#       |    processed: 2026-10-14 13:26
+#       |    missing key: 9
+#       |    processed: 2026-10-15 23:21
 #       |    TableVersion: 260905
 #  -------------------------------------------------
 #
@@ -58,11 +58,6 @@ HeroVideo_1wfoiwd: "Perché viteTranslate, e come lavorano insieme i suoi pezzi.
 HeroVideo_l53cig: "Il video"
 LanguageSwitch_gzrcyx: "Lingua della pagina"
 Marquee_aimam1: "Una sola sorgente. Tutte le lingue che vuoi."
-Nav_16qsfmz: "Documentazione"
-Nav_1c4ck8: "Confronto"
-Nav_1d2o49w: "Funzioni"
-Nav_4py963: "Demo"
-Nav_ec11j8: "Come funziona"
 Outro_16gmyec: "Leggi la documentazione"
 Outro_1e9h002: "Un pacchetto, un plugin, una riga nel vite.config. Il resto lo vedi succedere."
 Outro_8zu2qs: "Traduci la tua prima frase <em>in un minuto</em>."
@@ -92,6 +87,8 @@ sections_lijk3t: "Come funziona"
 sections_q2tajl: "Confronto"
 sections_qqqkuc: "Perché viteTranslate"
 sections_sf5vqh: "Come si vede"
+SiteBar_d55hvs: "Demo"
+SiteBar_z8si1s: "Documentazione"
 Starters_135p9nt: "Demo precedenti"
 Starters_6vy2yj: "Un clic e gira su StackBlitz, nel browser, senza installare niente. Lo zip è lo stesso progetto, da aprire in locale."
 Starters_jx8aky: "Un progetto minimo per ogni idea."
@@ -105,3 +102,14 @@ Steps_frrvbq: "Nel JSX, dove serve: variabili e tag compresi. Nessun file di chi
 Steps_nrgj8g: "Scrivi la frase"
 Steps_q96bco: "Tre passi, <em>zero</em> burocrazia."
 ThemeToggle_1i35buc: "Cambia tema"
+
+#  ----to be translated------------------------------------------
+SiteBar_135b08s: "La pagina principale: viteTranslate in un colpo d'occhio."
+SiteBar_16pt5e6: "Il manuale: installazione, API, CLI e traduzione con un LLM."
+SiteBar_184491n: "Passa al tema scuro: la scelta vale per tutto il sito."
+SiteBar_1lekqar: "Il codice sorgente, le issue e le release."
+SiteBar_6hzcks: "Sezioni del sito"
+SiteBar_a5sjad: "Passa al tema chiaro: la scelta vale per tutto il sito."
+SiteBar_boj2og: "Home"
+SiteBar_njusnx: "Giocaci nel mondo reale: playground, casi limite e un ristorante tradotto da un LLM."
+SiteBar_x7movm: "Tema"

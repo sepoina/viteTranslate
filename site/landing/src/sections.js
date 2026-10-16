@@ -1,6 +1,7 @@
 // Le sezioni numerate della landing, nell'ordine della pagina. La chiave è il valore di
 // data-section della sezione; numero ed etichetta si vedono nell'intestazione (SectionHead.jsx)
-// e nella barra, accanto al logo, mentre si scorre (Nav.jsx).
+// e nel mezzo della barra mentre si scorre (Nav.jsx).
+// ?section=<key> opens the landing on that section (App.jsx).
 export const SECTIONS = {
   demos: { n: "01", label: "_%_Demo_%_" },
   looks: { n: "02", label: "_%_Come si vede_%_" },

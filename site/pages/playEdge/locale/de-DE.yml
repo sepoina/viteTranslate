@@ -1,8 +1,8 @@
 #  -------------------------------------------------
 #      Deutsch (Deutschland)
 #       |    code: de-DE
-#       |    missing key: 0
-#       |    processed: 2026-10-09 12:30
+#       |    missing key: 12
+#       |    processed: 2026-10-15 23:21
 #       |    TableVersion: 260905
 #  -------------------------------------------------
 #
@@ -17,7 +17,6 @@ App_aj0s62: "So lesen Sie die Tabelle ↓"
 App_iy34f8: "<code>🔸</code> (hier nicht übersetzt) und <code>🔹</code> (anderswo nicht übersetzt) sind nicht aufgeführt: Sie hängen vom Zustand der Sprachdateien ab, nicht von der Zeile. <code>‼️</code>, <code>🚫</code> und <code>⁇</code> gehören dagegen zum erwarteten Ergebnis."
 App_j4wz87: "Jeder Grenzfall, <em>live</em>"
 App_onj53g: "Eine Zeile pro Fall: was Sie schreiben, was viteTranslate tatsächlich rendert, was Sie erwarten. In jeder Kategorie stehen die empfohlenen Formen vorne, die Fehler ganz hinten."
-App_xheo4s: "← viteTranslate: alle Demos"
 autoWrapCases_1088ozj: "4. Attribut, direkte Form"
 autoWrapCases_11rvr1h: "Sie haben %s Nachrichten"
 autoWrapCases_13430ki: "In {messaggi} Nachrichten suchen"
@@ -319,3 +318,17 @@ testCases_yv9uvt: "Plural: eins"
 testCases_zmrpz5: "a leeres Array"
 testCases_zzrrzd: "%s leere Zeichenkette"
 ThemeToggle_1i35buc: "Design wechseln"
+
+#  ----to be translated------------------------------------------
+App_1hvf06c: null
+SiteBar_135b08s: null
+SiteBar_16pt5e6: null
+SiteBar_184491n: null
+SiteBar_1lekqar: null
+SiteBar_6hzcks: null
+SiteBar_a5sjad: null
+SiteBar_boj2og: null
+SiteBar_d55hvs: null
+SiteBar_njusnx: null
+SiteBar_x7movm: null
+SiteBar_z8si1s: null

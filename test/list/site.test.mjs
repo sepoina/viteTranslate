@@ -235,6 +235,8 @@ const COPPIE = [
   ["badge-ink", "badge-bg"],
   ...["warn", "error"].flatMap((f) => ["bg", "surface-2"].map((b) => [f, b])),
   ...["tk-c", "tk-s", "tk-t", "tk-k", "tk-n", "code-text"].map((f) => [f, "code-bg"]),
+  // The hint under the bar: name (accent) and description (muted) on both ends of its gradient.
+  ...["muted", "accent"].flatMap((f) => ["hint-bg", "hint-bg-2"].map((b) => [f, b])),
 ];
 // 3:1 basta per il testo grande e per i simboli (WCAG 1.4.3 e 1.4.11): --dim colora solo titoli e
 // testo decorativo, --mark-n è il ✕ del confronto, che ha accanto il suo significato per esteso.

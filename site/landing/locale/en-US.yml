@@ -1,8 +1,8 @@
 #  -------------------------------------------------
 #      American English
 #       |    code: en-US
-#       |    missing key: 0
-#       |    processed: 2026-10-14 13:26
+#       |    missing key: 9
+#       |    processed: 2026-10-15 23:21
 #       |    TableVersion: 260905
 #  -------------------------------------------------
 #
@@ -58,11 +58,6 @@ HeroVideo_1wfoiwd: "Why viteTranslate, and how its pieces work together."
 HeroVideo_l53cig: "The video"
 LanguageSwitch_gzrcyx: "Page language"
 Marquee_aimam1: "One source. As many languages as you like."
-Nav_16qsfmz: "Docs"
-Nav_1c4ck8: "Comparison"
-Nav_1d2o49w: "Features"
-Nav_4py963: "Demos"
-Nav_ec11j8: "How it works"
 Outro_16gmyec: "Read the documentation"
 Outro_1e9h002: "One package, one plugin, one line in vite.config. You watch the rest happen."
 Outro_8zu2qs: "Translate your first sentence <em>in a minute</em>."
@@ -92,6 +87,8 @@ sections_lijk3t: "How it works"
 sections_q2tajl: "Comparison"
 sections_qqqkuc: "Why viteTranslate"
 sections_sf5vqh: "How it looks"
+SiteBar_d55hvs: "Demos"
+SiteBar_z8si1s: "Docs"
 Starters_135p9nt: "Previous demos"
 Starters_6vy2yj: "One click and it runs on StackBlitz, in the browser, nothing to install. The zip is the same project, to open locally."
 Starters_jx8aky: "One minimal project per idea."
@@ -105,3 +102,14 @@ Steps_frrvbq: "In the JSX, wherever it belongs: variables and tags included. No 
 Steps_nrgj8g: "Write the sentence"
 Steps_q96bco: "Three steps, <em>zero</em> bureaucracy."
 ThemeToggle_1i35buc: "Toggle theme"
+
+#  ----to be translated------------------------------------------
+SiteBar_135b08s: null
+SiteBar_16pt5e6: null
+SiteBar_184491n: null
+SiteBar_1lekqar: null
+SiteBar_6hzcks: null
+SiteBar_a5sjad: null
+SiteBar_boj2og: null
+SiteBar_njusnx: null
+SiteBar_x7movm: null

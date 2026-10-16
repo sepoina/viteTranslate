@@ -33,7 +33,7 @@ two situations is the `base` and where the links to the other pages point.
 
 The user manual is [`pages/docs/`](pages/docs): pages are `.mdx` files in `content/<section>/<page>.mdx`, in a small dialect that a local compiler ([`scripts/compileDocs.mjs`](pages/docs/scripts/compileDocs.mjs)) turns into JSX under `src/generated/` (ignored by git). Every sentence becomes a `<Trans>`, so the Italian version is made by viteTranslate itself. Anything the dialect does not list is a compile error with `file:line`.
 
-- **Frontmatter:** `title`, `description`, `sources:` (the repo files the page describes; `file.json#key` for part of a JSON), optional `aliases:`.
+- **Frontmatter:** `title`, `description`, `sources:` (the repo files the page describes; `file.json#key` for part of a JSON), optional `aliases:` and `related:` (up to 7 lines `/section/page#id | label | detail` for "On the same topic" in the right column: the detail shows on hover, all of them land in `src/generated/related.js`, and following one makes "Previous" lead back).
 - **Blocks:** `##` and `###` with a mandatory `{#id}`; paragraphs; lists (one line per item, one nesting level); callouts `> [!NOTE]` with paragraphs only; tables (`\|` for a literal bar); code fences with a language and optional `title="…"`; `![alt](img/x.png)` (PNG or WebP in `public/img`, size read from the file); `<Demo page="slug" anchor="id" />`.
 - **Inline:** code, bold, italic, links: `/route#id`, `#id`, `site:slug#id`, `repo:path#id`, `https://…`. A code span cannot contain a backtick.
 - **Special characters** in text (`{ } < > &`, `%s`, the marker delimiter) are emitted as values (`{K[n]}`), never as translatable text.
@@ -73,6 +73,22 @@ Working on the theme with a dev server open: `node site/syncTheme.mjs --watch` i
 Need something dark on a light page (like the source panel of the edge page)? Put `data-theme="dark"` on it: its whole
 subtree keeps the dark tokens.
 
+## The top bar
+
+[`theme/SiteBar.jsx`](theme/SiteBar.jsx) is the same bar everywhere (the restaurant demo keeps its own): the logo
+on the left, the section being read in the middle (from 900 px), and on the right four icons (Home, Docs, Demos,
+GitHub), a thin rule, languages and theme. On phones: logo and icons, then languages and theme. A page only passes:
+
+- `current`: `"home"`, `"docs"` or `"demos"`, the icon in green;
+- `section`: `{ id, mark?, label }`, the text in the middle (`mark` in green: the landing's `01`, the manual's group);
+- `labels`: the bar's texts, when the page is not written in Italian (the manual passes its English ones).
+
+Hovering or focusing any control on the right drops a second bar that says what it does: the name in green under the
+control, the description on its left (full width on phones); a language shows only its name, after the logo's
+`%`. Its own colours (`--hint-*` in `tokens.css`: green turning to cyan) set it apart from the bar. A control joins
+it with `data-hint` (`place:docs`, `lang:it-IT`, `theme`); the texts live in `SiteBar`. The Demos icon opens the landing with
+`?section=demos` (a hash would go to the playground, see `landing/src/main.jsx`); on the landing it just scrolls.
+
 ## The video in the hero
 
 [`landing/src/HeroVideo.jsx`](landing/src/HeroVideo.jsx) closes the hero with a full-width band: a poster ([`landing/public/video/poster.webp`](landing/public/video/poster.webp), ~95 kB) that opens YouTube
@@ -107,8 +123,8 @@ without `src/App.jsx` (the file StackBlitz opens).
    `"vitetranslateSite": { "slug": "<slug>", "theme": true }` (`slug`: `a-z`, `0-9`, `-`; `theme` only if the page
    uses the site theme; `"card": false` for a page without a landing card and without a zip, like the manual). That field is what makes it a page.
 2. Add its card to [`landing/src/pages.js`](landing/src/pages.js) and translate the two new sentences.
-3. Copy [`landing/src/siteLinks.js`](landing/src/siteLinks.js) into the page's `src/` if it links back to the site.
-4. If it uses the theme: `import "./theme/theme.css"` in `main.jsx`, and `<SiteBar>` for the top bar.
+3. Copy [`landing/src/siteLinks.js`](landing/src/siteLinks.js) into the page's `src/` (the theme's top bar reads it).
+4. If it uses the theme: `import "./theme/theme.css"` in `main.jsx`, and `<SiteBar current="demos">` for the top bar (see [The top bar](#the-top-bar)).
 
 `test/list/site.test.mjs` checks that the slugs and the cards are the same set and that the copies of
 `siteLinks.js` are identical. `npm run sync:demos` keeps every `@sepoina/vitetranslate` range aligned.

@@ -3,7 +3,6 @@ import { Translate, version } from '@sepoina/vitetranslate/react';
 import testCases from './testCases.jsx';
 import autoWrapCases from './autoWrapCases.jsx';
 import CaseSection, { groupCases, SourceDock, STATUSES, StatusLabel } from './ShowAllRowTests.jsx';
-import { siteUrl } from './siteLinks.js';
 import SiteBar from './theme/SiteBar.jsx';
 
 const groups = groupCases(testCases, autoWrapCases);
@@ -24,11 +23,7 @@ export default function App() {
   //
   return (
     <>
-      <SiteBar home={siteUrl()}>
-        <a className="bar-back" href={siteUrl()}>
-          <Translate>_%_← viteTranslate: tutte le demo_%_</Translate>
-        </a>
-      </SiteBar>
+      <SiteBar current="demos" section={{ id: 'edge', label: <Translate>_%_Casi limite_%_</Translate> }} />
 
       <main className="wrap">
         <section className="page-hero grid-backdrop">

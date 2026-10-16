@@ -363,16 +363,37 @@ li code {
   top: 0;
   z-index: 40;
   border-bottom: 1px solid var(--line-soft);
-  background: var(--bar-bg);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
 }
 
+/* The frosted background sits on a pseudo-element: an element with backdrop-filter is the backdrop
+   root of what it contains, and would keep its children (the hint) from blurring the page.
+   The prefixed line goes first: after the standard one, the build's minifier keeps only the prefix,
+   which Chrome ignores (no blur at all). */
+.bar::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 -1px;
+  z-index: -1;
+  background: var(--bar-bg);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+}
+
+/* Left the logo (and the page's own controls), right the icons, the languages and the theme. From
+   900px a grid, so the section sits in the real middle (it takes what the two sides leave, and
+   shortens with an ellipsis). Under 720px see the bottom of this block. */
 .bar-in {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 24px;
+  gap: 8px 16px;
   min-height: var(--bar-h);
+}
+
+.bar-start {
+  display: flex;
+  align-items: center;
+  gap: 20px;
 }
 
 .bar-brand {
@@ -387,49 +408,270 @@ li code {
   filter: var(--logo-filter);
 }
 
-.bar-nav {
+.bar-tools {
   display: flex;
-  flex: 1;
-  justify-content: flex-end;
-  gap: 2px;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
 }
 
-.bar-nav :is(a, button),
-.bar-back {
-  padding: 8px 12px;
+.bar-nav {
+  display: flex;
+  gap: 4px;
+}
+
+/* The little rule between the places and the languages. */
+.bar-sep {
+  flex: none;
+  width: 1px;
+  height: 18px;
+  margin-inline: 4px;
+  background: var(--line-strong);
+}
+
+/* In the bar the languages stay on one line: the grid measures the sides at their full width. */
+.bar-tools .seg {
+  flex-wrap: nowrap;
+}
+
+/* The place icons and the theme switch: no frame; the place you are in gets the green of a chosen control. */
+.bar-icon {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 36px;
+  height: 36px;
   border-radius: var(--r-md);
   color: var(--muted);
-  font-size: 0.9375rem;
-  font-weight: 500;
-  text-decoration: none;
-  white-space: nowrap;
   transition: color 150ms var(--ease), background-color 150ms var(--ease);
 }
 
-.bar-nav :is(a, button):hover,
-.bar-back:hover {
+.bar-icon svg {
+  width: 18px;
+  height: 18px;
+}
+
+.bar-icon:hover {
   background: var(--wash);
   color: var(--text);
 }
 
-.bar-tools {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-left: auto;
+.bar-icon[aria-current="page"] {
+  background: var(--accent-soft);
+  color: var(--accent);
 }
 
-@media (max-width: 980px) {
+.bar-crumb {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-width: 0;
+  color: var(--faint);
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  animation: vt-rise 300ms var(--ease);
+}
+
+.bar-crumb-n {
+  flex: none;
+  color: var(--accent);
+}
+
+/* Between the group and the page: "CONCEPTS ･ DIAGNOSTICS". */
+.bar-crumb-n::after {
+  content: "\FF65";
+  margin-left: 8px;
+  color: var(--faint);
+}
+
+.bar-crumb-t {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@media (min-width: 900px) {
+  .bar-in {
+    display: grid;
+    grid-template-columns: 1fr minmax(0, max-content) 1fr;
+    gap: 24px;
+  }
+
+  .bar-crumb {
+    display: flex;
+    grid-column: 2;
+  }
+
+  .bar-tools {
+    grid-column: 3;
+    justify-self: end;
+  }
+}
+
+/* Phones: two rows, logo and icons, then the page's controls (the manual's Menu) with languages and
+   theme. The groups dissolve into the row (display: contents), and a full-width item forces the break. */
+@media (max-width: 719px) {
+  .bar-in {
+    padding-block: 0.5rem;
+  }
+
+  .bar-start,
+  .bar-tools {
+    display: contents;
+  }
+
   .bar-nav {
+    order: 1;
+    margin-left: auto;
+  }
+
+  .bar-tools::before {
+    content: "";
+    flex-basis: 100%;
+    order: 2;
+  }
+
+  .bar-start > :not(.bar-brand) {
+    order: 3;
+  }
+
+  .bar-tools .seg {
+    order: 4;
+    margin-left: auto;
+  }
+
+  .bar-tools > .bar-icon {
+    order: 5;
+  }
+
+  .bar-sep {
     display: none;
   }
 }
 
-@media (max-width: 720px) {
-  .bar-in {
+/* The hint: under the bar, over the page. It opens downwards and leans on the right: the green name
+   under the control (--r, from SiteBar.jsx), the description on its left; from control to control it slides.
+   Its own colours set it apart from the bar: green turning to cyan, with a glow and a lit hairline
+   under the control (--hx). */
+@property --hx {
+  syntax: "<length>";
+  inherits: true;
+  initial-value: 0px;
+}
+
+.bar-hint {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  left: 0;
+  border-top: 1px solid var(--line-soft);
+  border-bottom: 1px solid var(--line-soft);
+  background:
+    radial-gradient(260px 140% at var(--hx) 0, var(--hint-glow), transparent),
+    linear-gradient(90deg, var(--hint-bg), var(--hint-bg-2));
+  box-shadow: 0 16px 28px -20px var(--hint-shadow);
+  clip-path: inset(0 0 100% 0);
+  visibility: hidden;
+  pointer-events: none;
+  transition: clip-path 220ms var(--ease), visibility 0s linear 220ms;
+}
+
+/* The hairline: a lit stretch of the top edge, green to cyan, centred under the control. */
+.bar-hint::before {
+  content: "";
+  position: absolute;
+  top: -1px;
+  right: 0;
+  left: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--accent), var(--hint-line-2), transparent) no-repeat;
+  background-position-x: calc(var(--hx) - 120px);
+  background-size: 240px 100%;
+}
+
+/* Open, the clip leaves room below for the shadow. */
+.bar-hint[data-open] {
+  clip-path: inset(0 0 -40px 0);
+  visibility: visible;
+  pointer-events: auto;
+  transition-delay: 0s;
+}
+
+.bar-hint[data-open][data-slide] {
+  transition: clip-path 220ms var(--ease), visibility 0s, --hx 220ms var(--ease);
+}
+
+.bar-hint-text {
+  display: flex;
+  flex-direction: row-reverse;
+  align-items: baseline;
+  gap: 12px;
+  width: fit-content;
+  max-width: calc(100% - var(--r, 0px));
+  margin-left: auto;
+  padding-block: 12px;
+  color: var(--muted);
+  font-size: 0.875rem;
+  line-height: 1.5;
+  text-align: right;
+  /* Two properties: `translate` puts it under the control, `transform` lets it drop in. */
+  translate: calc(-1 * var(--r, 0px)) 0;
+  transform: translateY(-6px);
+  opacity: 0;
+  transition: transform 220ms var(--ease), opacity 220ms var(--ease);
+}
+
+.bar-hint[data-open] .bar-hint-text {
+  transform: none;
+  opacity: 1;
+}
+
+/* Opening, the text is already in place; it slides only from one control to the next. */
+.bar-hint[data-slide] .bar-hint-text {
+  transition: translate 220ms var(--ease), transform 220ms var(--ease), opacity 220ms var(--ease);
+}
+
+.bar-hint-name {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 7px;
+  color: var(--accent);
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* The logo's "%" before a language's name. */
+.bar-hint-mark {
+  flex: none;
+  width: 15px;
+  height: 14px;
+  fill: currentColor;
+}
+
+/* Small screens: the controls sit on two rows, so the hint just takes the whole width, name first.
+   A long name (a language's) sends the description to the line below. */
+@media (max-width: 719px) {
+  .bar-hint-text {
+    flex-direction: row;
     flex-wrap: wrap;
-    gap: 8px 16px;
-    padding-block: 0.5rem;
+    row-gap: 2px;
+    width: auto;
+    max-width: none;
+    margin-left: 0;
+    text-align: left;
+    translate: none;
+  }
+
+  .bar-hint-desc {
+    flex: 1 1 14rem;
   }
 }
 

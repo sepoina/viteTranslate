@@ -12,7 +12,8 @@ import Nav from "./Nav.jsx";
 import Outro from "./Outro.jsx";
 import Starters from "./Starters.jsx";
 import Steps from "./Steps.jsx";
-import { initMotion } from "./motion.js";
+import { initMotion, scrollToSection } from "./motion.js";
+import { SECTIONS } from "./sections.js";
 
 export default function App() {
   const root = useRef(null);
@@ -24,6 +25,18 @@ export default function App() {
   }, [id]);
 
   useEffect(() => initMotion(root.current), []);
+
+  // ?section=demos: the Demos icon of the site bar, from the other pages (a hash would end up on the
+  // playground, see main.jsx). Read once, then dropped from the address; the scroll waits for the fonts.
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const name = params.get("section");
+    if (!name) return;
+    params.delete("section");
+    const rest = params.toString();
+    history.replaceState(history.state, "", `${location.pathname}${rest ? `?${rest}` : ""}`);
+    if (Object.hasOwn(SECTIONS, name)) document.fonts.ready.then(() => scrollToSection(name));
+  }, []);
 
   return (
     <div ref={root}>

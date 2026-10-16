@@ -77,6 +77,13 @@
   --badge-ink: var(--bg);
   --logo-filter: brightness(2.1); /* il logo è grigio (#78788a): qui si schiarisce */
   --bar-bg: rgba(11, 15, 13, 0.86);
+  /* The hint under the bar (SiteBar.jsx): from the accent's green to its turn towards cyan, a glow
+     under the control the pointer is on, and a hairline lit there in the same two colours. */
+  --hint-bg: #10291e;
+  --hint-bg-2: #0e2329;
+  --hint-glow: rgba(74, 222, 128, 0.12);
+  --hint-line-2: #22d3ee;
+  --hint-shadow: rgba(0, 0, 0, 0.5);
 
   /* Le demo da cui partire (landing): fondo e glifo della card secondo la versione di Vite. Vite 8
      ha il verde del sito, Vite 7 un ambra: si distinguono a colpo d'occhio, senza un'etichetta. */
@@ -165,6 +172,11 @@
     --chip-dashed: #c9cbc3;
     --logo-filter: brightness(0.35);
     --bar-bg: rgba(246, 245, 240, 0.88);
+    --hint-bg: #e0f3e6;
+    --hint-bg-2: #dbeff2;
+    --hint-glow: rgba(255, 255, 255, 0.7);
+    --hint-line-2: #0891b2;
+    --hint-shadow: rgba(17, 21, 19, 0.14);
     --vite8-wash: rgba(20, 122, 58, 0.09);
     --vite8-glyph: rgba(20, 122, 58, 0.13);
     --vite7-wash: rgba(180, 83, 9, 0.08);
@@ -218,6 +230,11 @@
   --chip-dashed: #c9cbc3;
   --logo-filter: brightness(0.35);
   --bar-bg: rgba(246, 245, 240, 0.88);
+  --hint-bg: #e0f3e6;
+  --hint-bg-2: #dbeff2;
+  --hint-glow: rgba(255, 255, 255, 0.7);
+  --hint-line-2: #0891b2;
+  --hint-shadow: rgba(17, 21, 19, 0.14);
   --vite8-wash: rgba(20, 122, 58, 0.09);
   --vite8-glyph: rgba(20, 122, 58, 0.13);
   --vite7-wash: rgba(180, 83, 9, 0.08);

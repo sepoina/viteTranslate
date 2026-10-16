@@ -1,8 +1,8 @@
 #  -------------------------------------------------
 #      italiano (Italia) (sourceLanguage)
 #       |    code: it-IT
-#       |    missing key: 0
-#       |    processed: 2026-10-09 12:29
+#       |    missing key: 12
+#       |    processed: 2026-10-15 23:21
 #       |    TableVersion: 260905
 #  -------------------------------------------------
 #
@@ -89,7 +89,6 @@ StrengthsSection_qebam7: "<strong>Da Vite 5 a Vite 8, stesso codice.</strong> Ro
 StrengthsSection_wv4ype: "<strong>Sincronizzazione automatica delle tabelle.</strong> Un solo comando aggiorna tutte le lingue e segnala cosa resta da tradurre."
 StrengthsSection_ww3koi: "<strong>Il testo resta nel JSX, variabili e tag compresi.</strong> Nessuna chiave da creare o gestire a mano."
 ThemeToggle_1i35buc: "Cambia tema"
-TopBar_1dz7foh: "Tutte le demo"
 ZZZsnippetList_1231a9k: "<code>&lt;Trans&gt;</code> restituisce nodi React: non può essere usato in attributi HTML che richiedono una stringa semplice, come <code>placeholder</code>, <code>aria-label</code> o <code>title</code>. In questi casi serve l'hook <code>useTrans()</code>, chiamato come template — <code>trans&#96;Scrivi a $&#123;nome}&#96;</code> — che risolve la stessa traduzione ma restituisce una stringa primitiva. Questi attributi non sono visibili come testo a schermo: per vederli tradotti ispeziona l'elemento con F12."
 ZZZsnippetList_1ba68a8: "Con l’opzione <code>autoWrap</code> accesa non serve nemmeno <code>&lt;Trans&gt;</code>: un testo marcato — anche con un tag o un valore in mezzo — diventa da solo la chiamata giusta, niente <code>trans()</code> a mano. I casi che non copre sono nella pagina dei casi limite."
 ZZZsnippetList_1cpi6bi: "autoWrap: marcatori senza componente"
@@ -110,3 +109,17 @@ ZZZsnippetList_lu6qcc: "L'hook useTransLanguage() espone in un colpo solo la lin
 ZZZsnippetList_nesane: "Numeri, valute e date (ICU)"
 ZZZsnippetList_ns6u8j: "Un tag del dialetto senza attributi (<code>&lt;b&gt;</code>, <code>&lt;i&gt;</code>, <code>&lt;code&gt;</code>, <code>&lt;br&gt;</code>…) resta testo, e chi traduce lo sposta dove serve. Un link o un componente diventano invece uno slot numerato: l'attributo resta nel codice, mai nella traduzione."
 ZZZsnippetList_ska6o3: "Cambio lingua"
+
+#  ----to be translated------------------------------------------
+SiteBar_135b08s: "La pagina principale: viteTranslate in un colpo d'occhio."
+SiteBar_16pt5e6: "Il manuale: installazione, API, CLI e traduzione con un LLM."
+SiteBar_184491n: "Passa al tema scuro: la scelta vale per tutto il sito."
+SiteBar_1lekqar: "Il codice sorgente, le issue e le release."
+SiteBar_6hzcks: "Sezioni del sito"
+SiteBar_a5sjad: "Passa al tema chiaro: la scelta vale per tutto il sito."
+SiteBar_boj2og: "Home"
+SiteBar_d55hvs: "Demo"
+SiteBar_njusnx: "Giocaci nel mondo reale: playground, casi limite e un ristorante tradotto da un LLM."
+SiteBar_x7movm: "Tema"
+SiteBar_z8si1s: "Documentazione"
+TopBar_9nwoa2: "Playground"

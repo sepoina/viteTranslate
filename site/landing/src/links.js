@@ -1,3 +1,4 @@
+// LINKED-DATA: the same address is REPO in site/theme/SiteBar.jsx (the GitHub icon of the bar).
 export const REPO = "https://github.com/sepoina/viteTranslate";
 export const NPM = "https://www.npmjs.com/package/@sepoina/vitetranslate";
 // Il manuale è un'altra pagina del sito: il suo indirizzo è siteUrl("docs") (siteLinks.js, che non si importa da qui:

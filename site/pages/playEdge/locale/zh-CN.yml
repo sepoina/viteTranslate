@@ -1,8 +1,8 @@
 #  -------------------------------------------------
 #      中文（中国）
 #       |    code: zh-CN
-#       |    missing key: 0
-#       |    processed: 2026-10-09 12:30
+#       |    missing key: 12
+#       |    processed: 2026-10-15 23:21
 #       |    TableVersion: 260905
 #  -------------------------------------------------
 #
@@ -17,7 +17,6 @@ App_aj0s62: "如何阅读表格 ↓"
 App_iy34f8: "<code>🔸</code>（此处未翻译）和 <code>🔹</code>（其他语言未翻译）不在表中列出：它们取决于语言文件的状态，而非某一行。<code>‼️</code>、<code>🚫</code> 和 <code>⁇</code> 则属于预期结果的一部分。"
 App_j4wz87: "每个边界情况，<em>实时呈现</em>"
 App_onj53g: "每行一个案例：你写了什么、viteTranslate 实际渲染了什么、你期望得到什么。每个类别中，推荐写法排在最前，错误排在最后。"
-App_xheo4s: "← viteTranslate：全部演示"
 autoWrapCases_1088ozj: "4. 属性，直接写法"
 autoWrapCases_11rvr1h: "您有 %s 条消息"
 autoWrapCases_13430ki: "在 {messaggi} 条消息中搜索"
@@ -319,3 +318,17 @@ testCases_yv9uvt: "复数：一"
 testCases_zmrpz5: "a 空数组"
 testCases_zzrrzd: "%s 空字符串"
 ThemeToggle_1i35buc: "切换主题"
+
+#  ----to be translated------------------------------------------
+App_1hvf06c: null
+SiteBar_135b08s: null
+SiteBar_16pt5e6: null
+SiteBar_184491n: null
+SiteBar_1lekqar: null
+SiteBar_6hzcks: null
+SiteBar_a5sjad: null
+SiteBar_boj2og: null
+SiteBar_d55hvs: null
+SiteBar_njusnx: null
+SiteBar_x7movm: null
+SiteBar_z8si1s: null

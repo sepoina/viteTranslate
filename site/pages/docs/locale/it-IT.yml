@@ -1,15 +1,14 @@
 #  -------------------------------------------------
 #      italiano (Italia)
 #       |    code: it-IT
-#       |    missing key: 4
-#       |    processed: 2026-10-14 18:40
+#       |    missing key: 255
+#       |    processed: 2026-10-15 23:59
 #       |    TableVersion: 260905
 #  -------------------------------------------------
 #
 App_1532kg4: "Pagina non trovata"
 App_15xaas1: "Lingua della pagina"
 App_1bbt83l: "Menu"
-App_1usxgxi: "← viteTranslate"
 App_416i43: "Cambia tema"
 App_lmffm8: "Torna alla panoramica"
 App_ni4cxp: "Questo indirizzo non è nel manuale."
@@ -610,6 +609,7 @@ overview_z197qr: "Scrivi il testo in modo naturale in JSX. viteTranslate estrae 
 overview_z781et: "Dimensione del runtime"
 PageNav_1dxgcmp: "← Precedente"
 PageNav_1v03yl3: "Successivo →"
+PageTools_i9jd79: "Modifica questa pagina su GitHub"
 panel_102bbjq: "Riquadro e cornice"
 panel_10ci3g7: "Passa il mouse su una voce per i dettagli: quali lingue mancano, cosa ha detto l'estrazione."
 panel_10l9zpg: "<i>non sincronizzato</i>: non ancora nei file di lingua. Esegui la sincronizzazione (questo è quello del pannello stesso)"
@@ -887,6 +887,7 @@ providers_2rzthv: "Il client integrato parla la forma Chat Completions ({0}, l'u
 providers_3tj8mp: "Con quali modelli parla il client integrato, e come collegare qualsiasi altra API con il tuo driver."
 providers_6jcbbz: "Per un'API che non parla Chat Completions, o per passare da una libreria client, fornisci una tua {0}: una funzione, sincrona o asincrona, che riceve {1} (puoi ignorare {2} se vuoi) e restituisce {3} oppure {4}. {5} è {6}, più {7} e {8} se li hai: un {9} viene contato al posto dei tuoi prezzi. Lancia un errore con un {10} per ottenere la gestione integrata: 429 e 5xx vengono ritentati, 401/403/404 <11>fermano il run</11>. Con un driver, {12} e {13} non sono obbligatori. Ad esempio, con l'<14>SDK Vercel AI</14>:"
 providers_ld3477: "Qualsiasi altra cosa: vedi <0>Provider Vercel opzionale</0>."
+Rail_1k9rm1f: "Torna in cima"
 running_10dce2y: "Ogni flag LLM inizia con {0}, e uno non riconosciuto in quello namespace è un errore, non una sync silenziosa. Quali combinazioni vengono rifiutate: <1>guida CLI</1>."
 running_10y4iix: "Prima di spendere qualsiasi cosa, l'esecuzione fa i compiti: la sync con cui inizia (si ferma con gli stessi messaggi della <0>sync</0>, scansione incompleta inclusa) e, per {1}, un backup di ogni tabella che sta per sovrascrivere. Se una delle due fallisce, <b>nessuna richiesta viene inviata</b>, nemmeno l'abstract del contesto."
 running_13147xa: "Fa"
@@ -1003,8 +1004,6 @@ setup_zhw51j: "niente da disattivare: non ragiona"
 Sidebar_1684n44: "Navigazione del manuale"
 ThemeToggle_1i35buc: "Cambia tema"
 Toc_1cxbknc: "In questa pagina"
-Toc_emb6cx: "Modifica questa pagina su GitHub"
-Toc_gv3lqf: "Torna in cima"
 translate_1288f6y: "una stringa non marcata, con {0}"
 translate_13n4ic1: "la traduzione"
 translate_14byyby: "{0}, {1}"
@@ -1217,7 +1216,258 @@ usetranslatetostring_k80zyw: "🎮 Live: <0>placeholder e attributi</0>."
 usetranslatetostring_vt05bq: "Deve restituire una stringa primitiva, quindi un <b>elemento React</b> è l'unica forma che non accetta: un vero errore, con un messaggio tutto suo. Altri valori non testuali (una funzione, un symbol, un elemento dentro la tupla) restituiscono {0} con un avviso in console in sviluppo, come in {1}."
 
 #  ----to be translated------------------------------------------
+App_18c0vxx: null
+App_1fsngz: null
+App_1fxjmx: null
+App_1hsx4ur: null
+App_1p1x3pl: null
+App_1pgweap: null
+App_b8cca0: null
+App_cqjojs: null
+App_k05e2f: null
+App_q3p365: null
+App_y5y9qe: null
+PageNav_1j6n2wn: null
+PageTools_188sz8i: null
+PageTools_e63n7k: null
+PageTools_vavqg8: null
+related_10581ti: null
+related_10m99v5: null
+related_10n7dhl: null
+related_10s10u7: null
+related_10uopsm: null
+related_11idmlk: null
+related_11lcmj7: null
+related_11xlc7a: null
+related_121jhmn: null
+related_126g7le: null
+related_12b5pts: null
+related_12h8je0: null
+related_13awptm: null
+related_13ln853: null
+related_13ltyax: null
+related_13n5503: null
+related_13u9ce2: null
+related_14prhti: null
+related_151l80s: null
+related_155lc9n: null
+related_15d0z97: null
+related_15n83k3: null
+related_15ou1sy: null
+related_164fb3j: null
+related_167bzrw: null
+related_173brrx: null
+related_179jbm2: null
+related_193guhx: null
+related_1964pt: null
+related_19bwfed: null
+related_19ptx6r: null
+related_1aesynu: null
+related_1bbjgs8: null
+related_1c8xwmo: null
+related_1cgbze1: null
+related_1cjviy5: null
+related_1cv22md: null
+related_1d026bt: null
+related_1d70emo: null
+related_1ddxcf5: null
+related_1do2e2t: null
+related_1du8hzc: null
+related_1eabc12: null
+related_1ejo1i8: null
+related_1ennv77: null
+related_1exp9ru: null
+related_1eywjfi: null
+related_1f09ocu: null
+related_1fd76lb: null
+related_1ffeeww: null
+related_1fhwyyg: null
+related_1fk9096: null
+related_1fo64uf: null
+related_1giiht: null
+related_1h44593: null
+related_1hhi486: null
+related_1hx7l1q: null
+Related_1ibpy2m: null
+related_1iju3xk: null
+related_1ikitct: null
+related_1iwgszg: null
+related_1ixkok2: null
+related_1jepw5b: null
+related_1jpuh8t: null
+related_1jrgjue: null
+related_1jt3vgl: null
+related_1juoizf: null
+related_1jwzght: null
+related_1jyxurr: null
+related_1k5sicp: null
+related_1k8l6zw: null
+related_1kez5nv: null
+related_1kw32hv: null
+related_1l7n1v5: null
+related_1laaop8: null
+related_1lb5dza: null
+related_1m1sxkx: null
+related_1m3x81p: null
+related_1mfficn: null
+related_1mgqn10: null
+related_1mvp2fc: null
+related_1n0650i: null
+related_1n1nhm6: null
+related_1n5x008: null
+related_1nczla5: null
+related_1nhu9a: null
+related_1nooxmx: null
+related_1nrtj84: null
+related_1og86ag: null
+related_1otqg7v: null
+related_1ov5aex: null
+related_1pgf20f: null
+related_1qf3yjn: null
+related_1qzqzks: null
+related_1r3831l: null
+related_1r4ic7l: null
+related_1r9hrxf: null
+related_1rftdoi: null
+related_1sciybk: null
+related_1smhra5: null
+related_1smusup: null
+related_1t82hks: null
+related_1tf9uwm: null
+related_1tgsadu: null
+related_1tmbb0a: null
+related_1ud3bdm: null
+related_1v04fb: null
+related_1v6s6n3: null
+related_1w29rim: null
+related_1wa5me1: null
+related_1wdr9yf: null
+related_1wmz6ui: null
+related_1wo9l6l: null
+related_1wxfsh6: null
+related_1wye925: null
+related_1xcd1vd: null
+related_1xm8v8t: null
+related_1xon81c: null
+related_1yqhznk: null
+related_1yza9ku: null
+related_272tht: null
+related_2a7br8: null
+related_2ahzrs: null
+related_2dxel3: null
+related_2rlu2k: null
+related_2x5j0x: null
+related_3gh2yk: null
+related_3r4892: null
+related_3sokb9: null
+related_4h2273: null
+related_4htipq: null
+related_4zuw0u: null
+related_5ngxxx: null
+related_6ezrdg: null
+related_6nga0c: null
+related_7azczz: null
+related_7uo3ky: null
+related_85l3i9: null
+related_8j4p2s: null
+related_8v0xj6: null
+related_8xxc65: null
+related_93hapf: null
+related_958kcw: null
+related_98xvfl: null
+related_9hy2t2: null
+related_9jyy9e: null
+related_9lwphr: null
+related_9vof6e: null
+related_9wxtrr: null
+related_abafpg: null
+related_aecsd4: null
+related_be4p1r: null
+related_bjon4w: null
+related_bpd8g7: null
+related_bqdexl: null
+related_c8w0pc: null
+related_ciz59j: null
+related_cuzi9c: null
+related_d48mkj: null
+related_dpndau: null
+related_e315uy: null
+related_eebe0y: null
+related_elxl5y: null
+related_eytvo4: null
+related_f5sq6l: null
+related_ffnzxq: null
+related_fugjmj: null
+related_g0cx14: null
+related_hfqr5l: null
+related_hyfy4q: null
+related_i3p0ru: null
+related_i4ds0k: null
+related_ibnabd: null
+related_izrc62: null
+related_j1o1o: null
+related_j5cue1: null
+related_j9m5ln: null
+related_jc7j2t: null
+related_jfdi1m: null
+related_jwg9cn: null
+related_kziv5a: null
+related_ld436z: null
+related_luo5u9: null
+related_m2wdcs: null
+related_m72q2x: null
+related_m86to2: null
+related_m8b7c1: null
+related_m9c853: null
+related_n9pacb: null
+related_naabmg: null
+related_odcael: null
+related_ous2i5: null
+related_p5ola8: null
+related_pcp87h: null
+related_pfhtub: null
+related_po35h4: null
+related_q0s5s: null
+related_qd3kov: null
+related_ql49ek: null
+related_qx3rrl: null
+related_raj63p: null
+related_sgiipp: null
+related_syj2qp: null
+related_tdjueq: null
+related_tj6liu: null
+related_uq1gvt: null
+related_ursfvr: null
+related_uxpjmv: null
+related_v32h7: null
+related_vlvlf3: null
+related_vx10nx: null
+related_w7g33o: null
+related_wae93a: null
+related_waor74: null
+related_x9kucg: null
+related_xi0r9t: null
+related_yiwfm: null
+related_ylwnjj: null
+related_yuepnq: null
+related_yyqzu3: null
+related_z50cy8: null
+related_zr7xv1: null
+related_zu1v59: null
+related_zvqoxu: null
+related_zzgyih: null
 setup_1mx6udd: null
 setup_2gcdjy: null
 setup_c2glec: null
 setup_duh6bk: null
+SiteBar_135b08s: null
+SiteBar_16pt5e6: null
+SiteBar_184491n: null
+SiteBar_1lekqar: null
+SiteBar_6hzcks: null
+SiteBar_a5sjad: null
+SiteBar_boj2og: null
+SiteBar_d55hvs: null
+SiteBar_njusnx: null
+SiteBar_x7movm: null
+SiteBar_z8si1s: null

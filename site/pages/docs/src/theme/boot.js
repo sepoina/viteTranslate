@@ -13,3 +13,8 @@ export function applySavedTheme() {
     /* storage bloccato: vale il tema del sistema */
   }
 }
+
+/** The theme in use: the one chosen on the site, or the system's. */
+export function currentTheme() {
+  return document.documentElement.dataset.theme ?? (matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark");
+}

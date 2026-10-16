@@ -128,6 +128,9 @@ sources:
 aliases:
   - llm/costs
   - llm/costs#budget -> budget-caps
+related:
+  - /llm/setup#tested-endpoints | Tested endpoints | The providers run end to end, with the settings each one needs.
+  - /api/plugin-options#llm | The llm option | How the plugin checks the LLM settings at startup.
 ---
 ```
 
@@ -135,6 +138,7 @@ aliases:
 - `description` (required, plain text, one sentence). Shown under the `<h1>` and as `<meta name="description">`.
 - `sources` (required, at least one): repo-relative paths of files that define what the page describes. They must exist. No globs.
 - `aliases` (optional): old addresses that must keep working. `route` = an old page route that redirects here. `route#old -> new` = an old anchor that now lives at `#new` on this page; `route` may be a page that still exists (a section moved between two pages): the router follows `src/generated/aliases.json` (see `site/README.md`, "The manual").
+- `related` (optional, at most 7): "On the same topic" in the right column, one line each: `/section/page#id | label | detail` (the `#id` is optional). The target must be another page or one of its current sections (ids kept only by `aliases:` are errors). `label` is the link's text and `detail` a sentence on what is there, shown in the column's helper line on hover (under 1280 px, under the label): both plain text, no emoji, and translated. They all go to `src/generated/related.js`, so the same sentence on two pages is one key. Following one remembers the page the reader came from: "Previous" then goes back there through the history.
 - Parser: line based. `key: value` for scalars, `key:` followed by `  - item` lines for lists. Nothing else is accepted (no nested maps, no quotes needed, no multiline values).
 
 ### Blocks

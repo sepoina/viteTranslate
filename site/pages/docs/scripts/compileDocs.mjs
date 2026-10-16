@@ -23,7 +23,9 @@ const UI = "../../../ui/index.js";
 const SPECIAL = /_%_|%s|[{}<>&]/g;
 const LANGS = new Set(["jsx", "js", "ts", "tsx", "yaml", "sh", "bash", "json", "text"]);
 const ALERTS = new Set(["note", "tip", "important", "warning", "caution"]);
-const FRONT_KEYS = { title: "scalar", description: "scalar", sources: "list", aliases: "list" };
+const FRONT_KEYS = { title: "scalar", description: "scalar", sources: "list", aliases: "list", related: "list" };
+// "On the same topic", in the right column: links to other pages of the manual, at most this many.
+const RELATED_MAX = 7;
 const ROUTE_RE = /^[a-z0-9-]+\/[a-z0-9-]+$/;
 
 /** Un id di sezione valido: `[a-z0-9-]+`. */
@@ -93,7 +95,7 @@ export function jsonSubtree(text, key) {
 // Il frontmatter: `key: value` per gli scalari, `key:` più righe `  - voce` per le liste. Nient'altro.
 function parseFront(lines, fail) {
   if (lines[0] !== "---") fail(1, 'the file must start with the frontmatter ("---")');
-  const front = { title: "", description: "", sources: [], sourceLines: [], aliases: [] };
+  const front = { title: "", description: "", sources: [], sourceLines: [], aliases: [], related: [] };
   const seen = new Set();
   let key = null;
   let i = 1;
@@ -111,6 +113,11 @@ function parseFront(lines, fail) {
         if (chiave !== null && !(file.endsWith(".json") && /^[\w$@-]+(\.[\w$@-]+)*$/.test(chiave))) fail(n, `source "${p}": only a JSON file takes a selector (file.json#key, nested with .)`);
         front.sources.push(p);
         front.sourceLines.push(n);
+      } else if (key === "related") {
+        const r = parseRelated(m[1].trim(), n, fail);
+        if (front.related.some((x) => x.raw === r.raw)) fail(n, `related "${r.raw}" is listed twice`);
+        if (front.related.length === RELATED_MAX) fail(n, `related: at most ${RELATED_MAX} entries`);
+        front.related.push(r);
       } else front.aliases.push(parseAlias(m[1].trim(), n, fail));
       continue;
     }
@@ -141,6 +148,17 @@ function parseAlias(s, line, fail) {
   m = /^([a-z0-9-]+\/[a-z0-9-]+)#([a-z0-9-]+) *-> *([a-z0-9-]+)$/.exec(s);
   if (m) return { raw: s, route: m[1], old: m[2], to: m[3], line };
   return fail(line, `alias "${s}": expected \`section/page\` or \`section/page#old -> new\``);
+}
+
+// A related entry: `/section/page#id | label | detail`. The target is another page or one of its
+// sections; the label is the link's text, the detail a sentence the right column shows on hover. Both
+// plain text, like a title: they are translated (src/generated/related.js holds them all, so the same
+// sentence on two pages is one key).
+function parseRelated(s, line, fail) {
+  const m = /^\/([a-z0-9-]+\/[a-z0-9-]+)(?:#([a-z0-9-]+))? *\| *([^|]+?) *\| *([^|]+?)$/.exec(s);
+  if (!m) fail(line, `related "${s}": expected /section/page#id | label | detail`);
+  const raw = `/${m[1]}${m[2] ? `#${m[2]}` : ""}`;
+  return { raw, route: m[1], id: m[2] ?? null, label: plainText(m[3], line, fail, "related label"), detail: plainText(m[4], line, fail, "related detail"), line };
 }
 
 // Titolo, descrizione, alt: testo semplice, senza markdown e senza sequenze speciali.
@@ -708,6 +726,13 @@ function validate(pages, { root, repo }) {
         if (!existsSync(join(repo, l.path))) err(p.file, l.line, `link "repo:${l.path}": no such file in the repo`);
       }
     }
+    // Current sections only: an old id kept by `aliases:` still works as an address, but not as a fresh link.
+    for (const r of front.related) {
+      const t = byRoute.get(r.route);
+      if (r.route === p.route) err(p.file, r.line, `related "${r.raw}": this page itself (related links lead elsewhere)`);
+      else if (!t) err(p.file, r.line, `related "${r.raw}": no such page`);
+      else if (r.id && !pageIds(t.parsed.blocks).includes(r.id)) err(p.file, r.line, `related "${r.raw}": no such section`);
+    }
     for (const b of blocks) {
       if (b.type === "figure") {
         const file = join(root, "public", b.src);
@@ -763,6 +788,22 @@ function sweep(dir, keep) {
 }
 
 /**
+ * src/generated/related.js: "On the same topic" of every page, route -> [{ route, id, label, detail }].
+ * One module for all of them: the same marked sentence twice in one file is one key, translated once.
+ * @param {{ route: string, parsed: { front: { related: object[] } } }[]} pages
+ */
+export function emitRelated(pages) {
+  const marked = (s) => JSON.stringify(`${DELIM}${s}${DELIM}`);
+  const rows = pages
+    .filter((p) => p.parsed.front.related.length)
+    .map((p) => {
+      const items = p.parsed.front.related.map((r) => `    { route: ${JSON.stringify(r.route)}, id: ${JSON.stringify(r.id)}, label: ${marked(r.label)}, detail: ${marked(r.detail)} },`);
+      return `  ${JSON.stringify(p.route)}: [\n${items.join("\n")}\n  ],`;
+    });
+  return `// GENERATO da scripts/compileDocs.mjs dai \`related:\` delle pagine: non modificare.\nexport const RELATED = {\n${rows.join("\n")}\n};\n`;
+}
+
+/**
  * Legge content/, valida tutto, scrive src/generated/.
  * @param {{ root?: string, log?: (line: string) => void }} [opzioni] `root`: la cartella della pagina (nei test, una finta)
  * @returns {{ routes: object[], errors: string[], written: number }}
@@ -795,7 +836,7 @@ export function compileDocs({ root = PAGE_DIR, log = console.error } = {}) {
   }
 
   const gen = join(root, "src/generated");
-  const keep = new Set([join(gen, "routes.js"), join(gen, "routes.json"), join(gen, "aliases.json")]);
+  const keep = new Set([join(gen, "routes.js"), join(gen, "routes.json"), join(gen, "aliases.json"), join(gen, "related.js")]);
   const realRoutes = new Set(pages.map((p) => p.route));
   const sizeOf = (src) => imageSize(readFileSync(join(root, "public", src)));
   // "route#old" -> "nuova/route#new": le sezioni passate da una pagina all'altra, che il router segue (aliases.json)
@@ -816,6 +857,7 @@ export function compileDocs({ root = PAGE_DIR, log = console.error } = {}) {
   if (writeIfChanged(join(gen, "routes.js"), js)) written++;
   if (writeIfChanged(join(gen, "routes.json"), `${JSON.stringify(routes, null, 2)}\n`)) written++;
   if (writeIfChanged(join(gen, "aliases.json"), `${JSON.stringify(aliases, null, 2)}\n`)) written++;
+  if (writeIfChanged(join(gen, "related.js"), emitRelated(pages))) written++;
   sweep(join(gen, "pages"), keep);
   return { routes, errors: [], written };
 }

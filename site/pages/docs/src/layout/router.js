@@ -7,6 +7,7 @@ import ALIASES from "../generated/aliases.json";
 
 /** La base della pagina: "/" in dev, "/viteTranslate/docs/" nel sito pubblicato. */
 export const BASE = import.meta.env.BASE_URL;
+// LINKED-DATA: the same address is REPO in site/theme/SiteBar.jsx (the GitHub icon of the bar).
 export const REPO = "https://github.com/sepoina/viteTranslate";
 /** La pagina che si apre alla radice del manuale. */
 export const DEFAULT_ROUTE = "getting-started/overview";
@@ -47,13 +48,26 @@ export function routeOf(pathname) {
 /** La route corrente, per esempio "llm/price". */
 export const currentRoute = () => routeOf(location.pathname);
 
-/** Va a un indirizzo del manuale (assoluto, o solo "#id" per la pagina corrente) senza ricaricare. */
-export function navigate(href) {
+/**
+ * Va a un indirizzo del manuale (assoluto, o solo "#id" per la pagina corrente) senza ricaricare.
+ * `from`: the page the reader jumps away from ("On the same topic"); the new history entry keeps it, so
+ * "Previous" can lead back there. A jump inside the same page keeps the entry's `from` and counts itself
+ * (`steps`), so going back skips the sections read in between.
+ */
+export function navigate(href, from) {
   const url = new URL(href, location.href);
-  history.pushState(null, "", url.pathname + url.search + url.hash);
+  const samePage = url.pathname === location.pathname;
+  const state = samePage ? (history.state?.from ? { ...history.state, steps: (history.state.steps ?? 0) + 1 } : null) : from ? { from, steps: 0 } : null;
+  history.pushState(state, "", url.pathname + url.search + url.hash);
   tick++;
   notify();
 }
+
+/** The page the reader came from through "On the same topic", if this history entry has one. */
+export const cameFrom = () => history.state?.from ?? null;
+
+/** Back to that page: as many entries back as the jumps made inside this one, plus one. */
+export const goBack = () => history.go(-((history.state?.steps ?? 0) + 1));
 
 /**
  * La sezione che ha preso il posto di `route#hash` (una sezione spostata in un'altra pagina, `aliases:` nel
@@ -64,7 +78,7 @@ export const movedTo = (route, hash) => ALIASES[`${route}#${hash}`];
 /** Sostituisce l'indirizzo corrente con `target` ("route#id") senza aggiungere una voce alla cronologia. */
 export function replaceTo(target) {
   const [route, id] = target.split("#");
-  history.replaceState(null, "", `${BASE}${route}/${id ? `#${id}` : ""}`);
+  history.replaceState(history.state, "", `${BASE}${route}/${id ? `#${id}` : ""}`);
   tick++;
   notify();
 }

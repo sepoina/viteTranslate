@@ -1,8 +1,8 @@
 #  -------------------------------------------------
 #      中文（中国）
 #       |    code: zh-CN
-#       |    missing key: 0
-#       |    processed: 2026-10-09 12:29
+#       |    missing key: 12
+#       |    processed: 2026-10-15 23:21
 #       |    TableVersion: 260905
 #  -------------------------------------------------
 #
@@ -89,7 +89,6 @@ StrengthsSection_qebam7: "<strong>从 Vite 5 到 Vite 8，同一套代码。</st
 StrengthsSection_wv4ype: "<strong>自动同步翻译表。</strong> 一条命令即可更新所有语言并标出仍需翻译的内容。"
 StrengthsSection_ww3koi: "<strong>文本保留在 JSX 中，包括变量和标签。</strong>无需手动创建或维护键名。"
 ThemeToggle_1i35buc: "切换主题"
-TopBar_1dz7foh: "全部演示"
 ZZZsnippetList_1231a9k: "<code>&lt;Trans&gt;</code> 返回的是 React 节点：不能用在需要普通字符串的 HTML 属性上，比如 <code>placeholder</code>、<code>aria-label</code> 或 <code>title</code>。这些场合需要 <code>useTrans()</code> 这个 hook，以模板形式调用——<code>trans&#96;Write to $&#123;name}&#96;</code>——它解析同样的翻译，但返回的是原始字符串。这些属性在屏幕上看不到文字：用 F12 检查元素才能看到翻译结果。"
 ZZZsnippetList_1ba68a8: "开启 <code>autoWrap</code> 选项后，连 <code>&lt;Trans&gt;</code> 都不需要了：一段标记文本——哪怕中间被标签或变量隔开——都会自动变成正确的调用，无需手写 <code>trans()</code>。它覆盖不到的情况列在边缘用例页面中。"
 ZZZsnippetList_1cpi6bi: "autoWrap：无需组件的标记"
@@ -110,3 +109,17 @@ ZZZsnippetList_lu6qcc: "useTransLanguage() hook 一次性暴露当前语言（id
 ZZZsnippetList_nesane: "数字、货币与日期（ICU）"
 ZZZsnippetList_ns6u8j: "没有属性的方言标签（<code>&lt;b&gt;</code>、<code>&lt;i&gt;</code>、<code>&lt;code&gt;</code>、<code>&lt;br&gt;</code>……）仍然是文本，译者可以把它移到句子需要的位置。链接或组件则变成一个编号的插槽：属性留在代码里，绝不会出现在译文中。"
 ZZZsnippetList_ska6o3: "语言切换"
+
+#  ----to be translated------------------------------------------
+SiteBar_135b08s: null
+SiteBar_16pt5e6: null
+SiteBar_184491n: null
+SiteBar_1lekqar: null
+SiteBar_6hzcks: null
+SiteBar_a5sjad: null
+SiteBar_boj2og: null
+SiteBar_d55hvs: null
+SiteBar_njusnx: null
+SiteBar_x7movm: null
+SiteBar_z8si1s: null
+TopBar_9nwoa2: null

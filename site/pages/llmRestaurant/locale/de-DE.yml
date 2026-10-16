@@ -1,8 +1,8 @@
 #  -------------------------------------------------
 #      Deutsch (Deutschland)
 #       |    code: de-DE
-#       |    missing key: 1
-#       |    processed: 2026-10-05 15:14
+#       |    missing key: 0
+#       |    processed: 2026-10-16 10:31
 #       |    TableVersion: 260905
 #  -------------------------------------------------
 #
@@ -190,6 +190,7 @@ Reviews_1qydt2l: "München"
 Reviews_g2skyf: "Wir kamen für den Sonnenuntergang und gingen um Mitternacht, ohne es zu merken. Das Crudo ist das beste, das ich außerhalb Japans gegessen habe."
 Reviews_gr27ia: "Man sagt über uns"
 Reviews_k9ijos: "Turin"
+Signature_18wzt8x: "Das Gericht, mit dem sich Tommaso bei der Familie vorgestellt hat, nach seiner Rückkehr aus Tokio. Die Bisque kocht sechs Stunden; die Pasta, exakt elf Minuten."
 Signature_19q6eiq: "Drei Gerichte, die wir <i>nie von der Karte nehmen</i>"
 Signature_1b4j51v: "Die Signature-Gerichte"
 Signature_1diq83x: "Spaghettone mit roten Garnelen"
@@ -234,6 +235,3 @@ Tasting_r4v4s2: "Der komplette Weg der Saison, mit zwei Gerichten außerhalb der
 Tasting_vp2dyl: "pro Person"
 Tasting_z3dj42: "Nur am Küchentresen, höchstens sechs Gäste pro Abend. Vor Ihnen wird gekocht, was das Meer an diesem Tag entschieden hat, ohne geschriebene Karte."
 Tasting_z4ilij: "Lassen Sie sich <i>auf die hohe See hinaus</i> tragen"
-
-#  ----to be translated------------------------------------------
-Signature_18wzt8x: null

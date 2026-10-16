@@ -1,8 +1,8 @@
 #  -------------------------------------------------
 #      中文（中国）
 #       |    code: zh-CN
-#       |    missing key: 0
-#       |    processed: 2026-10-14 13:26
+#       |    missing key: 9
+#       |    processed: 2026-10-15 23:21
 #       |    TableVersion: 260905
 #  -------------------------------------------------
 #
@@ -58,11 +58,6 @@ HeroVideo_1wfoiwd: "为什么选择 viteTranslate，以及它的各个部分如�
 HeroVideo_l53cig: "视频"
 LanguageSwitch_gzrcyx: "页面语言"
 Marquee_aimam1: "一份源码，想要多少语言都行。"
-Nav_16qsfmz: "文档"
-Nav_1c4ck8: "对比"
-Nav_1d2o49w: "功能"
-Nav_4py963: "演示"
-Nav_ec11j8: "工作原理"
 Outro_16gmyec: "阅读文档"
 Outro_1e9h002: "一个包，一个插件，vite.config 里加一行。剩下的你会亲眼看到发生。"
 Outro_8zu2qs: "<em>一分钟</em>内翻译你的第一句话。"
@@ -92,6 +87,8 @@ sections_lijk3t: "工作原理"
 sections_q2tajl: "对比"
 sections_qqqkuc: "为什么选择 viteTranslate"
 sections_sf5vqh: "效果如何"
+SiteBar_d55hvs: "演示"
+SiteBar_z8si1s: "文档"
 Starters_135p9nt: "上一组示例"
 Starters_6vy2yj: "点一下即可在 StackBlitz 上运行，就在浏览器里，无需安装。zip 是同一个项目，可在本地打开。"
 Starters_jx8aky: "每个想法一个最小项目。"
@@ -105,3 +102,14 @@ Steps_frrvbq: "写在 JSX 里，需要的地方：变量和标签都包含在内
 Steps_nrgj8g: "写下这句话"
 Steps_q96bco: "三步搞定，<em>零</em>繁琐。"
 ThemeToggle_1i35buc: "切换主题"
+
+#  ----to be translated------------------------------------------
+SiteBar_135b08s: null
+SiteBar_16pt5e6: null
+SiteBar_184491n: null
+SiteBar_1lekqar: null
+SiteBar_6hzcks: null
+SiteBar_a5sjad: null
+SiteBar_boj2og: null
+SiteBar_njusnx: null
+SiteBar_x7movm: null

@@ -11,14 +11,16 @@ export default function LanguageSwitch({ label }) {
   return (
     <div className="seg lang-switch" role="group" aria-label={label ?? trans("_%_Lingua della pagina_%_")}>
       {languages.map(({ tag, languageName }) => (
+        // No title: the site bar shows the language's name in its hint (data-hint), a native tooltip would cover it.
         <button
           key={tag}
           type="button"
-          title={languageName}
+          data-hint={`lang:${tag}`}
           aria-pressed={id === tag}
           onClick={() => id !== tag && proposeNewLanguage({ lang: tag })}
         >
-          {tag.split("-")[0].toUpperCase()}
+          <span aria-hidden="true">{tag.split("-")[0].toUpperCase()}</span>
+          <span className="sr-only">{languageName}</span>
         </button>
       ))}
     </div>

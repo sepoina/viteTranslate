@@ -206,6 +206,6 @@ Each has trade-offs: list them in the plan. **Trigger:** the first report of a b
 
 **Status:** idea. **Origin:** manual v1.
 
-**Facts:** `site/theme/{SiteBar,LanguageSwitch,ThemeToggle}.jsx` keep two Italian marked strings (`Lingua della pagina`, `Cambia tema`). The docs page passes its own labels, but the Italian text still lands in its `en-US` table as a source sentence, and translating it wastes tokens.
+**Facts:** `site/theme/{SiteBar,LanguageSwitch,ThemeToggle}.jsx` keep Italian marked strings as defaults (`Lingua della pagina`, `Cambia tema`, and in `SiteBar` the names and hints of the four icons). The docs page passes its own (`labels`), but the Italian text still lands in its `en-US` table as a source sentence, and translating it wastes tokens.
 
-**Idea:** make `label` required in the theme and let each page pass its own.
+**Idea:** make the labels required in the theme and let each page pass its own.

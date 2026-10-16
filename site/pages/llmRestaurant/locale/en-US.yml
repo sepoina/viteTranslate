@@ -1,8 +1,8 @@
 #  -------------------------------------------------
 #      American English
 #       |    code: en-US
-#       |    missing key: 1
-#       |    processed: 2026-10-05 15:14
+#       |    missing key: 0
+#       |    processed: 2026-10-16 10:31
 #       |    TableVersion: 260905
 #  -------------------------------------------------
 #
@@ -190,6 +190,7 @@ Reviews_1qydt2l: "Munich"
 Reviews_g2skyf: "We came for the sunset and left at midnight without noticing. The raw seafood is the best I've eaten outside Japan."
 Reviews_gr27ia: "What they say about us"
 Reviews_k9ijos: "Turin"
+Signature_18wzt8x: "The dish Tommaso presented to the family when he returned from Tokyo. The bisque cooks for six hours; the pasta, exactly eleven minutes."
 Signature_19q6eiq: "Three dishes we <i>never take off</i> the menu"
 Signature_1b4j51v: "The signature dishes"
 Signature_1diq83x: "Spaghettone with red shrimp"
@@ -234,6 +235,3 @@ Tasting_r4v4s2: "The complete journey of the season, with two off-menu dishes in
 Tasting_vp2dyl: "per person"
 Tasting_z3dj42: "Only at the chef's counter, at most six guests per evening. What the sea decided that day is cooked in front of you, with no written menu."
 Tasting_z4ilij: "Let yourselves be <i>carried offshore</i>"
-
-#  ----to be translated------------------------------------------
-Signature_18wzt8x: null

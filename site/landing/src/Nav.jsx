@@ -1,8 +1,6 @@
 import { useEffect, useState } from "react";
 import { Trans } from "@sepoina/vitetranslate/react";
 import { scrollToSection } from "./motion.js";
-import { REPO } from "./links.js";
-import { siteUrl } from "./siteLinks.js";
 import { SECTIONS } from "./sections.js";
 import SiteBar from "./theme/SiteBar.jsx";
 
@@ -40,45 +38,22 @@ function useCurrentSection() {
   return current;
 }
 
-// La barra del sito (src/theme/SiteBar.jsx): accanto al logo la sezione corrente, poi il menu
-// delle sezioni e, fra gli strumenti, il link a GitHub.
+// The site bar (src/theme/SiteBar.jsx): the section being read goes in the middle. Here the Demos
+// icon does not leave the page, it scrolls to the section.
 export default function Nav() {
   const current = useCurrentSection();
   const section = current ? SECTIONS[current] : null;
 
   return (
     <SiteBar
+      current="home"
       home={import.meta.env.BASE_URL}
-      tools={
-        <a className="bar-gh" href={REPO}>
-          GitHub <span aria-hidden="true">↗</span>
-        </a>
-      }
-    >
-      {/* Ripete il titolo che si sta leggendo: per chi usa un lettore di schermo non aggiunge niente. */}
-      {section && (
-        <span key={current} className="bar-crumb" aria-hidden="true">
-          <span className="bar-crumb-n">{section.n}</span>
-          <Trans t={section.label} />
-        </span>
-      )}
-      <nav className="bar-nav">
-        <button type="button" onClick={() => scrollToSection("features")}>
-          <Trans>_%_Funzioni_%_</Trans>
-        </button>
-        <button type="button" onClick={() => scrollToSection("how")}>
-          <Trans>_%_Come funziona_%_</Trans>
-        </button>
-        <button type="button" onClick={() => scrollToSection("compare")}>
-          <Trans>_%_Confronto_%_</Trans>
-        </button>
-        <button type="button" onClick={() => scrollToSection("demos")}>
-          <Trans>_%_Demo_%_</Trans>
-        </button>
-        <a href={siteUrl("docs")}>
-          <Trans>_%_Documentazione_%_</Trans>
-        </a>
-      </nav>
-    </SiteBar>
+      section={section && { id: current, mark: section.n, label: <Trans t={section.label} /> }}
+      onNavigate={(place, e) => {
+        if (place !== "demos") return;
+        e.preventDefault();
+        scrollToSection("demos");
+      }}
+    />
   );
 }

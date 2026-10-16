@@ -92,19 +92,23 @@ export async function measureRuntime() {
 // Come si scrive il peso nei documenti (regola dell'utente, piano 4.6.3): il peso reale si
 // arrotonda per difetto al kB (5,4 kB -> "5 kB"); nei confronti vale il kB superiore con "<"
 // (5,4 kB -> "<6 kB"; 5,0 kB esatti -> "<6 kB", perché "<5 kB" sarebbe falso). kB = 1024 B.
+// In the notes (README ⁴, next to the exact bytes) the weight keeps one decimal, still rounded
+// down: 6036 B -> "5.8 kB". Without it, "5 kB" beside "6036 bytes" reads as a mistake.
 export function sizeLabels(gzip) {
   const kB = Math.floor(gzip / 1024);
-  return { real: `${kB} kB`, compare: `<${kB + 1} kB` };
+  const note = (Math.floor((gzip * 10) / 1024) / 10).toFixed(1);
+  return { real: `${kB} kB`, compare: `<${kB + 1} kB`, note: `${note} kB` };
 }
 
 // Ciò che README.md deve contenere per dire il vero (vedi il piano 4.6.3, Fase 5 § 2b). `rounded`
 // cambia solo quando si passa un kB; `exact` a ogni release. `forbidden` trova le formule vecchie.
+// The note's figure (`weighs 5.8 kB gzip`) sits in `rounded` but moves every ~100 B.
 export function expectedReadme(gzip) {
-  const { real, compare } = sizeLabels(gzip);
+  const { real, compare, note } = sizeLabels(gzip);
   return {
     rounded: [
       `runtime-${encodeURIComponent(real)}%20gzip-4c1`,
-      `weighs ${real} gzip`,
+      `weighs ${note} gzip`,
       `Tiny runtime (${compare} gzip)`,
     ],
     exact: `\`${gzip} bytes\``,

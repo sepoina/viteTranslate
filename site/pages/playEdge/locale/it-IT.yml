@@ -1,8 +1,8 @@
 #  -------------------------------------------------
 #      italiano (Italia) (sourceLanguage)
 #       |    code: it-IT
-#       |    missing key: 0
-#       |    processed: 2026-10-09 12:30
+#       |    missing key: 12
+#       |    processed: 2026-10-15 23:21
 #       |    TableVersion: 260905
 #  -------------------------------------------------
 #
@@ -17,7 +17,6 @@ App_aj0s62: "Come leggere la tabella ↓"
 App_iy34f8: "<code>🔸</code> (non tradotto qui) e <code>🔹</code> (non tradotto altrove) non sono riportati: dipendono dallo stato dei file di lingua, non dalla riga. <code>‼️</code>, <code>🚫</code> e <code>⁇</code> invece fanno parte del risultato atteso."
 App_j4wz87: "Ogni caso limite, <em>dal vivo</em>"
 App_onj53g: "Una riga per caso: cosa scrivi, cosa rende davvero viteTranslate, cosa ti aspetti. In ogni categoria prima le forme consigliate, in fondo gli errori."
-App_xheo4s: "← viteTranslate: tutte le demo"
 autoWrapCases_1088ozj: "4. Attributo, forma diretta"
 autoWrapCases_11rvr1h: "Hai %s messaggi"
 autoWrapCases_13430ki: "Cerca fra {messaggi} messaggi"
@@ -319,3 +318,17 @@ testCases_yv9uvt: "Plurale: uno"
 testCases_zmrpz5: "a array vuoto"
 testCases_zzrrzd: "%s stringa vuota"
 ThemeToggle_1i35buc: "Cambia tema"
+
+#  ----to be translated------------------------------------------
+App_1hvf06c: "Casi limite"
+SiteBar_135b08s: "La pagina principale: viteTranslate in un colpo d'occhio."
+SiteBar_16pt5e6: "Il manuale: installazione, API, CLI e traduzione con un LLM."
+SiteBar_184491n: "Passa al tema scuro: la scelta vale per tutto il sito."
+SiteBar_1lekqar: "Il codice sorgente, le issue e le release."
+SiteBar_6hzcks: "Sezioni del sito"
+SiteBar_a5sjad: "Passa al tema chiaro: la scelta vale per tutto il sito."
+SiteBar_boj2og: "Home"
+SiteBar_d55hvs: "Demo"
+SiteBar_njusnx: "Giocaci nel mondo reale: playground, casi limite e un ristorante tradotto da un LLM."
+SiteBar_x7movm: "Tema"
+SiteBar_z8si1s: "Documentazione"

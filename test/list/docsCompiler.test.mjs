@@ -68,6 +68,18 @@ console.log("\n== frontmatter ==");
   respinge("source con ..", pagina("x", FRONT.replace("a.js", "../a.js")), "repo-relative");
   respinge("voce di lista fuori da una lista", pagina("x", FRONT.replace("title: Titolo", "title: Titolo\n  - voce")), "list item outside a list key");
   respinge("alias con sintassi sbagliata", pagina("x", FRONT.replace("---\n\n", "aliases:\n  - non una rotta\n---\n\n")), "expected `section/page`");
+  // related: `/section/page#id | label | detail`, at most 7, each target once.
+  const conRelated = (...voci) => pagina("x", FRONT.replace("---\n\n", `related:\n${voci.map((v) => `  - ${v}\n`).join("")}---\n\n`));
+  accetta("related con pagina e sezione", conRelated("/a/b | Voce | Dettaglio.", "/a/c#sez | Altra voce | Altro dettaglio."));
+  respinge("related senza voce e dettaglio", conRelated("/a/b"), "expected /section/page#id | label | detail");
+  respinge("related con la sola voce", conRelated("/a/b | Voce"), "expected /section/page#id | label | detail");
+  respinge("related senza la barra iniziale", conRelated("a/b | V | D"), "expected /section/page#id");
+  respinge("related con un link esterno", conRelated("https://x.dev | V | D"), "expected /section/page#id");
+  respinge("related con codice nella voce", conRelated("/a/b | Il `codice` | D"), "related label: plain text only");
+  respinge("related con graffe nel dettaglio", conRelated("/a/b | V | Con {graffe}"), "related detail: plain text only");
+  respinge("related ripetuto", conRelated("/a/b | V | D", "/a/b | W | E"), 'related "/a/b" is listed twice');
+  respinge("related oltre le 7 voci", conRelated(...[1, 2, 3, 4, 5, 6, 7, 8].map((n) => `/a/p${n} | V | D`)), "at most 7 entries");
+  eq("related non entra nella pagina generata", false, emetti("x", FRONT.replace("---\n\n", "related:\n  - /a/b | V | D\n---\n\n")).includes("related"));
 }
 
 // ------------------------------------------------------- selettore JSON nelle sources (file.json#chiave)
@@ -394,6 +406,21 @@ console.log("\n== compileDocs su un albero finto: i controlli tra pagine e sul d
     eq("un alias di ancora della pagina stessa resta un bersaglio valido dei link interni", true, compila().ok);
     albero({ "a/uno": `${front("aliases:\n  - b/x\n")}x\n`, "a/due": `${front("aliases:\n  - b/x\n")}x\n` });
     dice("lo stesso alias rivendicato da due pagine", compila(), "is also claimed by");
+    albero({ "a/uno": `${front("related:\n  - /a/due#altra | Voce | Il dettaglio.\n  - /a/due | Due | La pagina.\n")}x\n`, "a/tre": `${front("related:\n  - /a/due#altra | Voce | Il dettaglio.\n")}x\n`, "a/due": `${front()}## Altra {#altra}\n` });
+    c = compila();
+    eq("related verso una pagina e una sua sezione: compila", true, c.ok);
+    const related = c.ok ? readFileSync(join(root, "src/generated/related.js"), "utf8") : "";
+    eq("related.js: una voce per riga, con voce e dettaglio marcati", true, related.includes('{ route: "a/due", id: "altra", label: "_%_Voce_%_", detail: "_%_Il dettaglio._%_" },') && related.includes('{ route: "a/due", id: null, label: "_%_Due_%_", detail: "_%_La pagina._%_" },'));
+    eq("related.js: la stessa frase su due pagine è nello stesso file (una chiave)", 2, (related.match(/_%_Il dettaglio\._%_/g) ?? []).length);
+    eq("related.js: le pagine senza related non compaiono", false, related.includes('"a/due": ['));
+    albero({ "a/uno": `${front("related:\n  - /a/manca | V | D\n")}x\n` });
+    dice("related verso una pagina che non c'è", compila(), 'related "/a/manca": no such page');
+    albero({ "a/uno": `${front("related:\n  - /a/due#nonc | V | D\n")}x\n`, "a/due": `${front()}## Altra {#altra}\n` });
+    dice("related verso una sezione che non c'è", compila(), 'related "/a/due#nonc": no such section');
+    albero({ "a/uno": `${front("related:\n  - /a/uno | V | D\n")}## S {#s}\n` });
+    dice("related verso la pagina stessa", compila(), "this page itself");
+    albero({ "a/uno": `${front("related:\n  - /a/due#vecchio | V | D\n")}x\n`, "a/due": `${front("aliases:\n  - a/due#vecchio -> altra\n")}## Altra {#altra}\n` });
+    dice("related verso un id che solo un alias tiene in vita", compila(), 'related "/a/due#vecchio": no such section');
     albero({ "a/uno": `${front()}x\n`, "a/due": `${front()}x\n` }, ["a/uno"]);
     dice("pagina che manca da nav.js", compila(), "missing from src/nav.js");
     albero({ "a/uno": `${front()}x\n` }, ["a/uno", "a/fantasma"]);

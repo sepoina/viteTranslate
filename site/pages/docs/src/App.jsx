@@ -1,13 +1,14 @@
 import { useEffect, useState } from "react";
 import { Trans, useTrans, useTransLanguage } from "@sepoina/vitetranslate/react";
 import SiteBar from "./theme/SiteBar.jsx";
-import { siteUrl } from "./siteLinks.js";
 import { ROUTES } from "./generated/routes.js";
 import routes from "./generated/routes.json";
 import { BASE, DEFAULT_ROUTE, REPO, movedTo, replaceTo, scrollToTarget, useRoute } from "./layout/router.js";
 import Sidebar, { go, groupOf } from "./layout/Sidebar.jsx";
 import Toc, { useActiveHeading } from "./layout/Toc.jsx";
 import PageNav from "./layout/PageNav.jsx";
+import Rail from "./layout/Rail.jsx";
+import Related from "./layout/Related.jsx";
 
 const PLAIN_TITLE = Object.fromEntries(routes.map((r) => [r.route, r.title]));
 
@@ -64,10 +65,25 @@ export default function App() {
 
   return (
     <>
-      <SiteBar home={siteUrl()} languageLabel={trans("_%_Page language_%_")} themeLabel={trans("_%_Switch theme_%_")}>
-        <a className="bar-back" href={siteUrl()}>
-          <Trans>_%_← viteTranslate_%_</Trans>
-        </a>
+      <SiteBar
+        current="docs"
+        section={page && { id: route, mark: group && <Trans t={group.label} />, label: <Trans t={page.meta.title} /> }}
+        labels={{
+          nav: trans("_%_Site sections_%_"),
+          language: trans("_%_Page language_%_"),
+          theme: trans("_%_Switch theme_%_"),
+          home: trans("_%_Home_%_"),
+          homeHint: trans("_%_The home page: viteTranslate at a glance._%_"),
+          docs: trans("_%_Docs_%_"),
+          docsHint: trans("_%_The manual: setup, API, CLI and LLM translation._%_"),
+          demos: trans("_%_Demos_%_"),
+          demosHint: trans("_%_Play in the real world: playground, edge cases and a restaurant translated by an LLM._%_"),
+          githubHint: trans("_%_Source code, issues and releases._%_"),
+          themeName: trans("_%_Theme_%_"),
+          themeToLight: trans("_%_Switch to the light theme: the choice holds across the site._%_"),
+          themeToDark: trans("_%_Switch to the dark theme: the choice holds across the site._%_"),
+        }}
+      >
         <button type="button" className="d-menu-btn" aria-expanded={drawer} aria-controls="d-sidebar" onClick={() => setDrawer((o) => !o)}>
           <span aria-hidden="true">☰</span> <Trans>_%_Menu_%_</Trans>
         </button>
@@ -94,6 +110,7 @@ export default function App() {
               <div className="d-prose">
                 <Page />
               </div>
+              <Related route={route} variant="inline" />
               <footer className="d-foot">
                 <a href={`${REPO}/blob/main/${page.meta.source}`} target="_blank" rel="noopener">
                   <Trans>_%_Edit this page on GitHub_%_</Trans> <span aria-hidden="true">↗</span>
@@ -118,7 +135,11 @@ export default function App() {
           )}
         </main>
 
-        <Toc headings={headings} active={active} variant="side" editHref={page && `${REPO}/blob/main/${page.meta.source}`} />
+        {page && (
+          <aside className="d-toc">
+            <Rail route={route} title={page.meta.title} headings={headings} active={active} editHref={`${REPO}/blob/main/${page.meta.source}`} />
+          </aside>
+        )}
       </div>
     </>
   );

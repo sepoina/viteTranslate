@@ -32,45 +32,6 @@ ul {
   text-wrap: balance;
 }
 
-/* ---------- Barra: la sezione corrente e GitHub ---------- */
-/* Il crumb sta dove c'è posto: sopra i 1180px accanto al menu, fra 720 e 980 al suo posto. */
-.bar-crumb {
-  display: none;
-  align-items: center;
-  gap: 8px;
-  padding-left: 20px;
-  border-left: 1px solid var(--line);
-  color: var(--faint);
-  font-family: var(--mono);
-  font-size: 0.75rem;
-  font-weight: 600;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  white-space: nowrap;
-  animation: vt-rise 300ms var(--ease);
-}
-
-.bar-crumb-n {
-  color: var(--accent);
-}
-
-@media (min-width: 1180px), (min-width: 721px) and (max-width: 980px) {
-  .bar-crumb {
-    display: flex;
-  }
-}
-
-.bar-gh {
-  font-size: 0.875rem;
-  font-weight: 600;
-  white-space: nowrap;
-  transition: color 150ms var(--ease);
-}
-
-.bar-gh:hover {
-  color: var(--accent);
-}
-
 /* ---------- Hero ---------- */
 .hero {
   padding-top: clamp(4rem, 10vw, 7.5rem);

@@ -2,7 +2,7 @@
   "name": "@sepoina/vitetranslate",
   "version": "4.7.2",
   "versionDescription": "Safer sync: nothing is overwritten after a failed backup or an incomplete scan, tables are replaced atomically, paid LLM results are never lost, and impossible ICU dates fall back instead of shifting.",
-  "description": "Keyless i18n for React and Vite: write the sentence in JSX, values and tags included, and get YAML tables kept in sync, LLM auto-translation and ICU, compiled at build time into a tiny runtime with zero dependencies.",
+  "description": "Keyless i18n for React + Vite: write the sentence in JSX, values and tags included. The plugin extracts it inside Vite, keeps the YAML locales in sync, compiles ICU at build time and ships one lazy chunk per language — 5 kB gzip runtime, zero runtime dependencies. LLM translation and a VS Code panel built in.",
   "author": {
     "name": "Giancarlo Ghigi",
     "email": "giancarlo.ghigi@gmail.com"

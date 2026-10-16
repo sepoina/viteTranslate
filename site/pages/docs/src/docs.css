@@ -55,7 +55,6 @@ body {
   grid-template-columns: 260px minmax(0, 1fr) 220px;
   gap: 0 48px;
   align-items: start;
-  padding-bottom: 4rem;
 }
 
 @media (min-width: 1600px) {
@@ -65,9 +64,11 @@ body {
   }
 }
 
+/* The room under the article is the article's own: on the grid it would end the sticky columns'
+   containing block above the page's bottom, and push them up as the page scrolls to its end. */
 .d-main {
   min-width: 0;
-  padding-top: 2.5rem;
+  padding: 2.5rem 0 4rem;
 }
 
 /* Il testo sta al centro della sua colonna: lo spazio in più va ai lati, non alla riga. */
@@ -102,7 +103,7 @@ body {
 
 /* Le due colonne scorrono da sole: barra sottile, non quella piena del sistema. */
 .d-sidebar,
-.d-toc {
+.d-rail-body {
   scrollbar-width: thin;
   scrollbar-color: var(--line-strong) transparent;
 }
@@ -245,14 +246,31 @@ body {
 }
 
 /* ---------- Colonna di destra ---------- */
+/* The column stands on one axis (Rail.jsx): the icons of its titles and tools are centred on it, the
+   line of the sections and of the related links runs down it, and every text starts at --rail-text.
+   Odd icons on a 1 px line: both centres fall in the middle of the same pixel, at 1x as at 2x. */
 .d-toc {
+  --rail-icon: 15px;
+  --rail-line: calc((var(--rail-icon) - 1px) / 2);
+  --rail-text: 24px;
+  --rail-lh: 1.25;
   position: sticky;
   top: var(--d-bar);
-  max-height: calc(100vh - var(--d-bar));
-  padding: 2.5rem 0 2rem;
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - var(--d-bar));
+  padding-bottom: 1rem;
+  font-size: 0.855rem;
+  line-height: var(--rail-lh);
+}
+
+/* Title, sections and "On the same topic": the part that scrolls on a long page. */
+.d-rail-body {
+  flex: 1;
+  min-height: 0;
+  padding: 2.5rem 0 1.75rem;
   overflow-y: auto;
-  font-size: 0.875rem;
-  line-height: 1.45;
+  overscroll-behavior: contain;
 }
 
 .d-toc-label {
@@ -264,38 +282,109 @@ body {
   font-weight: 500;
 }
 
-.d-toc-label svg,
-.d-toc-tools svg {
+.d-toc-label svg {
   flex: none;
   width: 16px;
   height: 16px;
 }
 
-/* La linea a sinistra la disegnano le voci: sotto un h3 rientra con la voce. */
-.d-toc a,
-.d-toc-inline a {
-  display: block;
-  padding: 0.35rem 0 0.35rem 1rem;
-  border-left: 1px solid var(--line);
-  color: var(--faint);
-  text-decoration: none;
-  transition: color 150ms var(--ease), border-color 150ms var(--ease);
+/* Title and sections, then "On the same topic": space between them, no rules. */
+.d-rail-body > * + * {
+  margin-top: 1.75rem;
 }
 
-.d-toc a:hover,
-.d-toc-inline a:hover {
+/* The page title at the head of the column: a click goes back to the top. */
+.d-toc .d-rail-title {
+  display: flex;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: color 150ms var(--ease);
+}
+
+.d-rail-title svg {
+  flex: none;
+  color: var(--faint);
+  transition: color 150ms var(--ease);
+}
+
+.d-rail-title:hover,
+.d-rail-title:hover svg {
+  color: var(--accent);
+}
+
+/* The column's titles, the page and "On the same topic": bold, icon on the axis, text on the links'
+   text. The icon stays on the first line, whatever wraps. */
+.d-toc .d-rail-title,
+.d-toc .d-toc-label {
+  align-items: flex-start;
+  gap: calc(var(--rail-text) - var(--rail-icon));
+  font-weight: 600;
+}
+
+.d-toc .d-rail-title svg,
+.d-toc .d-toc-label svg {
+  width: var(--rail-icon);
+  height: var(--rail-icon);
+  margin-top: calc((var(--rail-lh) * 1em - var(--rail-icon)) / 2);
+}
+
+/* The sections follow the title closely: they are its contents. */
+.d-toc .d-rail-title + nav {
+  margin-top: 0.75rem;
+}
+
+/* The index and the related links hang on a line that each link draws (::before): under an h3 it steps
+   in with the link. --rail-line is where it runs, --rail-text where the text starts; outside the right
+   column (the folded index, the related links under the article) the line is the left edge. */
+.d-toc-list a,
+.d-related a {
+  position: relative;
+  padding: 0.35rem 0 0.35rem var(--rail-text, 1rem);
+  text-decoration: none;
+}
+
+.d-toc-list a::before,
+.d-related a::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: var(--rail-line, 0px);
+  width: 1px;
+  background: var(--line);
+  transition: background-color 150ms var(--ease);
+}
+
+.d-toc-list a {
+  display: block;
+  color: var(--faint);
+  transition: color 150ms var(--ease);
+}
+
+.d-toc-list a:hover {
   color: var(--text);
 }
 
-.d-toc a[aria-current="location"] {
-  border-left: 2px solid var(--accent);
-  padding-left: calc(1rem - 1px);
+.d-toc .d-toc-list a[aria-current="location"] {
   color: var(--accent);
   font-weight: 500;
 }
 
-.d-toc li[data-depth="3"] a,
-.d-toc-inline li[data-depth="3"] a {
+/* The current section: 3 px of green, on the same centre as the 1 px line. */
+.d-toc .d-toc-list a[aria-current="location"]::before {
+  left: calc(var(--rail-line) - 1px);
+  width: 3px;
+  background: var(--accent);
+}
+
+.d-toc-list li[data-depth="3"] a {
   margin-left: 0.85rem;
 }
 
@@ -304,30 +393,110 @@ body {
   font-size: 0.92em;
 }
 
-/* In fondo all'indice: la pagina su GitHub e il ritorno in cima. */
-.d-toc-tools {
-  margin-top: 1.5rem;
-  padding-top: 1.25rem;
+/* "On the same topic": the same rail as the index, each link with its page underneath. */
+.d-related ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.d-related a {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.d-related-title {
+  color: var(--faint);
+  transition: color 150ms var(--ease);
+}
+
+/* Only under 1280 px: there the sentence has no helper line to go to. */
+.d-related-detail {
+  color: var(--quiet);
+  font-size: 0.8125rem;
+}
+
+.d-related a:hover::before {
+  background: var(--accent);
+}
+
+.d-related a:hover .d-related-title {
+  color: var(--text);
+}
+
+/* Under 1280 px the links close the article, in a box like the folded index at its top. */
+.d-related-inline {
+  display: none;
+  margin-top: 3rem;
+  padding: 0.9rem 1rem 0.6rem;
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  background: var(--surface-2);
+  font-size: 0.9375rem;
+  line-height: 1.45;
+}
+
+.d-related-inline ul {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr));
+  gap: 0 1rem;
+}
+
+/* The page's small tools: four icons, and under them a line with no background that names the one
+   under the pointer (Rail.jsx). It keeps three lines of room, the longest detail, so nothing moves.
+   They sit at the column's foot whatever the page's length, under a light rule (the sidebar's). */
+.d-tools {
+  flex: none;
+  padding-top: 0.75rem;
   border-top: 1px solid var(--line-soft);
 }
 
-.d-toc .d-toc-tools a,
-.d-toc .d-toc-tools button {
+/* The first tool's icon on the column's axis: 17 px icons in 33 px buttons, 9 px out, so its centre
+   falls on the line's pixel too. */
+.d-tools-row {
   display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  width: 100%;
-  padding: 0.3rem 0;
-  border: 0;
-  background: none;
-  color: var(--faint);
-  font: inherit;
-  text-align: left;
-  cursor: pointer;
+  gap: 4px;
+  margin-left: -9px;
 }
 
-.d-toc .d-toc-tools :is(a, button):hover {
+.d-tool {
+  display: grid;
+  place-items: center;
+  width: 33px;
+  height: 33px;
+  border: 0;
+  border-radius: var(--r-md);
+  background: none;
+  color: var(--faint);
+  cursor: pointer;
+  transition: color 150ms var(--ease), background-color 150ms var(--ease);
+}
+
+.d-tool:hover {
+  background: var(--wash);
   color: var(--text);
+}
+
+.d-tool[data-off] {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.d-tools-tip {
+  min-height: 4.35em;
+  margin: 0.4rem 0 0;
+  color: var(--muted);
+  font-size: 0.8125rem;
+  line-height: 1.45;
+  opacity: 0;
+  transform: translateY(-3px);
+  transition: opacity 180ms var(--ease), transform 180ms var(--ease);
+}
+
+.d-tools-tip[data-shown] {
+  opacity: 1;
+  transform: none;
 }
 
 /* Sotto i 1280 px l'indice passa sopra il testo, ripiegato. */
@@ -615,7 +784,7 @@ body {
 }
 
 /* ---------- Piede della pagina ---------- */
-/* Da 1280 px in su "Modifica su GitHub" sta in fondo all'indice di destra (.d-toc-tools). */
+/* Da 1280 px in su "Modifica su GitHub" è un'icona della colonna di destra (PageTools.jsx). */
 .d-foot {
   display: none;
   margin-top: 3rem;
@@ -630,8 +799,9 @@ body {
   color: var(--text);
 }
 
+/* From 1280 px "Previous" and "Next" are icons in the right column (PageTools.jsx). */
 .d-pagenav {
-  display: grid;
+  display: none;
   grid-template-columns: 1fr 1fr;
   gap: 1rem;
   margin-top: 3rem;
@@ -689,6 +859,14 @@ body {
 
   .d-foot {
     display: block;
+  }
+
+  .d-related-inline {
+    display: block;
+  }
+
+  .d-pagenav {
+    display: grid;
   }
 
   .d-foot + .d-pagenav {

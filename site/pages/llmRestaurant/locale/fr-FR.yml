@@ -1,8 +1,8 @@
 #  -------------------------------------------------
 #      français (France)
 #       |    code: fr-FR
-#       |    missing key: 1
-#       |    processed: 2026-10-05 15:14
+#       |    missing key: 0
+#       |    processed: 2026-10-16 10:31
 #       |    TableVersion: 260905
 #  -------------------------------------------------
 #
@@ -190,6 +190,7 @@ Reviews_1qydt2l: "Munich"
 Reviews_g2skyf: "Nous sommes arrivés pour le coucher du soleil et nous sommes partis à minuit sans nous en rendre compte. Le cru est le meilleur que j'aie mangé hors du Japon."
 Reviews_gr27ia: "On parle de nous"
 Reviews_k9ijos: "Turin"
+Signature_18wzt8x: "Le plat avec lequel Tommaso s'est présenté à la famille, au retour de Tokyo. La bisque cuit six heures ; les pâtes, onze minutes exactement."
 Signature_19q6eiq: "Trois plats que <i>nous ne retirons jamais</i> de la carte"
 Signature_1b4j51v: "Les plats signature"
 Signature_1diq83x: "Spaghettone aux crevettes rouges"
@@ -234,6 +235,3 @@ Tasting_r4v4s2: "Le parcours complet de la saison, avec deux plats hors carte in
 Tasting_vp2dyl: "par personne"
 Tasting_z3dj42: "Uniquement au comptoir du chef, six convives au maximum par soir. On cuisine devant vous ce que la mer a décidé ce jour-là, sans menu écrit."
 Tasting_z4ilij: "Laissez-vous <i>porter au large</i>"
-
-#  ----to be translated------------------------------------------
-Signature_18wzt8x: null

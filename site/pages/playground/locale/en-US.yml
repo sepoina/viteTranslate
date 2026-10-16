@@ -1,8 +1,8 @@
 #  -------------------------------------------------
 #      American English
 #       |    code: en-US
-#       |    missing key: 0
-#       |    processed: 2026-10-09 12:29
+#       |    missing key: 12
+#       |    processed: 2026-10-15 23:21
 #       |    TableVersion: 260905
 #  -------------------------------------------------
 #
@@ -89,7 +89,6 @@ StrengthsSection_qebam7: "<strong>Vite 5 to Vite 8, same code.</strong> Rollup a
 StrengthsSection_wv4ype: "<strong>Automatic table sync.</strong> A single command updates all languages and flags what remains to be translated."
 StrengthsSection_ww3koi: "<strong>Text stays in JSX, variables and tags included.</strong> No key to create or manage by hand."
 ThemeToggle_1i35buc: "Toggle theme"
-TopBar_1dz7foh: "All demos"
 ZZZsnippetList_1231a9k: "<code>&lt;Trans&gt;</code> returns React nodes: it can't be used in HTML attributes that need a plain string, like <code>placeholder</code>, <code>aria-label</code> or <code>title</code>. Those need the <code>useTrans()</code> hook instead, called as a template — <code>trans&#96;Write to $&#123;name}&#96;</code> — which resolves the same translation but returns a primitive string. These attributes aren't visible as text on screen: inspect the element with F12 to see them translated."
 ZZZsnippetList_1ba68a8: "With the <code>autoWrap</code> option on, you don't even need <code>&lt;Trans&gt;</code>: a marked text — even split by a tag or a value in the middle — becomes the right call on its own, no <code>trans()</code> by hand. The cases it doesn't cover are on the edge-case page."
 ZZZsnippetList_1cpi6bi: "autoWrap: markers without a component"
@@ -110,3 +109,17 @@ ZZZsnippetList_lu6qcc: "The useTransLanguage() hook exposes in one go the curren
 ZZZsnippetList_nesane: "Numbers, currencies and dates (ICU)"
 ZZZsnippetList_ns6u8j: "A dialect tag with no attributes (<code>&lt;b&gt;</code>, <code>&lt;i&gt;</code>, <code>&lt;code&gt;</code>, <code>&lt;br&gt;</code>…) stays text, and a translator moves it wherever it belongs. A link or a component becomes a numbered slot instead: the attribute stays in the code, never in the translation."
 ZZZsnippetList_ska6o3: "Language switch"
+
+#  ----to be translated------------------------------------------
+SiteBar_135b08s: null
+SiteBar_16pt5e6: null
+SiteBar_184491n: null
+SiteBar_1lekqar: null
+SiteBar_6hzcks: null
+SiteBar_a5sjad: null
+SiteBar_boj2og: null
+SiteBar_d55hvs: null
+SiteBar_njusnx: null
+SiteBar_x7movm: null
+SiteBar_z8si1s: null
+TopBar_9nwoa2: null

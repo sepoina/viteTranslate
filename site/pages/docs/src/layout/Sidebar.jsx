@@ -10,11 +10,11 @@ export const ORDER = NAV.flatMap((g) => g.items.filter((i) => typeof i === "stri
 /** Il gruppo di NAV che contiene la pagina. */
 export const groupOf = (route) => NAV.find((g) => g.items.includes(route));
 
-/** Il click di un link interno: va col router, salvo clic con tasto modificatore (scheda nuova). */
-export const go = (href) => (e) => {
+/** Il click di un link interno: va col router, salvo clic con tasto modificatore (scheda nuova). `from`: see navigate(). */
+export const go = (href, from) => (e) => {
   if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
   e.preventDefault();
-  navigate(href);
+  navigate(href, from);
 };
 
 // Il gruppo della pagina, o il primo se la pagina non c'è (404).

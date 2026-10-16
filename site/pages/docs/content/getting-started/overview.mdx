@@ -4,6 +4,14 @@ description: What viteTranslate is, the four steps from a sentence in JSX to a s
 sources:
   - package.json#peerDependencies
   - site/runtimeSize.json
+related:
+  - /concepts/markers | Markers and keys | How a string is marked, and why its key never changes.
+  - /components/translate#write-jsx-inside-translate | Write JSX inside Translate | Put values, tags and links right in the sentence; the preprocessor builds the message.
+  - /concepts/translation-files#file-format | The table format | One YAML file per language, a flat map of keys, the source table written for you.
+  - /concepts/icu#what-ships | What ICU adds to the bundle | Only four small helpers, and only for apps whose tables use ICU.
+  - /llm/setup#getting-started | Set up the LLM | Point the plugin at a model, give it the key, and fill the empty keys.
+  - /tutorials/first-app#create-the-project | Create a project | A fresh Vite and React project with the package installed.
+  - /vscode/install#one-project-two-halves | Library and extension | What the npm package does, and what the editor extension adds on top.
 ---
 
 <!-- LINKED-DATA: the runtime weight comes from site/runtimeSize.json (npm run estimateSize), the same number the README and the landing page show. Round it as AGENTS.md says: down to the kB. -->
