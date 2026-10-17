@@ -1,13 +1,11 @@
 /* Il manuale: layout a tre colonne e testo. Solo var(--…): i colori stanno in theme/tokens.css (un test lo controlla).
    Le classi cominciano per d-: theme.css ha già .toc e .anchor per altre pagine.
-   Qui la leggibilità conta più della continuità col resto del sito: testo e colonne in Inter (caricato da
-   index.html), l'unico titolo in Alfa Slab è l'h1. */
+   Text and columns use the site's --font (Schibsted Grotesk, from theme.css), like every other page;
+   l'unico titolo in Alfa Slab è l'h1. */
 
 /* L'altezza della barra in alto: App.jsx la misura (a capo sui telefoni è più alta di --bar-h). */
 :root {
   --d-bar: var(--bar-h);
-  /* Inter non ha cinese né giapponese: dopo vengono i caratteri di sistema che li coprono, come in --font. */
-  --d-font: "Inter", system-ui, -apple-system, "Segoe UI", "PingFang SC", "Noto Sans CJK SC", "Microsoft YaHei", sans-serif;
   /* Il guscio cresce con lo schermo fino a qui; oltre restano due fasce ai lati. */
   --d-max: 1600px;
   /* La riga del testo: oltre questa misura l'occhio fatica a tornare a capo. Codice, note, tabelle e
@@ -15,11 +13,6 @@
   --d-measure: 46rem;
   /* Il fondo della colonna di sinistra: un passo verso --bg-deep, in tutti e due i temi. */
   --d-side-bg: color-mix(in srgb, var(--bg-deep) 85%, var(--bg));
-}
-
-body {
-  font-family: var(--d-font);
-  font-feature-settings: "cv11", "ss01";
 }
 
 /* La barra e il guscio vanno alla stessa larghezza, così il logo sta sopra la colonna di sinistra. */
@@ -39,7 +32,7 @@ body {
   padding: 8px 12px;
   border: 1px solid var(--line);
   border-radius: var(--r-md);
-  color: var(--muted);
+  color: var(--bar-ink, var(--muted));
   font-size: 0.9375rem;
   font-weight: 500;
 }
@@ -541,12 +534,20 @@ body {
   text-wrap: balance;
 }
 
+/* The lead: an abstract in the mono face, upper case, behind a wide soft rule and narrower than the text,
+   with room before the page starts. Dimmed by its colour, --faint (the dimmest text still at 4.5:1), not by
+   opacity, which would take it under in both themes. */
 .d-article .lead {
   max-width: none;
-  margin-top: 0.75rem;
-  color: var(--lead);
-  font-size: 1.125rem;
-  line-height: 1.6;
+  margin: 0.75rem 20% 4em 9px;
+  padding: 2px 2px 2px 14px;
+  border-left: 12px solid var(--line);
+  color: var(--faint);
+  font-family: var(--mono);
+  font-size: 1rem;
+    font-weight: 500;
+  line-height: 1.4;
+  text-transform: uppercase;
 }
 
 /* ---------- Testo ---------- */
@@ -598,14 +599,14 @@ body {
 }
 
 .d-prose h2 {
-  margin-top: 3rem;
+  margin-top: 4rem;
   font-size: 1.5rem;
   letter-spacing: -0.02em;
   line-height: 1.3;
 }
 
 .d-prose h3 {
-  margin-top: 2.25rem;
+  margin-top: 3rem;
   font-size: 1.1875rem;
   letter-spacing: -0.01em;
   line-height: 1.4;
@@ -669,14 +670,13 @@ body {
 }
 
 /* ---------- Note ---------- */
-/* Velatura e bordo largo vengono dal tema (--callout-*): staccano le note dai riquadri bianchi del
-   codice. Il fondo passa sotto il bordo, che lo scurisce appena: un'aura, non una cornice. Il tipo
-   lo dice il colore dell'etichetta (--c). */
+/* A see-through fill and, on the right only, a wide strip barely darker (both from the theme, --callout-*):
+   no frame around the note. The kind is told by the label's colour (--c). */
 .d-callout {
   --c: var(--line-strong);
-  padding: 0.55rem 0.85rem;
-  border: 12px solid var(--callout-rim);
-  border-radius: var(--r-lg);
+  padding: 25px 25px 31px 34px;
+  border-right: 11px solid var(--callout-rim);
+  border-radius: var(--r-md) 0 0 var(--r-md);
   background: var(--callout-bg);
   font-size: 0.9375rem;
   line-height: 1.7;
@@ -718,6 +718,11 @@ body {
   position: relative;
 }
 
+/* The manual's code blocks are squarer than the theme's (.code, --r-btn): the other pages keep theirs. */
+.d-code .code {
+  border-radius: 3px;
+}
+
 .d-copy {
   position: absolute;
   top: 0.4rem;
@@ -739,8 +744,10 @@ body {
 
 .table-scroll {
   overflow-x: auto;
-  border: 1px solid var(--line);
-  border-radius: var(--r-md);
+  /* No outline: the table's fill runs under a wide transparent border, a frame of its own colour. */
+  border: 4px solid transparent;
+  border-bottom: 12px solid transparent;
+  border-radius: 6px;
   background: var(--table-bg);
 }
 
@@ -973,6 +980,11 @@ body {
 @media (max-width: 759px) {
   .d-shell {
     grid-template-columns: minmax(0, 1fr);
+  }
+
+  /* On a phone the column is already narrow: the lead takes all of it. */
+  .d-article .lead {
+    margin-right: 0;
   }
 
   .d-menu-btn {

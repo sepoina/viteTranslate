@@ -434,6 +434,16 @@ li code {
   flex-wrap: nowrap;
 }
 
+/* The bar may have its own inks (--bar-*, the light theme's grey bar); the chosen language is text, so it
+   takes the ink, and the green background alone marks it. */
+.bar-tools .seg button:not(:hover, [aria-pressed="true"]) {
+  color: var(--bar-ink, var(--quiet));
+}
+
+.bar-tools .seg button[aria-pressed="true"] {
+  color: var(--bar-ink, var(--accent));
+}
+
 /* The place icons and the theme switch: no frame; the place you are in gets the green of a chosen control. */
 .bar-icon {
   display: grid;
@@ -442,7 +452,7 @@ li code {
   width: 36px;
   height: 36px;
   border-radius: var(--r-md);
-  color: var(--muted);
+  color: var(--bar-ink, var(--muted));
   transition: color 150ms var(--ease), background-color 150ms var(--ease);
 }
 
@@ -458,7 +468,7 @@ li code {
 
 .bar-icon[aria-current="page"] {
   background: var(--accent-soft);
-  color: var(--accent);
+  color: var(--bar-accent, var(--accent));
 }
 
 .bar-crumb {
@@ -467,7 +477,7 @@ li code {
   justify-content: center;
   gap: 8px;
   min-width: 0;
-  color: var(--faint);
+  color: var(--bar-ink, var(--faint));
   font-family: var(--mono);
   font-size: 0.75rem;
   font-weight: 600;
@@ -479,14 +489,14 @@ li code {
 
 .bar-crumb-n {
   flex: none;
-  color: var(--accent);
+  color: var(--bar-ink, var(--accent));
 }
 
 /* Between the group and the page: "CONCEPTS ･ DIAGNOSTICS". */
 .bar-crumb-n::after {
   content: "\FF65";
   margin-left: 8px;
-  color: var(--faint);
+  color: var(--bar-ink, var(--faint));
 }
 
 .bar-crumb-t {

@@ -2,7 +2,8 @@
    del sito usa solo var(--…) (un test lo controlla, insieme al contrasto delle coppie di testo).
    SORGENTE in site/theme/. Le cartelle src/theme/ dei progetti sono copie generate da
    `npm run site:theme`: si modifica qui e si rilancia, mai la copia.
-   Palette e caratteri vengono dal redesign "dark v4" (verde quasi nero, slab nei titoli).
+   Palette e caratteri vengono dal redesign "dark v4" (slab nei titoli); the dark theme's greys from
+   VS Code's Dark 2026, around the site's green.
    The colours of code blocks are the other exception: a base16 scheme, in codeScheme.css. */
 
 /* Il tema scuro: quello di partenza, e quello di ogni elemento con data-theme="dark", che resta
@@ -12,42 +13,50 @@
 :root {
   color-scheme: dark;
 
-  /* Superfici. --bg-deep è il fondo delle bande "di spiegazione" (Come si vede, Come funziona). */
-  --bg-deep: #050706;
-  --bg: #0b0f0d;
-  --surface: #18201c; /* snippet, tag, fondi bassi dentro le card */
-  --surface-2: #1c2521; /* card */
-  --surface-3: #232d28; /* voce attiva, hover dei controlli */
-  --surface-hover: #212b26; /* card al passaggio */
-  --surface-step: #1a221e; /* le card dei passi */
-  --terminal-bg: #0b0f0d; /* i terminali dentro le card dei passi */
+  /* The neutrals of this theme come from VS Code's "Dark 2026" (theme-defaults/themes/2026-dark.json,
+     VS Code 1.142): next to each value, the key it was taken from. The accent stays the site's green. */
 
-  /* Linee. */
+  /* Superfici. --bg-deep è il fondo delle bande "di spiegazione" (Come si vede, Come funziona): like
+     VS Code's side bar next to the editor, a step lighter than the page. */
+  --bg-deep: #191a1b; /* sideBar.background */
+  --bg: #121314; /* editor.background */
+  --surface: #191a1b; /* snippet, tag, fondi bassi dentro le card — input.background */
+  --surface-2: #202122; /* card — editorWidget.background */
+  --surface-3: #313233; /* voce attiva, hover dei controlli — activityBar.activeBackground */
+  --surface-hover: #242526; /* card al passaggio — editor.lineHighlightBackground */
+  --surface-step: #202122; /* le card dei passi — editorWidget.background */
+  --terminal-bg: #121314; /* i terminali dentro le card dei passi — editor.background */
+
+  /* Linee. On the page, 0.1 and 0.13 of white are VS Code's #2a2b2c (widget.border) and #333536 (input.border). */
   --line-soft: rgba(255, 255, 255, 0.1);
   --line: rgba(255, 255, 255, 0.12);
   --line-strong: rgba(255, 255, 255, 0.18);
   --line-hard: rgba(255, 255, 255, 0.3); /* sotto l'intestazione della tabella */
-  --link-line: #3a4540; /* sottolineatura dei link nel testo */
+  --link-line: #444444; /* sottolineatura dei link nel testo — list.invalidItemForeground */
 
-  /* Velature neutre: hover di menu e bottoni, codice in linea, chip. */
+  /* Velature neutre: hover di menu e bottoni, codice in linea, chip. VS Code's #ffffff0f and #ffffff14. */
   --wash: rgba(255, 255, 255, 0.06);
   --wash-2: rgba(255, 255, 255, 0.08);
 
-  /* Testo, dal più forte al più tenue. --dim solo per testo grande o decorativo (il test lo misura a 3:1). */
-  --text-hi: #f4f7f5; /* titolo dell'hero */
-  --text: #eef2ef;
-  --code-text: #dfe5e1;
-  --lead: #c3ccc6;
-  --muted: #b9c3bc;
-  --faint: #9aa59e;
-  --quiet: #8b968f; /* piè di pagina, lingue non scelte */
-  --dim: #7f8b84;
+  /* Testo, dal più forte al più tenue. --dim solo per testo grande o decorativo (il test lo misura a 3:1).
+     Under VS Code's own UI text, for a softer page: titles and body share one grey at 9.7:1 (the size and
+     weight tell them apart), the rest steps down through VS Code's greys. */
+  --text-hi: #bbbbbb; /* titolo dell'hero, titoli della prosa — editor.foreground (#bbbebf), neutral */
+  --text: #bbbbbb; /* editor.foreground (#bbbebf), neutral */
+  --code-text: #bbbbbb; /* editor.foreground (#bbbebf), neutral */
+  --lead: #8c8c8c; /* descriptionForeground */
+  --muted: #8c8c8c; /* descriptionForeground */
+  --faint: #858889; /* editorLineNumber.foreground */
+  --quiet: #858889; /* piè di pagina, lingue non scelte — editorLineNumber.foreground */
+  --dim: #707070; /* checkbox.border */
 
-  /* Accento: --accent per testo e linee, --accent-fill per i fondi pieni, --accent-ink per il testo sopra. */
+  /* Accento: --accent per testo e linee, --accent-fill per i fondi pieni, --accent-ink per il testo sopra.
+     --accent-2 is VS Code's blue (focusBorder, tab.activeBorderTop): a second accent, not used yet. */
   --accent: #4ade80;
+  --accent-2: #3994bc;
   --accent-fill: #4ade80;
   --accent-fill-hover: #6ee79a;
-  --accent-ink: #070a08;
+  --accent-ink: #121314;
   --accent-ink-2: #0c2a17; /* testo secondario sull'accento (la banda finale) */
   --accent-soft: rgba(74, 222, 128, 0.14); /* la voce scelta di un controllo */
   --accent-wash: rgba(74, 222, 128, 0.1);
@@ -56,28 +65,28 @@
   --ring: var(--accent);
 
   /* L'inchiostro: elementi scuri uguali nei due temi (bottoni sulla banda verde, etichetta "Copia"). */
-  --ink: #070a08;
-  --ink-text: #eef2ef;
-  --ink-hover: #18201b;
-  --ink-wash: rgba(7, 10, 8, 0.1);
-  --ink-wash-2: rgba(7, 10, 8, 0.08);
+  --ink: #121314; /* editor.background */
+  --ink-text: #bbbbbb;
+  --ink-hover: #202122; /* editorWidget.background */
+  --ink-wash: rgba(18, 19, 20, 0.1);
+  --ink-wash-2: rgba(18, 19, 20, 0.08);
 
   /* Stati. */
   --ok: var(--accent);
-  --warn: #fbbf24;
-  --error: #f87171;
+  --warn: #e5ba7d; /* list.warningForeground */
+  --error: #f48771; /* errorForeground */
 
   /* Segni del confronto: ✓ è l'accento, – e ✕ questi. --mark-n è un simbolo, il test lo misura a 3:1. */
   --mark-p: var(--tk-s);
-  --mark-n: #5d6a63;
+  --mark-n: #707070; /* checkbox.border */
 
   /* Dettagli. */
-  --marquee-dim: #3a4640; /* le lingue spente della striscia */
-  --chip-dashed: #36423b; /* il bordo tratteggiato delle lingue non caricate */
+  --marquee-dim: #444444; /* le lingue spente della striscia — list.invalidItemForeground */
+  --chip-dashed: #333536; /* il bordo tratteggiato delle lingue non caricate — input.border */
   --badge-bg: var(--text); /* la versione accanto al link della release */
   --badge-ink: var(--bg);
-  --logo-filter: brightness(2.1); /* il logo è grigio (#78788a): qui si schiarisce */
-  --bar-bg: rgba(11, 15, 13, 0.86);
+  --logo-filter: brightness(1.56); /* il logo è grigio (#78788a): qui si schiarisce, fino al colore del testo */
+  --bar-bg: rgba(25, 26, 27, 0.86); /* titleBar.activeBackground */
   /* The hint under the bar (SiteBar.jsx): from the accent's green to its turn towards cyan, a glow
      under the control the pointer is on, and a hairline lit there in the same two colours. */
   --hint-bg: #10291e;
@@ -94,7 +103,7 @@
   --vite7-glyph: rgba(251, 191, 36, 0.16);
 
   /* Sfondo dell'hero. */
-  --grid: #141b17;
+  --grid: #191a1b; /* sideBar.background */
   --glow: rgba(74, 222, 128, 0.13);
 
   /* La banda del video in fondo all'hero (landing): retino, aloni verde e ciano, cornice al neon.
@@ -115,14 +124,13 @@
   --tk-n: #fdba74; /* numeri, null */
   --tk-m: var(--accent); /* il marcatore _%_…_%_ */
 
-  /* Le note del manuale: una velatura lime e un bordo largo appena visibile, per staccarle dai
-     riquadri del codice. */
-  --callout-bg: rgba(190, 222, 74, 0.08);
+  /* Le note del manuale: una velatura lime e, solo a destra, una fascia larga appena visibile. */
+  --callout-bg: rgba(190, 222, 74, 0.04);
   --callout-rim: rgba(255, 255, 255, 0.02);
 
   /* The manual's tables: the header filled with the accent, the body a step off the page. Here the
      bright green would glare (and fail light text), so the header takes a deep green instead. */
-  --table-head-bg: #166534;
+  --table-head-bg: #14532d; /* deep enough for --text-hi at 4.5:1 */
   --table-head-ink: var(--text-hi);
   --table-bg: var(--surface);
 
@@ -151,8 +159,8 @@
 @media (prefers-color-scheme: light) {
   :root:not([data-theme="dark"]) {
     color-scheme: light;
-    --bg-deep: #ecebe4;
-    --bg: #f6f5f0;
+    --bg-deep: #d8d6ce;
+    --bg: #d8d6ce;
     --surface: #ffffff;
     --surface-2: #ffffff;
     --surface-3: #ebeae3;
@@ -171,19 +179,24 @@
     --code-text: #1f2622;
     --lead: #3d4540;
     --muted: #3d4540;
-    --faint: #5b645e;
-    --quiet: #5b645e;
+    --faint: #555e58;
+    --quiet: #555e58;
     --dim: #6b746e;
-    --accent: #147a3a;
+    --accent: #116a33;
+    --accent-2: #005bb1; /* VS Code Light 2026: focusBorder (#0069cc), darker for 4.5:1 on --bg */
     --accent-tint: rgba(74, 222, 128, 0.16);
     --card-hover: rgba(21, 128, 61, 0.55);
-    --warn: #b45309;
-    --error: #b91c1c;
-    --mark-n: #858d87;
+    --warn: #954507;
+    --error: #b41b1b;
+    --mark-n: #707872;
     --marquee-dim: #c4c8c0;
     --chip-dashed: #c9cbc3;
     --logo-filter: brightness(0.35);
-    --bar-bg: rgba(246, 245, 240, 0.88);
+    --bar-bg: #c9cba5cc;
+    /* A tinted see-through bar: the page inks fall under 4.5:1 on it, so it takes its own. theme.css reads them with
+       the page ink as fallback, and the dark theme does not set them. --bar-accent marks icons only (3:1). */
+    --bar-ink: var(--text);
+    --bar-accent: #0d4f26;
     --hint-bg: #e0f3e6;
     --hint-bg-2: #dbeff2;
     --hint-glow: rgba(255, 255, 255, 0.7);
@@ -201,7 +214,7 @@
     --tk-t: #0369a1;
     --tk-k: #6d28d9;
     --tk-n: #c2410c;
-    --callout-bg: rgba(190, 222, 74, 0.14);
+    --callout-bg: #0a0c041c;
     --callout-rim: rgba(0, 0, 0, 0.02);
     --table-head-bg: var(--accent);
     --table-head-ink: #ffffff;
@@ -214,8 +227,8 @@
 /* ...o quello scelto con il pulsante. Stesso contenuto del blocco sopra: tenerli uguali. */
 :root[data-theme="light"] {
   color-scheme: light;
-  --bg-deep: #ecebe4;
-  --bg: #f6f5f0;
+  --bg-deep: #d8d6ce;
+  --bg: #d8d6ce;
   --surface: #ffffff;
   --surface-2: #ffffff;
   --surface-3: #ebeae3;
@@ -234,19 +247,24 @@
   --code-text: #1f2622;
   --lead: #3d4540;
   --muted: #3d4540;
-  --faint: #5b645e;
-  --quiet: #5b645e;
+  --faint: #555e58;
+  --quiet: #555e58;
   --dim: #6b746e;
-  --accent: #147a3a;
+  --accent: #116a33;
+  --accent-2: #005bb1; /* VS Code Light 2026: focusBorder (#0069cc), darker for 4.5:1 on --bg */
   --accent-tint: rgba(74, 222, 128, 0.16);
   --card-hover: rgba(21, 128, 61, 0.55);
-  --warn: #b45309;
-  --error: #b91c1c;
-  --mark-n: #858d87;
+  --warn: #954507;
+  --error: #b41b1b;
+  --mark-n: #707872;
   --marquee-dim: #c4c8c0;
   --chip-dashed: #c9cbc3;
   --logo-filter: brightness(0.35);
-  --bar-bg: rgba(246, 245, 240, 0.88);
+  --bar-bg: #c9cba5cc;
+  /* A tinted see-through bar: the page inks fall under 4.5:1 on it, so it takes its own. theme.css reads them with
+     the page ink as fallback, and the dark theme does not set them. --bar-accent marks icons only (3:1). */
+  --bar-ink: var(--text);
+  --bar-accent: #0d4f26;
   --hint-bg: #e0f3e6;
   --hint-bg-2: #dbeff2;
   --hint-glow: rgba(255, 255, 255, 0.7);
@@ -264,7 +282,7 @@
   --tk-t: #0369a1;
   --tk-k: #6d28d9;
   --tk-n: #c2410c;
-  --callout-bg: rgba(190, 222, 74, 0.14);
+  --callout-bg: #0a0c041c;
   --callout-rim: rgba(0, 0, 0, 0.02);
   --table-head-bg: var(--accent);
   --table-head-ink: #ffffff;

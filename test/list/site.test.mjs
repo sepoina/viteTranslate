@@ -247,7 +247,7 @@ const contrasto = (a, b) => {
   return (x + 0.05) / (y + 0.05);
 };
 const COPPIE = [
-  ...["text", "muted", "faint", "quiet", "accent"].flatMap((f) => ["bg", "surface-2", "bg-deep"].map((b) => [f, b])),
+  ...["text", "muted", "faint", "quiet", "accent", "accent-2"].flatMap((f) => ["bg", "surface-2", "bg-deep"].map((b) => [f, b])),
   ["lead", "bg"],
   ["code-text", "bg"],
   ["accent-ink", "accent-fill"],
@@ -277,6 +277,29 @@ for (const [nome, mappa] of [["scuro", scuro], ["chiaro", chiaro]]) {
     }).map(([f, b]) => `${f} su ${b}`);
     eq(`tema ${nome}: ogni coppia passa ${soglia}:1`, [], sotto);
   }
+}
+// The light theme's bar is tinted, with its own inks (--bar-*): text at 4.5:1 on it, the green of the
+// current place at 3:1 (it marks an icon). The dark theme sets no --bar-* and keeps the page's inks.
+// A see-through bar (#rrggbbaa) is measured over the page (--bg) and over black, the darkest thing that
+// can scroll under it.
+{
+  const sopra = (colore, fondo) => {
+    const m = /^#([0-9a-f]{6})([0-9a-f]{2})?$/i.exec(colore);
+    if (!m || !esa.test(fondo)) return "";
+    if (!m[2]) return colore;
+    const alfa = parseInt(m[2], 16) / 255;
+    const [x, y] = [m[1], fondo.slice(1)].map((h) => h.match(/../g).map((c) => parseInt(c, 16)));
+    return "#" + x.map((c, i) => Math.round(c * alfa + y[i] * (1 - alfa)).toString(16).padStart(2, "0")).join("");
+  };
+  const barra = risolvi(chiaro, "bar-bg");
+  const sotto = [risolvi(chiaro, "bg"), "#000000"].flatMap((fondo) =>
+    [["bar-ink", 4.5], ["bar-accent", 3]].filter(([f, soglia]) => {
+      const [a, c] = [risolvi(chiaro, f), sopra(barra, fondo)];
+      return !esa.test(a) || !esa.test(c) || contrasto(a, c) < soglia;
+    }).map(([f]) => `${f} su bar-bg (sopra ${fondo})`),
+  );
+  eq("tema chiaro: gli inchiostri della barra passano sul suo grigio", [], sotto);
+  eq("tema scuro: nessun --bar-ink / --bar-accent", [undefined, undefined], [scuro["bar-ink"], scuro["bar-accent"]]);
 }
 // The code blocks' base16 scheme (codeScheme.css, slots chosen by codeTheme.js, painted by code.css): every slot that colours text,
 // on the scheme's own background. base01, base02 (backgrounds), base06 and base07 colour no text.
