@@ -56,11 +56,28 @@ const MENU = [
   },
 ];
 
+//
+// Le portate sono schede (il pattern "tabs" di WAI-ARIA): Tab entra sulla scheda scelta ed esce verso
+// il pannello, le frecce passano da una scheda all'altra, Home e End vanno alla prima e all'ultima.
+//
+const STEP = { ArrowRight: 1, ArrowLeft: -1 };
+
 export default function Menu() {
   const [active, setActive] = useState(MENU[0].id);
   const money = useMoney();
   const trans = useTrans();
   const course = MENU.find((c) => c.id === active);
+
+  const onKeyDown = (e) => {
+    // from the tab that has the focus (the chosen one, unless something moved the focus by hand)
+    const focused = MENU.findIndex((c) => `tab-${c.id}` === e.target.id);
+    const i = focused < 0 ? MENU.findIndex((c) => c.id === active) : focused;
+    const next = e.key === 'Home' ? 0 : e.key === 'End' ? MENU.length - 1 : STEP[e.key] ? (i + STEP[e.key] + MENU.length) % MENU.length : -1;
+    if (next < 0) return;
+    e.preventDefault();
+    setActive(MENU[next].id);
+    document.getElementById(`tab-${MENU[next].id}`)?.focus();
+  };
 
   return (
     <section className="section" id="menu">
@@ -79,12 +96,16 @@ export default function Menu() {
           </p>
         </header>
 
-        <div className="tabs" role="tablist">
+        <div className="tabs" role="tablist" onKeyDown={onKeyDown}>
           {MENU.map((c) => (
             <button
               key={c.id}
+              id={`tab-${c.id}`}
+              type="button"
               role="tab"
               aria-selected={c.id === active}
+              aria-controls="menu-panel"
+              tabIndex={c.id === active ? 0 : -1}
               className={c.id === active ? 'is-active' : ''}
               onClick={() => setActive(c.id)}
             >
@@ -93,14 +114,15 @@ export default function Menu() {
           ))}
         </div>
 
-        <ul className="menu-list" role="tabpanel" key={active}>
+        {/* No link inside: the panel itself takes the Tab after the tabs. */}
+        <ul className="menu-list" id="menu-panel" role="tabpanel" aria-labelledby={`tab-${active}`} tabIndex={0} key={active}>
           {course.items.map((item) => (
             <li key={item.name}>
               <div className="menu-item__head">
                 <h3>
                   <Trans t={item.name} />
                   {item.tags?.map((t) => (
-                    <i key={t} className={`ph ${TAGS[t].icon} menu-tag`} title={trans(TAGS[t].label)} aria-label={trans(TAGS[t].label)} />
+                    <i key={t} className={`ph ${TAGS[t].icon} menu-tag`} role="img" title={trans(TAGS[t].label)} aria-label={trans(TAGS[t].label)} />
                   ))}
                 </h3>
                 <span className="menu-item__dots" aria-hidden="true" />

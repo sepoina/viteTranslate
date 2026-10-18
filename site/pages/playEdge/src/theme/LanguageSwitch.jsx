@@ -8,8 +8,9 @@ export default function LanguageSwitch({ label }) {
   const { id, languages, proposeNewLanguage } = useTransLanguage();
   const trans = useTrans();
 
+  // translate="no": codes and names are the languages' own (endonyms), the browser's translator leaves them alone.
   return (
-    <div className="seg lang-switch" role="group" aria-label={label ?? trans("_%_Lingua della pagina_%_")}>
+    <div className="seg lang-switch" role="group" aria-label={label ?? trans("_%_Lingua della pagina_%_")} translate="no">
       {languages.map(({ tag, languageName }) => (
         // No title: the site bar shows the language's name in its hint (data-hint), a native tooltip would cover it.
         <button

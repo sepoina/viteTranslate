@@ -40,11 +40,14 @@ export function pickLanguage(languages, fallback) {
  * Da mettere dentro il TransContainer: ricorda ogni lingua che arriva davvero sullo schermo
  * (se il chunk non carica, `id` non cambia e non si salva niente). La lingua d'avvio non si salva:
  * chi non ha mai scelto non ha una preferenza.
+ * It also keeps <html lang> on the language on screen, the start one included: screen readers pick
+ * their voice from it, browsers their hyphenation and spell checking.
  */
 export function RememberLanguage() {
   const { id } = useTransLanguage();
   const seen = useRef(id);
   useEffect(() => {
+    if (id) document.documentElement.lang = id;
     if (id && id !== seen.current) {
       seen.current = id;
       save(id);

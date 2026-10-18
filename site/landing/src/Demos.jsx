@@ -23,7 +23,7 @@ export default function Demos() {
                   <h3>
                     <Trans t={page.title} />
                   </h3>
-                  <p className="demo-path">/{page.slug}/</p>
+                  <p className="demo-path" translate="no">/{page.slug}/</p>
                   <p className="demo-text">
                     <Trans t={page.text} />
                   </p>

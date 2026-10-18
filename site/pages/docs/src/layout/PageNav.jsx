@@ -1,7 +1,7 @@
 import { Trans } from "@sepoina/vitetranslate/react";
 import { ROUTES } from "../generated/routes.js";
-import { BASE, cameFrom, goBack } from "./router.js";
-import { ORDER, go } from "./Sidebar.jsx";
+import { BASE, cameFrom, go, goBack } from "./router.js";
+import { ORDER } from "./Sidebar.jsx";
 
 /**
  * Where "Previous" and "Next" lead: the order of the left column, except that a page reached through

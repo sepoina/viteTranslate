@@ -9,7 +9,7 @@ html:root[data-theme='light'] {
   --ink: #0f1c26;
   --ink-2: #172a38;
   --sea: #23465f;
-  --paper: #fbf8f3;
+  --paper: #fbf8f3; /* LINKED-DATA: the theme-color of index.html */
   --sand: #f3ece1;
   --sand-2: #e6d9c4;
   --coral: #bf5537;
@@ -60,6 +60,42 @@ html:root[data-theme='light'] {
   --pico-accordion-close-summary-color: var(--ink);
   scroll-behavior: smooth;
   scroll-padding-top: 5rem;
+  -webkit-tap-highlight-color: var(--pico-primary-focus);
+}
+
+/* "Salta al contenuto" (Header.jsx): the first stop of Tab, out of sight until it has the focus. */
+.skip-link {
+  position: fixed;
+  top: 0.75rem;
+  left: 0.75rem;
+  z-index: 60;
+  padding: 0.6rem 1rem;
+  background: var(--ink);
+  color: #fff;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-decoration: none;
+  transform: translateY(calc(-100% - 1rem));
+  transition: transform 0.2s ease;
+}
+
+.skip-link:focus {
+  transform: none;
+}
+
+/* Where the skip link lands: <main> takes the focus only to hand on the next Tab, no ring around the page. */
+main:focus {
+  outline: none;
+}
+
+/* The controls whose Pico focus ring (a box-shadow) this sheet switches off get an outline instead. */
+.tabs button:focus-visible,
+.lang-menu > summary:focus-visible,
+.lang-menu li button:focus-visible,
+a.name-link:focus-visible,
+.menu-list:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 3px;
 }
 
 body {
@@ -396,22 +432,43 @@ a.name-link {
   box-shadow: 0 18px 40px rgba(15, 28, 38, 0.18);
 }
 
-.lang-menu li a {
-  display: flex !important;
+/* Each language is a <button> (LanguageMenu.jsx): out of Pico's button look, into the row Pico gives
+   its dropdown links (the same negative margin and padding inside the <li>). */
+.lang-menu li button {
+  display: flex;
   justify-content: space-between;
   align-items: baseline;
   gap: 1.5rem;
-  color: var(--ink) !important;
+  width: calc(100% + 2 * var(--pico-form-element-spacing-horizontal));
+  margin: calc(var(--pico-form-element-spacing-vertical) * -0.5) calc(var(--pico-form-element-spacing-horizontal) * -1);
+  padding: calc(var(--pico-form-element-spacing-vertical) * 0.5) var(--pico-form-element-spacing-horizontal);
+  border: 0;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+  color: var(--ink);
+  font: inherit;
+  text-align: left;
 }
 
-.lang-menu li a small {
+.lang-menu li button:is(:hover, :focus-visible) {
+  background: var(--pico-dropdown-hover-background-color);
+}
+
+/* Inside the list the ring is drawn inward: the dropdown's edges would cut it. */
+.lang-menu li button:focus-visible {
+  outline-offset: -2px;
+}
+
+.lang-menu li button small {
   font-size: 0.7rem;
   color: var(--muted);
   letter-spacing: 0.05em;
 }
 
-.lang-menu li a[aria-current] {
+.lang-menu li button[aria-current] {
   font-weight: 700;
+  background: var(--pico-dropdown-hover-background-color);
   box-shadow: inset 3px 0 0 var(--coral);
 }
 
@@ -782,6 +839,7 @@ a.name-link {
   font: 600 1.05rem/1 var(--font-body);
   color: var(--coral);
   white-space: nowrap;
+  font-variant-numeric: tabular-nums;
 }
 
 .menu-list p {
@@ -1570,6 +1628,11 @@ a.name-link {
   *::after {
     animation: none !important;
     transition: none !important;
+  }
+
+  /* The anchors of the menu jump instead of gliding. */
+  html:root[data-theme='light'] {
+    scroll-behavior: auto;
   }
 }
 

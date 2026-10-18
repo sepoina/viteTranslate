@@ -168,7 +168,7 @@ export function SourceDock({ row, hint }) {
       </div>
       <div className="wrap dock-body">
         {row ? (
-          <pre key={row.title} style={size}>
+          <pre key={row.title} style={size} translate="no">
             <code>{nodes}</code>
           </pre>
         ) : (

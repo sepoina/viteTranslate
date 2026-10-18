@@ -1,8 +1,8 @@
 #  -------------------------------------------------
 #      American English (sourceLanguage)
 #       |    code: en-US
-#       |    missing key: 0
-#       |    processed: 2026-10-17 01:04
+#       |    missing key: 2
+#       |    processed: 2026-10-18 22:10
 #       |    TableVersion: 260905
 #  -------------------------------------------------
 #
@@ -1628,3 +1628,7 @@ usetranslatetostring_1xjplz3: "The tagged-template form — {0} called on a temp
 usetranslatetostring_47vgdt: "{0} also accepts the same call forms as {1}'s <2>other forms</2>, with the same <3>diagnostic prefixes</3> and the same <4>{5} rule</4> for a missing {6}:"
 usetranslatetostring_bsrje4: "Translated plain strings for placeholder, aria-label, title and anything else that is not JSX."
 usetranslatetostring_k80zyw: "🎮 Live: <0>placeholders and attributes</0>."
+
+#  ----to be translated------------------------------------------
+App_9pxngv: "Skip to content"
+SiteBar_109x4mc: "Salta al contenuto"

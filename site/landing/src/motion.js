@@ -7,11 +7,15 @@ let lenis = null;
 
 const reducedMotion = () => window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
 
-/** Scorre fino alla sezione con `data-section="<nome>"`. Niente ancore: main.jsx rimanda ogni hash al playground. */
+/**
+ * Scorre fino alla sezione con `data-section="<nome>"`. Niente ancore: main.jsx rimanda ogni hash al playground.
+ * Without Lenis, scrollIntoView stops under the bar on its own (scroll-padding-top, theme.css); Lenis needs
+ * the bar's height, which is taller on phones (two rows).
+ */
 export function scrollToSection(name) {
   const el = document.querySelector(`[data-section="${name}"]`);
   if (!el) return;
-  if (lenis) lenis.scrollTo(el, { offset: -64, duration: 1.2 });
+  if (lenis) lenis.scrollTo(el, { offset: -(document.querySelector("header.bar")?.offsetHeight ?? 64), duration: 1.2 });
   else el.scrollIntoView({ behavior: reducedMotion() ? "auto" : "smooth", block: "start" });
 }
 
@@ -62,17 +66,21 @@ export function initMotion(root) {
 
     // Contatori: il testo nel markup è già il valore finale. Si scrive nel nodo di testo che React
     // possiede (nodeValue) invece di sostituirlo, così un rendering successivo non lo perde.
+    // Each step in the page's notation, like the final value (Hero.jsx): <html lang> is the language on screen.
     gsap.utils.toArray("[data-count]").forEach((el) => {
       const node = el.firstChild;
       const target = Number(el.dataset.count);
       if (!node || !Number.isFinite(target)) return;
       const state = { v: 0 };
+      let format = String;
       node.nodeValue = "0";
       gsap.to(state, {
         v: target,
         duration: 2,
         ease: "power2.out",
-        onUpdate: () => (node.nodeValue = String(Math.round(state.v))),
+        // Intl's format is a bound getter: it can be kept apart from its formatter.
+        onStart: () => (format = new Intl.NumberFormat(document.documentElement.lang || undefined).format),
+        onUpdate: () => (node.nodeValue = format(Math.round(state.v))),
         scrollTrigger: { trigger: el, start: "top 92%", once: true },
       });
     });

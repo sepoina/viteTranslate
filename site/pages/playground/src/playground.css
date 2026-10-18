@@ -57,14 +57,9 @@
   color: var(--muted);
 }
 
+/* Anchors stop under the site bar, one or two rows, through the theme's scroll-padding-top (theme.css). */
 .doc {
   padding-top: clamp(2.2rem, 5vw, 3.2rem);
-  scroll-margin-top: 64px;
-}
-
-.part,
-.notes {
-  scroll-margin-top: 64px;
 }
 
 .doc h3 {
@@ -131,6 +126,7 @@
   letter-spacing: -0.02em;
 }
 
+/* Background and ink spelled out: a native select (and its list, on Windows) would keep the system's. */
 .demo input,
 .demo select {
   width: 100%;
@@ -138,6 +134,12 @@
   border: 1px solid var(--line-strong);
   border-radius: var(--r-md);
   background: var(--bg);
+  color: var(--text);
+}
+
+.demo option {
+  background-color: var(--bg);
+  color: var(--text);
 }
 
 .demo .row {
@@ -263,13 +265,6 @@
 }
 
 @media (max-width: 720px) {
-  /* la barra va su due righe: l'ancora deve atterrare sotto */
-  .doc,
-  .part,
-  .notes {
-    scroll-margin-top: 110px;
-  }
-
   .toc-label {
     width: 100%;
   }

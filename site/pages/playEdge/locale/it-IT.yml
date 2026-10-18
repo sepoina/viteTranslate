@@ -1,8 +1,8 @@
 #  -------------------------------------------------
 #      italiano (Italia) (sourceLanguage)
 #       |    code: it-IT
-#       |    missing key: 0
-#       |    processed: 2026-10-16 12:52
+#       |    missing key: 1
+#       |    processed: 2026-10-18 22:10
 #       |    TableVersion: 260905
 #  -------------------------------------------------
 #
@@ -347,3 +347,6 @@ testCases_yv9uvt: "Plurale: uno"
 testCases_zmrpz5: "a array vuoto"
 testCases_zzrrzd: "%s stringa vuota"
 ThemeToggle_1i35buc: "Cambia tema"
+
+#  ----to be translated------------------------------------------
+SiteBar_109x4mc: "Salta al contenuto"

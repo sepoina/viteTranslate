@@ -1,7 +1,6 @@
 import { Trans, useTrans } from "@sepoina/vitetranslate/react";
 import { RELATED } from "../generated/related.js";
-import { BASE } from "./router.js";
-import { go } from "./Sidebar.jsx";
+import { BASE, go } from "./router.js";
 import { ICON } from "./Toc.jsx";
 
 // "On the same topic": the `related:` links of the page's frontmatter (src/generated/related.js), each a

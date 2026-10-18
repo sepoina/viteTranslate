@@ -44,10 +44,13 @@ export function highlight(src, lang, mark) {
   return out;
 }
 
-/** Un blocco di codice colorato. La barra con il titolo (nome del file, "terminal"…) c'è solo se c'è `title`. */
+/**
+ * Un blocco di codice colorato. La barra con il titolo (nome del file, "terminal"…) c'è solo se c'è `title`.
+ * translate="no": the browser's translator would rewrite the code.
+ */
 export function Code({ code, lang = "jsx", title, className = "", mark }) {
   return (
-    <div className={`code ${className}`.trim()}>
+    <div className={`code ${className}`.trim()} translate="no">
       {title && (
         <div className="code-bar">
           <span>{title}</span>

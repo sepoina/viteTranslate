@@ -63,6 +63,13 @@ export function navigate(href, from) {
   notify();
 }
 
+/** Il click di un link interno: va col router, salvo clic con tasto modificatore (scheda nuova). `from`: see navigate(). */
+export const go = (href, from) => (e) => {
+  if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+  e.preventDefault();
+  navigate(href, from);
+};
+
 /** The page the reader came from through "On the same topic", if this history entry has one. */
 export const cameFrom = () => history.state?.from ?? null;
 

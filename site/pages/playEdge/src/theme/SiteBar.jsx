@@ -41,6 +41,15 @@ const PERCENT = "m-55.7,-327.4 c-38.6,-1.6-76,14.7-96.8,42.2-5.8,7.7-14.4,24.7-1
 // How long the hint bar waits before closing: time to move the pointer from a control down onto it.
 const CLOSE_DELAY = 150;
 
+// "Skip to content": a button and not a link to "#…", because the landing sends any hash to the playground
+// (its main.jsx). <main> takes the focus for a moment, so the next Tab goes on from there.
+const skipToContent = () => {
+  const main = document.querySelector("main");
+  if (!main) return;
+  main.tabIndex = -1;
+  main.focus();
+};
+
 /**
  * @param {object} props
  * @param {"home" | "docs" | "demos"} props.current the place this page belongs to: its icon is the green one
@@ -48,11 +57,12 @@ const CLOSE_DELAY = 150;
  * @param {{ id: string, mark?: import("react").ReactNode, label: import("react").ReactNode }} [props.section] what the page is showing, in the middle of the bar; `mark` in green before it (a "･" between the two), `id` replays the entrance when it changes
  * @param {(place: string, event: import("react").MouseEvent) => void} [props.onNavigate] called on an icon's click, before the browser follows the link (preventDefault() to handle it in the page)
  * @param {import("react").ReactNode} [props.children] page controls next to the logo (the manual's menu button)
- * @param {{ nav?: string, language?: string, theme?: string, home?: string, homeHint?: string, docs?: string, docsHint?: string, demos?: string, demosHint?: string, githubHint?: string, themeName?: string, themeToLight?: string, themeToDark?: string }} [props.labels] the bar's texts, already translated; without them, the Italian ones (the source language of the other projects). A page written in another language passes its own: `trans("_%_…_%_")`
+ * @param {{ skip?: string, nav?: string, language?: string, theme?: string, home?: string, homeHint?: string, docs?: string, docsHint?: string, demos?: string, demosHint?: string, githubHint?: string, themeName?: string, themeToLight?: string, themeToDark?: string }} [props.labels] the bar's texts, already translated; without them, the Italian ones (the source language of the other projects). A page written in another language passes its own: `trans("_%_…_%_")`
  */
 export default function SiteBar({ current, home = siteUrl(), section, onNavigate, children, labels = {} }) {
   const trans = useTrans();
   const { id: language, languages } = useTransLanguage();
+  const header = useRef(null);
   const inner = useRef(null);
   const box = useRef(null);
   const row = useRef(null);
@@ -62,6 +72,17 @@ export default function SiteBar({ current, home = siteUrl(), section, onNavigate
   const [open, setOpen] = useState(false);
 
   useEffect(() => () => clearTimeout(timer.current), []);
+
+  // The bar's height as drawn (two rows on phones), on <html> as --bar-real: theme.css keeps anchors and the
+  // focus out from under it (scroll-padding-top), the manual's sticky columns start below it.
+  useLayoutEffect(() => {
+    const bar = header.current;
+    const set = () => document.documentElement.style.setProperty("--bar-real", `${bar.offsetHeight}px`);
+    set();
+    const ro = new ResizeObserver(set);
+    ro.observe(bar);
+    return () => ro.disconnect();
+  }, []);
 
   const places = {
     home: { href: home, name: labels.home ?? trans("_%_Home_%_"), hint: labels.homeHint ?? trans("_%_La pagina principale: viteTranslate in un colpo d'occhio._%_") },
@@ -116,7 +137,10 @@ export default function SiteBar({ current, home = siteUrl(), section, onNavigate
   }, [hint, language]);
 
   return (
-    <header className="bar">
+    <header ref={header} className="bar">
+      <button type="button" className="skip-link" onClick={skipToContent}>
+        {labels.skip ?? trans("_%_Salta al contenuto_%_")}
+      </button>
       <div ref={inner} className="wrap bar-in">
         <div className="bar-start">
           <a className="bar-brand" href={home}>
@@ -187,7 +211,8 @@ export default function SiteBar({ current, home = siteUrl(), section, onNavigate
         <div className="wrap">
           {shown && (
             <p ref={row} className="bar-hint-text">
-              <span className="bar-hint-name">
+              {/* A language's name is its own (an endonym): the browser's translator leaves it alone. */}
+              <span className="bar-hint-name" translate={shown.mark ? "no" : undefined}>
                 {shown.mark && (
                   <svg className="bar-hint-mark" viewBox="-172.5 -327.5 373 349" aria-hidden="true">
                     <path d={PERCENT} />

@@ -3,7 +3,7 @@
 // SORGENTE in site/theme/: la copia in src/theme/ la rigenera `npm run site:theme`.
 import { useState } from "react";
 import { useTrans } from "@sepoina/vitetranslate/react";
-import { THEME_KEY, currentTheme } from "./boot.js";
+import { THEME_KEY, currentTheme, syncThemeColor } from "./boot.js";
 
 const SUN = [
   "M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8z",
@@ -26,6 +26,7 @@ export default function ThemeToggle({ label }) {
   const flip = () => {
     const next = theme === "dark" ? "light" : "dark";
     document.documentElement.dataset.theme = next;
+    syncThemeColor();
     try {
       localStorage.setItem(THEME_KEY, next);
     } catch {

@@ -2,7 +2,6 @@
 // hash al playground (i vecchi link con l'ancora), quindi un'ancora qui non arriverebbe mai.
 // La navigazione interna passa da scrollToSection() (data-section), non da un hash.
 import { useEffect, useRef } from "react";
-import { useTransLanguage } from "@sepoina/vitetranslate/react";
 import Compare from "./Compare.jsx";
 import CodeDemo from "./CodeDemo.jsx";
 import Demos from "./Demos.jsx";
@@ -17,13 +16,8 @@ import { SECTIONS } from "./sections.js";
 
 export default function App() {
   const root = useRef(null);
-  const { id } = useTransLanguage();
 
-  // <html lang> segue la lingua scelta: conta per lettori di schermo e per l'ortografia del browser.
-  useEffect(() => {
-    if (id) document.documentElement.lang = id;
-  }, [id]);
-
+  // <html lang> follows the language on screen: RememberLanguage (siteLanguage.js) sees to it.
   useEffect(() => initMotion(root.current), []);
 
   // ?section=demos: the Demos icon of the site bar, from the other pages (a hash would end up on the

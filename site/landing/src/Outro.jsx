@@ -27,7 +27,7 @@ export default function Outro() {
 
       <footer className="footer">
         <div className="wrap footer-in">
-          <span>
+          <span translate="no">
             viteTranslate <b>v{version}</b> · Apache-2.0
           </span>
           <nav>

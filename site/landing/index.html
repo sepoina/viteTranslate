@@ -4,7 +4,10 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="color-scheme" content="dark light" />
-    <meta name="theme-color" content="#191a1b" />
+    <!-- The browser bar takes the page background, --bg of site/theme/tokens.css (test/list/site.test.mjs checks it);
+         a theme chosen on the site rewrites both (src/theme/boot.js) -->
+    <meta name="theme-color" content="#f2f4f0" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#1a1e1c" media="(prefers-color-scheme: dark)" />
     <meta
       name="description"
       content="Extract translatable strings straight from your JSX — a Vite plugin that auto-generates and syncs your translation tables, with zero runtime dependencies."
@@ -19,9 +22,11 @@
     <link rel="icon" href="/src/theme/favicon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="/src/theme/apple-touch-icon.png" />
 
-    <!-- Font: li carica src/theme/theme.css (Alfa Slab One, Schibsted Grotesk, IBM Plex Mono); qui solo il preconnect -->
+    <!-- Fonts of the site theme (Alfa Slab One, Schibsted Grotesk, IBM Plex Mono): a <link> here, so they load
+         with the page CSS and not after it. The same line in every themed index.html (test/list/site.test.mjs) -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alfa+Slab+One&family=Schibsted+Grotesk:wght@400..700&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" />
 
     <!-- Movimento: GSAP + ScrollTrigger per le entrate e i contatori, Lenis per lo scroll morbido.
          Sono `defer`, quindi partono prima del modulo dell'app; se una CDN non risponde la pagina

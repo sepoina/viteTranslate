@@ -32,22 +32,33 @@ export default function App() {
 }`;
 
 // Il sorgente resta lo stesso; cambia la tabella che il sync genera per ogni lingua e cambia ciò che si vede.
-// Le lingue girano da sole finché non se ne sceglie una (mai con il movimento ridotto).
+// Le lingue girano da sole finché non se ne sceglie una (mai con il movimento ridotto), and they wait while
+// the pointer or the focus is on the demo: what is being read does not change under the reader.
+// translate="no": the sentences are the demo's own translations, the browser's translator would flatten them.
 function DemoWindow() {
   const [i, setI] = useState(START);
   const [auto, setAuto] = useState(true);
+  const [held, setHeld] = useState(false);
 
   useEffect(() => {
-    if (!auto || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    if (!auto || held || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const timer = setInterval(() => setI((n) => (n + 1) % DEMO.length), 2600);
     return () => clearInterval(timer);
-  }, [auto]);
+  }, [auto, held]);
 
   const { tag, glyph, text } = DEMO[i];
   const table = `# locale/${tag}.yml\n# missing key: 0\nApp_1q8xz4: "${text}"`;
 
   return (
-    <div className="looks" data-reveal>
+    <div
+      className="looks"
+      data-reveal
+      translate="no"
+      onPointerEnter={() => setHeld(true)}
+      onPointerLeave={() => setHeld(false)}
+      onFocus={() => setHeld(true)}
+      onBlur={(e) => !e.currentTarget.contains(e.relatedTarget) && setHeld(false)}
+    >
       <div className="looks-code">
         <Code code={SOURCE} lang="jsx" title="App.jsx" className="code-panel" mark={SENTENCE} />
         <Code code={table} lang="yaml" title={`${tag}.yml`} className="code-panel" />

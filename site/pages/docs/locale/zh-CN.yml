@@ -2,7 +2,7 @@
 #      中文（中国）
 #       |    code: zh-CN
 #       |    missing key: 0
-#       |    processed: 2026-10-17 01:03
+#       |    processed: 2026-10-18 22:24
 #       |    TableVersion: 260905
 #  -------------------------------------------------
 #
@@ -85,6 +85,7 @@ App_1hsx4ur: "手册：安装、API、CLI 和 LLM 翻译。"
 App_1p1x3pl: "文档"
 App_1pgweap: "首页"
 App_416i43: "切换主题"
+App_9pxngv: "跳到内容"
 App_b8cca0: "切换到深色主题：选择在整个站点内保持。"
 App_cqjojs: "切换到浅色主题：选择在整个站点内保持。"
 App_k05e2f: "主题"
@@ -1346,6 +1347,7 @@ setup_vwj0cj: "该块的每个其他设置及其默认值：<0>选项</0>。"
 setup_wocvfd: "<b>2. 给它密钥</b>，例如在 {0} 中。它还能放在哪里，以及如何使其远离 git：<1>API 密钥</1>。"
 setup_yghas9: "为 viteTranslate 指定模型,提供密钥,然后用一条命令填充你的空键。"
 Sidebar_1684n44: "手动导航"
+SiteBar_109x4mc: "跳到内容"
 SiteBar_135b08s: "主页面：一眼看懂 viteTranslate。"
 SiteBar_16pt5e6: "手册：安装、API、CLI 以及用 LLM 翻译。"
 SiteBar_184491n: "切换到深色主题：该选择适用于整个站点。"

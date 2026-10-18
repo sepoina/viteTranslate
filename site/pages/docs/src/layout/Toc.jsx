@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Trans, useTrans } from "@sepoina/vitetranslate/react";
-import { navigate } from "./router.js";
+import { go } from "./router.js";
 
 /**
  * La sezione che si sta leggendo: l'ultimo titolo il cui bordo alto è salito sopra il 25% dello
@@ -42,14 +42,8 @@ function Links({ headings, active }) {
     <ul className="d-toc-list">
       {headings.map((h) => (
         <li key={h.id} data-depth={h.depth}>
-          <a
-            href={`#${h.id}`}
-            aria-current={h.id === active ? "location" : undefined}
-            onClick={(e) => {
-              e.preventDefault();
-              navigate(`#${h.id}`);
-            }}
-          >
+          {/* go(): the router, unless a modifier asks for a new tab or window. */}
+          <a href={`#${h.id}`} aria-current={h.id === active ? "location" : undefined} onClick={go(`#${h.id}`)}>
             <Trans t={h.title} a={h.a} />
           </a>
         </li>

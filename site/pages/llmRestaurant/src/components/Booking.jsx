@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Trans, useTrans } from '@sepoina/vitetranslate/react';
 import Photo from './Photo';
 import { PHOTOS } from '../photos';
@@ -18,12 +18,27 @@ const HOURS = [
   { days: '_%_Lunedì_%_', time: '_%_Chiuso per riposo_%_' },
 ];
 
-const today = () => new Date().toISOString().slice(0, 10);
+// The local day, not UTC's: just after midnight toISOString() would still offer yesterday.
+const today = () => {
+  const d = new Date();
+  return [d.getFullYear(), d.getMonth() + 1, d.getDate()].map((n) => String(n).padStart(2, '0')).join('-');
+};
 
 export default function Booking() {
   const trans = useTrans();
   const [form, setForm] = useState({ date: '', time: '20:30', guests: 2, room: 'sala', name: '', email: '', phone: '', notes: '' });
   const [sent, setSent] = useState(null);
+  //
+  // Sent, the focus goes to "Richiesta ricevuta", so a screen reader reads it; a new booking brings it
+  // back to the form's title. Only when `sent` really changes: the page opens where it opens.
+  const doneTitle = useRef(null);
+  const formTitle = useRef(null);
+  const lastSent = useRef(sent);
+  useEffect(() => {
+    if (lastSent.current === sent) return;
+    lastSent.current = sent;
+    (sent ? doneTitle : formTitle).current?.focus();
+  }, [sent]);
 
   const set = (key) => (e) => setForm({ ...form, [key]: e.target.value });
   const guestsLabel = (n) => trans('_%_{0, plural, one {# persona} other {# persone}}_%_', Number(n));
@@ -71,36 +86,38 @@ export default function Booking() {
 
         <article className="booking__card reveal">
           {sent ? (
-            <div className="booking__done" aria-live="polite">
+            <div className="booking__done">
               <i className="ph ph-check" aria-hidden="true" />
-              <h3><Trans>Richiesta ricevuta</Trans></h3>
+              <h3 ref={doneTitle} tabIndex={-1}><Trans>Richiesta ricevuta</Trans></h3>
               <p>
                 <Trans
                   t="_%_Grazie, <b>{name}</b>! Abbiamo registrato la richiesta per {guests, plural, one {# persona} other {# persone}}, {date, date, ::EEEEdMMMM} alle {time}. Vi scriveremo entro due ore per confermare il tavolo._%_"
                   a={{ name: sent.name, guests: Number(sent.guests), date: sent.date, time: sent.time }}
                 />
               </p>
-              <button className="outline" onClick={() => setSent(null)}>
+              <button type="button" className="outline" onClick={() => setSent(null)}>
                 <Trans>Nuova prenotazione</Trans>
               </button>
             </div>
           ) : (
+            // Every field has a name and says what it holds (autoComplete): the browser fills name, email
+            // and phone, and leaves the date and the notes alone.
             <form onSubmit={submit}>
-              <h3><Trans>Richiedi un tavolo</Trans></h3>
+              <h3 ref={formTitle} tabIndex={-1}><Trans>Richiedi un tavolo</Trans></h3>
               <div className="grid">
                 <label>
                   <Trans>Data</Trans>
-                  <input type="date" required min={today()} value={form.date} onChange={set('date')} />
+                  <input type="date" name="date" autoComplete="off" required min={today()} value={form.date} onChange={set('date')} />
                 </label>
                 <label>
                   <Trans>Ora</Trans>
-                  <select value={form.time} onChange={set('time')}>
+                  <select name="time" value={form.time} onChange={set('time')}>
                     {TIMES.map((t) => <option key={t}>{t}</option>)}
                   </select>
                 </label>
                 <label>
                   <Trans>Ospiti</Trans>
-                  <select value={form.guests} onChange={set('guests')}>
+                  <select name="guests" value={form.guests} onChange={set('guests')}>
                     {GUESTS.map((n) => <option key={n} value={n}>{guestsLabel(n)}</option>)}
                   </select>
                 </label>
@@ -118,21 +135,21 @@ export default function Booking() {
 
               <label>
                 <Trans>Nome e cognome</Trans>
-                <input required autoComplete="name" value={form.name} onChange={set('name')} placeholder={trans('_%_Come vi chiamiamo al tavolo_%_')} />
+                <input name="name" required autoComplete="name" value={form.name} onChange={set('name')} placeholder={trans('_%_Come vi chiamiamo al tavolo_%_')} />
               </label>
               <div className="grid">
                 <label>
                   <Trans>Email</Trans>
-                  <input type="email" required autoComplete="email" value={form.email} onChange={set('email')} placeholder={trans('_%_nome@esempio.it_%_')} />
+                  <input type="email" name="email" required autoComplete="email" spellCheck={false} value={form.email} onChange={set('email')} placeholder={trans('_%_nome@esempio.it_%_')} />
                 </label>
                 <label>
                   <Trans>Telefono</Trans>
-                  <input type="tel" autoComplete="tel" value={form.phone} onChange={set('phone')} placeholder="+39 …" />
+                  <input type="tel" name="phone" autoComplete="tel" value={form.phone} onChange={set('phone')} placeholder="+39 …" />
                 </label>
               </div>
               <label>
                 <Trans>Note per la cucina</Trans>
-                <textarea rows={3} value={form.notes} onChange={set('notes')} placeholder={trans('_%_Allergie, ricorrenze, un seggiolone, una sorpresa da organizzare…_%_')} />
+                <textarea name="notes" autoComplete="off" rows={3} value={form.notes} onChange={set('notes')} placeholder={trans('_%_Allergie, ricorrenze, un seggiolone, una sorpresa da organizzare…_%_')} />
               </label>
               <button type="submit">
                 <Trans>Invia la richiesta</Trans> <i className="ph ph-arrow-right" aria-hidden="true" />

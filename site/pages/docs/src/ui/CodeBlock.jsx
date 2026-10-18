@@ -25,9 +25,11 @@ export default function CodeBlock({ lang, title, code, html }) {
     }
   };
 
+  // translate="no" on the code: the browser's translator would rewrite it. The live region says "Copied"
+  // aloud: a screen reader does not read the new text of the button it is on.
   return (
     <div className="d-code" data-theme="dark">
-      <div className="code hl" data-lang={lang}>
+      <div className="code hl" data-lang={lang} translate="no">
         {title && (
           <div className="code-bar">
             <span>{title}</span>
@@ -38,6 +40,9 @@ export default function CodeBlock({ lang, title, code, html }) {
       <button type="button" className="d-copy" onClick={copy}>
         {copied ? trans("_%_Copied_%_") : trans("_%_Copy_%_")}
       </button>
+      <span className="sr-only" aria-live="polite">
+        {copied ? trans("_%_Copied_%_") : ""}
+      </span>
     </div>
   );
 }

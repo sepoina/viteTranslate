@@ -3,9 +3,10 @@
    Text and columns use the site's --font (Schibsted Grotesk, from theme.css), like every other page;
    l'unico titolo in Alfa Slab è l'h1. */
 
-/* L'altezza della barra in alto: App.jsx la misura (a capo sui telefoni è più alta di --bar-h). */
+/* L'altezza della barra in alto: SiteBar.jsx la misura, --bar-real (a capo sui telefoni è più alta di --bar-h).
+   The sticky columns start below it; anchors stop below it through the theme's scroll-padding-top. */
 :root {
-  --d-bar: var(--bar-h);
+  --d-bar: var(--bar-real, var(--bar-h));
   /* Il guscio cresce con lo schermo fino a qui; oltre restano due fasce ai lati. */
   --d-max: 1600px;
   /* La riga del testo: oltre questa misura l'occhio fatica a tornare a capo. Codice, note, tabelle e
@@ -545,7 +546,7 @@
   color: var(--muted);
   font-family: var(--mono);
   font-size: 1rem;
-    font-weight: 500;
+  font-weight: 500;
   line-height: 1.4;
   text-transform: uppercase;
 }
@@ -592,7 +593,6 @@
 
 .d-prose h2,
 .d-prose h3 {
-  scroll-margin-top: calc(var(--d-bar) + 16px);
   color: var(--text-hi);
   font-weight: 600;
   text-wrap: balance;

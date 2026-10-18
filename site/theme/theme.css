@@ -1,8 +1,10 @@
 /* Il tema del sito viteTranslate (landing, playground, edge): base, tipografia e componenti
    condivisi. Solo token: i colori stanno in tokens.css.
    SORGENTE in site/theme/. Le cartelle src/theme/ dei progetti sono copie generate da
-   `npm run site:theme`: si modifica qui e si rilancia, mai la copia. */
-@import url("https://fonts.googleapis.com/css2?family=Alfa+Slab+One&family=Schibsted+Grotesk:wght@400..700&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap");
+   `npm run site:theme`: si modifica qui e si rilancia, mai la copia.
+   The fonts (Alfa Slab One, Schibsted Grotesk, IBM Plex Mono) are a <link> in each project's index.html, not an
+   @import here: an @import waits for this file before it starts, a <link> loads with it (test/list/site.test.mjs
+   checks that every themed index.html has the same one). */
 @import "./tokens.css";
 
 /* ---------- Base ---------- */
@@ -12,8 +14,23 @@
   box-sizing: border-box;
 }
 
+/* Anchors, find-in-page and Tab stop under the sticky bar, not behind it: --bar-real is the bar's height as
+   drawn (two rows on phones), written on <html> by SiteBar.jsx. A tap flashes the accent, not the system grey. */
 html {
   -webkit-text-size-adjust: 100%;
+  -webkit-tap-highlight-color: var(--accent-soft);
+  scroll-padding-top: calc(var(--bar-real, var(--bar-h)) + 16px);
+}
+
+/* No double-tap zoom wait on what reacts to a tap; pinch zoom stays. */
+a,
+button,
+summary,
+label,
+input,
+select,
+textarea {
+  touch-action: manipulation;
 }
 
 body {
@@ -33,6 +50,14 @@ h3,
 h4,
 p {
   margin: 0;
+}
+
+/* No title ends on a lonely word. */
+h1,
+h2,
+h3,
+h4 {
+  text-wrap: balance;
 }
 
 a {
@@ -94,6 +119,30 @@ li code {
   overflow: hidden;
   clip-path: inset(50%);
   white-space: nowrap;
+}
+
+/* "Skip to content" (SiteBar.jsx): the first stop of Tab, out of sight until it has the focus. */
+.skip-link {
+  position: absolute;
+  top: 10px;
+  left: 16px;
+  z-index: 50;
+  padding: 8px 14px;
+  border-radius: var(--r-md);
+  background: var(--accent-fill);
+  color: var(--accent-ink);
+  font-weight: 600;
+  transform: translateY(calc(-100% - 20px));
+  transition: transform 150ms var(--ease);
+}
+
+.skip-link:focus {
+  transform: none;
+}
+
+/* Where the skip link lands: <main> takes the focus only to hand on the next Tab, no ring around the page. */
+main[tabindex="-1"]:focus {
+  outline: none;
 }
 
 /* Il contenitore: 1280px di contenuto, la barra in alto compresa. */
@@ -222,7 +271,8 @@ li code {
   height: 16px;
   margin-left: -6px;
   background: var(--accent);
-  animation: vt-blink 1s steps(2, start) infinite;
+  /* Five blinks, then it stays lit: nothing next to the text blinks for more than five seconds. */
+  animation: vt-blink 1s steps(2, start) 5;
 }
 
 @keyframes vt-type {
@@ -255,6 +305,7 @@ li code {
   font-family: var(--display);
   font-size: 3rem;
   font-weight: 400;
+  font-variant-numeric: tabular-nums;
   line-height: 1;
 }
 

@@ -54,13 +54,14 @@ body {
 .toc-count {
   font-family: var(--mono);
   font-size: 0.72rem;
+  font-variant-numeric: tabular-nums;
   opacity: 0.7;
 }
 
 /* ---------- Categorie ---------- */
+/* Anchors stop under the site bar, one or two rows, through the theme's scroll-padding-top (theme.css). */
 .cases {
   padding-top: clamp(2.5rem, 6vw, 4rem);
-  scroll-margin-top: 64px;
 }
 
 /* Alfa Slab One come i titoli della landing: peso 700 senza sintesi, vedi .page-hero h1 in theme.css. */
@@ -204,11 +205,6 @@ body {
   color: var(--muted);
 }
 
-/* ---------- Note in fondo ---------- */
-.notes {
-  scroll-margin-top: 64px;
-}
-
 /* ---------- La sezione del sorgente (SourceDock in ShowAllRowTests.jsx) ---------- */
 /* Fissa in fondo, larga quanto lo schermo, con il contenuto allineato alla tabella (.wrap). Scura
    in tutti e due i temi (data-theme="dark"); la linea in cima ha il colore dello stato della riga. */
@@ -302,12 +298,6 @@ body {
 
 /* ---------- Telefono: ogni riga diventa una scheda ---------- */
 @media (max-width: 720px) {
-  /* la barra va su due righe: l'ancora deve atterrare sotto */
-  .cases,
-  .notes {
-    scroll-margin-top: 110px;
-  }
-
   .cases thead {
     position: absolute;
     width: 1px;

@@ -16,7 +16,8 @@ export default function HeroVideo() {
       <div className="video-frame" data-reveal>
         <div className="video-screen">
           <a className="video-poster" href={VIDEO_URL} target="_blank" rel="noopener" aria-label={title}>
-            <img src={`${import.meta.env.BASE_URL}video/poster.webp`} alt="" width="1280" height="731" decoding="async" />
+            {/* At the hero's foot, under the fold on most screens: it waits for the scroll. */}
+            <img src={`${import.meta.env.BASE_URL}video/poster.webp`} alt="" width="1280" height="731" loading="lazy" decoding="async" />
             <span className="video-play" aria-hidden="true" />
           </a>
         </div>

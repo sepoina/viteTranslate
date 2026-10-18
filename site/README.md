@@ -89,6 +89,20 @@ site test and `testRelease` fail while they're stale. The restaurant demo keeps 
 Titles use `--display` (Alfa Slab One), which has no Chinese or Japanese glyphs. Give them `font-weight: 700` and
 `font-synthesis: none`: Latin stays as drawn, and the system CJK fallback comes out bold.
 
+**In each themed `index.html`.** The fonts are a `<link rel="stylesheet">`, not an `@import` in `theme.css` (an
+`@import` waits for the CSS that holds it), and two `<meta name="theme-color">`, one per system theme, carrying
+`--bg`: a theme chosen with the switch rewrites both (`boot.js`). Same lines in every project: the site test
+checks them against `tokens.css`.
+
+**Built in, nothing to do per page.** `<html lang>` follows the language on screen (`RememberLanguage`, in
+`siteLanguage.js`). Anchors, find-in-page and Tab stop under the bar: `theme.css` sets `scroll-padding-top` from
+`--bar-real`, the height the bar measures for itself, so no page needs its own `scroll-margin-top`. Code blocks,
+language names and identifiers carry `translate="no"`: a browser translator would rewrite them.
+
+**Motion.** Nothing moves by itself next to the text for more than five seconds: the hero cursor blinks five
+times, the play button pulses only under the pointer or the focus, the languages strip and the video glow follow
+the scroll (scroll-driven animations; without them they stand still). Reduced motion stops everything.
+
 Working on the theme with a dev server open: `node site/cli/syncTheme.mjs --watch` in a second terminal.
 
 Need something dark on a light page (like the source panel of the edge page)? Put `data-theme="dark"` on it: its whole
@@ -109,6 +123,10 @@ control, the description on its left (full width on phones); a language shows on
 `%`. Its own colours (`--hint-*` in `tokens.css`: green turning to cyan) set it apart from the bar. A control joins
 it with `data-hint` (`place:docs`, `lang:it-IT`, `theme`); the texts live in `SiteBar`. The Demos icon opens the landing with
 `?section=demos` (a hash would go to the playground, see `landing/src/main.jsx`); on the landing it just scrolls.
+
+The first Tab lands on "Skip to content" (`labels.skip`), hidden until focused: a button that hands the focus to
+`<main>`, not a `#` link, for the same reason. The bar also writes its drawn height on `<html>` as `--bar-real`
+(two rows on phones): the theme's scroll padding and the manual's sticky columns read it.
 
 ## The video in the hero
 

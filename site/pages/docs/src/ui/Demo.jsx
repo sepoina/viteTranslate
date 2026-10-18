@@ -8,7 +8,9 @@ const NAMES = { playground: "Playground", edge: "Edge cases", llmrestaurant: "LL
 export default function Demo({ page, anchor }) {
   return (
     <a className="card d-demo" href={`${siteUrl(page)}${anchor ? `#${anchor}` : ""}`}>
-      <span className="d-demo-name">{NAMES[page] ?? page}</span>
+      <span className="d-demo-name" translate="no">
+        {NAMES[page] ?? page}
+      </span>
       <span className="d-demo-go">
         <Trans>_%_Open live_%_</Trans> <span aria-hidden="true">↗</span>
       </span>

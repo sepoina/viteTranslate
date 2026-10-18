@@ -2,7 +2,7 @@
 #      italiano (Italia)
 #       |    code: it-IT
 #       |    missing key: 0
-#       |    processed: 2026-10-17 01:03
+#       |    processed: 2026-10-18 22:24
 #       |    TableVersion: 260905
 #  -------------------------------------------------
 #
@@ -85,6 +85,7 @@ App_1hsx4ur: "Il manuale: setup, API, CLI e traduzione con LLM."
 App_1p1x3pl: "Documentazione"
 App_1pgweap: "Home"
 App_416i43: "Cambia tema"
+App_9pxngv: "Vai al contenuto"
 App_b8cca0: "Passa al tema scuro: la scelta vale per tutto il sito."
 App_cqjojs: "Passa al tema chiaro: la scelta vale per tutto il sito."
 App_k05e2f: "Tema"
@@ -1346,6 +1347,7 @@ setup_vwj0cj: "Ogni altra impostazione del blocco, con il suo valore predefinito
 setup_wocvfd: "<b>2. Dagli la chiave</b>, per esempio in {0}. Dove altro può vivere, e come tenerla fuori da git: <1>Chiavi API</1>."
 setup_yghas9: "Indica a viteTranslate un modello, forniscigli la chiave e riempi le chiavi nulle con un solo comando."
 Sidebar_1684n44: "Navigazione del manuale"
+SiteBar_109x4mc: "Salta al contenuto"
 SiteBar_135b08s: "La pagina principale: viteTranslate in un colpo d'occhio."
 SiteBar_16pt5e6: "Il manuale: installazione, API, CLI e traduzione con un LLM."
 SiteBar_184491n: "Passa al tema scuro: la scelta vale per tutto il sito."

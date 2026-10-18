@@ -112,16 +112,32 @@ ul {
   mask-image: radial-gradient(ellipse 70% 65% at 50% 50%, transparent 45%, black 100%);
 }
 
-/* Gli aloni: più grandi della banda, così lo spostamento non ne mostra mai il bordo. */
+/* Gli aloni: più grandi della banda, così lo spostamento non ne mostra mai il bordo. They drift as the band
+   crosses the screen (a scroll-driven animation): they move with the reader's scroll, never on their own.
+   Without scroll-driven animations they stay put. */
 .video::after {
   inset: -30%;
   background:
     radial-gradient(closest-side at 25% 70%, var(--video-glow), transparent),
     radial-gradient(closest-side at 78% 28%, var(--video-glow-2), transparent);
-  animation: video-drift 18s ease-in-out infinite alternate;
+}
+
+@supports (animation-timeline: view()) {
+  .video {
+    view-timeline: --video;
+  }
+
+  .video::after {
+    animation: video-drift linear both;
+    animation-timeline: --video;
+  }
 }
 
 @keyframes video-drift {
+  from {
+    transform: translate3d(-3%, 3%, 0) rotate(-4deg);
+  }
+
   to {
     transform: translate3d(6%, -5%, 0) rotate(8deg);
   }
@@ -174,7 +190,8 @@ ul {
   outline-offset: -3px;
 }
 
-/* Il bottone play: un cerchio pieno d'accento con un triangolo, e due anelli che pulsano. */
+/* Il bottone play: un cerchio pieno d'accento con un triangolo, and a ring that pulses while the pointer or
+   the focus is on the poster (an answer to the reader, not a loop running next to the text). */
 .video-play {
   position: relative;
   width: clamp(64px, 9vw, 96px);
@@ -205,10 +222,14 @@ ul {
   inset: 0;
   border: 2px solid var(--accent);
   border-radius: 50%;
+  opacity: 0;
+}
+
+.video-poster:is(:hover, :focus-visible) .video-play::after {
   animation: video-pulse 2.2s var(--ease) infinite;
 }
 
-.video-poster:hover .video-play {
+.video-poster:is(:hover, :focus-visible) .video-play {
   transform: scale(1.08);
   background: var(--accent-fill-hover);
 }
@@ -603,16 +624,44 @@ ul {
   overflow: hidden;
 }
 
+/* At rest one row, wrapped: what is left without scroll-driven animations, or with reduced motion. */
 .marquee-track {
   display: flex;
-  width: max-content;
-  animation: slide 56s linear infinite;
 }
 
 .marquee-row {
   display: flex;
-  gap: 28px;
+  flex-wrap: wrap;
+  gap: 12px 28px;
   padding-right: 28px;
+}
+
+.marquee-row + .marquee-row {
+  display: none;
+}
+
+/* The strip slides while it crosses the screen, as far as the reader scrolls: two rows, so the right
+   edge never runs empty, even on a wide screen. */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .marquee-sec {
+      view-timeline: --marquee;
+    }
+
+    .marquee-track {
+      width: max-content;
+      animation: slide linear both;
+      animation-timeline: --marquee;
+    }
+
+    .marquee-row {
+      flex-wrap: nowrap;
+    }
+
+    .marquee-row + .marquee-row {
+      display: flex;
+    }
+  }
 }
 
 .marquee-row span {
@@ -641,22 +690,7 @@ ul {
 
 @keyframes slide {
   to {
-    transform: translateX(-50%);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .marquee-track {
-    width: auto;
-  }
-
-  .marquee-row {
-    flex-wrap: wrap;
-    row-gap: 12px;
-  }
-
-  .marquee-row + .marquee-row {
-    display: none;
+    transform: translateX(-22%);
   }
 }
 

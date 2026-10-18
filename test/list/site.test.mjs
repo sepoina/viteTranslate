@@ -188,6 +188,21 @@ for (const t of themeTargets(ROOT)) {
   eq(`${t}: index.html links the favicons, PNG before SVG`, true, icone.every((i) => i > 0) && icone[0] < icone[1]);
 }
 
+// 8c. Every themed index.html: the browser's bar takes --bg of each theme (one theme-color per system theme),
+// and the site fonts come from one <link>, the same everywhere (theme.css does not @import them).
+{
+  const { dark, light } = themeColors(readFileSync(join(ROOT, "site/theme/tokens.css"), "utf8"));
+  const fonts = (html) => /<link rel="stylesheet" href="(https:\/\/fonts\.googleapis\.com\/[^"]+)"/.exec(html)?.[1];
+  const primo = fonts(readFileSync(join(ROOT, "site/landing/index.html"), "utf8"));
+  for (const t of themeTargets(ROOT)) {
+    const html = readFileSync(join(ROOT, t, "index.html"), "utf8");
+    const colore = (schema) => new RegExp(`<meta name="theme-color" content="(#[0-9a-f]{6})" media="\\(prefers-color-scheme: ${schema}\\)"`, "i").exec(html)?.[1]?.toLowerCase();
+    eq(`${t}: theme-color is --bg, light and dark`, [light.bg, dark.bg], [colore("light"), colore("dark")]);
+    eq(`${t}: the site fonts' <link>, as in the landing`, true, !!primo && fonts(html) === primo);
+  }
+  eq("site/theme/theme.css: no @import of the fonts", false, /@import\s+url\(/.test(readFileSync(join(ROOT, "site/theme/theme.css"), "utf8")));
+}
+
 // 9. syncTheme su un albero finto: scrive, toglie i file che non ci sono più, lascia stare chi non lo chiede.
 const alberoTema = mkdtempSync(join(tmpdir(), "vt-theme-"));
 try {

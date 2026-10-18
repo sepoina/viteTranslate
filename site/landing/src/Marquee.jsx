@@ -20,8 +20,10 @@ const LANGUAGES = [
   "Svenska",
 ];
 
-// La striscia delle lingue, in fondo alla sezione "Come si vede". Due righe uguali che scorrono di
-// metà: il giro si chiude senza salti. Con il movimento ridotto resta una riga sola, che va a capo.
+// La striscia delle lingue, in fondo alla sezione "Come si vede". Two rows side by side that slide as
+// the page scrolls (landing.css): it moves only while the reader does, never on its own. Without
+// scroll-driven animations, or with reduced motion, one row stays still and wraps.
+// translate="no": the names are endonyms, the browser's translator would turn them into its own language.
 export default function Marquee() {
   const row = LANGUAGES.map((name) => <span key={name}>{name}</span>);
 
@@ -30,7 +32,7 @@ export default function Marquee() {
       <p className="marquee-cap">
         <Trans>_%_Una sola sorgente. Tutte le lingue che vuoi._%_</Trans>
       </p>
-      <div className="marquee" aria-hidden="true">
+      <div className="marquee" aria-hidden="true" translate="no">
         <div className="marquee-track">
           <div className="marquee-row">{row}</div>
           <div className="marquee-row">{row}</div>

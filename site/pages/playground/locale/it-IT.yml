@@ -1,8 +1,8 @@
 #  -------------------------------------------------
 #      italiano (Italia) (sourceLanguage)
 #       |    code: it-IT
-#       |    missing key: 0
-#       |    processed: 2026-10-17 00:34
+#       |    missing key: 1
+#       |    processed: 2026-10-18 22:10
 #       |    TableVersion: 260905
 #  -------------------------------------------------
 #
@@ -138,3 +138,6 @@ ZZZsnippetList_ns6u8j: "Un tag del dialetto senza attributi (<code>&lt;b&gt;</co
 ZZZsnippetList_rpwdua: "Markup e segnaposto"
 ZZZsnippetList_ska6o3: "Cambio lingua"
 ZZZsnippetList_wrvd2v: "Stringhe semplici con useTranslateToString"
+
+#  ----to be translated------------------------------------------
+SiteBar_109x4mc: "Salta al contenuto"

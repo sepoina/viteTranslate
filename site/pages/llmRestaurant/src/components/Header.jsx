@@ -24,6 +24,10 @@ export default function Header() {
 
   return (
     <header className={`site-header${solid ? ' is-solid' : ''}`}>
+      {/* The first stop of Tab, out of sight until it has the focus: past the menu, straight to the page (App.jsx). */}
+      <a className="skip-link" href="#contenuto">
+        <Trans>Salta al contenuto</Trans>
+      </a>
       <nav className="wrap">
         <ul>
           <li>

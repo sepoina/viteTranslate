@@ -1,4 +1,4 @@
-import { Trans, version } from "@sepoina/vitetranslate/react";
+import { Trans, useTransLanguage, version } from "@sepoina/vitetranslate/react";
 import CopyCommand from "./CopyCommand.jsx";
 import HeroVideo from "./HeroVideo.jsx";
 import { REPO } from "./links.js";
@@ -9,11 +9,18 @@ import SIZE from "./theme/runtimeSize.json";
 // È codice, non una frase: niente <Trans>.
 const LLM_CMD = "npx vitetranslate --llm-translate";
 
+/** "5 kB" never breaks between the number and its unit. */
+const nbsp = (s) => s.replace(/ /g, "\u00a0");
+
 export default function Hero() {
+  // The byte count in the reader's notation (6,036 in English, 6036 in Italian); motion.js counts up to it the same way.
+  const { id } = useTransLanguage();
+  const bytes = new Intl.NumberFormat(id || undefined).format(SIZE.gzipBytes);
+
   return (
     <section className="hero">
       <div className="wrap">
-        <p className="term">
+        <p className="term" translate="no">
           <span className="term-prompt" aria-hidden="true">
             $
           </span>
@@ -54,13 +61,13 @@ export default function Hero() {
           <div className="stats" data-hero>
             <div className="stat">
               <p className="stat-n">
-                <span data-count={SIZE.gzipBytes}>{SIZE.gzipBytes}</span>
+                <span data-count={SIZE.gzipBytes}>{bytes}</span>
               </p>
               <p className="stat-l">
                 <Trans>_%_byte di runtime, in gzip_%_</Trans>
               </p>
               <p className="stat-d">
-                <Trans t={["_%_%s, misurati dalla suite di test: non una promessa a parole._%_", SIZE.real]} />
+                <Trans t={["_%_%s, misurati dalla suite di test: non una promessa a parole._%_", nbsp(SIZE.real)]} />
               </p>
             </div>
             <div className="stat">

@@ -2,7 +2,7 @@
 #      français (France)
 #       |    code: fr-FR
 #       |    missing key: 0
-#       |    processed: 2026-10-16 12:49
+#       |    processed: 2026-10-18 22:24
 #       |    TableVersion: 260905
 #  -------------------------------------------------
 #
@@ -64,6 +64,7 @@ ShowAllRowTests_1vo7m7w: "avertissement"
 ShowAllRowTests_9pfhxd: "optimal"
 ShowAllRowTests_f2ury2: "cas"
 ShowAllRowTests_sxhb1l: "erreur"
+SiteBar_109x4mc: "Aller au contenu"
 SiteBar_135b08s: "La page principale : viteTranslate en un coup d'œil."
 SiteBar_16pt5e6: "Le manuel : installation, API, CLI et traduction avec un LLM."
 SiteBar_184491n: "Passer au thème sombre : le choix vaut pour tout le site."

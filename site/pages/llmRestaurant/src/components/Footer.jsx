@@ -25,7 +25,8 @@ export default function Footer() {
   return (
     <footer className="site-footer">
       <div className="wrap visit">
-        <div className="map" aria-label={trans('_%_Mappa segnaposto del porto di Cala dei Gabbiani_%_')}>
+        {/* role="group": a plain div cannot carry a name; the group can, and keeps the link inside reachable. */}
+        <div className="map" role="group" aria-label={trans('_%_Mappa segnaposto del porto di Cala dei Gabbiani_%_')}>
           <span className="map__sea" />
           <span className="map__pier" />
           <span className="map__pin"><i className="ph-fill ph-map-pin" aria-hidden="true" /> <RestaurantName /></span>
@@ -83,7 +84,7 @@ export default function Footer() {
             <form className="newsletter" onSubmit={(e) => { e.preventDefault(); setSubscribed(true); }}>
               <p><Trans>Ogni giovedì, una mail con i piatti fuori carta del fine settimana.</Trans></p>
               <fieldset role="group">
-                <input type="email" required placeholder={trans('_%_La vostra email_%_')} aria-label={trans('_%_La vostra email_%_')} />
+                <input type="email" name="email" autoComplete="email" spellCheck={false} required placeholder={trans('_%_La vostra email_%_')} aria-label={trans('_%_La vostra email_%_')} />
                 <button type="submit" aria-label={trans('_%_Iscriviti_%_')}><i className="ph ph-arrow-right" aria-hidden="true" /></button>
               </fieldset>
             </form>

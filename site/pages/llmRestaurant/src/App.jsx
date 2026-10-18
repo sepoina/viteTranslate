@@ -48,7 +48,8 @@ export default function App() {
   return (
     <>
       <Header />
-      <main>
+      {/* The skip link's target (Header.jsx): tabIndex -1 lets it take the focus, so the next Tab goes on from here. */}
+      <main id="contenuto" tabIndex={-1}>
         <Hero />
         <Story />
         <Menu />

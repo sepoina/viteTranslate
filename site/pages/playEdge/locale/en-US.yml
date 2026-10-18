@@ -2,7 +2,7 @@
 #      American English
 #       |    code: en-US
 #       |    missing key: 0
-#       |    processed: 2026-10-16 12:49
+#       |    processed: 2026-10-18 22:24
 #       |    TableVersion: 260905
 #  -------------------------------------------------
 #
@@ -64,6 +64,7 @@ ShowAllRowTests_1vo7m7w: "warning"
 ShowAllRowTests_9pfhxd: "optimal"
 ShowAllRowTests_f2ury2: "case"
 ShowAllRowTests_sxhb1l: "error"
+SiteBar_109x4mc: "Skip to content"
 SiteBar_135b08s: "The main page: viteTranslate at a glance."
 SiteBar_16pt5e6: "The manual: installation, API, CLI and translation with an LLM."
 SiteBar_184491n: "Switch to dark theme: the choice applies to the whole site."

@@ -1,8 +1,7 @@
 import { Trans, useTrans } from "@sepoina/vitetranslate/react";
 import { ROUTES } from "../generated/routes.js";
-import { BASE } from "./router.js";
+import { BASE, go } from "./router.js";
 import { backClick, neighbours } from "./PageNav.jsx";
-import { go } from "./Sidebar.jsx";
 import { ICON } from "./Toc.jsx";
 
 // Lucide icons (ISC).

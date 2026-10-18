@@ -2,7 +2,7 @@
 #      American English
 #       |    code: en-US
 #       |    missing key: 0
-#       |    processed: 2026-10-17 00:32
+#       |    processed: 2026-10-18 22:24
 #       |    TableVersion: 260905
 #  -------------------------------------------------
 #
@@ -95,6 +95,7 @@ sections_lijk3t: "How it works"
 sections_q2tajl: "Comparison"
 sections_qqqkuc: "Why viteTranslate"
 sections_sf5vqh: "How it looks"
+SiteBar_109x4mc: "Skip to content"
 SiteBar_135b08s: "The homepage: viteTranslate at a glance."
 SiteBar_16pt5e6: "The manual: installation, API, CLI, and translation with an LLM."
 SiteBar_184491n: "Switch to dark theme: your choice applies across the site."

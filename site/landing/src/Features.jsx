@@ -87,7 +87,7 @@ export default function Features() {
               </ManualLink>
             </div>
             <div className="feature-visual">
-              <ul className="verdicts">
+              <ul className="verdicts" translate="no">
                 <li className="bad">
                   <b aria-hidden="true">✕</b>
                   <s>"Ciao , come stai?"</s>
@@ -116,7 +116,7 @@ export default function Features() {
               </ManualLink>
             </div>
             <div className="feature-visual">
-              <div className="flow" aria-hidden="true">
+              <div className="flow" aria-hidden="true" translate="no">
                 <span>JSX</span>
                 <i>→</i>
                 <span>Babel</span>
@@ -141,7 +141,7 @@ export default function Features() {
               </ManualLink>
             </div>
             <div className="feature-visual">
-              <div className="chunks" aria-hidden="true">
+              <div className="chunks" aria-hidden="true" translate="no">
                 {CHUNKS.map((tag, n) => (
                   <span key={tag} className={n === 0 ? "is-loaded" : undefined}>
                     {tag}.js

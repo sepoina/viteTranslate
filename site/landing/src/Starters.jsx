@@ -60,14 +60,14 @@ export default function Starters() {
                   {demo.glyph}
                 </span>
                 <a className="starter-main" href={stackblitzUrl(demo.source)} target="_blank" rel="noopener">
-                  <p className="starter-top">
+                  <p className="starter-top" translate="no">
                     <span>{demo.stack}</span>
                     <span aria-hidden="true">↗</span>
                   </p>
                   <h3>
                     <Trans t={demo.title} />
                   </h3>
-                  <p className="demo-path">{demo.source}/</p>
+                  <p className="demo-path" translate="no">{demo.source}/</p>
                   <p className="demo-text">
                     <Trans t={demo.text} />
                   </p>

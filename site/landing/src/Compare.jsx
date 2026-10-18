@@ -37,7 +37,8 @@ const ROWS = [
   },
   {
     label: "_%_Runtime %s gzip_%_",
-    a: [SIZE.compare],
+    // "<6 kB" never breaks between the number and its unit.
+    a: [SIZE.compare.replace(/ /g, "\u00a0")],
     doc: "doc/structure.md#phase-4--runtime-the-resolution-chain",
     v: ["y", "y", "n", "n"],
   },
@@ -96,8 +97,9 @@ export default function Compare() {
               <thead>
                 <tr>
                   <th />
+                  {/* Project names: the browser's translator leaves them alone. */}
                   {COLUMNS.map((c, n) => (
-                    <th key={c} className={n === 0 ? "col-us" : undefined}>
+                    <th key={c} scope="col" translate="no" className={n === 0 ? "col-us" : undefined}>
                       {c}
                     </th>
                   ))}

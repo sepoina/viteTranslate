@@ -2,7 +2,7 @@
 #      Deutsch (Deutschland)
 #       |    code: de-DE
 #       |    missing key: 0
-#       |    processed: 2026-10-16 12:49
+#       |    processed: 2026-10-18 22:24
 #       |    TableVersion: 260905
 #  -------------------------------------------------
 #
@@ -64,6 +64,7 @@ ShowAllRowTests_1vo7m7w: "Warnung"
 ShowAllRowTests_9pfhxd: "optimal"
 ShowAllRowTests_f2ury2: "Fall"
 ShowAllRowTests_sxhb1l: "Fehler"
+SiteBar_109x4mc: "Zum Inhalt springen"
 SiteBar_135b08s: "Die Hauptseite: viteTranslate auf einen Blick."
 SiteBar_16pt5e6: "Das Handbuch: Installation, API, CLI und Übersetzung mit einem LLM."
 SiteBar_184491n: "Zum dunklen Thema wechseln: die Wahl gilt für die ganze Website."
