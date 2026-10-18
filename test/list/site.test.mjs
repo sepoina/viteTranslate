@@ -309,9 +309,10 @@ for (const [nome, mappa] of [["scuro", scuro], ["chiaro", chiaro]]) {
   const sotto = testo.filter((b) => !esa.test(schema[b] ?? "") || !esa.test(schema.base00 ?? "") || contrasto(schema[b], schema.base00) < 4.5);
   eq("codeScheme.css: ogni colore del testo passa 4.5:1 su base00", [], sotto);
 }
-// The manual's highlighter is see-through: its text is measured on the stroke laid over the page, the
-// cards and the table body.
+// The manual's highlighter: its text is measured on the stroke laid over the page, the cards and the table
+// body. A see-through stroke (rgba) mixes with each of them; a solid one (#rrggbb) covers them all.
 const sopra = (rgba, sotto) => {
+  if (esa.test(rgba)) return rgba;
   const m = /^rgba\((\d+),\s*(\d+),\s*(\d+),\s*([\d.]+)\)$/.exec(rgba);
   if (!m || !esa.test(sotto)) return "";
   const a = Number(m[4]);

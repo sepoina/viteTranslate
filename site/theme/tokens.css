@@ -13,43 +13,53 @@
 :root {
   color-scheme: dark;
 
-  /* The neutrals of this theme come from VS Code's "Dark 2026" (theme-defaults/themes/2026-dark.json,
-     VS Code 1.142): next to each value, the key it was taken from. The accent stays the site's green. */
+  /* The neutrals of this theme started from VS Code's "Dark 2026" (theme-defaults/themes/2026-dark.json,
+     VS Code 1.142): next to each value, the key it came from. They are tinted towards the accent's green,
+     so page, cards, text and code share one hue, and the accent is the thread that runs through them. */
 
-  /* Superfici. --bg-deep è il fondo delle bande "di spiegazione" (Come si vede, Come funziona): like
+  /* ── Surfaces ──────────────────────────────────── */
+  /* --bg-deep è il fondo delle bande "di spiegazione" (Come si vede, Come funziona): like
      VS Code's side bar next to the editor, a step lighter than the page. */
-  --bg-deep: #191a1b; /* sideBar.background */
-  --bg: #121314; /* editor.background */
-  --surface: #191a1b; /* snippet, tag, fondi bassi dentro le card — input.background */
-  --surface-2: #202122; /* card — editorWidget.background */
-  --surface-3: #313233; /* voce attiva, hover dei controlli — activityBar.activeBackground */
-  --surface-hover: #242526; /* card al passaggio — editor.lineHighlightBackground */
-  --surface-step: #202122; /* le card dei passi — editorWidget.background */
-  --terminal-bg: #121314; /* i terminali dentro le card dei passi — editor.background */
+  --bg-deep: #202522; /* sideBar.background */
+  --bg: #1a1e1c; /* editor.background */
+  --surface: #141716; /* snippet, tag, fondi bassi dentro le card — input.background */
+  --surface-2: #1f2321; /* card — editorWidget.background */
+  --surface-3: #2e3330; /* voce attiva, hover dei controlli — activityBar.activeBackground */
+  --surface-hover: #242926; /* card al passaggio — editor.lineHighlightBackground */
+  --surface-step: #1f2321; /* le card dei passi — editorWidget.background */
+  --terminal-bg: #111312; /* i terminali dentro le card dei passi — editor.background */
+  /* ── /Surfaces ─────────────────────────────────── */
 
-  /* Linee. On the page, 0.1 and 0.13 of white are VS Code's #2a2b2c (widget.border) and #333536 (input.border). */
+  /* ── Lines ─────────────────────────────────────── */
+  /* On the page, 0.1 and 0.13 of white are VS Code's #2a2b2c (widget.border) and #333536 (input.border). */
   --line-soft: rgba(255, 255, 255, 0.1);
   --line: rgba(255, 255, 255, 0.12);
   --line-strong: rgba(255, 255, 255, 0.18);
   --line-hard: rgba(255, 255, 255, 0.3); /* sotto l'intestazione della tabella */
   --link-line: #444444; /* sottolineatura dei link nel testo — list.invalidItemForeground */
+  /* ── /Lines ────────────────────────────────────── */
 
+  /* ── Neutral washes ────────────────────────────── */
   /* Velature neutre: hover di menu e bottoni, codice in linea, chip. VS Code's #ffffff0f and #ffffff14. */
   --wash: rgba(255, 255, 255, 0.06);
   --wash-2: rgba(255, 255, 255, 0.08);
+  /* ── /Neutral washes ───────────────────────────── */
 
+  /* ── Text ──────────────────────────────────────── */
   /* Testo, dal più forte al più tenue. --dim solo per testo grande o decorativo (il test lo misura a 3:1).
-     Under VS Code's own UI text, for a softer page: titles and body share one grey at 9.7:1 (the size and
-     weight tell them apart), the rest steps down through VS Code's greys. */
-  --text-hi: #bbbbbb; /* titolo dell'hero, titoli della prosa — editor.foreground (#bbbebf), neutral */
-  --text: #bbbbbb; /* editor.foreground (#bbbebf), neutral */
-  --code-text: #bbbbbb; /* editor.foreground (#bbbebf), neutral */
-  --lead: #8c8c8c; /* descriptionForeground */
-  --muted: #8c8c8c; /* descriptionForeground */
-  --faint: #858889; /* editorLineNumber.foreground */
-  --quiet: #858889; /* piè di pagina, lingue non scelte — editorLineNumber.foreground */
-  --dim: #707070; /* checkbox.border */
+     A soft reading level for long pages, measured in APCA too (WCAG overrates contrast on a dark page):
+     titles Lc 80, body 65, secondary 53, tertiary 44, each a clear step under the one above. */
+  --text-hi: #d1d8d4; /* titolo dell'hero, titoli della prosa */
+  --text: #b7bfbb;
+  --code-text: #b7bfbb; /* like --text */
+  --lead: #9faaa4; /* descriptionForeground */
+  --muted: #9faaa4; /* descriptionForeground */
+  --faint: #8e9993; /* editorLineNumber.foreground, lifted to 4.5:1 on --bg-deep */
+  --quiet: #8e9993; /* piè di pagina, lingue non scelte — like --faint */
+  --dim: #717a75; /* checkbox.border */
+  /* ── /Text ─────────────────────────────────────── */
 
+  /* ── Accent ────────────────────────────────────── */
   /* Accento: --accent per testo e linee, --accent-fill per i fondi pieni, --accent-ink per il testo sopra.
      --accent-2 is VS Code's blue (focusBorder, tab.activeBorderTop): a second accent, not used yet. */
   --accent: #4ade80;
@@ -63,30 +73,39 @@
   --accent-tint: rgba(74, 222, 128, 0.08); /* la colonna di viteTranslate nel confronto */
   --card-hover: rgba(74, 222, 128, 0.6); /* bordo di una card al passaggio */
   --ring: var(--accent);
+  /* ── /Accent ───────────────────────────────────── */
 
+  /* ── Ink ───────────────────────────────────────── */
   /* L'inchiostro: elementi scuri uguali nei due temi (bottoni sulla banda verde, etichetta "Copia"). */
   --ink: #121314; /* editor.background */
   --ink-text: #bbbbbb;
   --ink-hover: #202122; /* editorWidget.background */
   --ink-wash: rgba(18, 19, 20, 0.1);
   --ink-wash-2: rgba(18, 19, 20, 0.08);
+  /* ── /Ink ──────────────────────────────────────── */
 
-  /* Stati. */
+  /* ── States ────────────────────────────────────── */
   --ok: var(--accent);
   --warn: #e5ba7d; /* list.warningForeground */
   --error: #f48771; /* errorForeground */
+  /* ── /States ───────────────────────────────────── */
 
+  /* ── Comparison marks ──────────────────────────── */
   /* Segni del confronto: ✓ è l'accento, – e ✕ questi. --mark-n è un simbolo, il test lo misura a 3:1. */
   --mark-p: var(--tk-s);
   --mark-n: #707070; /* checkbox.border */
+  /* ── /Comparison marks ─────────────────────────── */
 
-  /* Dettagli. */
+  /* ── Details ───────────────────────────────────── */
   --marquee-dim: #444444; /* le lingue spente della striscia — list.invalidItemForeground */
   --chip-dashed: #333536; /* il bordo tratteggiato delle lingue non caricate — input.border */
   --badge-bg: var(--text); /* la versione accanto al link della release */
   --badge-ink: var(--bg);
   --logo-filter: brightness(1.56); /* il logo è grigio (#78788a): qui si schiarisce, fino al colore del testo */
-  --bar-bg: rgba(25, 26, 27, 0.86); /* titleBar.activeBackground */
+  /* ── /Details ──────────────────────────────────── */
+
+  /* ── Top bar and hint (SiteBar.jsx) ────────────── */
+  --bar-bg: rgba(26, 30, 28, 0.86); /* titleBar.activeBackground */
   /* The hint under the bar (SiteBar.jsx): from the accent's green to its turn towards cyan, a glow
      under the control the pointer is on, and a hairline lit there in the same two colours. */
   --hint-bg: #10291e;
@@ -94,18 +113,23 @@
   --hint-glow: rgba(74, 222, 128, 0.12);
   --hint-line-2: #22d3ee;
   --hint-shadow: rgba(0, 0, 0, 0.5);
+  /* ── /Top bar and hint ─────────────────────────── */
 
+  /* ── Demo cards (landing) ──────────────────────── */
   /* Le demo da cui partire (landing): fondo e glifo della card secondo la versione di Vite. Vite 8
      ha il verde del sito, Vite 7 un ambra: si distinguono a colpo d'occhio, senza un'etichetta. */
   --vite8-wash: rgba(74, 222, 128, 0.12);
   --vite8-glyph: rgba(74, 222, 128, 0.16);
   --vite7-wash: rgba(251, 191, 36, 0.11);
   --vite7-glyph: rgba(251, 191, 36, 0.16);
+  /* ── /Demo cards ───────────────────────────────── */
 
-  /* Sfondo dell'hero. */
-  --grid: #191a1b; /* sideBar.background */
+  /* ── Hero background ───────────────────────────── */
+  --grid: #171a18; /* sideBar.background */
   --glow: rgba(74, 222, 128, 0.13);
+  /* ── /Hero background ──────────────────────────── */
 
+  /* ── Video band (landing) ──────────────────────── */
   /* La banda del video in fondo all'hero (landing): retino, aloni verde e ciano, cornice al neon.
      Solo qui: la banda ha data-theme="dark", quindi il tema chiaro non li ridefinisce. */
   --video-dot: rgba(74, 222, 128, 0.22);
@@ -114,8 +138,9 @@
   --video-neon-2: #22d3ee;
   --video-halo: rgba(74, 222, 128, 0.35);
   --video-shade: rgba(0, 0, 0, 0.6);
+  /* ── /Video band ───────────────────────────────── */
 
-  /* Codice. */
+  /* ── Code ──────────────────────────────────────── */
   --code-bg: #161d19;
   --tk-c: #7f8b84; /* commenti */
   --tk-s: #fcd34d; /* stringhe */
@@ -123,23 +148,36 @@
   --tk-k: #c4b5fd; /* parole chiave */
   --tk-n: #fdba74; /* numeri, null */
   --tk-m: var(--accent); /* il marcatore _%_…_%_ */
+  /* ── /Code ─────────────────────────────────────── */
 
+  /* ── Inline code (.ic, InlineCode.jsx) ─────────── */
+  --ic-border: var(--line-soft);
+  --ic-bg: #2b312e;
+  --ic-ink: #e2e4e5;
+  /* ── /Inline code ──────────────────────────────── */
+
+  /* ── Callouts (manual) ─────────────────────────── */
   /* Le note del manuale: una velatura lime e, solo a destra, una fascia larga appena visibile. */
   --callout-bg: rgba(190, 222, 74, 0.04);
   --callout-rim: rgba(255, 255, 255, 0.02);
+  /* ── /Callouts ─────────────────────────────────── */
 
+  /* ── Tables (manual) ───────────────────────────── */
   /* The manual's tables: the header filled with the accent, the body a step off the page. Here the
      bright green would glare (and fail light text), so the header takes a deep green instead. */
   --table-head-bg: #14532d; /* deep enough for --text-hi at 4.5:1 */
   --table-head-ink: var(--text-hi);
   --table-bg: var(--surface);
+  /* ── /Tables ───────────────────────────────────── */
 
-  /* The manual's highlighter (==text==): a see-through marker stroke. A lighter dose on the dark page,
-     where the text over it goes to full white. */
-  --highlight-bg: rgba(74, 222, 128, 0.26);
-  --highlight-ink: var(--text-hi);
+  /* ── Highlighter (manual) ──────────────────────── */
+  /* The manual's highlighter (==text==): a marker stroke. On the dark page a solid deep green under a
+     soft green ink; the light theme lays a see-through stroke over the page instead. */
+  --highlight-bg: #24352e;
+  --highlight-ink: #9ecbaf;
+  /* ── /Highlighter ──────────────────────────────── */
 
-  /* Forma e movimento. */
+  /* ── Shape and motion ──────────────────────────── */
   --r-sm: 4px;
   --r-md: 8px;
   --r-btn: 10px;
@@ -147,51 +185,81 @@
   --r-xl: 14px;
   --bar-h: 64px;
   --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  /* ── /Shape and motion ─────────────────────────── */
 
+  /* ── Fonts ─────────────────────────────────────── */
   /* Caratteri (li carica theme.css). Alfa Slab One non ha cinese né giapponese: dopo vengono i
      caratteri di sistema che li coprono (vedi la regola dei titoli in theme.css). */
   --font: "Schibsted Grotesk", system-ui, -apple-system, "Segoe UI", "PingFang SC", "Noto Sans CJK SC", "Microsoft YaHei", sans-serif;
   --mono: "IBM Plex Mono", ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
   --display: "Alfa Slab One", "PingFang SC", "Noto Sans CJK SC", "Microsoft YaHei", Georgia, serif;
+  /* ── /Fonts ────────────────────────────────────── */
 }
 
 /* Il tema chiaro: quello del sistema, se l'utente non ha scelto lo scuro... */
 @media (prefers-color-scheme: light) {
   :root:not([data-theme="dark"]) {
     color-scheme: light;
-    --bg-deep: #d8d6ce;
-    --bg: #d8d6ce;
-    --surface: #ffffff;
-    --surface-2: #ffffff;
-    --surface-3: #ebeae3;
-    --surface-hover: #fbfbf8;
-    --surface-step: #ffffff;
+
+    /* ── Surfaces ──────────────────────────────────── */
+    --bg-deep: #e9ece6;
+    --bg: #f2f4f0;
+    --surface: #fcfdfb;
+    --surface-2: #fcfdfb;
+    --surface-3: #e1e5de;
+    --surface-hover: #f6f8f4;
+    --surface-step: #fcfdfb;
     --terminal-bg: #f6f5f0;
+    /* ── /Surfaces ─────────────────────────────────── */
+
+    /* ── Lines ─────────────────────────────────────── */
     --line-soft: rgba(17, 21, 19, 0.1);
-    --line: rgba(17, 21, 19, 0.12);
-    --line-strong: rgba(17, 21, 19, 0.18);
+    --line: #e2e8e4;
+    --line-strong: #d1d9d4;
     --line-hard: rgba(17, 21, 19, 0.3);
     --link-line: #c4c8c0;
+    /* ── /Lines ────────────────────────────────────── */
+
+    /* ── Neutral washes ────────────────────────────── */
     --wash: rgba(17, 21, 19, 0.06);
     --wash-2: rgba(17, 21, 19, 0.08);
-    --text-hi: #0d110f;
-    --text: #111513;
+    /* ── /Neutral washes ───────────────────────────── */
+
+    /* ── Text ──────────────────────────────────────── */
+    --text-hi: #1a231d;
+    --text: #303a34;
     --code-text: #1f2622;
-    --lead: #3d4540;
-    --muted: #3d4540;
-    --faint: #555e58;
-    --quiet: #555e58;
-    --dim: #6b746e;
-    --accent: #116a33;
+    --lead: #3e4842;
+    --muted: #4f5953;
+    --faint: #606a65;
+    --quiet: #606a65;
+    --dim: #7a867f;
+    /* ── /Text ─────────────────────────────────────── */
+
+    /* ── Accent ────────────────────────────────────── */
+    --accent: #107a40;
     --accent-2: #005bb1; /* VS Code Light 2026: focusBorder (#0069cc), darker for 4.5:1 on --bg */
+    --accent-fill: #22c55e;
     --accent-tint: rgba(74, 222, 128, 0.16);
     --card-hover: rgba(21, 128, 61, 0.55);
+    /* ── /Accent ───────────────────────────────────── */
+
+    /* ── States ────────────────────────────────────── */
     --warn: #954507;
     --error: #b41b1b;
+    /* ── /States ───────────────────────────────────── */
+
+    /* ── Comparison marks ──────────────────────────── */
     --mark-n: #707872;
+    /* ── /Comparison marks ─────────────────────────── */
+
+    /* ── Details ───────────────────────────────────── */
     --marquee-dim: #c4c8c0;
     --chip-dashed: #c9cbc3;
     --logo-filter: brightness(0.35);
+    /* ── /Details ──────────────────────────────────── */
+
+    /* ── Top bar and hint (SiteBar.jsx) ────────────── */
     --bar-bg: #c9cba5cc;
     /* A tinted see-through bar: the page inks fall under 4.5:1 on it, so it takes its own. theme.css reads them with
        the page ink as fallback, and the dark theme does not set them. --bar-accent marks icons only (3:1). */
@@ -202,64 +270,116 @@
     --hint-glow: rgba(255, 255, 255, 0.7);
     --hint-line-2: #0891b2;
     --hint-shadow: rgba(17, 21, 19, 0.14);
+    /* ── /Top bar and hint ─────────────────────────── */
+
+    /* ── Demo cards (landing) ──────────────────────── */
     --vite8-wash: rgba(20, 122, 58, 0.09);
     --vite8-glyph: rgba(20, 122, 58, 0.13);
     --vite7-wash: rgba(180, 83, 9, 0.08);
     --vite7-glyph: rgba(180, 83, 9, 0.13);
+    /* ── /Demo cards ───────────────────────────────── */
+
+    /* ── Hero background ───────────────────────────── */
     --grid: #e8e7e0;
     --glow: rgba(74, 222, 128, 0.2);
-    --code-bg: #ffffff;
+    /* ── /Hero background ──────────────────────────── */
+
+    /* ── Code ──────────────────────────────────────── */
+    --code-bg: #fcfdfb;
     --tk-c: #6b746e;
     --tk-s: #a16207;
     --tk-t: #0369a1;
     --tk-k: #6d28d9;
     --tk-n: #c2410c;
+    /* ── /Code ─────────────────────────────────────── */
+
+    /* ── Inline code (.ic, InlineCode.jsx) ─────────── */
+    --ic-border: transparent; /* the light theme's inline code is a subtle background, not a border */
+    --ic-bg: var(--wash);
+    --ic-ink: currentColor;
+    /* ── /Inline code ──────────────────────────────── */
+
+    /* ── Callouts (manual) ─────────────────────────── */
     --callout-bg: #0a0c041c;
     --callout-rim: rgba(0, 0, 0, 0.02);
+    /* ── /Callouts ─────────────────────────────────── */
+
+    /* ── Tables (manual) ───────────────────────────── */
     --table-head-bg: var(--accent);
     --table-head-ink: #ffffff;
-    --table-bg: #efeee8; /* a touch lighter than --surface-3: the accent's links keep 4.5:1 */
-    --highlight-bg: rgba(74, 222, 128, 0.42);
+    --table-bg: #ebeeea; /* a touch lighter than --surface-3, so the accent's links keep 4.5:1 */
+    /* ── /Tables ───────────────────────────────────── */
+
+    /* ── Highlighter (manual) ──────────────────────── */
+    --highlight-bg: rgba(74, 222, 128, 0.3);
     --highlight-ink: var(--text);
+    /* ── /Highlighter ──────────────────────────────── */
   }
 }
 
 /* ...o quello scelto con il pulsante. Stesso contenuto del blocco sopra: tenerli uguali. */
 :root[data-theme="light"] {
   color-scheme: light;
-  --bg-deep: #d8d6ce;
-  --bg: #d8d6ce;
-  --surface: #ffffff;
-  --surface-2: #ffffff;
-  --surface-3: #ebeae3;
-  --surface-hover: #fbfbf8;
-  --surface-step: #ffffff;
+
+  /* ── Surfaces ──────────────────────────────────── */
+  --bg-deep: #e9ece6;
+  --bg: #f2f4f0;
+  --surface: #fcfdfb;
+  --surface-2: #fcfdfb;
+  --surface-3: #e1e5de;
+  --surface-hover: #f6f8f4;
+  --surface-step: #fcfdfb;
   --terminal-bg: #f6f5f0;
+  /* ── /Surfaces ─────────────────────────────────── */
+
+  /* ── Lines ─────────────────────────────────────── */
   --line-soft: rgba(17, 21, 19, 0.1);
-  --line: rgba(17, 21, 19, 0.12);
-  --line-strong: rgba(17, 21, 19, 0.18);
+  --line: #e2e8e4;
+  --line-strong: #d1d9d4;
   --line-hard: rgba(17, 21, 19, 0.3);
   --link-line: #c4c8c0;
+  /* ── /Lines ────────────────────────────────────── */
+
+  /* ── Neutral washes ────────────────────────────── */
   --wash: rgba(17, 21, 19, 0.06);
   --wash-2: rgba(17, 21, 19, 0.08);
-  --text-hi: #0d110f;
-  --text: #111513;
+  /* ── /Neutral washes ───────────────────────────── */
+
+  /* ── Text ──────────────────────────────────────── */
+  --text-hi: #1a231d;
+  --text: #303a34;
   --code-text: #1f2622;
-  --lead: #3d4540;
-  --muted: #3d4540;
-  --faint: #555e58;
-  --quiet: #555e58;
-  --dim: #6b746e;
-  --accent: #116a33;
+  --lead: #3e4842;
+  --muted: #4f5953;
+  --faint: #606a65;
+  --quiet: #606a65;
+  --dim: #7a867f;
+  /* ── /Text ─────────────────────────────────────── */
+
+  /* ── Accent ────────────────────────────────────── */
+  --accent: #107a40;
   --accent-2: #005bb1; /* VS Code Light 2026: focusBorder (#0069cc), darker for 4.5:1 on --bg */
+  --accent-fill: #22c55e;
   --accent-tint: rgba(74, 222, 128, 0.16);
   --card-hover: rgba(21, 128, 61, 0.55);
+  /* ── /Accent ───────────────────────────────────── */
+
+  /* ── States ────────────────────────────────────── */
   --warn: #954507;
   --error: #b41b1b;
+  /* ── /States ───────────────────────────────────── */
+
+  /* ── Comparison marks ──────────────────────────── */
   --mark-n: #707872;
+  /* ── /Comparison marks ─────────────────────────── */
+
+  /* ── Details ───────────────────────────────────── */
   --marquee-dim: #c4c8c0;
   --chip-dashed: #c9cbc3;
   --logo-filter: brightness(0.35);
+  /* ── /Details ──────────────────────────────────── */
+
+  /* ── Top bar and hint (SiteBar.jsx) ────────────── */
   --bar-bg: #c9cba5cc;
   /* A tinted see-through bar: the page inks fall under 4.5:1 on it, so it takes its own. theme.css reads them with
      the page ink as fallback, and the dark theme does not set them. --bar-accent marks icons only (3:1). */
@@ -270,23 +390,48 @@
   --hint-glow: rgba(255, 255, 255, 0.7);
   --hint-line-2: #0891b2;
   --hint-shadow: rgba(17, 21, 19, 0.14);
+  /* ── /Top bar and hint ─────────────────────────── */
+
+  /* ── Demo cards (landing) ──────────────────────── */
   --vite8-wash: rgba(20, 122, 58, 0.09);
   --vite8-glyph: rgba(20, 122, 58, 0.13);
   --vite7-wash: rgba(180, 83, 9, 0.08);
   --vite7-glyph: rgba(180, 83, 9, 0.13);
+  /* ── /Demo cards ───────────────────────────────── */
+
+  /* ── Hero background ───────────────────────────── */
   --grid: #e8e7e0;
   --glow: rgba(74, 222, 128, 0.2);
-  --code-bg: #ffffff;
+  /* ── /Hero background ──────────────────────────── */
+
+  /* ── Code ──────────────────────────────────────── */
+  --code-bg: #fcfdfb;
   --tk-c: #6b746e;
   --tk-s: #a16207;
   --tk-t: #0369a1;
   --tk-k: #6d28d9;
   --tk-n: #c2410c;
+  /* ── /Code ─────────────────────────────────────── */
+
+  /* ── Inline code (.ic, InlineCode.jsx) ─────────── */
+  --ic-border: transparent; /* the light theme's inline code is a subtle background, not a border */
+  --ic-bg: var(--wash);
+  --ic-ink: currentColor;
+  /* ── /Inline code ──────────────────────────────── */
+
+  /* ── Callouts (manual) ─────────────────────────── */
   --callout-bg: #0a0c041c;
   --callout-rim: rgba(0, 0, 0, 0.02);
+  /* ── /Callouts ─────────────────────────────────── */
+
+  /* ── Tables (manual) ───────────────────────────── */
   --table-head-bg: var(--accent);
   --table-head-ink: #ffffff;
-  --table-bg: #efeee8; /* a touch lighter than --surface-3: the accent's links keep 4.5:1 */
-  --highlight-bg: rgba(74, 222, 128, 0.42);
+  --table-bg: #ebeeea; /* a touch lighter than --surface-3, so the accent's links keep 4.5:1 */
+  /* ── /Tables ───────────────────────────────────── */
+
+  /* ── Highlighter (manual) ──────────────────────── */
+  --highlight-bg: rgba(74, 222, 128, 0.3);
   --highlight-ink: var(--text);
+  /* ── /Highlighter ──────────────────────────────── */
 }

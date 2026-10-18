@@ -535,14 +535,14 @@
 }
 
 /* The lead: an abstract in the mono face, upper case, behind a wide soft rule and narrower than the text,
-   with room before the page starts. Dimmed by its colour, --faint (the dimmest text still at 4.5:1), not by
+   with room before the page starts. Dimmed by its colour, --muted (a step under the text, still past 4.5:1), not by
    opacity, which would take it under in both themes. */
 .d-article .lead {
   max-width: none;
   margin: 0.75rem 20% 4em 9px;
   padding: 2px 2px 2px 14px;
   border-left: 12px solid var(--line);
-  color: var(--faint);
+  color: var(--muted);
   font-family: var(--mono);
   font-size: 1rem;
     font-weight: 500;
@@ -577,7 +577,7 @@
   color: inherit;
 }
 
-/* The highlighter (==text== in the manual's dialect): a see-through marker stroke as tall as the line,
+/* The highlighter (==text== in the manual's dialect): a marker stroke as tall as the line,
    drawn again on every line it wraps to. Vertical padding widens an inline box's background and leaves
    the lines where they are. Italic (*text*) stays italic: it quotes the interface. */
 .d-prose em {
@@ -661,10 +661,11 @@
 }
 
 .ic {
-  padding: 0.15em 0.4em;
-  border: 1px solid var(--line-soft);
+  padding: 0.2em 0.4em;
+  border: 1px solid var(--ic-border);
   border-radius: var(--r-sm);
-  background: var(--wash);
+  background: var(--ic-bg);
+  color: var(--ic-ink);
   font-family: var(--mono);
   font-size: 0.85em;
 }
@@ -894,7 +895,7 @@
 }
 
 .d-foot a {
-  color: var(--faint);
+  color: var(--muted);
 }
 
 .d-foot a:hover {
@@ -931,7 +932,7 @@
 }
 
 .d-pagenav-dir {
-  color: var(--faint);
+  color: var(--muted);
   font-size: 0.8125rem;
 }
 

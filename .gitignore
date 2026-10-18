@@ -39,7 +39,9 @@ Thumbs.db
 
 # Tooling locale
 .playwright-mcp/
-.claude/
+# .claude stays local, except the project's agent skills (provenance in each skill's SOURCE.md)
+.claude/*
+!.claude/skills/
 .qwen/
 coverage/
 # output di "npm run dump" (test/exampleLangCompile.mjs): moduli di lingua compilati, tenuti
