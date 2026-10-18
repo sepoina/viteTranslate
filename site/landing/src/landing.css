@@ -33,9 +33,23 @@ ul {
 }
 
 /* ---------- Hero ---------- */
+/* Two glows, the poster's pair: green over the title, cyan on the right, behind the numbers. The cyan one
+   is placed in px: the hero also holds the video band, so a percentage would land behind it. */
 .hero {
   padding-top: clamp(4rem, 10vw, 7.5rem);
-  background: radial-gradient(1000px 520px at 80% -10%, var(--glow), transparent 70%);
+  background:
+    radial-gradient(1000px 520px at 80% -10%, var(--glow), transparent 70%),
+    radial-gradient(720px 420px at 95% 560px, var(--glow-2), transparent 70%);
+}
+
+/* The command line above the title is a place, not an action: its prompt takes the second accent, so
+   above the fold green is only the keyword and the install button. */
+.hero .term-prompt {
+  background: var(--accent-2-fill);
+}
+
+.hero .term-cursor {
+  background: var(--accent-2);
 }
 
 .hero h1 {
@@ -80,6 +94,11 @@ ul {
 .hero .stats {
   flex: 1 1 440px;
   max-width: 580px;
+}
+
+/* The numbers carry their weight with size: in green they were a third peak next to "once." and the button. */
+.hero .stat-n {
+  color: var(--text-hi);
 }
 
 /* ---------- Il video dell'hero (HeroVideo.jsx) ---------- */
@@ -260,8 +279,8 @@ ul {
 .video-tag {
   padding: 3px 9px;
   border-radius: 999px;
-  background: var(--accent-soft);
-  color: var(--accent);
+  background: var(--accent-2-soft);
+  color: var(--accent-2);
   font-family: var(--mono);
   font-size: 0.75rem;
   font-weight: 700;
@@ -270,7 +289,7 @@ ul {
 }
 
 .video-yt {
-  color: var(--accent);
+  color: var(--accent-2);
   font-weight: 600;
   transition: color 150ms var(--ease);
 }
@@ -292,7 +311,7 @@ ul {
 }
 
 .release:hover {
-  color: var(--accent);
+  color: var(--accent-2);
 }
 
 .badge {
@@ -398,7 +417,7 @@ ul {
 
 .section-n {
   flex: 0 0 120px;
-  color: var(--accent);
+  color: var(--accent-2);
   font-family: var(--display);
   font-size: 2.5rem;
   line-height: 1;
@@ -481,7 +500,7 @@ ul {
 
 .demo-path {
   margin-top: 6px;
-  color: var(--accent);
+  color: var(--accent-2);
   font-family: var(--mono);
   font-size: 0.8125rem;
 }
@@ -514,7 +533,7 @@ ul {
 
 .project-links a:hover {
   background: var(--wash);
-  color: var(--accent);
+  color: var(--accent-2);
 }
 
 /* ---------- 02 Come si vede ---------- */
@@ -546,7 +565,8 @@ ul {
   font-size: 0.875rem;
 }
 
-/* La card verde: uguale nei due temi, testo e bottoni nell'inchiostro scuro. */
+/* The language card: a dark screen in both themes (data-theme="dark" in CodeDemo.jsx), lit by the
+   poster's two glows. The glyph in the second accent; green only on the language being shown. */
 .lang-card {
   display: flex;
   flex: 1 1 340px;
@@ -555,17 +575,18 @@ ul {
   gap: 24px;
   min-width: 0;
   padding: 28px;
+  border: 1px solid var(--line);
   border-radius: var(--r-lg);
-  background: var(--accent-fill);
-  color: var(--accent-ink);
-}
-
-.lang-card :focus-visible {
-  outline-color: var(--ink);
+  background:
+    radial-gradient(460px 300px at 100% 0%, color-mix(in srgb, var(--accent-2-fill) 16%, transparent), transparent 70%),
+    radial-gradient(420px 280px at 0% 100%, color-mix(in srgb, var(--accent-fill) 14%, transparent), transparent 70%),
+    var(--ink);
+  color: var(--text-hi);
 }
 
 .lang-glyph {
   display: block;
+  color: var(--accent-2);
   font-size: 4rem;
   line-height: 1;
 }
@@ -588,7 +609,8 @@ ul {
 .lang-picks button {
   padding: 8px 12px;
   border-radius: 7px;
-  background: var(--ink-wash);
+  background: var(--wash-2);
+  color: var(--text);
   font-family: var(--mono);
   font-size: 0.8125rem;
   font-weight: 600;
@@ -596,12 +618,13 @@ ul {
 }
 
 .lang-picks button:hover {
-  background: color-mix(in srgb, var(--ink) 18%, transparent);
+  background: var(--surface-3);
+  color: var(--text-hi);
 }
 
 .lang-picks button[aria-pressed="true"] {
-  background: var(--ink);
-  color: var(--accent-fill);
+  background: var(--accent-fill);
+  color: var(--accent-ink);
   cursor: default;
 }
 
@@ -612,7 +635,7 @@ ul {
 
 .marquee-cap {
   margin-bottom: 16px;
-  color: var(--accent);
+  color: var(--accent-2);
   font-family: var(--mono);
   font-size: 0.75rem;
   font-weight: 600;
@@ -685,7 +708,7 @@ ul {
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: var(--accent-fill);
+  background: var(--accent-2);
 }
 
 @keyframes slide {
@@ -820,6 +843,32 @@ ul {
 }
 
 /* ---------- 04 Come funziona ---------- */
+/* The steps band: a dark screen in both themes (data-theme="dark" in Steps.jsx), echoing the video band:
+   the poster's dot screen at the edges, its green glow behind the title and the cyan one across the corner.
+   In the light theme the page goes light, dark, light; in the dark one the band sits a step deeper. */
+.band-screen {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  border-block-color: var(--line);
+  background:
+    radial-gradient(900px 420px at 0% 0%, color-mix(in srgb, var(--accent-fill) 9%, transparent), transparent 70%),
+    radial-gradient(900px 420px at 100% 100%, color-mix(in srgb, var(--accent-2-fill) 8%, transparent), transparent 70%),
+    var(--ink);
+}
+
+.band-screen::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background-image: radial-gradient(color-mix(in srgb, var(--accent-fill) 20%, transparent) 1.2px, transparent 1.8px);
+  background-size: 18px 18px;
+  -webkit-mask-image: radial-gradient(ellipse 75% 70% at 50% 50%, transparent 50%, black 100%);
+  mask-image: radial-gradient(ellipse 75% 70% at 50% 50%, transparent 50%, black 100%);
+  pointer-events: none;
+}
+
 .steps {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
@@ -841,8 +890,8 @@ ul {
   align-self: flex-start;
   padding: 3px 8px;
   border-radius: 6px;
-  background: var(--accent-fill);
-  color: var(--accent-ink);
+  background: var(--accent-2-soft);
+  color: var(--accent-2);
   font-family: var(--mono);
   font-size: 0.8125rem;
   font-weight: 600;
@@ -927,7 +976,7 @@ ul {
 }
 
 .compare tbody th a:hover {
-  text-decoration-color: var(--accent);
+  text-decoration-color: var(--accent-2);
 }
 
 .compare td {
@@ -977,7 +1026,7 @@ ul {
 }
 
 .compare-notes a:hover {
-  text-decoration-color: var(--accent);
+  text-decoration-color: var(--accent-2);
 }
 
 /* ---------- 06 Demo da cui partire ---------- */
@@ -1107,7 +1156,7 @@ ul {
 }
 
 .starter-top span:last-child {
-  color: var(--accent);
+  color: var(--accent-2);
 }
 
 .starter-card h3 {
@@ -1131,10 +1180,11 @@ ul {
 }
 
 /* ---------- Chiusura e piè di pagina ---------- */
+/* The closing band: the action's green, turning to the poster's cyan at the far edge, away from the text. */
 .cta {
   margin-top: var(--gap-section);
   padding-block: var(--band-pad) clamp(4rem, 9vw, 6.5rem);
-  background: var(--accent-fill);
+  background: linear-gradient(105deg, var(--accent-fill) 45%, var(--accent-2-fill));
   color: var(--accent-ink);
 }
 
@@ -1205,7 +1255,7 @@ ul {
 }
 
 .footer a:hover {
-  color: var(--accent);
+  color: var(--accent-2);
 }
 
 /* ---------- Telefono ---------- */

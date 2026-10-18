@@ -1,8 +1,8 @@
 #  -------------------------------------------------
 #      italiano (Italia) (sourceLanguage)
 #       |    code: it-IT
-#       |    missing key: 1
-#       |    processed: 2026-10-18 22:10
+#       |    missing key: 0
+#       |    processed: 2026-10-18 23:23
 #       |    TableVersion: 260905
 #  -------------------------------------------------
 #
@@ -95,6 +95,7 @@ sections_lijk3t: "Come funziona"
 sections_q2tajl: "Confronto"
 sections_qqqkuc: "Perché viteTranslate"
 sections_sf5vqh: "Come si vede"
+SiteBar_109x4mc: "Salta al contenuto"
 SiteBar_135b08s: "La pagina principale: viteTranslate in un colpo d'occhio."
 SiteBar_16pt5e6: "Il manuale: installazione, API, CLI e traduzione con un LLM."
 SiteBar_184491n: "Passa al tema scuro: la scelta vale per tutto il sito."
@@ -122,6 +123,3 @@ Steps_q96bco: "Tre passi, <em>zero</em> burocrazia."
 Steps_u2x2og: "La tabella che si scrive da sola"
 Steps_wejid2: "Tradurre, a mano o con un LLM"
 ThemeToggle_1i35buc: "Cambia tema"
-
-#  ----to be translated------------------------------------------
-SiteBar_109x4mc: "Salta al contenuto"

@@ -1,8 +1,8 @@
 #  -------------------------------------------------
 #      American English (sourceLanguage)
 #       |    code: en-US
-#       |    missing key: 2
-#       |    processed: 2026-10-18 22:10
+#       |    missing key: 0
+#       |    processed: 2026-10-18 23:23
 #       |    TableVersion: 260905
 #  -------------------------------------------------
 #
@@ -85,6 +85,7 @@ App_1hsx4ur: "The manual: setup, API, CLI and LLM translation."
 App_1p1x3pl: "Docs"
 App_1pgweap: "Home"
 App_416i43: "Switch theme"
+App_9pxngv: "Skip to content"
 App_b8cca0: "Switch to the dark theme: the choice holds across the site."
 App_cqjojs: "Switch to the light theme: the choice holds across the site."
 App_k05e2f: "Theme"
@@ -1346,6 +1347,7 @@ setup_vwj0cj: "Every other setting of the block, with its default: <0>options</0
 setup_wocvfd: "<b>2. Give it the key</b>, for example in {0}. Where else it can live, and how to keep it out of git: <1>API keys</1>."
 setup_yghas9: "Point viteTranslate at a model, give it the key, and fill your null keys with one command."
 Sidebar_1684n44: "Manual navigation"
+SiteBar_109x4mc: "Salta al contenuto"
 SiteBar_135b08s: "La pagina principale: viteTranslate in un colpo d'occhio."
 SiteBar_16pt5e6: "Il manuale: installazione, API, CLI e traduzione con un LLM."
 SiteBar_184491n: "Passa al tema scuro: la scelta vale per tutto il sito."
@@ -1628,7 +1630,3 @@ usetranslatetostring_1xjplz3: "The tagged-template form — {0} called on a temp
 usetranslatetostring_47vgdt: "{0} also accepts the same call forms as {1}'s <2>other forms</2>, with the same <3>diagnostic prefixes</3> and the same <4>{5} rule</4> for a missing {6}:"
 usetranslatetostring_bsrje4: "Translated plain strings for placeholder, aria-label, title and anything else that is not JSX."
 usetranslatetostring_k80zyw: "🎮 Live: <0>placeholders and attributes</0>."
-
-#  ----to be translated------------------------------------------
-App_9pxngv: "Skip to content"
-SiteBar_109x4mc: "Salta al contenuto"

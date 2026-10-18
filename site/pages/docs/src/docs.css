@@ -310,7 +310,7 @@
 
 .d-rail-title:hover,
 .d-rail-title:hover svg {
-  color: var(--accent);
+  color: var(--accent-2);
 }
 
 /* The column's titles, the page and "On the same topic": bold, icon on the axis, text on the links'
@@ -412,7 +412,7 @@
 }
 
 .d-related a:hover::before {
-  background: var(--accent);
+  background: var(--accent-2);
 }
 
 .d-related a:hover .d-related-title {
@@ -518,7 +518,7 @@
 /* ---------- Testata della pagina ---------- */
 .d-article .eyebrow {
   margin-bottom: 0.6rem;
-  color: var(--accent);
+  color: var(--accent-2);
   font-family: inherit;
   font-size: 0.875rem;
   font-weight: 600;
@@ -561,14 +561,15 @@
   margin-top: 1.25rem;
 }
 
+/* Links take the second accent (tokens.css): green stays for the accent text and the highlighter below,
+   so a marked phrase never reads as a link. */
 .d-prose a {
-  color: var(--accent);
+  color: var(--accent-2);
   text-underline-offset: 0.2em;
 }
 
-/* Accent text (__text__ in the manual's dialect): bold, in the accent colour. Never next to a link's
-   colour or on the highlighter (the compiler refuses both); on a table header's accent fill it takes the
-   header's ink. */
+/* Accent text (__text__ in the manual's dialect): bold, in the accent colour. Never next to a link or on
+   the highlighter (the compiler refuses both); on a table header's accent fill it takes the header's ink. */
 .d-prose strong {
   color: var(--accent);
   font-weight: 700;
@@ -625,7 +626,7 @@
 
 .d-anchor {
   margin-left: 0.4em;
-  color: var(--accent);
+  color: var(--accent-2);
   font-family: var(--mono);
   font-weight: 400;
   text-decoration: none;
@@ -881,7 +882,7 @@
 }
 
 .d-demo-go {
-  color: var(--accent);
+  color: var(--accent-2);
   font-size: 0.9375rem;
   white-space: nowrap;
 }

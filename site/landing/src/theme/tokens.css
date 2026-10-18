@@ -61,9 +61,14 @@
 
   /* ── Accent ────────────────────────────────────── */
   /* Accento: --accent per testo e linee, --accent-fill per i fondi pieni, --accent-ink per il testo sopra.
-     --accent-2 is VS Code's blue (focusBorder, tab.activeBorderTop): a second accent, not used yet. */
+     Two accents, two jobs. Green is what you do and what works: actions, the keyword of a title, success,
+     the current choice. --accent-2, the cyan of the video poster, is where you are and where you go: section
+     numbers, steps, paths, captions, anchors, links. --accent-2-fill is its solid fill, the same in both
+     themes (--accent-ink on it). */
   --accent: #4ade80;
-  --accent-2: #3994bc;
+  --accent-2: #22d3ee;
+  --accent-2-fill: #22d3ee;
+  --accent-2-soft: rgba(34, 211, 238, 0.12);
   --accent-fill: #4ade80;
   --accent-fill-hover: #6ee79a;
   --accent-ink: #121314;
@@ -111,7 +116,7 @@
   --hint-bg: #10291e;
   --hint-bg-2: #0e2329;
   --hint-glow: rgba(74, 222, 128, 0.12);
-  --hint-line-2: #22d3ee;
+  --hint-line-2: var(--accent-2-fill);
   --hint-shadow: rgba(0, 0, 0, 0.5);
   /* ── /Top bar and hint ─────────────────────────── */
 
@@ -127,6 +132,7 @@
   /* ── Hero background ───────────────────────────── */
   --grid: #171a18; /* sideBar.background */
   --glow: rgba(74, 222, 128, 0.13);
+  --glow-2: rgba(34, 211, 238, 0.08); /* the hero's second glow, behind the numbers */
   /* ── /Hero background ──────────────────────────── */
 
   /* ── Video band (landing) ──────────────────────── */
@@ -135,7 +141,7 @@
   --video-dot: rgba(74, 222, 128, 0.22);
   --video-glow: rgba(74, 222, 128, 0.36);
   --video-glow-2: rgba(34, 211, 238, 0.3);
-  --video-neon-2: #22d3ee;
+  --video-neon-2: var(--accent-2-fill);
   --video-halo: rgba(74, 222, 128, 0.35);
   --video-shade: rgba(0, 0, 0, 0.6);
   /* ── /Video band ───────────────────────────────── */
@@ -238,7 +244,8 @@
 
     /* ── Accent ────────────────────────────────────── */
     --accent: #107a40;
-    --accent-2: #005bb1; /* VS Code Light 2026: focusBorder (#0069cc), darker for 4.5:1 on --bg */
+    --accent-2: #075f6e; /* the poster's cyan, darkened for 4.5:1 on every surface, the manual's notes included */
+    --accent-2-soft: rgba(7, 95, 110, 0.1);
     --accent-fill: #22c55e;
     --accent-tint: rgba(74, 222, 128, 0.16);
     --card-hover: rgba(21, 128, 61, 0.55);
@@ -260,7 +267,7 @@
     /* ── /Details ──────────────────────────────────── */
 
     /* ── Top bar and hint (SiteBar.jsx) ────────────── */
-    --bar-bg: #c9cba5cc;
+    --bar-bg: #d8e0d8cc; /* the page's green-grey, a step down: the bar belongs to the page */
     /* A tinted see-through bar: the page inks fall under 4.5:1 on it, so it takes its own. theme.css reads them with
        the page ink as fallback, and the dark theme does not set them. --bar-accent marks icons only (3:1). */
     --bar-ink: var(--text);
@@ -282,6 +289,7 @@
     /* ── Hero background ───────────────────────────── */
     --grid: #e8e7e0;
     --glow: rgba(74, 222, 128, 0.2);
+    --glow-2: rgba(34, 211, 238, 0.16);
     /* ── /Hero background ──────────────────────────── */
 
     /* ── Code ──────────────────────────────────────── */
@@ -358,7 +366,8 @@
 
   /* ── Accent ────────────────────────────────────── */
   --accent: #107a40;
-  --accent-2: #005bb1; /* VS Code Light 2026: focusBorder (#0069cc), darker for 4.5:1 on --bg */
+  --accent-2: #075f6e; /* the poster's cyan, darkened for 4.5:1 on every surface, the manual's notes included */
+  --accent-2-soft: rgba(7, 95, 110, 0.1);
   --accent-fill: #22c55e;
   --accent-tint: rgba(74, 222, 128, 0.16);
   --card-hover: rgba(21, 128, 61, 0.55);
@@ -380,7 +389,7 @@
   /* ── /Details ──────────────────────────────────── */
 
   /* ── Top bar and hint (SiteBar.jsx) ────────────── */
-  --bar-bg: #c9cba5cc;
+  --bar-bg: #d8e0d8cc; /* the page's green-grey, a step down: the bar belongs to the page */
   /* A tinted see-through bar: the page inks fall under 4.5:1 on it, so it takes its own. theme.css reads them with
      the page ink as fallback, and the dark theme does not set them. --bar-accent marks icons only (3:1). */
   --bar-ink: var(--text);
@@ -402,6 +411,7 @@
   /* ── Hero background ───────────────────────────── */
   --grid: #e8e7e0;
   --glow: rgba(74, 222, 128, 0.2);
+  --glow-2: rgba(34, 211, 238, 0.16);
   /* ── /Hero background ──────────────────────────── */
 
   /* ── Code ──────────────────────────────────────── */

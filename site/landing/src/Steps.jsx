@@ -20,9 +20,10 @@ const TRANSLATE = `$ npx vitetranslate --llm-translate
 ✓ budget: within limit`;
 
 // Each step ends with the section of the manual's "Usage" that walks through it.
+// data-theme="dark": the band is a dark screen in both themes (landing.css, .band-screen).
 export default function Steps() {
   return (
-    <section className="band" data-section="how">
+    <section className="band band-screen" data-theme="dark" data-section="how">
       <div className="wrap">
         <SectionHead id="how" title={<Trans t="_%_Tre passi, <em>zero</em> burocrazia._%_" />} />
 

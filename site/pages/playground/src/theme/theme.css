@@ -44,6 +44,12 @@ body {
   overflow-x: clip;
 }
 
+/* A dark island on a light page (data-theme="dark") gets the dark tokens, but text with no colour of its own
+   inherits the one the body already computed, the light theme's ink: the island takes its own here. */
+[data-theme="dark"] {
+  color: var(--text);
+}
+
 h1,
 h2,
 h3,
@@ -67,7 +73,7 @@ a {
 }
 
 a:hover {
-  text-decoration-color: var(--accent);
+  text-decoration-color: var(--accent-2);
 }
 
 button {
@@ -538,9 +544,10 @@ main[tabindex="-1"]:focus {
   animation: vt-rise 300ms var(--ease);
 }
 
+/* A place, so the second accent (tokens.css): the landing's 01, the manual's group. */
 .bar-crumb-n {
   flex: none;
-  color: var(--bar-ink, var(--accent));
+  color: var(--bar-ink, var(--accent-2));
 }
 
 /* Between the group and the page: "CONCEPTS ･ DIAGNOSTICS". */
@@ -827,7 +834,7 @@ main[tabindex="-1"]:focus {
 /* ---------- Ancore, indice, note in fondo (playground, edge) ---------- */
 .anchor {
   margin-right: 0.45em;
-  color: var(--accent);
+  color: var(--accent-2);
   font-family: var(--mono);
   font-weight: 400;
   text-decoration: none;
@@ -945,8 +952,8 @@ main[tabindex="-1"]:focus {
 
 .manual-link:hover svg,
 .manual-link:hover .manual-link-t {
-  color: var(--accent);
-  text-decoration-color: var(--accent);
+  color: var(--accent-2);
+  text-decoration-color: var(--accent-2);
 }
 
 .manual-link:hover .manual-link-go {

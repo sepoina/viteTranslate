@@ -1,8 +1,8 @@
 #  -------------------------------------------------
 #      italiano (Italia) (sourceLanguage)
 #       |    code: it-IT
-#       |    missing key: 1
-#       |    processed: 2026-10-18 22:10
+#       |    missing key: 0
+#       |    processed: 2026-10-18 23:24
 #       |    TableVersion: 260905
 #  -------------------------------------------------
 #
@@ -82,6 +82,7 @@ SelectExample_1le55yb: "{gender, select, f {<b>{name}</b> è arrivata: il tavolo
 SelectExample_1odfrxy: "maschile"
 SelectExample_1pvkqt3: "Nome"
 SelectExample_b31346: "femminile"
+SiteBar_109x4mc: "Salta al contenuto"
 SiteBar_135b08s: "La pagina principale: viteTranslate in un colpo d'occhio."
 SiteBar_16pt5e6: "Il manuale: installazione, API, CLI e traduzione con un LLM."
 SiteBar_184491n: "Passa al tema scuro: la scelta vale per tutto il sito."
@@ -138,6 +139,3 @@ ZZZsnippetList_ns6u8j: "Un tag del dialetto senza attributi (<code>&lt;b&gt;</co
 ZZZsnippetList_rpwdua: "Markup e segnaposto"
 ZZZsnippetList_ska6o3: "Cambio lingua"
 ZZZsnippetList_wrvd2v: "Stringhe semplici con useTranslateToString"
-
-#  ----to be translated------------------------------------------
-SiteBar_109x4mc: "Salta al contenuto"

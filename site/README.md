@@ -78,7 +78,12 @@ Why a copy: a page must build on its own (StackBlitz zip, a folder downloaded fr
 `tokens.css` is the only file with colors. The site test fails on a color written elsewhere, on a copy that
 differs, or on a text/background pair below 4.5:1 (3:1 for `--dim` and `--mark-n`, kept for large text and symbols)
 — so a rebrand is one file and a test run. The dark theme's greys are VS Code's Dark 2026, each value with the key it came
-from; `--accent-2` is VS Code's blue, kept as a second accent.
+from.
+
+**Two accents, two jobs.** Green (`--accent`) is what you do and what works: buttons, the keyword of a title,
+✓, the current choice, the manual's highlighter. Cyan (`--accent-2`, the video poster's) is where you are and where
+you go: section numbers, steps, paths, captions, anchors, links. A new element picks its accent by that rule, not by
+what looks good next to it.
 
 **Favicon.** [`cli/favicon.mjs`](cli/favicon.mjs) draws the logo's `%` on a tile in `--bg` and `--accent` and writes three
 files into `theme/`: `favicon.svg` (follows the system's light or dark), `favicon-32.png` for browsers without SVG

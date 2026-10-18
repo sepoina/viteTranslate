@@ -267,6 +267,9 @@ const COPPIE = [
   ["code-text", "bg"],
   ["accent-ink", "accent-fill"],
   ["accent-ink-2", "accent-fill"],
+  // The closing band turns from --accent-fill to --accent-2-fill: its inks on both ends.
+  ["accent-ink", "accent-2-fill"],
+  ["accent-ink-2", "accent-2-fill"],
   ["ink-text", "ink"],
   ["badge-ink", "badge-bg"],
   ...["warn", "error"].flatMap((f) => ["bg", "surface-2"].map((b) => [f, b])),
@@ -275,7 +278,7 @@ const COPPIE = [
   ...["muted", "accent"].flatMap((f) => ["hint-bg", "hint-bg-2"].map((b) => [f, b])),
   // The manual's tables: the header on its fill, text and links on the body.
   ["table-head-ink", "table-head-bg"],
-  ...["text", "muted", "accent"].map((f) => [f, "table-bg"]),
+  ...["text", "muted", "accent", "accent-2"].map((f) => [f, "table-bg"]),
 ];
 // 3:1 basta per il testo grande e per i simboli (WCAG 1.4.3 e 1.4.11): --dim colora solo titoli e
 // testo decorativo, --mark-n è il ✕ del confronto, che ha accanto il suo significato per esteso.
@@ -292,6 +295,15 @@ for (const [nome, mappa] of [["scuro", scuro], ["chiaro", chiaro]]) {
     }).map(([f, b]) => `${f} su ${b}`);
     eq(`tema ${nome}: ogni coppia passa ${soglia}:1`, [], sotto);
   }
+}
+// The landing's language card is data-theme="dark" in both themes, so only the dark tokens reach it:
+// sentence, glyph and choices on --ink.
+{
+  const sotto = ["text-hi", "text", "accent-2"].filter((f) => {
+    const [a, c] = [risolvi(scuro, f), risolvi(scuro, "ink")];
+    return !esa.test(a) || !esa.test(c) || contrasto(a, c) < 4.5;
+  });
+  eq("tema scuro: la card delle lingue passa 4.5:1 su --ink", [], sotto);
 }
 // The light theme's bar is tinted, with its own inks (--bar-*): text at 4.5:1 on it, the green of the
 // current place at 3:1 (it marks an icon). The dark theme sets no --bar-* and keeps the page's inks.
@@ -339,6 +351,21 @@ for (const [nome, mappa] of [["scuro", scuro], ["chiaro", chiaro]]) {
     return !esa.test(fondo) || contrasto(risolvi(mappa, "highlight-ink"), fondo) < 4.5;
   });
   eq(`tema ${nome}: il testo evidenziato passa 4.5:1 (pagina, card, tabella)`, [], sotto);
+}
+// The manual's links inside a note: --accent-2 on the note's see-through fill, laid over the page and the
+// cards. The fill is rgba() in the dark theme and #rrggbbaa in the light one.
+{
+  const velo = (colore, fondo) => {
+    const h = /^#([0-9a-f]{6})([0-9a-f]{2})$/i.exec(colore);
+    return h ? sopra(`rgba(${h[1].match(/../g).map((c) => parseInt(c, 16)).join(", ")}, ${parseInt(h[2], 16) / 255})`, fondo) : sopra(colore, fondo);
+  };
+  for (const [nome, mappa] of [["scuro", scuro], ["chiaro", chiaro]]) {
+    const sotto = ["bg", "surface-2"].filter((b) => {
+      const fondo = velo(risolvi(mappa, "callout-bg"), risolvi(mappa, b));
+      return !esa.test(fondo) || contrasto(risolvi(mappa, "accent-2"), fondo) < 4.5;
+    });
+    eq(`tema ${nome}: i link dentro una nota passano 4.5:1 (pagina, card)`, [], sotto);
+  }
 }
 
 // 12. Una pagina, o una demo, resta autonoma: nessun import relativo esce dalla sua cartella (né lo zip

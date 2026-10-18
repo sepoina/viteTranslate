@@ -63,7 +63,8 @@ function DemoWindow() {
         <Code code={SOURCE} lang="jsx" title="App.jsx" className="code-panel" mark={SENTENCE} />
         <Code code={table} lang="yaml" title={`${tag}.yml`} className="code-panel" />
       </div>
-      <div className="lang-card">
+      {/* data-theme="dark": the card is a dark screen in both themes (landing.css, .lang-card). */}
+      <div className="lang-card" data-theme="dark">
         {/* Annunciata solo quando la lingua la sceglie chi legge: la rotazione automatica sarebbe un annuncio ogni 2,6 secondi. */}
         <div aria-live={auto ? "off" : "polite"}>
           <span className="lang-glyph" aria-hidden="true">
