@@ -21,7 +21,7 @@ Write text naturally in JSX. viteTranslate extracts strings, keeps locale files 
 
 [**Playground**](https://sepoina.github.io/viteTranslate/playground/) · [**Quick start**](#-quick-start) · [**VS Code**](#-vs-code-extension) · [**Guides**](#-guides)
 
-<!-- LINKED-DATA: same video id in site/landing/src/links.js (VIDEO_ID, the landing hero), idePlugin/README.md, launcher/README.md and the demo READMEs. -->
+<!-- LINKED-DATA: same video id in site/landing/src/links.js (VIDEO_ID, the landing hero), idePlugin/README.md, launcher/README.md, the demo READMEs and the manual's overview (site/pages/docs/content/getting-started/overview.mdx). -->
 <a href="https://youtu.be/gYj1z3XMv9M">
   <img src="doc/youplay.png" alt="Watch viteTranslate in action" width="60%" />
 </a>

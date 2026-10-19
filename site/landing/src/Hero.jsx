@@ -50,8 +50,8 @@ export default function Hero() {
 
             <div className="cta-row" data-hero>
               <CopyCommand tone="accent" />
-              <a className="btn btn-outline" href={siteUrl("playground")}>
-                <Trans>_%_Prova il playground_%_</Trans>
+              <a className="btn btn-outline" href={siteUrl("docs")}>
+                <Trans>_%_Leggi il manuale_%_</Trans>
                 <span aria-hidden="true">→</span>
               </a>
             </div>

@@ -2,7 +2,7 @@
 #      中文（中国）
 #       |    code: zh-CN
 #       |    missing key: 0
-#       |    processed: 2026-10-18 22:24
+#       |    processed: 2026-10-19 09:04
 #       |    TableVersion: 260905
 #  -------------------------------------------------
 #
@@ -51,13 +51,13 @@ Features_v7ljlr: "语言加载"
 Features_y50icl: "翻译文件"
 Hero_10s6wdy: "个运行时依赖"
 Hero_11jq5ef: "Babel 和 Vite 在你的机器上运行，永远不会进入包中；React 就是你的应用本来就有的那一份。"
-Hero_150etoz: "试用 Playground"
 Hero_1d3n0h: "%s，由测试套件实测——不是空口承诺。"
 Hero_1dtjxm2: "直接从 JSX 中提取需要翻译的文本。无需维护键，没有单独的提取流程，没有运行时依赖。"
 Hero_1eptjs7: "字节运行时（gzip）"
 Hero_1gdm8ga: "新功能：LLM 自动翻译"
 Hero_1rwpyzm: "文本只写<em>一次</em>。"
 Hero_56y4kk: "其余交给 Vite。"
+Hero_choep5: "阅读手册"
 HeroVideo_10an6gt: "视频：为什么选择 viteTranslate，以及它的生态如何运作"
 HeroVideo_1wfoiwd: "为什么选择 viteTranslate，以及它的各个部分如何协同工作。"
 HeroVideo_l53cig: "视频"

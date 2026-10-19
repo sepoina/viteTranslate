@@ -2,7 +2,7 @@
 #      italiano (Italia) (sourceLanguage)
 #       |    code: it-IT
 #       |    missing key: 0
-#       |    processed: 2026-10-18 23:23
+#       |    processed: 2026-10-19 09:05
 #       |    TableVersion: 260905
 #  -------------------------------------------------
 #
@@ -51,13 +51,13 @@ Features_v7ljlr: "Il caricamento delle lingue"
 Features_y50icl: "I file di traduzione"
 Hero_10s6wdy: "dipendenze a runtime"
 Hero_11jq5ef: "Babel e Vite girano sulla tua macchina e non entrano mai nel bundle; React è quello che la tua app ha già."
-Hero_150etoz: "Prova il playground"
 Hero_1d3n0h: "%s, misurati dalla suite di test: non una promessa a parole."
 Hero_1dtjxm2: "Estrai i testi da tradurre direttamente dal JSX. Nessuna chiave da mantenere, nessun flusso di estrazione a parte, nessuna dipendenza a runtime."
 Hero_1eptjs7: "byte di runtime, in gzip"
 Hero_1gdm8ga: "Nuovo: traduzione automatica con LLM"
 Hero_1rwpyzm: "Scrivi il testo <em>una volta</em>."
 Hero_56y4kk: "Vite fa il resto."
+Hero_choep5: "Leggi il manuale"
 HeroVideo_10an6gt: "Video: perché viteTranslate e come lavora il suo ecosistema"
 HeroVideo_1wfoiwd: "Perché viteTranslate, e come lavorano insieme i suoi pezzi."
 HeroVideo_l53cig: "Il video"
