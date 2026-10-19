@@ -47,16 +47,17 @@
 
   /* ── Text ──────────────────────────────────────── */
   /* Testo, dal più forte al più tenue. --dim solo per testo grande o decorativo (il test lo misura a 3:1).
-     A soft reading level for long pages, measured in APCA too (WCAG overrates contrast on a dark page):
-     titles Lc 80, body 65, secondary 53, tertiary 44, each a clear step under the one above. */
-  --text-hi: #d1d8d4; /* titolo dell'hero, titoli della prosa */
-  --text: #b7bfbb;
-  --code-text: #b7bfbb; /* like --text */
-  --lead: #9faaa4; /* descriptionForeground */
-  --muted: #9faaa4; /* descriptionForeground */
-  --faint: #8e9993; /* editorLineNumber.foreground, lifted to 4.5:1 on --bg-deep */
-  --quiet: #8e9993; /* piè di pagina, lingue non scelte — like --faint */
-  --dim: #717a75; /* checkbox.border */
+     A low-glare reading level for long pages, measured in APCA too (WCAG overrates contrast on a dark page):
+     titles Lc 75, body 60, secondary 52, tertiary 39 (WCAG's 4.5:1 on --bg-deep, the floor the site test holds).
+     No text on the page is brighter than the titles: inline code, links, the highlighter and the code sit near the body. */
+  --text-hi: #c9cfcc; /* titolo dell'hero, titoli della prosa */
+  --text: #aeb5b2;
+  --code-text: #aeb5b2; /* like --text */
+  --lead: #9ea8a2; /* descriptionForeground */
+  --muted: #9ea8a2; /* descriptionForeground */
+  --faint: #848e89; /* editorLineNumber.foreground, set on 4.5:1 on --bg-deep */
+  --quiet: #848e89; /* piè di pagina, lingue non scelte — like --faint */
+  --dim: #69716d; /* checkbox.border */
   /* ── /Text ─────────────────────────────────────── */
 
   /* ── Accent ────────────────────────────────────── */
@@ -64,9 +65,10 @@
      Two accents, two jobs. Green is what you do and what works: actions, the keyword of a title, success,
      the current choice. --accent-2, the cyan of the video poster, is where you are and where you go: section
      numbers, steps, paths, captions, anchors, links. --accent-2-fill is its solid fill, the same in both
-     themes (--accent-ink on it). */
-  --accent: #4ade80;
-  --accent-2: #22d3ee;
+     themes (--accent-ink on it). As text, both accents keep the body's lightness with 70% of the fills'
+     chroma: as easy to find, without the glow of a saturated colour on a dark page. */
+  --accent: #6fca89;
+  --accent-2: #65c5d7;
   --accent-2-fill: #22d3ee;
   --accent-2-soft: rgba(34, 211, 238, 0.12);
   --accent-fill: #4ade80;
@@ -83,7 +85,7 @@
   /* ── Ink ───────────────────────────────────────── */
   /* L'inchiostro: elementi scuri uguali nei due temi (bottoni sulla banda verde, etichetta "Copia"). */
   --ink: #121314; /* editor.background */
-  --ink-text: #bbbbbb;
+  --ink-text: #b1b1b1;
   --ink-hover: #202122; /* editorWidget.background */
   --ink-wash: rgba(18, 19, 20, 0.1);
   --ink-wash-2: rgba(18, 19, 20, 0.08);
@@ -91,7 +93,7 @@
 
   /* ── States ────────────────────────────────────── */
   --ok: var(--accent);
-  --warn: #e5ba7d; /* list.warningForeground */
+  --warn: #d4aa6d; /* list.warningForeground */
   --error: #f48771; /* errorForeground */
   /* ── /States ───────────────────────────────────── */
 
@@ -106,7 +108,7 @@
   --chip-dashed: #333536; /* il bordo tratteggiato delle lingue non caricate — input.border */
   --badge-bg: var(--text); /* la versione accanto al link della release */
   --badge-ink: var(--bg);
-  --logo-filter: brightness(1.56); /* il logo è grigio (#78788a): qui si schiarisce, fino al colore del testo */
+  --logo-filter: brightness(1.56); /* the video's logo, a grey <img> (#78788a), brought up to the text. The bar draws its own (Logo.jsx) */
   /* ── /Details ──────────────────────────────────── */
 
   /* ── Top bar and hint (SiteBar.jsx) ────────────── */
@@ -148,18 +150,18 @@
 
   /* ── Code ──────────────────────────────────────── */
   --code-bg: #161d19;
-  --tk-c: #7f8b84; /* commenti */
-  --tk-s: #fcd34d; /* stringhe */
-  --tk-t: #7dd3fc; /* tag */
-  --tk-k: #c4b5fd; /* parole chiave */
-  --tk-n: #fdba74; /* numeri, null */
+  --tk-c: #7c8780; /* commenti */
+  --tk-s: #d7ae14; /* stringhe */
+  --tk-t: #67bee6; /* tag */
+  --tk-k: #b9a9f1; /* parole chiave */
+  --tk-n: #e7a660; /* numeri, null */
   --tk-m: var(--accent); /* il marcatore _%_…_%_ */
   /* ── /Code ─────────────────────────────────────── */
 
   /* ── Inline code (.ic, InlineCode.jsx) ─────────── */
   --ic-border: var(--line-soft);
   --ic-bg: #2b312e;
-  --ic-ink: #e2e4e5;
+  --ic-ink: #b9babb;
   /* ── /Inline code ──────────────────────────────── */
 
   /* ── Callouts (manual) ─────────────────────────── */
@@ -169,18 +171,20 @@
   /* ── /Callouts ─────────────────────────────────── */
 
   /* ── Tables (manual) ───────────────────────────── */
-  /* The manual's tables: the header filled with the accent, the body a step off the page. Here the
-     bright green would glare (and fail light text), so the header takes a deep green instead. */
-  --table-head-bg: #14532d; /* deep enough for --text-hi at 4.5:1 */
+  /* The manual's tables: the header on a green band, the body a step off the page. Here the bright
+     green would glare (and fail light text), so the header takes a deep green; the light theme a pale one. */
+  --table-head-bg: #245133; /* deep enough for --text-hi at 4.5:1 */
   --table-head-ink: var(--text-hi);
   --table-bg: var(--surface);
+  --table-ink: var(--text); /* the body's text */
+  --table-note: var(--muted); /* a cell's small print, under a line: a step under --table-ink */
   /* ── /Tables ───────────────────────────────────── */
 
   /* ── Highlighter (manual) ──────────────────────── */
   /* The manual's highlighter (==text==): a marker stroke. On the dark page a solid deep green under a
      soft green ink; the light theme lays a see-through stroke over the page instead. */
   --highlight-bg: #24352e;
-  --highlight-ink: #9ecbaf;
+  --highlight-ink: #95c2a6;
   /* ── /Highlighter ──────────────────────────────── */
 
   /* ── Shape and motion ──────────────────────────── */
@@ -208,22 +212,22 @@
     color-scheme: light;
 
     /* ── Surfaces ──────────────────────────────────── */
-    --bg-deep: #e9ece6;
-    --bg: #f2f4f0;
-    --surface: #fcfdfb;
-    --surface-2: #fcfdfb;
-    --surface-3: #e1e5de;
-    --surface-hover: #f6f8f4;
-    --surface-step: #fcfdfb;
-    --terminal-bg: #f6f5f0;
+    --bg-deep: #dfe2dc;
+    --bg: #e8eae6;
+    --surface: #eff1ee;
+    --surface-2: #eff1ee;
+    --surface-3: #d8dcd5;
+    --surface-hover: #ecedea;
+    --surface-step: #eff1ee;
+    --terminal-bg: #eeede8;
     /* ── /Surfaces ─────────────────────────────────── */
 
     /* ── Lines ─────────────────────────────────────── */
     --line-soft: rgba(17, 21, 19, 0.1);
-    --line: #e2e8e4;
-    --line-strong: #d1d9d4;
+    --line: #d8deda;
+    --line-strong: #c7cfca;
     --line-hard: rgba(17, 21, 19, 0.3);
-    --link-line: #c4c8c0;
+    --link-line: #babeb6;
     /* ── /Lines ────────────────────────────────────── */
 
     /* ── Neutral washes ────────────────────────────── */
@@ -232,19 +236,21 @@
     /* ── /Neutral washes ───────────────────────────── */
 
     /* ── Text ──────────────────────────────────────── */
-    --text-hi: #1a231d;
-    --text: #303a34;
-    --code-text: #1f2622;
-    --lead: #3e4842;
-    --muted: #4f5953;
-    --faint: #606a65;
-    --quiet: #606a65;
-    --dim: #7a867f;
+    /* A paper page, not a white one (OKLCH L 0.935), and inks at APCA's floor for long reading: body Lc 75,
+       titles 86. The smaller inks sit on WCAG's 4.5:1 on --bg-deep and the manual's tables. */
+    --text-hi: #2b342e;
+    --text: #48524c;
+    --code-text: #4d5551;
+    --lead: #505b54;
+    --muted: #57615b;
+    --faint: #5c6560;
+    --quiet: #5c6560;
+    --dim: #75807a;
     /* ── /Text ─────────────────────────────────────── */
 
     /* ── Accent ────────────────────────────────────── */
-    --accent: #107a40;
-    --accent-2: #075f6e; /* the poster's cyan, darkened for 4.5:1 on every surface, the manual's notes included */
+    --accent: #006c36; /* 4.5:1 on every surface it writes on: notes, tables, the current page of the menu */
+    --accent-2: #166676; /* the poster's cyan, darkened for 4.5:1 on every surface, the manual's notes included */
     --accent-2-soft: rgba(7, 95, 110, 0.1);
     --accent-fill: #22c55e;
     --accent-tint: rgba(74, 222, 128, 0.16);
@@ -252,28 +258,27 @@
     /* ── /Accent ───────────────────────────────────── */
 
     /* ── States ────────────────────────────────────── */
-    --warn: #954507;
-    --error: #b41b1b;
+    --warn: #97460a;
+    --error: #b61f1d;
     /* ── /States ───────────────────────────────────── */
 
     /* ── Comparison marks ──────────────────────────── */
-    --mark-n: #707872;
+    --mark-n: #7d8680;
     /* ── /Comparison marks ─────────────────────────── */
 
     /* ── Details ───────────────────────────────────── */
-    --marquee-dim: #c4c8c0;
-    --chip-dashed: #c9cbc3;
-    --logo-filter: brightness(0.35);
+    --marquee-dim: #babeb6;
+    --chip-dashed: #bfc1b9;
     /* ── /Details ──────────────────────────────────── */
 
     /* ── Top bar and hint (SiteBar.jsx) ────────────── */
-    --bar-bg: #d8e0d8cc; /* the page's green-grey, a step down: the bar belongs to the page */
+    --bar-bg: #ced6cecc; /* the page's green-grey, a step down: the bar belongs to the page */
     /* A tinted see-through bar: the page inks fall under 4.5:1 on it, so it takes its own. theme.css reads them with
        the page ink as fallback, and the dark theme does not set them. --bar-accent marks icons only (3:1). */
-    --bar-ink: var(--text);
-    --bar-accent: #0d4f26;
-    --hint-bg: #e0f3e6;
-    --hint-bg-2: #dbeff2;
+    --bar-ink: #35403a; /* darker than the page ink, for 4.5:1 with a dark code block under the bar */
+    --bar-accent: #256238;
+    --hint-bg: #d6e9dc;
+    --hint-bg-2: #d1e5e8;
     --hint-glow: rgba(255, 255, 255, 0.7);
     --hint-line-2: #0891b2;
     --hint-shadow: rgba(17, 21, 19, 0.14);
@@ -287,18 +292,18 @@
     /* ── /Demo cards ───────────────────────────────── */
 
     /* ── Hero background ───────────────────────────── */
-    --grid: #e8e7e0;
+    --grid: #deddd6;
     --glow: rgba(74, 222, 128, 0.2);
     --glow-2: rgba(34, 211, 238, 0.16);
     /* ── /Hero background ──────────────────────────── */
 
     /* ── Code ──────────────────────────────────────── */
-    --code-bg: #fcfdfb;
-    --tk-c: #6b746e;
-    --tk-s: #a16207;
-    --tk-t: #0369a1;
-    --tk-k: #6d28d9;
-    --tk-n: #c2410c;
+    --code-bg: #eff1ee;
+    --tk-c: #666e69;
+    --tk-s: #9c5e00;
+    --tk-t: #006298;
+    --tk-k: #7230df;
+    --tk-n: #c1400b;
     /* ── /Code ─────────────────────────────────────── */
 
     /* ── Inline code (.ic, InlineCode.jsx) ─────────── */
@@ -308,14 +313,18 @@
     /* ── /Inline code ──────────────────────────────── */
 
     /* ── Callouts (manual) ─────────────────────────── */
-    --callout-bg: #0a0c041c;
+    --callout-bg: #0a0c0414;
     --callout-rim: rgba(0, 0, 0, 0.02);
     /* ── /Callouts ─────────────────────────────────── */
 
     /* ── Tables (manual) ───────────────────────────── */
-    --table-head-bg: var(--accent);
-    --table-head-ink: #ffffff;
-    --table-bg: #ebeeea; /* a touch lighter than --surface-3, so the accent's links keep 4.5:1 */
+    --table-head-bg: #cce6d2; /* pale green under the title ink, 0.07 under the body: no solid band in white */
+    --table-head-ink: var(--text-hi);
+    /* The body near white (OKLCH L 0.97, lighter than the cards) and its inks lighter than the page's:
+       the text keeps the page's Lc 75, the table stands out by its light, not by its contrast. */
+    --table-bg: #f4f6f3;
+    --table-ink: #59645e;
+    --table-note: #656f69;
     /* ── /Tables ───────────────────────────────────── */
 
     /* ── Highlighter (manual) ──────────────────────── */
@@ -330,22 +339,22 @@
   color-scheme: light;
 
   /* ── Surfaces ──────────────────────────────────── */
-  --bg-deep: #e9ece6;
-  --bg: #f2f4f0;
-  --surface: #fcfdfb;
-  --surface-2: #fcfdfb;
-  --surface-3: #e1e5de;
-  --surface-hover: #f6f8f4;
-  --surface-step: #fcfdfb;
-  --terminal-bg: #f6f5f0;
+  --bg-deep: #dfe2dc;
+  --bg: #e8eae6;
+  --surface: #eff1ee;
+  --surface-2: #eff1ee;
+  --surface-3: #d8dcd5;
+  --surface-hover: #ecedea;
+  --surface-step: #eff1ee;
+  --terminal-bg: #eeede8;
   /* ── /Surfaces ─────────────────────────────────── */
 
   /* ── Lines ─────────────────────────────────────── */
   --line-soft: rgba(17, 21, 19, 0.1);
-  --line: #e2e8e4;
-  --line-strong: #d1d9d4;
+  --line: #d8deda;
+  --line-strong: #c7cfca;
   --line-hard: rgba(17, 21, 19, 0.3);
-  --link-line: #c4c8c0;
+  --link-line: #babeb6;
   /* ── /Lines ────────────────────────────────────── */
 
   /* ── Neutral washes ────────────────────────────── */
@@ -354,19 +363,21 @@
   /* ── /Neutral washes ───────────────────────────── */
 
   /* ── Text ──────────────────────────────────────── */
-  --text-hi: #1a231d;
-  --text: #303a34;
-  --code-text: #1f2622;
-  --lead: #3e4842;
-  --muted: #4f5953;
-  --faint: #606a65;
-  --quiet: #606a65;
-  --dim: #7a867f;
+  /* A paper page, not a white one (OKLCH L 0.935), and inks at APCA's floor for long reading: body Lc 75,
+     titles 86. The smaller inks sit on WCAG's 4.5:1 on --bg-deep and the manual's tables. */
+  --text-hi: #2b342e;
+  --text: #48524c;
+  --code-text: #4d5551;
+  --lead: #505b54;
+  --muted: #57615b;
+  --faint: #5c6560;
+  --quiet: #5c6560;
+  --dim: #75807a;
   /* ── /Text ─────────────────────────────────────── */
 
   /* ── Accent ────────────────────────────────────── */
-  --accent: #107a40;
-  --accent-2: #075f6e; /* the poster's cyan, darkened for 4.5:1 on every surface, the manual's notes included */
+  --accent: #006c36; /* 4.5:1 on every surface it writes on: notes, tables, the current page of the menu */
+  --accent-2: #166676; /* the poster's cyan, darkened for 4.5:1 on every surface, the manual's notes included */
   --accent-2-soft: rgba(7, 95, 110, 0.1);
   --accent-fill: #22c55e;
   --accent-tint: rgba(74, 222, 128, 0.16);
@@ -374,28 +385,27 @@
   /* ── /Accent ───────────────────────────────────── */
 
   /* ── States ────────────────────────────────────── */
-  --warn: #954507;
-  --error: #b41b1b;
+  --warn: #97460a;
+  --error: #b61f1d;
   /* ── /States ───────────────────────────────────── */
 
   /* ── Comparison marks ──────────────────────────── */
-  --mark-n: #707872;
+  --mark-n: #7d8680;
   /* ── /Comparison marks ─────────────────────────── */
 
   /* ── Details ───────────────────────────────────── */
-  --marquee-dim: #c4c8c0;
-  --chip-dashed: #c9cbc3;
-  --logo-filter: brightness(0.35);
+  --marquee-dim: #babeb6;
+  --chip-dashed: #bfc1b9;
   /* ── /Details ──────────────────────────────────── */
 
   /* ── Top bar and hint (SiteBar.jsx) ────────────── */
-  --bar-bg: #d8e0d8cc; /* the page's green-grey, a step down: the bar belongs to the page */
+  --bar-bg: #ced6cecc; /* the page's green-grey, a step down: the bar belongs to the page */
   /* A tinted see-through bar: the page inks fall under 4.5:1 on it, so it takes its own. theme.css reads them with
      the page ink as fallback, and the dark theme does not set them. --bar-accent marks icons only (3:1). */
-  --bar-ink: var(--text);
-  --bar-accent: #0d4f26;
-  --hint-bg: #e0f3e6;
-  --hint-bg-2: #dbeff2;
+  --bar-ink: #35403a; /* darker than the page ink, for 4.5:1 with a dark code block under the bar */
+  --bar-accent: #256238;
+  --hint-bg: #d6e9dc;
+  --hint-bg-2: #d1e5e8;
   --hint-glow: rgba(255, 255, 255, 0.7);
   --hint-line-2: #0891b2;
   --hint-shadow: rgba(17, 21, 19, 0.14);
@@ -409,18 +419,18 @@
   /* ── /Demo cards ───────────────────────────────── */
 
   /* ── Hero background ───────────────────────────── */
-  --grid: #e8e7e0;
+  --grid: #deddd6;
   --glow: rgba(74, 222, 128, 0.2);
   --glow-2: rgba(34, 211, 238, 0.16);
   /* ── /Hero background ──────────────────────────── */
 
   /* ── Code ──────────────────────────────────────── */
-  --code-bg: #fcfdfb;
-  --tk-c: #6b746e;
-  --tk-s: #a16207;
-  --tk-t: #0369a1;
-  --tk-k: #6d28d9;
-  --tk-n: #c2410c;
+  --code-bg: #eff1ee;
+  --tk-c: #666e69;
+  --tk-s: #9c5e00;
+  --tk-t: #006298;
+  --tk-k: #7230df;
+  --tk-n: #c1400b;
   /* ── /Code ─────────────────────────────────────── */
 
   /* ── Inline code (.ic, InlineCode.jsx) ─────────── */
@@ -430,14 +440,18 @@
   /* ── /Inline code ──────────────────────────────── */
 
   /* ── Callouts (manual) ─────────────────────────── */
-  --callout-bg: #0a0c041c;
+  --callout-bg: #0a0c0414;
   --callout-rim: rgba(0, 0, 0, 0.02);
   /* ── /Callouts ─────────────────────────────────── */
 
   /* ── Tables (manual) ───────────────────────────── */
-  --table-head-bg: var(--accent);
-  --table-head-ink: #ffffff;
-  --table-bg: #ebeeea; /* a touch lighter than --surface-3, so the accent's links keep 4.5:1 */
+  --table-head-bg: #cce6d2; /* pale green under the title ink, 0.07 under the body: no solid band in white */
+  --table-head-ink: var(--text-hi);
+  /* The body near white (OKLCH L 0.97, lighter than the cards) and its inks lighter than the page's:
+     the text keeps the page's Lc 75, the table stands out by its light, not by its contrast. */
+  --table-bg: #f4f6f3;
+  --table-ink: #59645e;
+  --table-note: #656f69;
   /* ── /Tables ───────────────────────────────────── */
 
   /* ── Highlighter (manual) ──────────────────────── */

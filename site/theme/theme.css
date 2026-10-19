@@ -459,10 +459,19 @@ main[tabindex="-1"]:focus {
   align-items: center;
 }
 
-.bar-brand img {
+/* The logo (Logo.jsx), inline: the word in the bar's ink, the "%" in the bar's green, the one of the
+   current place's icon. The light theme's tinted bar has its own (--bar-*); the dark one takes the page's. */
+.bar-logo {
   width: auto;
   height: 22px;
-  filter: var(--logo-filter);
+}
+
+.bar-logo-word {
+  fill: var(--bar-ink, var(--text-hi));
+}
+
+.bar-logo-pct {
+  fill: var(--bar-accent, var(--accent));
 }
 
 .bar-tools {

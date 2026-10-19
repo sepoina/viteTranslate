@@ -11,7 +11,7 @@ import { siteUrl } from "../siteLinks.js";
 import { currentTheme } from "./boot.js";
 import LanguageSwitch from "./LanguageSwitch.jsx";
 import ThemeToggle from "./ThemeToggle.jsx";
-import logo from "./logo.svg";
+import Logo from "./Logo.jsx";
 
 // LINKED-DATA: the same repository address is REPO in site/landing/src/links.js and site/pages/docs/src/layout/router.js.
 const REPO = "https://github.com/sepoina/viteTranslate";
@@ -35,7 +35,7 @@ export const ICONS = {
 };
 const PLACES = ["home", "docs", "demos", "github"];
 
-// The "%" of the logo (logo.svg, class "pct"), coordinates rounded to one decimal: it marks the languages in the hint.
+// The "%" of the logo (Logo.jsx), coordinates rounded to one decimal: it marks the languages in the hint.
 const PERCENT = "m-55.7,-327.4 c-38.6,-1.6-76,14.7-96.8,42.2-5.8,7.7-14.4,24.7-16.4,32.5-3.7,14.5-4.6,29.2-2.6,42.9 6.3,42.6 40.7,75.6 82.4,79.1 15.9,1.3 36.3,-1.8 48.7,-7.6 l 3.7,-1.7 18.4,-31 c 33.5,-56.4 35.1,-59.2 34.2,-60.6-0.9,-1.4-8.6,-6.8-14.1,-9.8 l-3.6,-2-15,25.1 c-8.3,13.8-19.5,32.7-25.1,42.1-7.7,13.1-10.6,17.4-12.5,18.5-6.3,3.9-27.6,5.7-38.8,3.3-23.3,-5-41.4,-19.3-49.9,-39.5-10.1,-23.9-7.9,-52.6 5.8,-73.4 12.8,-19.5 35.4,-32.9 61.1,-36.2 9.7,-1.2 29.4,-0.5 38.2,1.4 14.7,3.2 30.1,9.4 41.4,17 7.9,5.2 18.7,15.7 23.7,23.1 2.3,3.4 4.5,5.9 4.8,5.6 0.3,-0.3 3.2,-5 6.4,-10.4 4.6,-7.7 5.7,-10 5.1,-11.1-0.4,-0.7-5.1,-5.7-10.4,-11.1-7.2,-7.3-11.8,-11.2-17.7,-15.1-21.4,-14.2-46,-22.2-71.1,-23.3 z m 149.8,18.5 c 0,0-0.1,0-0.1,0-0.6,0.4-36.1,59.4-56.7,94.4-4.8,8.1-23.7,39.8-42.1,70.6 C-74.2,-27.8-84.7,-9.9-84.3,-8.6 c 0.2,0.7 3.9,3.5 8.3,6.2 4.3,2.7 8.5,4.9 9.3,4.9 1.1,0 2.4,-1.7 5.1,-6.4 3.5,-6.1 14.6,-24.9 94.9,-159.4 66.3,-111.1 80,-134.5 79,-135.5-1.7,-1.6-16.9,-10-18.2,-10.1 z m 15.6,132.9 c-9.1,-0.2-18,0.7-26,2.7-8.2,2.1-15,4.8-17.4,6.8-0.6,0.5-2,2.1-3,3.5-1.5,2.1-41.1,67.9-48.5,80.7 l-2,3.4 6.4,3.9 c 3.5,2.2 7.9,4.8 9.8,5.9 l 3.4,2 2.4,-4.2 c 1.3,-2.3 9.2,-15.6 17.5,-29.5 8.3,-13.9 16.7,-28.1 18.6,-31.5 6.2,-10.9 9.5,-15 13.8,-17.1 9.1,-4.4 30.9,-5.4 42.9,-1.9 28.4,8.1 46.2,31 49.2,63.2 3.1,32.1-13.1,62.4-41,76.6-14.5,7.4-26.6,9.9-45.1,9.4 C 53.8,-3.3 22.9,-18.2 2,-44.9 c-2.6,-3.3-5.1,-6-5.6,-6-1.4,0-11.5,17.1-11.5,19.6 0,2 10.3,13.5 17.3,19.4 20.9,17.4 49.9,29.5 78,32.7 3.4,0.4 10.8,0.6 16.4,0.4 53.2,-1.5 94,-35.5 102.6,-85.5 1.5,-8.6 1.4,-25.3 0,-34.2-5.9,-34.9-31,-64.3-62.8,-73.4-8.5,-2.4-17.7,-3.8-26.8,-4 z";
 
 // How long the hint bar waits before closing: time to move the pointer from a control down onto it.
@@ -143,8 +143,8 @@ export default function SiteBar({ current, home = siteUrl(), section, onNavigate
       </button>
       <div ref={inner} className="wrap bar-in">
         <div className="bar-start">
-          <a className="bar-brand" href={home}>
-            <img src={logo} alt="viteTranslate" width="124" height="22" />
+          <a className="bar-brand" href={home} aria-label="viteTranslate">
+            <Logo />
           </a>
           {children}
         </div>

@@ -278,7 +278,7 @@ const COPPIE = [
   ...["muted", "accent"].flatMap((f) => ["hint-bg", "hint-bg-2"].map((b) => [f, b])),
   // The manual's tables: the header on its fill, text and links on the body.
   ["table-head-ink", "table-head-bg"],
-  ...["text", "muted", "accent", "accent-2"].map((f) => [f, "table-bg"]),
+  ...["table-ink", "table-note", "text", "muted", "accent", "accent-2"].map((f) => [f, "table-bg"]),
 ];
 // 3:1 basta per il testo grande e per i simboli (WCAG 1.4.3 e 1.4.11): --dim colora solo titoli e
 // testo decorativo, --mark-n è il ✕ del confronto, che ha accanto il suo significato per esteso.

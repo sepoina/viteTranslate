@@ -80,6 +80,11 @@ differs, or on a text/background pair below 4.5:1 (3:1 for `--dim` and `--mark-n
 — so a rebrand is one file and a test run. The dark theme's greys are VS Code's Dark 2026, each value with the key it came
 from.
 
+**Low glare.** Contrast is set for long reading, not for the most it can be: dark body APCA Lc 60 (titles 75),
+light page a paper grey (OKLCH L 0.935) with body Lc 75 (titles 86). Links, accents, inline code, the highlighter
+and the code blocks' brighter slots sit near the body, never above the titles; the small inks rest on the
+test's 4.5:1. A new colour follows the same rule: measure it in APCA too, and keep it under the titles.
+
 **Two accents, two jobs.** Green (`--accent`) is what you do and what works: buttons, the keyword of a title,
 ✓, the current choice, the manual's highlighter. Cyan (`--accent-2`, the video poster's) is where you are and where
 you go: section numbers, steps, paths, captions, anchors, links. A new element picks its accent by that rule, not by

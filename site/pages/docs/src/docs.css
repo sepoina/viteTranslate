@@ -753,9 +753,12 @@
   background: var(--table-bg);
 }
 
+/* The body's own ink (tokens.css): on the light theme's table, lighter than the page, the page's ink would
+   read harder than the text around it. */
 .table-scroll table {
   width: 100%;
   min-width: 28rem;
+  color: var(--table-ink);
   border-collapse: collapse;
   font-size: 0.875rem;
   line-height: 1.55;
@@ -788,9 +791,8 @@
   border-bottom: 0;
 }
 
-/* A cell's small print (`<hr>` in the page's cell): under a line, smaller, its text at 70% (still over
-   6:1 on the table, in both themes). Only the text: links and code keep their full colour, which opacity
-   would take below 4.5:1 on the light theme. */
+/* A cell's small print (`<hr>` in the page's cell): under a line, smaller, its text in --table-note, a step
+   under the table's ink (the site test holds it at 4.5:1, in both themes). Links and code keep their own colour. */
 .table-scroll .d-cell-notes {
   display: block;
   margin-top: 0.55rem;
@@ -798,7 +800,7 @@
   border-top: 1px solid var(--line);
   font-size: 0.8125rem;
   line-height: 1.5;
-  color: color-mix(in srgb, var(--text) 70%, transparent);
+  color: var(--table-note);
 }
 
 /* A row whose code opens below it (ui/CodeRow.jsx): the code icon, filled while the row is open, and the
