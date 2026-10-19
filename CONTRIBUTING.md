@@ -38,9 +38,9 @@ never shipped) for the HTML entity table, a recorded browser run for markup pars
 straightforward Babel-based implementation for marker extraction. An expectation typed by hand
 is only ever as right as the day it was typed.
 
-Before a release, `npm run testRelease` runs the suite and the release checks together: site theme, demo versions, README size, runtime size and the manual.
+A release is committed with `npm run commit "message"`: it regenerates the derived files it can (site theme, favicon, demo and lockfile versions), runs the suite, the release checks (README size, runtime size, the manual) and the two CI builds, and only then commits everything and pushes. If it passes, CI has no reason to fail. `npm run commit -- --dry-run` runs the same checks without committing.
 
-`test/` itself holds the runner (`run.mjs`), the release checks (`testRelease.mjs`, `release/`) and two tools that are *not* part of the
+`test/` itself holds the runner (`run.mjs`), the commit checks (`commit.mjs`, `release/`) and two tools that are *not* part of the
 suite:
 
 - `exampleLangCompile.mjs` (`npm run dump`) writes a compiled language module — what the

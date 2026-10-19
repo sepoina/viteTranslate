@@ -455,7 +455,7 @@ Page map (left column, in this order):
 1. `site/landing/src/Nav.jsx`: after the four section buttons, an `<a href={…docs/}>` "_%_Documentazione_%_" (Italian: the landing's source language). Use `siteUrl("docs")` if the landing has `siteLinks.js` in scope, otherwise `import.meta.env.BASE_URL + "docs/"`, as for the other pages.
 2. One link in the text: in the "How it works" section (`data-section="how"`) or in `Outro.jsx`, whichever already ends with a call to action, add a sentence such as "_%_Tutto il resto, passo per passo, nel <a>manuale</a>._%_". Ask the user if it is unclear which one fits.
 3. Translate the new landing strings in `site/landing/locale/en-US.yml` and `zh-CN.yml` (by hand or with the LLM, as done for the other landing strings).
-4. Landing text changed: regenerate the golden (memory "compileGolden and landing tables": only if the KO is limited to the edited folders).
+4. Landing text changed: nothing to regenerate (`test/compileGolden.mjs`, which hashed the landing tables, was removed).
 5. Site build plumbing (test 2 and zips):
    - `site/build.mjs` `sitePages`: return `card` too (`vitetranslateSite.card !== false`).
    - `site/zip.mjs` `zipPages`: skip pages with `card: false`.

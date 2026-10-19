@@ -48,16 +48,20 @@ The user manual is [`pages/docs/`](pages/docs): pages are `.mdx` files in `conte
 npm run docs              # dev server, port 3004
 npm run docs:status       # pages whose sources changed since they were last read
 npm run docs:seal -- llm/price   # after updating the page and reading the diff
-npm run testRelease       # the release checks, the manual's among them
+npm run commit -- --dry-run   # every check of a commit (the manual's among them), without committing
 ```
 
 **Sources and lock.** `docs.lock.json` stores, per page, the hash of each source (line endings do not count) and every anchor ever published. A page is *stale* when a source changed; `seal` records the new state, one page at a time. Each source file carries a `DOCS-PAGE: route` comment pointing back. Anchors never leave the lock: a renamed or moved section needs an `aliases:` line (`route#old -> new`, also across two existing pages: the router follows `generated/aliases.json`). The static copies written at build time (`scripts/staticRoutes.mjs`) give every route its own `index.html` and every old route a redirect; they never overwrite a real page.
 
 **Translation.** `pages/docs/locale/` is written by viteTranslate only. Never edit it by hand; the Italian table is filled with `cd site/pages/docs && npx vitetranslate --llm-translate it-IT` (try `--llm-dry-run` first).
 
-## Release checks
+## Commit checks
 
-`npm run testRelease` ([`test/testRelease.mjs`](../test/testRelease.mjs)) runs every `test/release/*.check.mjs` in name order and prints one table: `suite` (`npm test`), `theme` (copies and favicon), `demos`, `readme` (size rule of AGENTS.md), `runtime-size` (runs `estimateSize`, which rewrites `site/cli/runtimeSize.json`) and `docs`: it compiles the manual and runs eight checks (stale pages, `DOCS-PAGE` pointers, API coverage, published anchors, links into the manual — absolute addresses, and the site's own `docsUrl()`/`manual` targets — links to migrated files, `TODO(links)`, translation status). `--only <word>` runs the checks whose name has it. A check is a file exporting `name` and `run()` that returns `{ level: "ok" | "warn" | "ko", lines }`. Exit code 1 on any KO.
+`npm run commit "message"` ([`test/commit.mjs`](../test/commit.mjs)) runs every `test/release/*.check.mjs` in name order and prints one table: `suite` (`npm test`), `theme` (copies and favicon), `demos`, `readme` (size rule of AGENTS.md), `runtime-size` (runs `estimateSize`, which rewrites `site/cli/runtimeSize.json`), `docs` (it compiles the manual and runs eight checks: stale pages, `DOCS-PAGE` pointers, API coverage, published anchors, links into the manual — absolute addresses, and the site's own `docsUrl()`/`manual` targets — links to migrated files, `TODO(links)`, translation status), then `build-lib` and `build-site`, the two builds of `publish.yml`. Only if all pass: `git add -A`, the commit with that message, the push. OK here means CI has no reason to fail: it gets exactly what was checked. No message, no run.
+
+First, the checks that export `fix()` regenerate what they can rebuild alone: theme copies and favicon, demo versions and the versions in `package-lock.json` (a version bumped by hand in any `package.json`, `idePlugin` included). What needs a human stays KO, and nothing is committed: sealing a manual page, the README figures, translations.
+
+In a terminal it shows two live lines, the step and a bar with the time left, estimated from the last good run (`node_modules/.cache/viteTranslate/commitTimings.json`); everything else only on failure. `--verbose`, or no terminal, prints every step instead. `--dry-run` runs the checks and commits nothing; with it, `--check` skips the fixes and `--only <word>` runs the checks whose name has it. Flags go after `--` (`npm run commit -- --dry-run`): npm keeps `--only` for itself. A check is a file exporting `name`, `run()` returning `{ level: "ok" | "warn" | "ko", lines }` and, optionally, `fix()`. Exit code 1 on any KO.
 
 ## Theme
 
@@ -93,8 +97,8 @@ what looks good next to it.
 **Favicon.** [`cli/favicon.mjs`](cli/favicon.mjs) draws the logo's `%` on a tile in `--bg` and `--accent` and writes three
 files into `theme/`: `favicon.svg` (follows the system's light or dark), `favicon-32.png` for browsers without SVG
 favicons, `apple-touch-icon.png` (180 px, square: iOS rounds it). They're committed, so the build doesn't redraw
-them: after changing the glyph or those two tokens, `npm run site:favicon` (it refreshes the copies too). The
-site test and `testRelease` fail while they're stale. The restaurant demo keeps its own ⚓.
+them: after changing the glyph or those two tokens, `npm run site:favicon` (it refreshes the copies too;
+`npm run commit` does it for you). The site test fails while they're stale. The restaurant demo keeps its own ⚓.
 
 Titles use `--display` (Alfa Slab One), which has no Chinese or Japanese glyphs. Give them `font-weight: 700` and
 `font-synthesis: none`: Latin stays as drawn, and the system CJK fallback comes out bold.
@@ -204,7 +208,7 @@ checks it. Its links to the rest of the site go through `src/siteLinks.js`: `sit
 
 Links into the manual go through `docsUrl("route#id")`, or a `manual: "route#id"` field / `manual="route#id"` prop that
 reaches it ([`theme/ManualLink.jsx`](theme/ManualLink.jsx) draws the "Nel manuale" line under a section's title).
-Write the target as a literal: `testRelease`'s "links into the manual" check reads those three forms and fails on a
+Write the target as a literal: `npm run commit`'s "links into the manual" check reads those three forms and fails on a
 page or section that doesn't exist.
 
 Landing and pages are separate builds because two `vitetranslate()` configurations can't share one build

@@ -52,6 +52,12 @@ console.log("\n== sameIgnoringProcessed: maschera solo la riga del timestamp =="
 
   eq("un corpo diverso dopo intestazioni uguali -> diversi", false, sameIgnoringProcessed(`${a}\nApp_a: "x"`, `${a}\nApp_a: "y"`));
   eq("stesso corpo, solo il timestamp diverso -> uguali", true, sameIgnoringProcessed(`${a}\nApp_a: "x"`, `${b}\nApp_a: "x"`));
+
+  // Un checkout di Git for Windows (core.autocrlf) rimette il file in CRLF: non è un cambiamento.
+  const crlf = (s) => s.replace(/\n/g, "\r\n");
+  eq("lo stesso file in CRLF -> uguali", true, sameIgnoringProcessed(crlf(`${a}\nApp_a: "x"\n`), `${b}\nApp_a: "x"\n`));
+  eq("in CRLF un corpo diverso resta diverso", false, sameIgnoringProcessed(crlf(`${a}\nApp_a: "x"\n`), `${a}\nApp_a: "y"\n`));
+  eq("in CRLF missing key diverso resta diverso", false, sameIgnoringProcessed(crlf(a), c));
 }
 
 console.log(fail === 0 ? "\nTUTTI OK" : `\n${fail} FALLITI`);

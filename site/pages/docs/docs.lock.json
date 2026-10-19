@@ -75,11 +75,11 @@
       }
     },
     "concepts/languages": {
-      "sealedAt": "32f6c57",
+      "sealedAt": "8b6a9fb",
       "sources": {
         "lib/dev/vite/uty/validateLanguageTag.js": "fa3e1881740ed239396a1f0cc4574b5db8b649134d561b193eec3b3fd9f1c837",
         "lib/dev/vite/uty/languageAutonym.js": "07acf3b85505077edbd314c37a412f3bdcb4a57a1a73e4edea4c46e11b294686",
-        "lib/dev/vite/uty/buildLanguageHeader.js": "99ff65ec68ae1f29377be79d0cd3af5ec410138498fcd6487b2f8d53edc0acb1",
+        "lib/dev/vite/uty/buildLanguageHeader.js": "38d81e4cd3f04b20d8aae050f121b57f81c72c62fe8ae9cd6709941c01113cfc",
         "lib/dev/vite/cli.js": "0d286d24ec084edb12d070e25dbb6f40d2587be6d36c963dc937b1a1827120fd"
       }
     },

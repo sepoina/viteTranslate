@@ -64,7 +64,7 @@
     "build": "node test/vendorIcu.mjs && rolldown -c",
     "test": "node test/run.mjs",
     "estimateSize": "node test/estimateSize.mjs",
-    "testRelease": "node test/testRelease.mjs",
+    "commit": "node test/commit.mjs",
     "release": "npm version patch && git push --follow-tags",
     "version": "node test/syncDemoDeps.mjs",
     "sync:demos": "node test/syncDemoDeps.mjs",

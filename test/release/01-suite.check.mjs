@@ -9,7 +9,8 @@ const RADICE = join(dirname(fileURLToPath(import.meta.url)), "../..");
 export const name = "suite";
 export const description = "every test in test/list, one process each (node test/run.mjs)";
 
-export async function run({ log = () => {} } = {}) {
+// `progress(frazione)`: un test finito alla volta, per la barra di commit.mjs.
+export async function run({ log = () => {}, progress = () => {} } = {}) {
   const totale = readdirSync(join(RADICE, "test/list")).filter((f) => f.endsWith(".test.mjs")).length;
   let fatti = 0;
   log(`starting node test/run.mjs: ${totale} tests, one process each; failures shown at once, progress every 10`);
@@ -27,6 +28,7 @@ export async function run({ log = () => {} } = {}) {
       for (const l of righe) {
         if (!/^[✓✗−]/.test(l)) continue;
         fatti++;
+        progress(fatti / totale);
         if (!l.startsWith("✓")) log(l.replace(/\s+/g, " ").trim());
         if (fatti % 10 === 0 || fatti === totale) log(`${fatti}/${totale} tests done`);
       }

@@ -1,6 +1,6 @@
 // A link into the manual from the pages written in Italian (landing, playground, edge cases): the bar's book,
 // "NEL MANUALE ･" and the name of where it lands. `manual` is "route#id" (siteLinks.js, docsUrl); the page
-// writes it as a literal field or prop, `manual: "…"` or `manual="…"`, so that testRelease can check it.
+// writes it as a literal field or prop, `manual: "…"` or `manual="…"`, so that npm run commit can check it.
 // SORGENTE in site/theme/: la copia in src/theme/ la rigenera `npm run site:theme`.
 import { Trans } from "@sepoina/vitetranslate/react";
 import { docsUrl } from "../siteLinks.js";

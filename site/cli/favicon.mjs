@@ -7,7 +7,8 @@
 //   apple-touch-icon.png  180 px, square and opaque: iOS rounds the corners itself
 //
 // The files are committed and the site build doesn't run this: rerun it after touching GLYPH or the
-// two tokens. The site test and testRelease ("theme") fail while the files are out of date.
+// two tokens (npm run commit does it too, in its "theme" fix). The site test fails while the files
+// are out of date.
 //
 //   node site/cli/favicon.mjs           # rewrites the three files and the theme copies (npm run site:favicon)
 //   node site/cli/favicon.mjs --check   # writes nothing: lists the stale files, exits with 1 if any

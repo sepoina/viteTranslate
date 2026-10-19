@@ -8,7 +8,7 @@ export const SITE_ROOT = import.meta.env.VITE_SITE_ROOT ?? "https://sepoina.gith
 export const siteUrl = (slug = "") => (slug ? `${SITE_ROOT}${slug}/` : SITE_ROOT);
 
 // A target is "route#id" of the manual (site/pages/docs), written as a literal: docsUrl("concepts/icu#what-ships"),
-// or a field `manual: "concepts/icu"` / a prop `manual="concepts/icu"` that reaches docsUrl later. testRelease
+// or a field `manual: "concepts/icu"` / a prop `manual="concepts/icu"` that reaches docsUrl later. npm run commit
 // reads those three forms and fails on a page or a section that does not exist (site/cli/docsSources.mjs).
 /** An address in the manual: "concepts/icu#what-ships" → …/docs/concepts/icu/#what-ships. */
 export const docsUrl = (target) => {

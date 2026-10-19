@@ -1,0 +1,9 @@
+# Line endings: LF in the repo and in every working copy, on every system.
+# Without this, Git for Windows (core.autocrlf=true, its default) checks files out as CRLF, and
+# everything that writes LF (the table sync, the favicon, Node scripts) shows up as a change.
+# Binary files are still detected on their own (text=auto).
+* text=auto eol=lf
+
+# cmd.exe wants CRLF: with LF it can misread labels and gotos.
+*.cmd text eol=crlf
+*.bat text eol=crlf

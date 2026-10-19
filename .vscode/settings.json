@@ -1,0 +1,4 @@
+{
+  // New files in LF, as .gitattributes wants them in the working copy.
+  "files.eol": "\n"
+}

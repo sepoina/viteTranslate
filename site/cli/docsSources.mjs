@@ -1,6 +1,6 @@
 // Il legame fra il codice e il manuale (site/pages/docs): quali pagine descrivono quali file
 // (`sources:` nel frontmatter), se il codice è cambiato da quando la pagina è stata riletta
-// (docs.lock.json) e le verifiche che `npm run testRelease` esegue sul manuale.
+// (docs.lock.json) e le verifiche che `npm run commit` esegue sul manuale.
 //
 //   npm run docs:status                    # le pagine "stale": il codice è cambiato, la pagina no
 //   npm run docs:seal -- <route> [<route>…]  # dopo aver riletto il diff e aggiornato la pagina

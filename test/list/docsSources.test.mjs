@@ -1,5 +1,5 @@
 // Il legame fra il codice e il manuale (site/cli/docsSources.mjs): quali pagine descrivono quali file, se il
-// codice è cambiato dall'ultima rilettura, e le verifiche che `npm run testRelease` fa sul manuale.
+// codice è cambiato dall'ultima rilettura, e le verifiche che `npm run commit` fa sul manuale.
 //
 // Perché è un test e non "si vede nell'uscita": questa è la rete che impedisce al manuale di restare
 // indietro in silenzio. Se `status` smette di accorgersi di un cambio, o `seal` toglie un'ancora già
