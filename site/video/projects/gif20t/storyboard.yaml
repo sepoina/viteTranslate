@@ -116,8 +116,8 @@ scenes:
     # The claim: the first half in white, the second in green. Under it the four pieces light up one after another, in the
     # order the sentence went through them. No `still`: it comes in.
     params:
-      line: "One workflow."
-      accent: "From code to every language."
+      line: "One toolchain."
+      accent: "Every user's language."
       words: |
         VS Code
         Vite
@@ -128,9 +128,9 @@ scenes:
 
 # ── source: storyboard.md at the last `node commons/cli/run.mjs gif20t stamp`. Written by the tool, not by hand.
 source:
-  header: "b48b71c5ac"
+  header: "64842c04b6"
   scenes:
     write: "06816a232e"
     translate: "4cf88e3040"
     french: "d203f52b27"
-    pillars: "39d0a0c84c"
+    pillars: "d9a71ba56f"

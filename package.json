@@ -2,7 +2,7 @@
   "name": "@sepoina/vitetranslate",
   "version": "4.7.3",
   "versionDescription": "Update llm-translation.",
-  "description": "Keyless i18n for React + Vite: write the sentence in JSX, values and tags included. The plugin extracts it inside Vite, keeps the YAML locales in sync, compiles ICU at build time and ships one lazy chunk per language — 5 kB gzip runtime, zero runtime dependencies. LLM translation and a VS Code panel built in.",
+  "description": "One i18n workflow for React and Vite, wired into the tools you already use: a VS Code panel shows every string, Vite extracts and syncs the YAML locales, an LLM translates what's missing, React gets a 5 kB build (ICU compiled ahead, one lazy chunk per language) with zero runtime dependencies. Keyless: write the sentence in JSX.",
   "author": {
     "name": "Giancarlo Ghigi",
     "email": "giancarlo.ghigi@gmail.com"

@@ -60,8 +60,8 @@ With the second line:
 
 ```yaml
   params:
-    line: One workflow.
-    accent: From code to every language.
+    line: One toolchain.
+    accent: Every user's language.
     words: |
       VS Code
       Vite

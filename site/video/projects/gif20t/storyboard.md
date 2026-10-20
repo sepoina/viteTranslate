@@ -2,7 +2,7 @@
 
 - **Titolo:** viteTranslate in twenty seconds, the tower
 - **Scopo:** la GIF della campagna: in testa al README, nei post social, nelle pagine del Marketplace e di npm. **Tre finestre grandi, una sopra l'altra, e una camera che ci scivola sopra.** Ogni finestra è un 16:9 intero: niente da cercare, niente da ingrandire. Gira da sola, muta, in loop.
-- **Idea:** un solo workflow, dal codice a ogni lingua. Una frase attraversa i quattro pezzi dell'ecosistema: si scrive in VS Code, Vite la porta subito nella pagina, l'LLM la traduce, React la mostra in francese. Il quadro è una torre di tre finestre, dall'alto in basso: l'anteprima, il codice con l'estensione, il terminale. La camera sale e scende; dove l'attenzione salta, la camera salta.
+- **Idea:** una sola toolchain, la lingua di ogni utente. Una frase attraversa i quattro pezzi dell'ecosistema: si scrive in VS Code, Vite la porta subito nella pagina, l'LLM la traduce, React la mostra in francese. Il quadro è una torre di tre finestre, dall'alto in basso: l'anteprima, il codice con l'estensione, il terminale. La camera sale e scende; dove l'attenzione salta, la camera salta.
 - **Pubblico:** sviluppatori React che scorrono un feed o un README. Nessun audio.
 - **Durata:** circa 25 secondi, card finale compresa (circa 4 s). Ci sono il francese e poi l'inglese, e ogni finestra ha il tempo di essere letta. La corsa LLM, a 1,5×, ne vale da 3 a 5 e cambia a ogni ripresa.
 - **Formato:** video 16:9 1920×1080, 30 fps. La torre è un quadro alto, tre finestre 16:9 larghe quanto il video, con un poco di nero tra l'una e l'altra (il carattere del terminale è ridotto del 5% rispetto agli altri riquadri: 15 invece di 16, il valore intero più vicino. A 16 il report riempie la finestra fino all'ultima colonna e può andare a capo; a 15 c'è qualche colonna di margine):
@@ -51,7 +51,7 @@
 ## pillars · I quattro pezzi
 
 - **Scena:** card, il titolo comune
-- **Si vede:** il logo entra e, sotto, il claim: "One workflow." in bianco, "From code to every language." in verde. Sotto il claim, vicina, come seconda riga dello stesso testo (interlinea 160%): i quattro pezzi compaiono uno dopo l'altro, nell'ordine in cui la frase li ha attraversati: VS Code, Vite, LLM, React.
+- **Si vede:** il logo entra e, sotto, il claim: "One toolchain." in bianco, "Every user's language." in verde. Sotto il claim, vicina, come seconda riga dello stesso testo (interlinea 160%): i quattro pezzi compaiono uno dopo l'altro, nell'ordine in cui la frase li ha attraversati: VS Code, Vite, LLM, React.
 - **Note:**
   - Circa 4 secondi: l'entrata del logo e del claim, i quattro termini uno ogni mezzo secondo, poi ancora un secondo di tenuta.
   - Niente comando npm né indirizzi.

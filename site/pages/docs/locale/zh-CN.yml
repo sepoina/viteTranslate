@@ -1,8 +1,8 @@
 #  -------------------------------------------------
 #      中文（中国）
 #       |    code: zh-CN
-#       |    missing key: 0
-#       |    processed: 2026-10-19 09:04
+#       |    missing key: 1
+#       |    processed: 2026-10-20 12:11
 #       |    TableVersion: 260905
 #  -------------------------------------------------
 #
@@ -437,7 +437,6 @@ install_1eyynwj: "<b>内部不臃肿。</b>不捆绑 Babel：它使用你项目�
 install_1ja5tfe: "<b>尊重受限模式。</b>工作区不受信任？什么都不会运行：你只能看到 {0}。"
 install_1n66dn4: "库版本过旧，或根本未安装？面板会告知你，并给出修复它的 {0}。"
 install_1rt6p7c: "它不会重新实现任何东西：<b>Results</b> 会询问安装在<i>你的</i>项目中的库，因此<em>面板和 {0} 永远不会不一致</em>。"
-install_1rwq6di: "<b>从 <0>Marketplace</0> 安装扩展</b>，或运行 {1}。"
 install_1scx69w: "按设计保证安全"
 install_1vdczoy: "通过 LLM 从 CLI 填充 {0} 个键"
 install_7zjeb8: "下一步：<0>逐项了解面板</0>，以及 <1>命令与设置</1>。"
@@ -1634,3 +1633,6 @@ usetranslatetostring_1xjplz3: "标签模板形式——如上所述，在模板�
 usetranslatetostring_47vgdt: "{0} 同样接受 {1} 的<2>其他形式</2>中的调用形式，具有相同的<3>诊断前缀</3>，并且对于缺失的 {6} 遵循相同的<4>{5} 规则</4>："
 usetranslatetostring_bsrje4: "用于 placeholder、aria-label、title 以及其他非 JSX 内容的翻译后普通字符串。"
 usetranslatetostring_k80zyw: "🎮 实时演示：<0>占位符与属性</0>。"
+
+#  ----to be translated------------------------------------------
+install_1qa2rhv: null

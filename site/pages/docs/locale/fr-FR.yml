@@ -1,8 +1,8 @@
 #  -------------------------------------------------
 #      français (France)
 #       |    code: fr-FR
-#       |    missing key: 0
-#       |    processed: 2026-10-19 09:04
+#       |    missing key: 1
+#       |    processed: 2026-10-20 12:11
 #       |    TableVersion: 260905
 #  -------------------------------------------------
 #
@@ -437,7 +437,6 @@ install_1eyynwj: "<b>Rien de lourd à l'intérieur.</b> Pas de Babel empaqueté 
 install_1ja5tfe: "<b>Mode restreint respecté.</b> Espace de travail non fiable ? Rien ne s'exécute : vous obtenez {0} uniquement."
 install_1n66dn4: "Bibliothèque plus ancienne, ou aucune ? Le panneau le dit et vous donne le {0} qui le corrige."
 install_1rt6p7c: "Il ne réimplémente rien : <b>Results</b> interroge la bibliothèque installée dans <i>votre</i> projet, donc <em>le panneau et {0} ne divergent jamais</em>."
-install_1rwq6di: "<b>Installez l'extension</b> depuis le <0>Marketplace</0>, ou exécutez {1}."
 install_1scx69w: "Conçu pour être sûr"
 install_1vdczoy: "Remplit {0} clés via un LLM, depuis l'interface en ligne de commande"
 install_7zjeb8: "Ensuite : <0>le panneau, pièce par pièce</0>, et <1>commandes et paramètres</1>."
@@ -1634,3 +1633,6 @@ usetranslatetostring_1xjplz3: "La forme littéral étiqueté — {0} appelé sur
 usetranslatetostring_47vgdt: "{0} accepte aussi les mêmes formes d'appel que les <2>autres formes</2> de {1}, avec les mêmes <3>préfixes de diagnostic</3> et la même <4>règle {5}</4> pour un {6} manquant :"
 usetranslatetostring_bsrje4: "Chaînes simples traduites pour placeholder, aria-label, title et tout ce qui n'est pas JSX."
 usetranslatetostring_k80zyw: "🎮 En direct : <0>placeholders et attributs</0>."
+
+#  ----to be translated------------------------------------------
+install_1qa2rhv: null

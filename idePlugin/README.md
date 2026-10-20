@@ -8,6 +8,7 @@
 Every marked string and how its translation is doing, in a panel of its own. No more opening `vite.config` to remember whether `autoWrap` was on.
 
 [![VS Code Marketplace](https://img.shields.io/badge/VS%20Code-Marketplace-007ACC?logo=visualstudiocode&logoColor=white)](https://marketplace.visualstudio.com/items?itemName=sepoina.vitetranslate-ide)
+[![Open VSX](https://img.shields.io/badge/Open%20VSX-Cursor%20%7C%20Windsurf%20%7C%20VSCodium-C160EF)](https://open-vsx.org/extension/sepoina/vitetranslate-ide)
 [![npm library](https://img.shields.io/npm/v/@sepoina/vitetranslate?logo=npm&logoColor=white&label=library&color=CB3837)](https://www.npmjs.com/package/@sepoina/vitetranslate)
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue)](https://github.com/sepoina/viteTranslate/blob/HEAD/idePlugin/LICENSE)
 
@@ -72,6 +73,8 @@ It doesn't re-implement anything: **Results** asks the library installed in *you
    ```sh
    code --install-extension sepoina.vitetranslate-ide
    ```
+
+   On Cursor, Windsurf or VSCodium, which read [Open VSX](https://open-vsx.org/extension/sepoina/vitetranslate-ide) instead, search for "viteTranslate" in the Extensions view.
 
 3. **Click the % icon** in the Activity Bar. Highlighting needs nothing: open a `.jsx` file and it's on.
 

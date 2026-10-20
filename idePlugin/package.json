@@ -23,8 +23,15 @@
   "keywords": [
     "vitetranslate",
     "vite",
+    "react",
     "i18n",
-    "translation"
+    "l10n",
+    "internationalization",
+    "localization",
+    "locale",
+    "translation",
+    "translate",
+    "llm"
   ],
   "categories": [
     "Other"

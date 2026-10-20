@@ -1,8 +1,8 @@
 #  -------------------------------------------------
 #      American English (sourceLanguage)
 #       |    code: en-US
-#       |    missing key: 0
-#       |    processed: 2026-10-19 09:05
+#       |    missing key: 1
+#       |    processed: 2026-10-20 12:11
 #       |    TableVersion: 260905
 #  -------------------------------------------------
 #
@@ -437,7 +437,6 @@ install_1eyynwj: "<b>Nothing heavy inside.</b> No Babel bundled: it uses the one
 install_1ja5tfe: "<b>Restricted Mode respected.</b> Untrusted workspace? Nothing runs: you get {0} only."
 install_1n66dn4: "Older library, or none? The panel says so and gives you the {0} that fixes it."
 install_1rt6p7c: "It doesn't re-implement anything: <b>Results</b> asks the library installed in <i>your</i> project, so <em>the panel and {0} never disagree</em>."
-install_1rwq6di: "<b>Install the extension</b> from the <0>Marketplace</0>, or run {1}."
 install_1scx69w: "Safe by design"
 install_1vdczoy: "Fills {0} keys through an LLM, from the CLI"
 install_7zjeb8: "Next: <0>the panel, piece by piece</0>, and <1>commands and settings</1>."
@@ -1634,3 +1633,6 @@ usetranslatetostring_1xjplz3: "The tagged-template form — {0} called on a temp
 usetranslatetostring_47vgdt: "{0} also accepts the same call forms as {1}'s <2>other forms</2>, with the same <3>diagnostic prefixes</3> and the same <4>{5} rule</4> for a missing {6}:"
 usetranslatetostring_bsrje4: "Translated plain strings for placeholder, aria-label, title and anything else that is not JSX."
 usetranslatetostring_k80zyw: "🎮 Live: <0>placeholders and attributes</0>."
+
+#  ----to be translated------------------------------------------
+install_1qa2rhv: "<b>Install the extension</b> from the <0>Marketplace</0>, or run {1}. On Cursor, Windsurf or VSCodium, which read <2>Open VSX</2> instead, search for \"viteTranslate\" in the Extensions view."

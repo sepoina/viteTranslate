@@ -15,8 +15,8 @@
 - name: claim
   note: a second line under the claim, its words lighting up one after another (gif20t)
   params:
-    line: One workflow.
-    accent: From code to every language.
+    line: One toolchain.
+    accent: Every user's language.
     words: |
       VS Code
       Vite

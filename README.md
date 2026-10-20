@@ -2,22 +2,28 @@
 
 <img src="doc/logo.svg" alt="viteTranslate" width="380" height="68" />
 
-**Keyless i18n for React and Vite.**
+**One toolchain. Every user's language.**
 
 <!-- LINKED-DATA: this headline and the line below are the repo's pitch. The same pitch lives in two
      other places: the GitHub "About" text (gh api -X PATCH repos/sepoina/viteTranslate) and the
      `description` of package.json, which npm shows and rolldown.config.js copies into the dist
-     banner. Change one, change all three. Keywords are not the pitch's job: the 20 repository
-     topics (gh api -X PUT repos/sepoina/viteTranslate/topics) carry i18next, react-i18next,
-     vscode-extension, yaml, ssr and the rest of the search surface. -->
+     banner. Change one, change all three. The headline is also the claim on the closing card of
+     the GIF below (scene `pillars` in site/video/projects/gif20t/storyboard.md and .yaml) and on
+     the GitHub social preview (doc/social/preview.html, shot to preview.png and uploaded by hand
+     in the repo's Settings): VS Code, Vite, LLM and React come in the same order in all of them.
+     Keywords are not the
+     pitch's job: the 20 repository topics (gh api -X PUT repos/sepoina/viteTranslate/topics)
+     carry i18next, react-i18next, vscode-extension, yaml, ssr and the rest of the search
+     surface. -->
 
-Write text naturally in JSX. viteTranslate extracts strings, keeps locale files in sync, and compiles translations as part of your Vite workflow. <b> No hand-written keys. No separate extraction workflow. No extra runtime dependencies.</b>
+i18n for React, wired into the tools you already use: **VS Code** shows every marked string and its status, **Vite** extracts and syncs the YAML locales, an **LLM** of your choice translates what's missing, and **React** gets only the compiled build, 5 kB with zero runtime dependencies. Write the sentence in JSX: no keys to invent.
 
 [![Vite](https://img.shields.io/badge/Vite-5%20%7C%206%20%7C%207%20%7C%208-646CFF?logo=vite&logoColor=white)](https://vite.dev)
 [![npm version](https://img.shields.io/npm/v/@sepoina/vitetranslate?logo=npm&logoColor=white&label=npm&color=CB3837)](https://www.npmjs.com/package/@sepoina/vitetranslate)
 [![npm downloads](https://img.shields.io/npm/dm/@sepoina/vitetranslate?logo=npm&logoColor=white&label=downloads&color=CB3837)](https://www.npmjs.com/package/@sepoina/vitetranslate)
 [![runtime size](https://img.shields.io/badge/runtime-5%20kB%20gzip-4c1)](#-why-vitetranslate)
 [![VS Code](https://img.shields.io/badge/VS%20Code-extension-007ACC?logo=visualstudiocode&logoColor=white)](https://marketplace.visualstudio.com/items?itemName=sepoina.vitetranslate-ide)
+[![Open VSX](https://img.shields.io/badge/Open%20VSX-Cursor%20%7C%20Windsurf%20%7C%20VSCodium-C160EF)](https://open-vsx.org/extension/sepoina/vitetranslate-ide)
 
 [**Playground**](https://sepoina.github.io/viteTranslate/playground/) · [**Quick start**](#-quick-start) · [**VS Code**](#-vs-code-extension) · [**Guides**](#-guides)
 
@@ -217,7 +223,7 @@ Full reference: **[CLI reference](https://sepoina.github.io/viteTranslate/docs/a
 
 Every marked string with its translation status, locale files opened at the key, Sync and LLM one click away.
 
-[**Install from the Marketplace 🡭**](https://marketplace.visualstudio.com/items?itemName=sepoina.vitetranslate-ide) · [Extension guide 🡭](https://sepoina.github.io/viteTranslate/docs/vscode/panel/)
+[**Install from the Marketplace 🡭**](https://marketplace.visualstudio.com/items?itemName=sepoina.vitetranslate-ide) · [**Open VSX 🡭**](https://open-vsx.org/extension/sepoina/vitetranslate-ide) (Cursor, Windsurf, VSCodium) · [Extension guide 🡭](https://sepoina.github.io/viteTranslate/docs/vscode/panel/)
 
 <br /><br />
 
@@ -291,7 +297,7 @@ Every marked string with its translation status, locale files opened at the key,
 
  ## 🎐 Links 
 
- [Live site](https://sepoina.github.io/viteTranslate/) · [Discussions](https://github.com/sepoina/viteTranslate/discussions) · [Issues](https://github.com/sepoina/viteTranslate/issues) · [Provenance](https://docs.npmjs.com/trusted-publishers/) · [Apache-2.0 license](LICENSE)
+ [Live site](https://sepoina.github.io/viteTranslate/) · [Discussions](https://github.com/sepoina/viteTranslate/discussions) · [Issues](https://github.com/sepoina/viteTranslate/issues) · [Contributing](CONTRIBUTING.md) · [Provenance](https://docs.npmjs.com/trusted-publishers/) · [Apache-2.0 license](LICENSE)
 
 <br /><br />
 

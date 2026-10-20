@@ -1,8 +1,8 @@
 #  -------------------------------------------------
 #      italiano (Italia)
 #       |    code: it-IT
-#       |    missing key: 0
-#       |    processed: 2026-10-19 09:04
+#       |    missing key: 1
+#       |    processed: 2026-10-20 12:11
 #       |    TableVersion: 260905
 #  -------------------------------------------------
 #
@@ -437,7 +437,6 @@ install_1eyynwj: "<b>Niente di pesante all'interno.</b> Nessun Babel incluso: us
 install_1ja5tfe: "<b>Modalità con restrizioni rispettata.</b> Workspace non attendibile? Non viene eseguito nulla: ottieni solo {0}."
 install_1n66dn4: "Libreria più vecchia, o assente? Il pannello lo segnala e ti fornisce il {0} che lo risolve."
 install_1rt6p7c: "Non reimplementa nulla: <b>Risultati</b> interroga la libreria installata nel <i>tuo</i> progetto, quindi <em>il pannello e {0} non sono mai in disaccordo</em>."
-install_1rwq6di: "<b>Installa l'estensione</b> dal <0>Marketplace</0>, oppure esegui {1}."
 install_1scx69w: "Sicuro per progettazione"
 install_1vdczoy: "Riempie {0} chiavi tramite un LLM, dalla CLI"
 install_7zjeb8: "Poi: <0>il pannello, pezzo per pezzo</0>, e <1>comandi e impostazioni</1>."
@@ -1634,3 +1633,6 @@ usetranslatetostring_1xjplz3: "La forma con template taggato — {0} chiamato su
 usetranslatetostring_47vgdt: "{0} accetta anche le stesse forme di chiamata delle <2>altre forme</2> di {1}, con gli stessi <3>prefissi di diagnostica</3> e la stessa <4>regola {5}</4> per un {6} mancante:"
 usetranslatetostring_bsrje4: "Stringhe semplici tradotte per placeholder, aria-label, title e qualsiasi altra cosa che non sia JSX."
 usetranslatetostring_k80zyw: "🎮 Live: <0>placeholder e attributi</0>."
+
+#  ----to be translated------------------------------------------
+install_1qa2rhv: null
