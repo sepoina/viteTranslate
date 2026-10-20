@@ -224,6 +224,24 @@ body {
   font-weight: 600;
   color: var(--accent);
 }
+/* A claim and its words, one under the other: two lines of one text, the line spacing 160% (title with `words`). */
+.stack.claim {
+  gap: 0;
+}
+.stack.claim > * {
+  line-height: 1.6;
+}
+/* Its second line: the words and the dots between them in the second accent (cyan) at 80%, close together. The 80% is in the
+   color and not in `opacity`: pop and light animate the opacity up to 1. */
+.stack.claim .cluster {
+  --gap: var(--space-m);
+}
+.stack.claim :is(.word, .dot) {
+  color: color-mix(in srgb, var(--accent-2) 80%, transparent);
+}
+.stack.claim .dot {
+  font-size: 1em;
+}
 .chip {
   display: inline-block;
   box-sizing: border-box;

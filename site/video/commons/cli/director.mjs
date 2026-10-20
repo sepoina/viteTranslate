@@ -8,7 +8,8 @@ import { pathToFileURL } from "node:url";
 import { appendFileSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { chromium } from "playwright-core";
-import { COMMONS_DIR, FRAME, azione, resolveRef } from "./storyboard.mjs";
+import { CAMERA_TIME, PIENO, TORRE_VUOTO, daRect, finestraTorre, inquadra } from "./camera.mjs";
+import { COMMONS_DIR, azione, frameDi, resolveRef } from "./storyboard.mjs";
 
 // Impostazioni della copia controllata di VS Code. Le stesse vanno nelle impostazioni Machine
 // del server (servers.mjs) e in quelle utente del browser (applicaImpostazioniUtente): le prime
@@ -97,6 +98,11 @@ const PENNARELLO = readFileSync(new URL("./marker.js", import.meta.url), "utf8")
 export const SEGNO_MINIMO = 1.5;
 
 const pausa = (ms) => new Promise((r) => setTimeout(r, ms));
+// stack, tower: i pixel in più sotto le due finestre di VS Code, per la barra di stato (22 px CSS, per lo zoom) e un
+// po' di margine (il pannello comincia qualche pixel sotto l'altezza voluta). Almeno STACK_BARRA: a zoom 2 la barra è
+// 44 px, e con 40 ne restava in vista una striscia sotto il terminale.
+const STACK_BARRA = 40;
+const BARRA_CSS = 22;
 
 export class Director {
   constructor(project) {
@@ -104,7 +110,7 @@ export class Director {
     // Pixel del video per pixel del quadro (FRAME): 1 a 1920×1080, 4/3 a 2560×1440. Entra nel
     // deviceScaleFactor, mai nel viewport CSS: il layout resta quello del quadro, cresce la nitidezza.
     // Segni e offset restano in pixel del quadro (lo zoom nudo), e crescono con lui.
-    this.k = project.output.width / FRAME.width;
+    this.k = project.output.width / frameDi(project.output).width;
     this.pages = {};
     this.posizioni = {}; // ultima posizione del cursore finto, per pagina
     this.segni = {}; // quanti `mark` per scena: il numero entra nel seme del segno
@@ -118,6 +124,16 @@ export class Director {
     this.diario = false;
     this.veloce = false; // l'avanti veloce non si filma: niente controlli
     this.pendenti = []; // controlli che aspettano i loro eventi fuori dal tempo dell'azione: chiusi al taglio
+    // La camera (camera.mjs): i fotogrammi chiave della scena in ripresa, misurati dallo zero della
+    // clip; null fuori da una clip (setup, avanti veloce). ultimaCamera: come è finita la scena prima (`keep`).
+    this.viste = [];
+    this.cameraT0 = null;
+    this.camera = [];
+    this.ultimaCamera = null;
+    // La velocità (speed.mjs): i suoi fotogrammi chiave, in secondi reali dallo zero della clip, come quelli della camera.
+    this.velocita = [];
+    // Il quadro alto della scena in ripresa (stage tower), in pixel del video: { width, height }; altrimenti null.
+    this.tela = null;
   }
 
   /** Un esito che non torna: sotto la scena come avviso, o (`--strict`) la ripresa si ferma qui. */
@@ -264,6 +280,12 @@ export class Director {
   async palco(scena) {
     const { width: W, height: H } = this.project.output;
     const wv = pari(W * this.project.split);
+    const hf = pari((W * 9) / 16); // stack: l'altezza di una finestra 16:9 larga quanto il video
+    const vuoto = Math.max(0, Math.floor((H - 3 * hf) / 4)); // e il nero tra le finestre e ai bordi
+    // tower: il quadro alto in pixel del video, tre finestre e il nero tra l'una e l'altra (camera.mjs, TORRE).
+    const vuotoTorre = Math.round(TORRE_VUOTO * this.k);
+    const barra = Math.max(STACK_BARRA, Math.ceil(BARRA_CSS * this.project.zoom.vscode * this.k) + 8); // VS Code: due finestre più la barra di stato
+    this.tela = scena.stage === "tower" ? { width: W, height: 3 * hf + 2 * vuotoTorre } : null;
     const viste = {
       vscode: [{ page: "vscode", x: 0, y: 0, width: W, height: H }],
       app: [{ page: "app", x: 0, y: 0, width: W, height: H }],
@@ -277,6 +299,19 @@ export class Director {
       "split-panel": [
         { page: "vscode", x: 0, y: 0, width: W, height: H },
         { page: "app", x: wv, y: 0, width: W - wv, height: null },
+      ],
+      // Output verticale, tre finestre 16:9 in colonna: il codice, l'anteprima dell'app, il terminale. VS Code
+      // si registra una volta sola, alto due finestre più la barra di stato (il codice sopra, il pannello
+      // sotto): il montaggio ne ritaglia due finestre (`finestre`, completate sotto, dopo pannello()).
+      stack: [
+        { page: "vscode", x: 0, y: 0, width: W, height: 2 * hf + barra, finestre: [] },
+        { page: "app", x: 0, y: 0, width: W, height: hf, finestre: [{ nome: "preview", x: 0, y: 2 * vuoto + hf, width: W, height: hf }] },
+      ],
+      // Le stesse tre finestre per un output 16:9, in un quadro alto: l'anteprima in cima, il codice in mezzo, il
+      // terminale sotto. VS Code si registra una volta sola, come in stack; la camera scivola sul quadro (window).
+      tower: [
+        { page: "vscode", x: 0, y: 0, width: W, height: 2 * hf + barra, finestre: [] },
+        { page: "app", x: 0, y: 0, width: W, height: hf, finestre: [{ nome: "preview", x: 0, y: 0, width: W, height: hf }] },
       ],
     }[scena.stage].map((v) => ({ ...v }));
     await this.cancellaSegni(); // a ogni taglio la scena riparte pulita
@@ -295,6 +330,16 @@ export class Director {
       viste[1].height = await this.pannello();
       await dimensiona(viste[1]);
     }
+    if (scena.stage === "stack" || scena.stage === "tower") {
+      await pausa(400); // il relayout di VS Code
+      const t = await this.pannello({ cima: hf }); // dove comincia il pannello, in pixel del video
+      // Il codice: la finestra che finisce dove comincia il pannello; il terminale: quella che comincia lì.
+      const [yCodice, yTerminale] = scena.stage === "tower" ? [hf + vuotoTorre, 2 * (hf + vuotoTorre)] : [vuoto, 3 * vuoto + 2 * hf];
+      viste[0].finestre = [
+        { nome: "code", x: 0, y: yCodice, width: W, height: hf, crop: { x: 0, y: Math.max(0, t - hf), width: W, height: hf } },
+        { nome: "terminal", x: 0, y: yTerminale, width: W, height: hf, crop: { x: 0, y: t, width: W, height: hf } },
+      ];
+    }
     if (scena.url) await this.visita(scena);
     if (scena.stage === "card") {
       // La card è pronta quando il prototipo è costruito e misurato (commons/layout/clock.js, boot): uno
@@ -306,6 +351,7 @@ export class Director {
       if (errori.length) throw new Error(`${scena.id}: card ${scena.card}: ${errori.join("; ")}`);
     }
     await pausa(400); // il relayout di VS Code dopo il cambio di viewport
+    this.viste = viste; // la camera misura nel quadro: dove sta ogni pagina
     return viste;
   }
 
@@ -371,7 +417,7 @@ export class Director {
    * mouse: nessuna impostazione ne fissa l'altezza. Restituisce dove comincia, in pixel del video:
    * lì finisce l'app di una scena split-panel.
    */
-  async pannello() {
+  async pannello({ cima } = {}) {
     const page = this.pages.vscode;
     const zoom = this.project.zoom.vscode * this.k; // pixel del video per pixel CSS
     const parte = page.locator(".part.panel");
@@ -380,7 +426,8 @@ export class Director {
       await parte.waitFor({ state: "visible", timeout: 10_000 });
       await pausa(500);
     }
-    const voluta = (this.project.output.height * (1 - this.project.panel)) / zoom;
+    // `cima`: dove deve cominciare, in pixel del video dall'alto (stack); senza, `panel` dell'altezza del video.
+    const voluta = cima != null ? cima / zoom : (this.project.output.height * (1 - this.project.panel)) / zoom;
     let box = await parte.boundingBox();
     if (Math.abs(box.y - voluta) > 2) {
       // Il bordo da tirare: il sash orizzontale sulla cima del pannello.
@@ -772,6 +819,68 @@ export class Director {
     for (const page of Object.values(this.pages)) await page.evaluate(() => window.__vtMark?.clear()).catch(() => {});
   }
 
+  /** Lo zero della clip per la camera, e la sua prima inquadratura (già misurata, o null). */
+  iniziaCamera(t0, apertura) {
+    this.cameraT0 = t0;
+    this.camera = apertura ? [{ t: 0, ...apertura, time: 0, ease: "linear" }] : [];
+    this.velocita = []; // una scena parte a 1×
+  }
+
+  /** I fotogrammi chiave della velocità della clip (o null) per takes.json. */
+  fineVelocita() {
+    const chiavi = this.velocita.splice(0);
+    return chiavi.length ? chiavi : null;
+  }
+
+  /** Il taglio: i fotogrammi chiave della clip (o null) per takes.json; la scena dopo può ripartire da qui. */
+  fineCamera() {
+    const chiavi = this.camera.splice(0);
+    this.cameraT0 = null;
+    const k = chiavi.at(-1);
+    this.ultimaCamera = k ? { x: k.x, y: k.y, width: k.width, height: k.height } : null;
+    return chiavi.length ? chiavi : null;
+  }
+
+  /** Un riquadro di una pagina (pixel CSS, quelli di boundingBox) in pixel del quadro. */
+  nelQuadro(nome, box) {
+    const v = this.viste.find((v) => v.page === nome);
+    if (!v) throw new Error(`camera: the page "${nome}" is not on this stage`);
+    const z = this.project.zoom[nome];
+    return { x: box.x * z + v.x / this.k, y: box.y * z + v.y / this.k, width: box.width * z, height: box.height * z };
+  }
+
+  /** L'inquadratura che una `camera` chiede (camera.mjs): full, keep, selection, rect, o un bersaglio come per click. */
+  async rettangolo(arg, scena) {
+    if (arg === "full") return PIENO;
+    if (arg === "keep") return this.ultimaCamera ?? PIENO;
+    if (arg.window) return finestraTorre(arg.window); // tower: una finestra intera
+    if (arg.rect) return daRect(arg.rect);
+    if (arg === "selection") return inquadra(this.nelQuadro("vscode", await selezione(this.pages.vscode)));
+    const { nome, page } = this.paginaDi(arg, scena);
+    const box = await (await trova(page, arg, (arg.timeout ?? 15) * 1000)).boundingBox();
+    if (!box) throw new Error(`camera: ${JSON.stringify(arg)} has no box`);
+    return inquadra(this.nelQuadro(nome, box), arg);
+  }
+
+  // camera: { text | selector | role | rect, page, width, pad, time, ease } · full · selection: la camera
+  // scivola su quel riquadro. Non aspetta: il movimento lo fa il montaggio, mentre le azioni dopo vanno avanti.
+  async a_camera(arg, scena) {
+    if (this.veloce || this.cameraT0 == null) return; // fuori da una clip la camera non serve
+    const t = (performance.now() - this.cameraT0) / 1000; // prima di cercare: il movimento parte quando l'azione comincia
+    const r = await this.rettangolo(arg, scena);
+    const prima = this.camera.at(-1);
+    if (prima && t < prima.t + prima.time - 0.01)
+      this.avvisa(`camera: a move starts ${(prima.t + prima.time - t).toFixed(2)} s before the last one ends`);
+    this.camera.push({ t: Math.round(t * 1000) / 1000, ...r, time: arg?.time ?? CAMERA_TIME, ease: arg?.ease ?? "cubic" });
+  }
+
+  // speed: 2 · speed: 1: da qui il video va a quella velocità, fino al prossimo `speed` o alla fine della scena.
+  // La ripresa non cambia: i tempi di `do` restano secondi reali. Lo fa il montaggio (speed.mjs, filtroVelocita).
+  async a_speed(arg) {
+    if (this.veloce || this.cameraT0 == null) return; // fuori da una clip non serve
+    this.velocita.push({ t: Math.round(((performance.now() - this.cameraT0) / 1000) * 1000) / 1000, speed: arg });
+  }
+
   async muoviCursore(nome, x, y) {
     const page = this.pages[nome];
     const { width, height } = page.viewportSize();
@@ -908,7 +1017,7 @@ export function opzioniSegno(y = {}) {
       if (y.dashes.march != null) o.march = y.dashes.march;
     }
   }
-  for (const k of ["color", "opacity", "shadow", "draw", "overshoot", "wobble", "pad", "seed"]) if (y[k] != null) o[k] = y[k];
+  for (const k of ["color", "opacity", "shadow", "draw", "overshoot", "wobble", "pad", "seed", "from"]) if (y[k] != null) o[k] = y[k];
   if (y.boil === false) o.boil = false;
   else if (typeof y.boil === "number") Object.assign(o, { boil: true, boilAmp: y.boil });
   else if (y.boil && typeof y.boil === "object") {

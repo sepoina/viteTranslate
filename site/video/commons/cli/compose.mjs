@@ -16,13 +16,16 @@
 // volta sola, in due passate a bitrate medio, per pesare output.mbPerMinute: i bit vanno dove
 // servono (scroll, dissolvenze), non sulle card ferme. L'anteprima resta veloce: copia, niente passate.
 //
-//   compose → output/<progetto>.mp4, output/<progetto>.srt, output/poster.jpg, output/credits.txt
+//   compose → output/<progetto>.mp4, output/<progetto>.gif (con output.gif), output/<progetto>.web.mp4 + .web.webm + .web.webp
+//             (con output.web), output/<progetto>.srt, output/poster.jpg, output/credits.txt
 //   preview → preview/<progetto>.mp4 a 960x540, veloce, e preview/contact.jpg: un fotogramma a
 //             metà di ogni scena, per controllare lo storyboard a colpo d'occhio
-import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
+import { filtroCamera, filtroPan } from "./camera.mjs";
 import { ffmpeg, measureLoudness } from "./ffmpeg.mjs";
 import { musicFilter } from "./music.mjs";
+import { durataUscita, filtroVelocita } from "./speed.mjs";
 
 const pari = (n) => Math.round(n / 2) * 2;
 const VOCE_LUFS = -16; // il loudness di ogni frase: quello abituale del parlato
@@ -35,7 +38,10 @@ export async function compose(project, { preview = false } = {}) {
   const { paths } = project;
   const fileTakes = join(paths.capture, "takes.json");
   if (!existsSync(fileTakes)) throw new Error("no capture/takes.json: run the record step first");
-  const { output, takes } = JSON.parse(readFileSync(fileTakes, "utf8"));
+  const { output, takes: riprese } = JSON.parse(readFileSync(fileTakes, "utf8"));
+  // Da qui in poi `duration` è quella nel video, con le velocità (speed.mjs); `fonte` quella della ripresa.
+  const takes = riprese.map((t) => ({ ...t, fonte: t.duration, duration: durataUscita(t.speed, t.duration) }));
+  for (const t of takes.filter((t) => t.speed?.length)) console.log(`  speed: ${t.id} shot in ${t.fonte.toFixed(1)} s, ${t.duration.toFixed(1)} s in the video`);
   // Una ripresa fermata (`--to`, o interrotta) non copre tutte le scene: la prova sì, il montaggio no.
   const ids = project.scenes.map((s) => s.id);
   const girate = takes.map((t) => t.id);
@@ -112,6 +118,7 @@ export async function compose(project, { preview = false } = {}) {
     await ffmpeg([...finale, ...x264, "-pass", "2", "-c:a", "aac", "-b:a", `${AUDIO_KBPS}k`, "-movflags", "+faststart", video]);
   }
 
+  let web = null; // i file di output.web, se ci sono
   if (preview) {
     await fogliDiContatto(takes, inizi, video, dir);
   } else {
@@ -125,8 +132,62 @@ export async function compose(project, { preview = false } = {}) {
       const t = inizi[k] + (project.poster.at ?? 1);
       await ffmpeg(["-ss", t.toFixed(3), "-i", video, "-frames:v", "1", "-q:v", "3", join(dir, "poster.jpg")]);
     }
+    // output.gif: la GIF accanto all'mp4 (README.md § "GIF").
+    const fileGif = join(dir, `${project.name}.gif`);
+    if (project.output.gif) {
+      await gif({ input: ["-f", "concat", "-safe", "0", "-i", fileLista], file: fileGif, ...project.output.gif, tmp: segDir });
+      const { width, fps, colors } = project.output.gif;
+      console.log(`  gif: ${width} px, ${fps} fps${colors ? `, ${colors} colors` : ""}, ${(statSync(fileGif).size / MIB).toFixed(1)} MB`);
+    } else rmSync(fileGif, { force: true });
+    // output.web: il video per una pagina web accanto all'mp4: mp4 e webm muti, e un poster (README.md § "Web video").
+    const baseWeb = join(dir, `${project.name}.web`);
+    if (project.output.web) {
+      // Il poster è il fotogramma della copertina del progetto; senza, il primo.
+      const k = project.poster ? takes.findIndex((t) => t.id === (project.poster.scene ?? project.poster)) : -1;
+      const tPoster = k >= 0 ? inizi[k] + (project.poster.at ?? 1) : 0;
+      const w = project.output.web;
+      const file = await videoWeb({ input: ["-f", "concat", "-safe", "0", "-i", fileLista], video, base: baseWeb, fps: project.output.fps, ...w, poster: tPoster });
+      const kb = (f) => `${(statSync(f).size / 1024).toFixed(0)} kB`;
+      console.log(`  web: ${w.width} px, ${w.fps ?? project.output.fps} fps, crf ${w.crf ?? WEB_CRF}: mp4 ${kb(file.mp4)}${file.webm ? `, webm ${kb(file.webm)}` : ""}, poster ${kb(file.poster)}`);
+      web = [file.mp4, file.webm, file.poster].filter(Boolean);
+    } else for (const ext of ["mp4", "webm", "webp"]) rmSync(`${baseWeb}.${ext}`, { force: true });
   }
-  return { video, duration: totale };
+  return { video, duration: totale, gif: !preview && project.output.gif ? join(dir, `${project.name}.gif`) : null, web };
+}
+
+const WEB_CRF = 30; // la qualità x264 di serie del video per il web: la webm è a crf + WEB_SALTO (VP9 ha un'altra scala)
+const WEB_SALTO = 8;
+
+/**
+ * Il video per una pagina web (output.web): dai segmenti quasi senza perdita, come la GIF, un mp4 H.264 e (di serie) una
+ * webm VP9, muti, con l'indice in testa (faststart: parte prima di essere scaricato tutto); e un poster webp. Il loop, il
+ * muto e l'autoplay sono attributi di <video>, non del file.
+ * @param {{ input: string[], video: string, base: string, width: number, fps: number, crf?: number, webm?: boolean, poster?: number }} p
+ *   input: gli argomenti -i di ffmpeg dei segmenti; video: il video finale, da cui si prende il poster, al secondo `poster`;
+ *   base: il percorso senza estensione (<base>.mp4, .webm, .webp); crf: la qualità (più alto, più leggero)
+ * @returns {Promise<{ mp4: string, webm: string | null, poster: string }>}
+ */
+export async function videoWeb({ input, video, base, width, fps, crf = WEB_CRF, webm = true, poster = 0 }) {
+  const scala = `fps=${fps},scale=${width}:-2:flags=lanczos`;
+  const file = { mp4: `${base}.mp4`, webm: webm ? `${base}.webm` : null, poster: `${base}.webp` };
+  await ffmpeg([...input, "-an", "-vf", scala, "-c:v", "libx264", "-preset", "slow", "-crf", String(crf), "-pix_fmt", "yuv420p", "-movflags", "+faststart", file.mp4]);
+  if (file.webm) await ffmpeg([...input, "-an", "-vf", scala, "-c:v", "libvpx-vp9", "-crf", String(Math.min(63, crf + WEB_SALTO)), "-b:v", "0", "-row-mt", "1", "-pix_fmt", "yuv420p", file.webm]);
+  else rmSync(`${base}.webm`, { force: true });
+  await ffmpeg(["-ss", poster.toFixed(3), "-i", video, "-frames:v", "1", "-vf", `scale=${width}:-2:flags=lanczos`, "-c:v", "libwebp", "-quality", "80", "-update", "1", file.poster]);
+  return file;
+}
+
+/**
+ * La GIF del video: dai segmenti quasi senza perdita (non dal finale, già compresso), in due
+ * passate: la palette dei colori che il video usa davvero, poi la GIF con quella palette. In loop.
+ * @param {{ input: string[], file: string, width: number, fps: number, colors?: number, tmp: string }} p - input: gli argomenti -i di ffmpeg; colors: i colori della palette (256 di serie: meno colori, meno peso)
+ */
+export async function gif({ input, file, width, fps, colors, tmp }) {
+  const palette = join(tmp, "palette.png");
+  const scala = `fps=${fps},scale=${width}:-1:flags=lanczos`;
+  await ffmpeg([...input, "-vf", `${scala},palettegen=stats_mode=diff${colors ? `:max_colors=${colors}` : ""}`, palette]);
+  await ffmpeg([...input, "-i", palette, "-lavfi", `${scala}[x];[x][1:v]paletteuse=dither=bayer:bayer_scale=5:diff_mode=rectangle`, "-loop", "0", file]);
+  rmSync(palette, { force: true });
 }
 
 /**
@@ -148,19 +209,30 @@ export function impagina(clips, { W, H, scala, fps, durata }) {
     const w = Math.min(W - x, pari(c.width * scala));
     const h = Math.min(H - y, pari((c.height ?? H / scala) * scala));
     accanto += c.width;
-    filtri.push(`[${k}:v]scale=${w}:${h}:flags=lanczos,setsar=1[c${k}]`, `[f${k}][c${k}]overlay=x=${x}:y=${y}:eof_action=repeat[f${k + 1}]`);
+    // `crop`: la parte della clip che questa finestra mostra, in pixel della ripresa (stack: VS Code a metà).
+    const ritaglio = c.crop ? `crop=${c.crop.width}:${c.crop.height}:${c.crop.x}:${c.crop.y},` : "";
+    filtri.push(`[${k}:v]${ritaglio}scale=${w}:${h}:flags=lanczos,setsar=1[c${k}]`, `[f${k}][c${k}]overlay=x=${x}:y=${y}:eof_action=repeat[f${k + 1}]`);
   });
   return { filtri, uscita: `[f${clips.length}]` };
 }
 
 async function segmento(take, { file, W, H, fps, scala, primo, ultimo, preview, paths, guadagno, fade }) {
-  const D = take.duration.toFixed(4);
+  const D = take.duration.toFixed(4); // nel video
+  const Ds = (take.fonte ?? take.duration).toFixed(4); // nella ripresa: uguale a D senza `speed`
   const input = [];
   const clips = Object.values(take.clips);
 
   for (const clip of clips) input.push("-i", join(paths.capture, "clips", clip.file));
-  const { filtri, uscita } = impagina(clips, { W, H, scala, fps, durata: D });
-  let video = `${uscita}fps=${fps},tpad=stop_mode=clone:stop_duration=5,trim=duration=${D},setpts=PTS-STARTPTS`;
+  // Una scena tower: le clip si montano nel quadro alto (take.tela), non nel video; poi la camera ne ritaglia una finestra.
+  const quadro = take.tela ? { W: pari(take.tela.width * scala), H: pari(take.tela.height * scala) } : { W, H };
+  const { filtri, uscita } = impagina(clips, { ...quadro, scala, fps, durata: Ds });
+  let video = `${uscita}fps=${fps},tpad=stop_mode=clone:stop_duration=5,trim=duration=${Ds},setpts=PTS-STARTPTS`;
+  // La camera (camera.mjs): il ritaglio che scivola, prima delle dissolvenze. Senza fotogrammi chiave, niente
+  // (nella torre sì: anche ferma, è lei che ritaglia la finestra dal quadro alto).
+  if (take.tela) video += `,${filtroPan(take.camera, { width: W, height: H, fps })}`;
+  else if (take.camera?.length) video += `,${filtroCamera(take.camera, { width: W, height: H, fps })}`;
+  // La velocità (speed.mjs): dopo la camera, così anche i suoi movimenti vanno alla stessa velocità del resto.
+  if (take.speed?.length) video += `,${filtroVelocita(take.speed, { fps, durata: take.fonte })}`;
   const [dentro, fuori] = fade;
   if (primo && dentro > 0) video += `,fade=t=in:st=0:d=${dentro}`;
   if (ultimo && fuori > 0) video += `,fade=t=out:st=${Math.max(0, take.duration - fuori).toFixed(3)}:d=${fuori}`;

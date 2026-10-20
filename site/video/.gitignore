@@ -5,6 +5,8 @@ projects/*/preview/
 projects/*/audio/
 projects/*/log/
 projects/*/output/*.mp4
+# The web video (output.web: mp4, webm, poster): the page that shows it keeps its own copy.
+projects/*/output/*.web.*
 
 # Background music: the tracks stay local (download them again from the links in credits.md).
 commons/bkmusic/*

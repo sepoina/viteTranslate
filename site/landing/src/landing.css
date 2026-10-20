@@ -182,86 +182,52 @@ ul {
   background: var(--bg-deep);
 }
 
-.video-poster {
-  position: absolute;
-  inset: 0;
-  display: grid;
-  place-items: center;
-}
-
-.video-poster img {
+.video-screen video {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 600ms var(--ease), filter 600ms var(--ease);
+  cursor: pointer;
 }
 
-.video-poster:hover img,
-.video-poster:focus-visible img {
-  transform: scale(1.02);
-  filter: brightness(0.85);
-}
-
-.video-poster:focus-visible {
-  outline: 3px solid var(--ring);
-  outline-offset: -3px;
-}
-
-/* Il bottone play: un cerchio pieno d'accento con un triangolo, and a ring that pulses while the pointer or
-   the focus is on the poster (an answer to the reader, not a loop running next to the text). */
-.video-play {
-  position: relative;
-  width: clamp(64px, 9vw, 96px);
-  aspect-ratio: 1;
+/* Il comando pausa/riprendi, in basso a destra dello schermo: da 36 a 44px (il tocco vuole almeno 24), sempre visibile (anche col tocco, dove non c'è
+   hover), un poco spento finché non lo si cerca. */
+.video-toggle {
+  position: absolute;
+  right: clamp(8px, 2.5vw, 14px);
+  bottom: clamp(8px, 2.5vw, 14px);
+  display: grid;
+  place-items: center;
+  width: clamp(36px, 9vw, 44px);
+  height: clamp(36px, 9vw, 44px);
+  padding: 0;
+  border: 1px solid var(--line-strong);
   border-radius: 50%;
+  background: color-mix(in srgb, var(--bg-deep) 72%, transparent);
+  color: var(--text-hi);
+  cursor: pointer;
+  opacity: 0.75;
+  backdrop-filter: blur(6px);
+  transition: opacity 150ms var(--ease), background-color 150ms var(--ease), color 150ms var(--ease);
+}
+
+.video-toggle svg {
+  width: 20px;
+  height: 20px;
+  fill: currentColor;
+}
+
+.video-toggle:hover,
+.video-toggle:focus-visible {
+  opacity: 1;
   background: var(--accent-fill);
-  box-shadow: 0 0 40px var(--video-halo);
-  transition: transform 250ms var(--ease), background-color 150ms var(--ease);
+  color: var(--accent-ink);
 }
 
-.video-play::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  margin: auto;
-  width: 0;
-  height: 0;
-  transform: translateX(12%);
-  border-style: solid;
-  border-width: 0.9em 0 0.9em 1.5em;
-  border-color: transparent transparent transparent var(--accent-ink);
-  font-size: clamp(10px, 1.3vw, 14px);
-}
-
-.video-play::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border: 2px solid var(--accent);
-  border-radius: 50%;
-  opacity: 0;
-}
-
-.video-poster:is(:hover, :focus-visible) .video-play::after {
-  animation: video-pulse 2.2s var(--ease) infinite;
-}
-
-.video-poster:is(:hover, :focus-visible) .video-play {
-  transform: scale(1.08);
-  background: var(--accent-fill-hover);
-}
-
-@keyframes video-pulse {
-  from {
-    transform: scale(1);
-    opacity: 0.8;
-  }
-  to {
-    transform: scale(1.7);
-    opacity: 0;
-  }
+.video-toggle:focus-visible {
+  outline: 3px solid var(--ring);
+  outline-offset: 2px;
 }
 
 .video-cap {
@@ -288,13 +254,20 @@ ul {
   text-transform: uppercase;
 }
 
+/* Il link al video lungo, quello con la voce: una pillola col bordo, perché si veda che è un invito e non una nota. */
 .video-yt {
+  padding: 6px 14px;
+  border: 1px solid color-mix(in srgb, var(--accent-2) 45%, transparent);
+  border-radius: 999px;
   color: var(--accent-2);
   font-weight: 600;
-  transition: color 150ms var(--ease);
+  transition: color 150ms var(--ease), background-color 150ms var(--ease), border-color 150ms var(--ease);
 }
 
-.video-yt:hover {
+.video-yt:hover,
+.video-yt:focus-visible {
+  border-color: var(--accent-2);
+  background: var(--accent-2-soft);
   color: var(--text-hi);
 }
 

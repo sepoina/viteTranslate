@@ -1,8 +1,8 @@
 #  -------------------------------------------------
 #      italiano (Italia) (sourceLanguage)
 #       |    code: it-IT
-#       |    missing key: 0
-#       |    processed: 2026-10-19 09:05
+#       |    missing key: 6
+#       |    processed: 2026-10-19 18:56
 #       |    TableVersion: 260905
 #  -------------------------------------------------
 #
@@ -58,9 +58,6 @@ Hero_1gdm8ga: "Nuovo: traduzione automatica con LLM"
 Hero_1rwpyzm: "Scrivi il testo <em>una volta</em>."
 Hero_56y4kk: "Vite fa il resto."
 Hero_choep5: "Leggi il manuale"
-HeroVideo_10an6gt: "Video: perché viteTranslate e come lavora il suo ecosistema"
-HeroVideo_1wfoiwd: "Perché viteTranslate, e come lavorano insieme i suoi pezzi."
-HeroVideo_l53cig: "Il video"
 LanguageSwitch_gzrcyx: "Lingua della pagina"
 ManualLink_5b31d1: "Nel manuale"
 Marquee_aimam1: "Una sola sorgente. Tutte le lingue che vuoi."
@@ -123,3 +120,11 @@ Steps_q96bco: "Tre passi, <em>zero</em> burocrazia."
 Steps_u2x2og: "La tabella che si scrive da sola"
 Steps_wejid2: "Tradurre, a mano o con un LLM"
 ThemeToggle_1i35buc: "Cambia tema"
+
+#  ----to be translated------------------------------------------
+HeroVideo_124yj0x: "Una frase, quattro pezzi: VS Code, Vite, LLM, React."
+HeroVideo_14u3qxm: "Una frase scritta nel codice compare subito nella pagina; un LLM la traduce dal terminale e la pagina passa al francese e torna all'inglese."
+HeroVideo_16yluoq: "Il video completo su YouTube"
+HeroVideo_1erlqgy: "Metti in pausa il video"
+HeroVideo_1kyqlnb: "In 30 secondi"
+HeroVideo_1mbtf0p: "Riprendi il video"

@@ -94,9 +94,9 @@
       b.dataset.fit = "";
       tile.append(b, el("div", "small t-body", small));
     },
-    /** Words in a row that wraps, dots between them, waiting barely visible. */
-    words(list) {
-      const ul = el("ul", "cluster t-display");
+    /** Words in a row that wraps, dots between them, waiting barely visible. `role`: their type (display of serie). */
+    words(list, { role = "display" } = {}) {
+      const ul = el("ul", `cluster t-${role}`);
       const words = [], dots = [];
       list.forEach((w, i) => {
         if (i) ul.append(dots[dots.push(entra(el("li", "dot", "·"), "light")) - 1]);

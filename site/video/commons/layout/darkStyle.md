@@ -107,7 +107,7 @@ What a prototype is made of (`parts.js`). Each builds its piece from plain data 
 | `chip(text)` | a command | `body`, monospace, `--accent` on `--surface` | one line, shrinks to fit | `rise` (y 28) |
 | `tiles(items, fill)` | a list, a fill function | a `.grid` of `.tile` | balanced rows | `hit` |
 | `bigSmall(tile, [big, small])` | two strings | big: `hero`, `--accent`; small: `body`, `--code-text` | big on one line that shrinks; small wraps | (the tile's) |
-| `words(list)` | strings | `display`, `--accent`, dots `--marquee-dim` | the row wraps | words `pop`, dots `light` |
+| `words(list, { role })` | strings | `display` (or the role given), `--accent`, dots `--marquee-dim` | the row wraps | words `pop`, dots `light` |
 | `group(tile, [heading, ...items])` | strings | heading `text` in `--accent`; items `text` with a drawn tick | items wrap | items `rise` (0.5 s), the tick's path `draw` |
 | `lines(list)` | strings; `` `code` `` → chip, `**bold**` | `body`, `--lead` | wrap | `rise` |
 | `note(text)` | a string | `small`, `--faint`, in the foot | wraps | `fade` |

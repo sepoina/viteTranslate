@@ -1,8 +1,8 @@
 #  -------------------------------------------------
 #      中文（中国）
 #       |    code: zh-CN
-#       |    missing key: 0
-#       |    processed: 2026-10-19 09:04
+#       |    missing key: 6
+#       |    processed: 2026-10-19 18:56
 #       |    TableVersion: 260905
 #  -------------------------------------------------
 #
@@ -58,9 +58,6 @@ Hero_1gdm8ga: "新功能：LLM 自动翻译"
 Hero_1rwpyzm: "文本只写<em>一次</em>。"
 Hero_56y4kk: "其余交给 Vite。"
 Hero_choep5: "阅读手册"
-HeroVideo_10an6gt: "视频：为什么选择 viteTranslate，以及它的生态如何运作"
-HeroVideo_1wfoiwd: "为什么选择 viteTranslate，以及它的各个部分如何协同工作。"
-HeroVideo_l53cig: "视频"
 LanguageSwitch_gzrcyx: "页面语言"
 ManualLink_5b31d1: "参阅手册"
 Marquee_aimam1: "一份源码，想要多少语言都行。"
@@ -123,3 +120,11 @@ Steps_q96bco: "三步搞定，<em>零</em>繁琐。"
 Steps_u2x2og: "自动生成的翻译表"
 Steps_wejid2: "手动翻译或使用 LLM 翻译"
 ThemeToggle_1i35buc: "切换主题"
+
+#  ----to be translated------------------------------------------
+HeroVideo_124yj0x: null
+HeroVideo_14u3qxm: null
+HeroVideo_16yluoq: null
+HeroVideo_1erlqgy: null
+HeroVideo_1kyqlnb: null
+HeroVideo_1mbtf0p: null

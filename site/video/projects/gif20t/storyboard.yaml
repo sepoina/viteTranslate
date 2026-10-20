@@ -1,0 +1,136 @@
+# Generated from storyboard.md (the source of truth) following site/video/README.md.
+# Content (scenes, order) lives in storyboard.md; tune the technique here.
+# Run from site/video: `node commons/cli/run.mjs gif20t record preview` to rehearse (no voice in this project).
+#
+# The campaign GIF: one sentence through VS Code, Vite, the LLM and React, on a tower of three 16:9 windows, one above the
+# other (stage `tower`): the preview, the code, the terminal. VS Code is shot once and `compose` crops it in two windows. The
+# camera doesn't zoom: it slides over the tower, one whole window at a time (`camera: { window }`). No jumps in this video:
+# every shift is a slide, even where the attention changes place (`time: 0` would cut: README, Tower). Speed: typing 1.5x,
+# the pointer's way to Translate 2x, the LLM's run 1.5x (at real time it is slow; 2x went by too quick to read).
+# LINKED-DATA: the fixture is projects/gif20t/fixture: demo/Vite_8/quickApp plus an `llm` block (OpenRouter, a DeepSeek model,
+# reasoning off, costGuard so it never asks). `goto: 9` is the closing </p> of the first paragraph of its src/App.jsx. Panel selectors:
+# idePlugin/src/webViews (the LLM page's `.azione[data-value]`). Change those, check this.
+#
+# LINKED-DATA: output/gif20t.gif is copied by hand to doc/workflow.gif, which the root README.md shows at its top; and
+# output/gif20t.web.{webm,mp4,webp} to site/landing/public/video/workflow.* (the hero's loop, HeroVideo.jsx). Compose
+# again (`node commons/cli/run.mjs gif20t compose`) and copy them over. Change the story, check the README's alt text and
+# the loop's caption.
+#
+# Timing, in the language of a cut:
+#   slide of one window   0.9 s, cubic (gentle at both ends)      slide of two windows   1.3 s, cubic
+# The wavering square (`mark`, a box) on the added sentence: drawn 0.6 s, whole 1.5 s, taken away by the cut (README, Marks).
+# The actions don't wait for a move: the `wait` after each camera action is the move plus what follows it.
+
+title: viteTranslate in twenty seconds, the tower
+fixture: site/video/projects/gif20t/fixture
+app:
+  port: 5199
+  style: "@commons/layout/app-dark.css"
+# A window is 1920 × 1080 of the frame: at 2 the page is 960 × 540 CSS px, about the width of a VS Code in a split (990 px).
+# The type is big enough to read a GIF of 800 px.
+zoom: { vscode: 2, app: 2 }
+vscode:
+  settings:
+    "terminal.integrated.gpuAcceleration": "off" # the terminal's text can be found by waitFor
+    "terminal.integrated.tabs.enabled": false # one terminal in view, no tab list beside it
+    # 5% under the stage's 16 (director.mjs, VSCODE_SETTINGS): 15.2, and the terminal takes whole sizes, so 15. At 16 the
+    # window holds 104 columns and the report fills them to the last one (its rules, the seconds counter at the right edge):
+    # a line that fills the window can wrap. At 15 it holds 111, and the report (about 107) has room.
+    "terminal.integrated.fontSize": 15
+  env: [OPENROUTER_API_KEY] # --llm-translate, run from the panel's terminal
+output:
+  gif: { width: 800, fps: 12, colors: 64 } # made by compose, when the montage is approved: the README's
+  web: { width: 960 } # the landing's: a muted looping <video>, mp4 + webm + poster (30 fps, crf 30)
+fade: [0, 0]
+typeDelay: 38
+poster: { scene: french, at: 3.5 } # the page in French, the pointer on Français (it shows 2.7 s into the scene: the slide, the English page, the click)
+
+setup:
+  # The panel under the sidebar too, the whole width: the terminal window is the whole window, not what the sidebar leaves.
+  - command: "View: Set Panel Alignment to Justify"
+  - click: { selector: '.activitybar [aria-label^="viteTranslate"]' }
+  - waitFor: { selector: 'vscode-button[data-cmd="sync"]', timeout: 60 }
+  - wait: 2
+  - open: src/App.jsx
+  - wait: 3
+  - click: { selector: 'vscode-button[data-cmd="llm"]' } # the LLM page is open before the take
+  - wait: 1.5 # its checks: the key, the settings, a ping
+  - goto: 9
+
+scenes:
+  - id: write
+    stage: tower
+    before: # not filmed: the panel that the tower opens brings a new terminal that takes the focus; the keys below need the editor
+      - command: "View: Focus Active Editor Group"
+    camera: { window: preview } # the first frame: the page as it is
+    do:
+      - wait: 1.2 # the preview holds: Welcome back, Ada!
+      - camera: { window: code, time: 0.9 } # down to the code
+      - wait: 1 # the move, then a breath
+      - speed: 1.5 # the typing, a third faster
+      - key: Enter
+      - type: "<p><Trans>Nice to see you, {name}!</Trans></p>"
+      - save
+      - speed: 1
+      - waitFor: { page: app, text: "Nice to see you", exact: false } # Vite has put it in the page
+      - wait: 0.7 # the typed line holds
+      - camera: { window: preview, time: 0.9 } # back up: the new sentence, still in English
+      - wait: 0.9 # the move
+      # A wavering square around the added sentence: a box, with the hand's tremble (`boil`) bigger and slower than the default
+      - mark: { page: app, text: "Nice to see you", exact: false, shape: box, pad: 34, width: [12, 5], boil: { size: 2.6, rate: 8 }, wobble: 1.2, draw: 0.6 }
+      - wait: 1.5 # the square stays whole 1.5 s (README, Marks); the cut to the next scene takes it away
+
+  - id: translate
+    stage: tower
+    camera: keep # opens on the preview, where write ended: no jump anywhere in this video
+    do:
+      - camera: { window: code, time: 0.9 } # down to the code
+      - wait: 1.7 # the move, then the eye finds the Translate row
+      - speed: 2 # the pointer's long way, quicker
+      - click: { selector: '#actions .azione[data-value="translate"]', after: 0.01 } # `after`: no pause, the run starts at the click
+      - speed: 1 # the click is seen at real time
+      - wait: 0.5 # a moment after the click (and the terminal opens its new tab: right after the click it still shows the old prompt)
+      - camera: { window: terminal, time: 0.9 } # slides down to the terminal
+      - wait: 0.9 # the move
+      - speed: 1.5 # the LLM's run, a third faster: the report builds in the terminal window (2x went by too quick to read)
+      - waitFor: { text: "Full translate!", exact: false, timeout: 90 } # the run's last line
+      - speed: 1
+      - wait: 1.8 # the result holds long enough to read (and the last write reloads the page, back in English)
+
+  - id: french
+    stage: tower
+    camera: keep # still on the terminal
+    do:
+      - camera: { window: preview, time: 1.3 } # up, through the code, to the page: back in English
+      - wait: 1.8 # the move, then the English page holds 0.5 s
+      - click: { page: app, text: Français }
+      - waitFor: { page: app, text: Bon retour, exact: false }
+      - wait: 1.8 # the French, read at leisure
+      - click: { page: app, text: English }
+      - waitFor: { page: app, text: Welcome back, exact: false }
+    hold: 1.4 # and the English again: it works both ways
+
+  - id: pillars
+    stage: card
+    card: title
+    # The claim: the first half in white, the second in green. Under it the four pieces light up one after another, in the
+    # order the sentence went through them. No `still`: it comes in.
+    params:
+      line: "One workflow."
+      accent: "From code to every language."
+      words: |
+        VS Code
+        Vite
+        LLM
+        React
+      at: 1.5, 2.0, 2.5, 3.0
+    hold: 4.4
+
+# ── source: storyboard.md at the last `node commons/cli/run.mjs gif20t stamp`. Written by the tool, not by hand.
+source:
+  header: "b48b71c5ac"
+  scenes:
+    write: "06816a232e"
+    translate: "4cf88e3040"
+    french: "d203f52b27"
+    pillars: "39d0a0c84c"

@@ -1,8 +1,8 @@
 #  -------------------------------------------------
 #      American English
 #       |    code: en-US
-#       |    missing key: 0
-#       |    processed: 2026-10-19 09:04
+#       |    missing key: 6
+#       |    processed: 2026-10-19 18:56
 #       |    TableVersion: 260905
 #  -------------------------------------------------
 #
@@ -58,9 +58,6 @@ Hero_1gdm8ga: "New: automatic translation with an LLM"
 Hero_1rwpyzm: "Write the text <em>once</em>."
 Hero_56y4kk: "Vite does the rest."
 Hero_choep5: "Read the docs"
-HeroVideo_10an6gt: "Video: why viteTranslate, and how its ecosystem works"
-HeroVideo_1wfoiwd: "Why viteTranslate, and how its pieces work together."
-HeroVideo_l53cig: "The video"
 LanguageSwitch_gzrcyx: "Page language"
 ManualLink_5b31d1: "In the manual"
 Marquee_aimam1: "One source. As many languages as you like."
@@ -123,3 +120,11 @@ Steps_q96bco: "Three steps, <em>zero</em> bureaucracy."
 Steps_u2x2og: "The table that writes itself"
 Steps_wejid2: "Translate manually or with an LLM"
 ThemeToggle_1i35buc: "Toggle theme"
+
+#  ----to be translated------------------------------------------
+HeroVideo_124yj0x: null
+HeroVideo_14u3qxm: null
+HeroVideo_16yluoq: null
+HeroVideo_1erlqgy: null
+HeroVideo_1kyqlnb: null
+HeroVideo_1mbtf0p: null

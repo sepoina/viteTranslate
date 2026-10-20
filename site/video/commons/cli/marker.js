@@ -16,10 +16,12 @@
   const STEP = 1.5; // pixel CSS tra due campioni della linea
   const PIECE = 14; // pixel CSS per pezzo di una linea tratteggiata (uno spessore per pezzo)
   const COLORS = { green: "#4ade80", amber: "#fbbf24", coral: "#f87171", white: "#f4f7f5" };
+  // `from` della freccia: da che lato parte l'asta, come [dx, dy] (la coda sta dal lato dx, dy). Senza `from` sceglie lei.
+  const ARROW_FROM = { left: [-1, 0], right: [1, 0], "top-left": [-1, -1], "top-right": [1, -1], "bottom-left": [-1, 1], "bottom-right": [1, 1] };
   const DEFAULTS = {
     shape: "circle", w0: 10, w1: 3, pen: "brush", dash: 0, dashGap: 16, march: 24, color: "green", opacity: 0.9,
     shadow: true, draw: 0.6, boil: true, boilAmp: 1.2, boilRate: 10, boilDrawings: 3, dim: 0, dimTime: 0.4,
-    overshoot: 0.12, wobble: 0.6, pad: 22, seed: 7,
+    overshoot: 0.12, wobble: 0.6, pad: 22, seed: 7, from: null,
   };
 
   // ------------------------------------------------------------------ caso con seme, rumore
@@ -110,14 +112,18 @@
       for (let i = 0; i <= n; i++) { const t = i / n; pts.push([lerp(xa, xb, t), y - rise * t - bow * Math.sin(Math.PI * t)]); }
       return [{ pts, w0: o.w0, w1: o.w1 }];
     },
-    // Un'asta curva dal lato dove c'è spazio, poi i due tratti della punta.
+    // Un'asta curva dal lato dove c'è spazio (o da `from`), poi i due tratti della punta. Da un lato (left, right,
+    // dy 0) l'asta è orizzontale e la punta sta a metà altezza del bersaglio.
     arrow(r, o, rand, bounds) {
       const len = 170 * o.scale + o.pad * 2;
-      const tip = (dx, dy) => [r.x + r.w * (dx < 0 ? 0.3 : 0.7), dy > 0 ? r.y + r.h + o.pad * 0.6 : r.y - o.pad * 0.6];
+      const tip = (dx, dy) => [
+        dy === 0 ? (dx < 0 ? r.x - o.pad * 0.6 : r.x + r.w + o.pad * 0.6) : r.x + r.w * (dx < 0 ? 0.3 : 0.7),
+        dy === 0 ? r.y + r.h / 2 : dy > 0 ? r.y + r.h + o.pad * 0.6 : r.y - o.pad * 0.6,
+      ];
       const tail = (E, dx, dy) => [E[0] + dx * len * 0.8, E[1] + dy * len * 0.55];
       const inside = (p) => p[0] > bounds.x + 10 && p[0] < bounds.x + bounds.w - 10 && p[1] > bounds.y + 10 && p[1] < bounds.y + bounds.h - 10;
-      let side = [-1, 1];
-      for (const s of [[-1, 1], [1, 1], [-1, -1], [1, -1]]) if (inside(tail(tip(...s), ...s))) { side = s; break; }
+      let side = ARROW_FROM[o.from] ?? [-1, 1];
+      if (!ARROW_FROM[o.from]) for (const s of [[-1, 1], [1, 1], [-1, -1], [1, -1]]) if (inside(tail(tip(...s), ...s))) { side = s; break; }
       const E = tip(...side), S = tail(E, ...side);
       const vx = E[0] - S[0], vy = E[1] - S[1], vl = Math.hypot(vx, vy);
       const bend = 0.18 * vl * (rand() < 0.5 ? 1 : -1);

@@ -65,7 +65,7 @@ The pipeline enforces it. `stamp` records, at the bottom of the YAML, a fingerpr
 
 - **Header** (before the first scene): every field is optional. Unknown fields are fine: the LLM reads them as direction.
 - **A scene** is a `## <id> · Title` heading (`—`, `:` or `-` work as separators too). The id is lowercase letters, digits and `-`, and it is the link with the YAML: renaming it makes a new scene, and the tuning of the old one is lost.
-- **Scena**: where the scene is shot: `card`, `app`, `vscode`, `split` (VS Code and the app side by side) or `split-panel` (a split with VS Code's terminal under both, full width). The field, not the `##` block it sits in. An `app` scene can show any web page, not only the fixture: a published site, say.
+- **Scena**: where the scene is shot: `card`, `app`, `vscode`, `split` (VS Code and the app side by side) `split-panel` (a split with VS Code's terminal under both, full width), `stack` (a vertical video: code, preview and terminal, three 16:9 windows in a column: see [Vertical](#vertical)) or `tower` (the same three windows in a tall frame, with the camera sliding over them: see [Tower](#tower)). The field, not the `##` block it sits in. An `app` scene can show any web page, not only the fixture: a published site, say.
 - **Si vede** is the action, **Si dice** the narration, **Note** anything else (pace, what to stress, what to avoid).
 - **Musica** (in the header): a track of `commons/bkmusic` by its file name, and how loud. *Discreta* is the default; *appena percettibile* and *presente* go softer and louder. No field, no music. See [Music](#music).
 - **Marks**: a hand-drawn highlighter that circles, boxes, underlines or points at something, before it's used or once it shows up. Ask for it in **Si vede** with words like these; the LLM turns them into [`mark`](#marks):
@@ -85,6 +85,19 @@ The pipeline enforces it. `stamp` records, at the bottom of the YAML, a fingerpr
 | *il segno di prima sbiadisce*, *resta* | `dim: 0.3`, `dim: 1` (unsaid: it goes away) |
 | *i segni spariscono* | `unmark` |
 
+- **Camera, cut, speed and format**: zoom where the eye should go, hide a wait or show it quicker, come out as a GIF. Ask for it in **Si vede** and in the header; the LLM turns it into [`camera`](#camera), [`before`](#cut), [`speed`](#speed) and [`output.gif`](#gif):
+
+| In **Si vede** / the header | In the YAML |
+| :- | :- |
+| *la camera stringe su X*, *si avvicina a X* | `camera: { text \| selector: X }`, an action; the scene's own `camera:` is its first frame |
+| *la camera scivola su X* | the same: it glides, `time: 0.5` by default |
+| *di colpo* (the camera) | `time: 0` |
+| *la camera torna larga*, *tutto il quadro* | `camera: full` |
+| *senza stacco*, *la camera resta dov'era* | the scene's `camera: keep` |
+| *taglio*, *l'attesa non si vede* | `before:`, in the scene after the wait, with the waiting actions |
+| *in accelerato*, *a doppia velocità*, *a 1,5×* (an action, a wait, a typing) | `speed: 2` before it and `speed: 1` after: the wait is seen, quicker, not cut. Not in a scene with a voice |
+| **Formato:** *GIF larga N px, F fps* | `output.gif: { width: N, fps: F }`, and usually `fade: [0, 0]` |
+
 ## Converting
 
 The LLM, step by step. From `site/video`:
@@ -98,6 +111,10 @@ The LLM, step by step. From `site/video`:
    - **Timing.** The voice starts `lead` (0.4 s) into the scene: the word *n* falls at about 0.4 + n / 2.6 s. Once the real voice is in, use its own pace: words over the line's `duration` in `audio/manifest.json`. Put each action on its word, and budget the list with the times in the [action table](#storyboardyaml).
    - **Wait for what is seen.** When the `.md` says something shows up (a panel row, a translated sentence), end on a `waitFor` for it rather than a guessed `wait`: the take can't cut before it's there.
    - **Marks** (*si cerchia*, *si sottolinea*, *una freccia indica*…) → `mark`, with the words of the [table](#storyboardmd) and the keys of [Marks](#marks). The mark lands on the word that names the thing, and comes before the hand acts on it (mark, then click). A mark the `.md` doesn't ask for is content: don't add it. To mark something that is about to show up, `waitFor` it first. Once drawn, a mark stays whole long enough for the eye to find it: see [Marks](#marks).
+   - **Cut** (*taglio*, *l'attesa non si vede*) → `before` of the scene *after* the wait: the previous scene ends on what started it (the click), the next one waits in its `before` ([Cut](#cut)). A scene that already looks right after the wait needs nothing else.
+   - **Speed** (*in accelerato*, *a 2×*) → `speed` around the stretch ([Speed](#speed)). A wait the story wants *seen* goes quicker, not into a `before`: the viewer follows it.
+   - **Camera** → the scene's `camera:` for its first frame, then `camera` actions where the eye moves ([Camera](#camera)). Read each `rect` off the strips of a first rehearsal: they are the whole frame, so a position there is a frame position. *Senza stacco* is `camera: keep`.
+   - **Format** (*GIF larga N px*) → `output.gif` ([GIF](#gif)), and `fade: [0, 0]` when the story asks for no fades.
    - **Voce** → `voice.voice` and `voice.instructions` (in English). **Progetto filmato** → `fixture`. **Copertina** → `poster`. **Titolo** → `title`.
    - **Musica** → `music`: the track's file name in `track`. *Discreta*: the defaults; *appena percettibile*: `max: -14, min: -32`; *presente*: `max: -4, min: -20`. Other words about it (*entra piano*, *si ferma prima della chiusura*) go to the keys of [Music](#music).
 4. **`node commons/cli/run.mjs <project> stamp`.** It refuses if the YAML's scene ids or order differ from the `.md`.
@@ -111,7 +128,7 @@ The [rules for agents](#rules-for-agents) hold throughout: the `.md` is never ed
 
 ## storyboard.yaml
 
-<!-- LINKED-DATA: the keys, defaults and actions below are what commons/cli/storyboard.mjs (DEFAULTS, ACTIONS, loadProject) accepts and commons/cli/director.mjs runs, the action times included (its pauses and delays). Change one, change the other. -->
+<!-- LINKED-DATA: the keys, defaults and actions below are what commons/cli/storyboard.mjs (DEFAULTS, ACTIONS, loadProject) accepts and commons/cli/director.mjs runs, the action times included (its pauses and delays); the shape of `camera` is commons/cli/camera.mjs (controllaCamera). Change one, change the other. -->
 
 ```yaml
 # Generated from storyboard.md (the source of truth) following site/video/README.md.
@@ -141,9 +158,9 @@ scenes:
 # ── source: … written by `stamp`, never by hand
 ```
 
-**Top level** — `title`; `fixture` (a repo folder with a `package.json`); `app.port`, `app.style` (CSS injected in the app); `vscode.settings` (merged over the defaults in `commons/cli/director.mjs`), `vscode.style` (CSS), `vscode.env` (names of environment variables handed to VS Code and its terminals, such as a key for `--llm-translate`: the values are looked up like the voice's key, never written in the YAML); `output` (`width`, `height`, `fps`, default 1920×1080×30; a bigger 16:9, such as 2560×1440 (2K) or 3840×2160, keeps the layout and adds pixels: see [Resolution](#resolution); `mbPerMinute` 60, the most the final mp4 may weigh, in MB per minute as Windows counts them, about 8 Mbit/s: changing it needs `compose` only); `zoom` (`vscode` 1.2, `app` 1.6, `card` 1: a page's CSS viewport is 1920×1080 / zoom, at any `output`); `voice` (`model`, `voice`, `instructions`, `sampleRate` 24000, `apiKeyEnv` `OPENROUTER_API_KEY`); `lead` 0.4 and `tail` 0.6 seconds of silence around each line; `split` 0.62 (VS Code's share of a split, and of the top of a split-panel); `panel` 0.3 (the share of the height of VS Code's panel in a split-panel); `fade` `[0.5, 0.7]` (seconds of the video's fade from black at the start, to black at the end); `typeDelay` 55 ms per key; `mark` (the defaults of every mark in the video, with the keys of the [Marks](#marks) table); `music` (the background music: see [Music](#music)); `look` (the cards' knobs and tokens for the whole video: see [Cards](#cards)); `poster`; `setup`; `scenes`; `source` (written by `stamp`).
+**Top level** — `title`; `fixture` (a repo folder with a `package.json`); `app.port`, `app.style` (CSS injected in the app); `vscode.settings` (merged over the defaults in `commons/cli/director.mjs`), `vscode.style` (CSS), `vscode.env` (names of environment variables handed to VS Code and its terminals, such as a key for `--llm-translate`: the values are looked up like the voice's key, never written in the YAML); `output` (`width`, `height`, `fps`, default 1920×1080×30; a bigger 16:9, such as 2560×1440 (2K) or 3840×2160, keeps the layout and adds pixels: see [Resolution](#resolution); `mbPerMinute` 60, the most the final mp4 may weigh, in MB per minute as Windows counts them, about 8 Mbit/s: changing it needs `compose` only; `gif` `{ width, fps, colors }` makes a looping GIF too, after `compose`: see [GIF](#gif); `web` `{ width, fps, crf, webm }` makes a video for a web page: see [Web video](#web-video)); `zoom` (`vscode` 1.2, `app` 1.6, `card` 1: a page's CSS viewport is 1920×1080 / zoom, at any `output`); `voice` (`model`, `voice`, `instructions`, `sampleRate` 24000, `apiKeyEnv` `OPENROUTER_API_KEY`); `lead` 0.4 and `tail` 0.6 seconds of silence around each line; `split` 0.62 (VS Code's share of a split, and of the top of a split-panel); `panel` 0.3 (the share of the height of VS Code's panel in a split-panel); `fade` `[0.5, 0.7]` (seconds of the video's fade from black at the start, to black at the end); `typeDelay` 55 ms per key; `mark` (the defaults of every mark in the video, with the keys of the [Marks](#marks) table); `music` (the background music: see [Music](#music)); `look` (the cards' knobs and tokens for the whole video: see [Cards](#cards)); `poster`; `setup`; `scenes`; `source` (written by `stamp`).
 
-**Scene** — `id`, `stage` (`vscode`, `app`, `split`, `split-panel`, `card`), `card`, `params`, `look` and `anim` (for `stage: card`: see [Cards](#cards)), `url` (a stage with the app: the page it shows, loaded before the clip starts), `storage` (with `url`: localStorage entries written on that page's origin before it loads, such as a site's remembered language), `anchor` (with `url`: a CSS selector the page opens scrolled to, its entrance animations done; use it instead of a `#hash`, which a site may route elsewhere), `preload` (with `url`: `true` scrolls the page through once before the clip, top to bottom and back, so its lazy images are loaded and its once-only entrance animations done; for a scene that scrolls far), `say`, `instructions` (voice direction for this line, added to `voice.instructions`), `do`, `hold`. A scene lasts `max(actions, lead + voice + tail) + hold`.
+**Scene** — `id`, `stage` (`vscode`, `app`, `split`, `split-panel`, `stack`, `tower`, `card`), `card`, `params`, `look` and `anim` (for `stage: card`: see [Cards](#cards)), `url` (a stage with the app: the page it shows, loaded before the clip starts), `storage` (with `url`: localStorage entries written on that page's origin before it loads, such as a site's remembered language), `anchor` (with `url`: a CSS selector the page opens scrolled to, its entrance animations done; use it instead of a `#hash`, which a site may route elsewhere), `preload` (with `url`: `true` scrolls the page through once before the clip, top to bottom and back, so its lazy images are loaded and its once-only entrance animations done; for a scene that scrolls far), `before` (actions played before the clip starts filming: their time is not in the video, a jump cut; no `mark`, `unmark` or `camera`: see [Cut](#cut)), `camera` (the first frame: `full`, `keep`, `selection`, `rect` or a target, or `window` in a tower; no `time` or `ease`; not on cards: see [Camera](#camera)), `say`, `instructions` (voice direction for this line, added to `voice.instructions`), `do`, `hold`. A scene lasts `max(actions, lead + voice + tail) + hold`.
 
 **split-panel** — VS Code fills the frame, and the app covers its top right corner (`split` of the width to VS Code, as in a split) down to VS Code's panel. The panel (the terminal) stays uncovered below, full width, `panel` of the height: long lines, like an LLM's run, don't wrap. Before the clip, the panel is opened if closed and its border dragged to that height.
 
@@ -165,6 +182,8 @@ scenes:
 | `scroll: { selector: "#call-forms" }` | the page glides to the target, easing in and out; also `text`, `page`, `block: center`, `offset` (px of the 1920 × 1080 frame left above it, for a fixed top bar), `time`, `ease` (`cubic`; `sine` for a long run, such as a whole page: at its fastest 1.6 times the average speed, not 3, so it glides instead of jumping) | `time` (1 s) |
 | `mark: { text: Sync }` · `mark: selection` | draw a hand-drawn mark around the target: see [Marks](#marks) | its `draw` (0.6 s) |
 | `unmark` · `unmark: 0.8` | fade every mark out, in seconds | 0.4 s, or as written |
+| `camera: { text: Translate, width: 960 }` · `camera: full` | the camera glides to that frame: see [Camera](#camera) | about 0.1 s: it doesn't wait, the glide is made in `compose` |
+| `speed: 2` · `speed: 1` | the video runs at that speed from here on: see [Speed](#speed) | 0 s: the shooting is the same, `compose` remaps the time |
 
 Clicks, marks and waits search the page and every frame in it, the extension's webviews included. Default page: `app` on app stages, `vscode` elsewhere.
 
@@ -183,9 +202,79 @@ output: { width: 2560, height: 1440 } # 2K: the same video, 4/3 sharper
 
 - **Same layout.** Each page keeps a CSS viewport of 1920×1080 / zoom; Chrome draws it with `zoom × output.width / 1920` pixels per CSS px. The same lines of code fit, the same cards, the marks in the same place, only sharper. Nothing in the YAML changes but `output`.
 - **Captured at device pixels.** Every page has its own Chrome, launched with `--force-device-scale-factor` at its scale (and the same `deviceScaleFactor` in its context, so `devicePixelRatio` stays right for canvases). With the scale only emulated, Chrome's screencast sends frames the size of the CSS viewport: VS Code at zoom 1.2 came as 1600×900 and was upscaled. Now no frame is upscaled; a pixel of rounding is cropped.
-- **16:9 only**, even, and at least 1920×1080: 2560×1440, 3840×2160. Anything else stops the YAML (another shape would change the layout).
+- **16:9, or 9:16 for a [vertical](#vertical) video**: even, at least 1920×1080 (2560×1440, 3840×2160) or 1080×1920. Anything else stops the YAML (another shape would change the layout).
 - **Weight.** `mbPerMinute` stays the ceiling (60, about 8 Mbit/s). compare2 at 2K weighs 33 MB a minute: sharp text on flat backgrounds compresses well (the upscaled frames of before took 46). YouTube takes it as 1440p.
 - **Cost.** Scrolls as smooth as at 1080p. At 2K the actions slow down: typing and clicks in VS Code took 1–2 s more in some of compare2's scenes, so the timings tuned at 1080p shift (marks shorter than 1.5 s, a longer video). At 1080p, captured at device pixels, they stay close to before (a few tenths, extension 0.8 s). `compose` takes about 3 minutes instead of 2. A changed `output` shoots everything.
+
+### Vertical
+
+<!-- LINKED-DATA: FRAME_VERTICALE, frameDi and the checks of the `stack` stage in commons/cli/storyboard.mjs; the `stack` view and its windows in palco, and pannello's `cima`, in commons/cli/director.mjs; the clips' `finestre` in commons/cli/record.mjs; `crop` in impagina, commons/cli/compose.mjs. Change one, change the others. -->
+
+For YouTube Shorts, Instagram Reels and TikTok: `output: { width: 1080, height: 1920 }` is a **9:16 frame**, drawn on 1080 × 1920 (a bigger one, 1440 × 2560, only adds pixels). It has two stages: `stack` and `card`. The 16:9 stages (`vscode`, `app`, `split`, `split-panel`) and `camera` stop the YAML there.
+
+`stack` puts three 16:9 windows, each as wide as the frame, one above the other, with a little black between them:
+
+| Window | Is |
+| :- | :- |
+| **Code** (top) | VS Code above its panel: the sidebar (the LLM page, with Translate) and the editor |
+| **Preview** (middle) | the app, in its own 16:9 page |
+| **Terminal** (bottom) | VS Code's panel: the terminal where `--llm-translate` runs |
+
+```yaml
+output: { width: 1080, height: 1920 }
+zoom: { vscode: 1.2, app: 1.2 }        # a window is 1080 wide: 900 CSS px at 1.2
+vscode:
+  settings: { "terminal.integrated.fontSize": 14, "terminal.integrated.gpuAcceleration": "off" }
+setup:
+  - command: "View: Set Panel Alignment to Justify"
+  …
+scenes:
+  - id: translate
+    stage: stack
+    do: [ … ]
+```
+
+- **One VS Code, two windows.** The page is shot once, as tall as two windows plus the status bar. The director drags the panel's border to the height of a window, and `compose` crops the clip in two: the part above the border is Code, the one from the border down Terminal (`crop` in the clip's entry of `takes.json`; the same file listed twice).
+- **Panel alignment.** Without help the panel sits beside the sidebar, which runs the whole height: the terminal window would be a third narrower, and a report line wraps. `command: "View: Set Panel Alignment to Justify"` in the `setup` runs the panel under the sidebar, the full 900 CSS px. (The setting `workbench.panel.alignment` didn't do it: VS Code keeps the layout in its state.)
+- **The terminal's zoom.** The window shows one report line whole if the type is small enough: `terminal.integrated.fontSize` sets it apart from the code's (about 14 for the LLM's report, 90 columns; 16 wraps it). It is not 100%, and doesn't need to be.
+- **No camera.** All three windows are always in view: the viewer sees the sentence typed, the page react and the terminal answer, with no move. `speed` works as everywhere.
+- **Cards** are drawn on the vertical frame too: the forge follows its container, and a text that wraps awkwardly takes a `look: { type-scale: 0.7 }`. A claim on one line ("One workflow. From code to every language.") needs it. `node commons/cli/card.mjs <project> <scene>` looks at it in the vertical frame.
+- **GIF.** `output.gif` works (`width` 480 gives 480 × 853), but a vertical GIF is heavy: the video is the product.
+
+### Tower
+
+<!-- LINKED-DATA: TORRE, TORRE_VUOTO, TORRE_FINESTRE, finestraTorre and filtroPan in commons/cli/camera.mjs; the checks of the `tower` stage and of `camera: { window }` in commons/cli/storyboard.mjs; the `tower` view, its windows and `this.tela` in palco, and `window` in rettangolo, in commons/cli/director.mjs; `take.tela` in commons/cli/record.mjs; the canvas and filtroPan in segmento, commons/cli/compose.mjs. Change one, change the others. -->
+
+The same three windows as `stack`, for a **16:9 video**: `stage: tower`. They stand in a tall frame, one above the other, and the camera slides over it, one whole window at a time. Where [Vertical](#vertical) shows them all at once to a phone, the tower shows one to a screen, big enough that nothing needs zooming.
+
+| Window | Is |
+| :- | :- |
+| **preview** (top) | the app, in its own 16:9 page |
+| **code** (middle) | VS Code above its panel: the sidebar (the LLM page, with Translate) and the editor |
+| **terminal** (bottom) | VS Code's panel: the terminal where `--llm-translate` runs |
+
+```yaml
+zoom: { vscode: 2, app: 2 }            # a window is 1920 × 1080 of the frame: 960 × 540 CSS px at 2
+setup:
+  - command: "View: Set Panel Alignment to Justify"
+  …
+scenes:
+  - id: write
+    stage: tower
+    camera: { window: preview }        # the first frame
+    do:
+      - camera: { window: code, time: 0.9 }       # slides down, the actions go on
+      - …
+      - camera: { window: terminal, time: 0 }     # a jump: no transition
+```
+
+- **The frame is 1920 × 3320**: three windows of 1920 × 1080 and 40 px of black between them. It is the video's width at any `output` (2K scales it like everything else).
+- **`camera: { window: preview | code | terminal, time, ease }`** is the only camera there. `time: 0` is a cut; any other `time` slides, through what lies between (code to preview is one window, terminal to preview two). `keep` works as everywhere. A target (`text`, `selector`, `rect`), `full`, `selection`, `width` and `pad` stop the YAML: the camera doesn't zoom, because a crop in a tall frame isn't a `zoompan` (it only takes the aspect of its input). It is ffmpeg's `crop`, at the frame's real pixels (`filtroPan`).
+- **No camera at all** in a scene: the top window, the preview.
+- **A window is a page.** Zoom 2 gives the preview and VS Code each 960 × 540 CSS px (about the width of a VS Code in a split, 990); the terminal's type 15 is then 30 px of the frame, 12.5 on a GIF 800 wide. Zoom 1.2 reads well on the mp4 and not on a GIF. At the stage's default type for the terminal (16, `VSCODE_SETTINGS`) the window holds 104 columns and the report fills them to the last one (the rules, the seconds counter at the right edge), so a line can wrap: 5% less is 15.2, and `terminal.integrated.fontSize` takes whole sizes, so 15: 111 columns, the report (about 107) has room. (13.3 was read as 13, 17% under 16: the report shrank and left the window half empty.)
+- **VS Code is shot once**, as in `stack`: the panel's border is dragged to the height of a window, `compose` crops the clip in two. The `setup` runs the panel under the sidebar, as in [Vertical](#vertical).
+- **`take.tela`** in `takes.json` is the tall frame in video pixels; `compose` assembles the clips on it, then `filtroPan` crops the window. The strips in `capture/strips/` show the whole tower.
+- **Cards** are scenes like the others: the tower is for the stages with pages.
 
 ### Marks
 
@@ -221,12 +310,136 @@ A hand-drawn highlighter over the page (`commons/cli/marker.js`). The pen lands,
 | `overshoot` | `0.12` | how far past the full turn the pen goes, as a share of a lap |
 | `wobble` | `0.6` | how unsteady the hand is |
 | `seed` | `7` | another hand: the same mark, drawn differently |
+| `from` | the side with room | `arrow` only: the side its tail comes from, `left`, `right` (level, the tip at the target's mid-height), `top-left`, `top-right`, `bottom-left` or `bottom-right`. For a target with other things around it (gif20t's sentence has buttons under it: from below the arrow crossed one) |
 
 A mark's shape depends on its scene, its number in the scene and the seed: every take draws it the same way. A `mark:` at the top of the YAML sets the defaults for the whole video, with the keys of this table (`mark: { color: amber }`).
 
 **Long enough to be seen.** The eye has to find the mark, then what's inside it: a mark that vanishes too soon is a flash nobody follows. Once drawn, a mark stays whole for **at least 1.5 s**, and **2 s** when it's on words to read. It stays whole until a newer mark dims it, an `unmark`, or the cut. Make room with a `hold` on the scene, or a `wait` before what comes next. `record` checks the 1.5 s and warns under the scene (`! mark … stays whole 0.4 s`).
 
 Marks don't follow the page. A mark is drawn where its target is at that moment, and every mark vanishes at a cut and on a reload. Mark when the layout is still: not while the terminal opens or the page reloads.
+
+### Camera
+
+<!-- LINKED-DATA: these keys and defaults are CAMERA_* in commons/cli/camera.mjs (controllaCamera checks them for commons/cli/storyboard.mjs), a_camera and rettangolo in commons/cli/director.mjs, the first frame in commons/cli/record.mjs, and filtroCamera's use in commons/cli/compose.mjs (segmento); the tower's `window` is in [Tower](#tower). Change one, change the others. -->
+
+A 16:9 crop of the frame that glides from one framing to the next. The director measures each target while it shoots, where the elements exist, and `record` writes the keyframes in `capture/takes.json`; `compose` applies them with ffmpeg's `zoompan`. So the cut can be redone without shooting again, and the framing follows the layout. The mp4, the preview, the GIF and the contact sheet have the camera. The strips in `capture/strips/` don't: they are the whole frame, which is where you read a `rect` from.
+
+```yaml
+- id: translate
+  stage: split-panel
+  camera: keep                          # opens where the last scene ended
+  do:
+    - camera: { rect: [0, 150, 700] }   # glides to the panel in 0.5 s, and goes on: it doesn't wait
+    - wait: 0.5
+    - click: { selector: '#actions .azione[data-value="translate"]' }
+```
+
+| Key | Default | What it does |
+| :- | :- | :- |
+| a target | none | `text`, `selector`, `role` + `name`, `page`, `exact`, `timeout`, as for `click`; or `rect: [x, y, width]`, pixels of the frame; or `full` (the whole frame), `selection` (the editor's selection), `keep` (the scene's own only: where the last scene ended); in a [tower](#tower) only `window: preview \| code \| terminal` and `keep` |
+| `width` | the target plus `pad` | the crop's width, 480 to 1920 frame pixels, centred on the target |
+| `pad` | `40` | the room around the target, when there's no `width` |
+| `time` | `0.5` | seconds the glide lasts; `0` is a cut |
+| `ease` | `cubic` | `cubic`, `sine` or `linear` |
+
+- **Frame pixels.** Everything is measured on the 1920 × 1080 frame, like marks and offsets: the same at any `output`.
+- **Always 16:9, never under 480 wide** (a 4× zoom). Narrower, the picture goes soft.
+- **The scene's `camera:` is its first frame**, measured before the clip starts, so the first frames are never the whole frame. It takes no `time` or `ease`. No `camera:`, the scene starts on the whole frame. Not on a card (it moves with `anim`), and not in `setup` or `before`: none of them is filmed.
+- **A move doesn't wait.** It starts when its action does, and the actions after it go on while it glides. One that starts before the last has ended gets a warning (`camera: a move starts … before the last one ends`).
+- **A crop is clamped to the frame.** Aimed at text in the app, it can pull in a strip of the code next to it. On a split-panel (`split` 0.62) the app is x 1190 to 1920, so `rect: [1190, 165, 730]` frames the app and nothing else.
+- **Sharpness.** The mp4 at 1920 enlarges the pixels of a crop (soft past 2×). A GIF at 800 px shows a crop 800 wide at the size it was shot.
+
+**Pull back, push in.** A shift from one framing to another can go through the whole frame, so the eye sees where it is before it goes there:
+
+```yaml
+- camera: { rect: [0, 0, 1920], time: 0.55, ease: sine }   # pull back: quick, gentle at both ends
+- wait: 0.8                                                # the move, and a breath at the wide
+- camera: { rect: [1190, 165, 730], time: 0.7 }            # push in: slower, it settles
+- wait: 1.8                                                # the move (0.7 s), then the new framing holds 1.1 s
+```
+
+A shift takes 1.5 s. Out is quicker than in. The camera doesn't wait, so the `wait` after each camera action is its move plus what follows: each new framing holds for what the eye has to read (a typed line 0.9 s, a new sentence 1.1 s, a terminal's result 1.3 s, a result to take in 2 s) before the next move, and the camera moves only when there's something new to look at.
+
+### Cut
+
+<!-- LINKED-DATA: `before` is checked in commons/cli/storyboard.mjs (loadProject) and played by commons/cli/record.mjs, before the recorders start. Change one, change the other. -->
+
+`before` is a list of actions a scene plays after the stage is set and before its clip starts filming. Their time isn't in the video: a jump cut. It is for a wait: an LLM's run, a reload, a build.
+
+```yaml
+- id: french
+  stage: split-panel
+  before:
+    - waitFor: { text: "Full translate!", exact: false, timeout: 90 }   # the run is never on screen
+    - wait: 1.5                                                         # the reload, back in English
+  do:
+    - click: { page: app, text: Français }
+```
+
+- The cut falls on a scene's edge: the scene before ends on what started the wait (the click), the next one waits in its `before`.
+- No `mark`, `unmark` or `camera` there: nobody would see them.
+- A kept scene ([Partial takes](#partial-takes)) plays its `before` again, to rebuild the state. The probes check its actions as the others'.
+- The editor's focus can be lost while the stage is set (see [Field notes](#field-notes)): a `before` is also the place to give it back.
+
+### Speed
+
+<!-- LINKED-DATA: SPEED_* and the runs (tratti) in commons/cli/speed.mjs (controllaVelocita checks the shape for commons/cli/storyboard.mjs), a_speed in commons/cli/director.mjs, and filtroVelocita's use in commons/cli/compose.mjs (segmento). Change one, change the others. -->
+
+`speed: 2` makes the video run at that speed from there on, until the next `speed` or the end of the scene; `speed: 1` is real time. It is for a wait that should be *seen*, not cut: a typing that can go quicker, the pointer's long way, an LLM's run. The viewer follows what happens, faster, instead of meeting a jump.
+
+```yaml
+- speed: 1.5            # the typing
+- type: "<p><Trans>Nice to see you, {name}!</Trans></p>"
+- save
+- speed: 1
+- speed: 2              # the pointer's way to Translate, and the LLM's run
+- click: { selector: '#actions .azione[data-value="translate"]' }
+- waitFor: { text: "Full translate!", exact: false, timeout: 90 }
+- speed: 1              # the result holds at real time
+```
+
+- **`do` stays in real seconds.** Shooting doesn't change: a `wait: 2` lasts 2 s. The video shows a stretch divided by its speed (that `wait` at 2× is 1 s). `record` saves the keys in `takes.json`, in shot seconds; `compose` remaps the time with `setpts`, after the camera: its glides go at the speed of the rest, and a glide can straddle a change.
+- **A number from 0.25 to 8.** Under 1 it is slow motion.
+- **A scene starts at 1×.** The speed doesn't carry over to the next one.
+- **Not in a scene with a voice** (`say`): the voice would go out of step. Not in `setup` or `before` either: they aren't filmed.
+- **Lengths.** The scene lasts less in the video than it was shot: `compose` says so (`speed: translate shot in 7.7 s, 5.8 s in the video`). The cut, the GIF, the poster's `at` and the contact sheet follow the video. The strips of `capture/strips/` show the shot. `music.toEnd` counts shot seconds: don't mix the two.
+- **Choose what is worth seeing.** At 2× the eye follows a pointer or a line that builds up, not a paragraph. Come back to 1× before what has to be read.
+
+### GIF
+
+<!-- LINKED-DATA: `output.gif` is checked in commons/cli/storyboard.mjs and made by gif() in commons/cli/compose.mjs. It's left out of the stage's fingerprint (impronte in commons/cli/record.mjs). Change one, change the others. -->
+
+```yaml
+output: { gif: { width: 800, fps: 12, colors: 128 } }
+fade: [0, 0]
+```
+
+After `compose`, `output/<project>.gif` comes out next to the mp4, looping forever. It's made in two passes from the near-lossless segments, not from the final mp4 (no second compression): `palettegen` takes the colors the video really uses, `paletteuse` dithers with them.
+
+- `width` 160 to 1920 (the height follows, 16:9), `fps` from 1 up to `output.fps`, `colors` 2 to 256 (256 when left out): the size of the palette.
+- Changing it needs `compose` only, like `mbPerMinute`. Without `output.gif`, a GIF an older `compose` left is removed. `preview` makes none.
+- For a clean loop, `fade: [0, 0]`, and a last scene the first one can follow.
+- Weight: gif20t (29.8 s, 800 px, 12 fps, sliding windows) is 3.4 MB at 96 colors, 2.9 at 64, 2.6 at 48 and 2.3 at 32; from 48 down the orange of the terminal's report goes green, so 64. (A camera that zooms weighs more: a 21 s GIF with zoom-and-pull-back moves was 5.0 MB at 96 colors and 4.4 at 64, and 5.3 MB at 256 colors, 4.4 at 128, before its speed changes.) A heavier one: fewer `colors` first, then fewer fps, then a narrower width. A coarser dither (`bayer_scale` 3 or 2) doesn't help: on that one it came out heavier, 5.8 and 6.0 MB.
+
+### Web video
+
+<!-- LINKED-DATA: `output.web` is checked in commons/cli/storyboard.mjs and made by videoWeb() in commons/cli/compose.mjs. Like `output.gif` it's left out of the stage's fingerprint (impronte in commons/cli/record.mjs). The output files are ignored by site/video/.gitignore (`*.web.*`). Change one, change the others. -->
+
+For a web page that shows the video by itself, muted and in a loop (a landing's demo): the GIF is the wrong tool there, five to ten times heavier and sharper in neither.
+
+```yaml
+output: { web: { width: 960 } }
+fade: [0, 0]
+```
+
+After `compose`, next to the mp4: `output/<project>.web.mp4` (H.264), `.web.webm` (VP9) and `.web.webp` (a poster). Like the GIF, they're made from the near-lossless segments, not from the final mp4, and they have no sound.
+
+- `width` an even number, 160 to 1920 (the height follows). `fps` from 1 up to `output.fps`, which it takes when left out. `crf` 18 to 40, 30 when left out: the x264 quality, the higher the lighter; the webm goes at `crf + 8` (VP9 has another scale). `webm: false` skips the webm (a page that serves only the mp4).
+- The mp4 has its index up front (`faststart`): it starts playing before it is all downloaded. Serve the webm first (`<source>` order), the mp4 after.
+- The poster is the project's `poster` frame, or the first one without it: `<video poster>` shows it while the file loads.
+- Loop, mute and autoplay belong to the `<video>` element, not to the file: `autoplay muted loop playsinline`. A page that autoplays should stop on `prefers-reduced-motion` and offer a pause (WCAG 2.2.2, a loop that lasts more than 5 s).
+- Changing it needs `compose` only. Without `output.web`, the files an older `compose` left are removed. `preview` makes none. They are not kept in git (`*.web.*` in `site/video/.gitignore`): the page keeps its own copy, as the landing does with its poster.
+- Weight: gif20t (29.8 s) at 960 px, 30 fps: mp4 crf 30 about 600 kB, webm crf 38 about 340 kB; the GIF of the same story is 2.9 MB.
 
 ### Music
 
@@ -264,7 +477,7 @@ A card is a full-screen page between the screens of the app: a title, a question
 
 | Prototype | Shows | Good for |
 | :- | :- | :- |
-| [`title`](commons/components/title/title.md) | the logo, a line with a green half | the opening |
+| [`title`](commons/components/title/title.md) | the logo, a line with a green half, and (`words`) a second line whose words light up one by one | the opening, a closing claim |
 | [`question`](commons/components/question/question.md) | a big question, then a few words lighting up below it | a hook; a question and its answer in keywords |
 | [`beats`](commons/components/beats/beats.md) | a title, a command, then tiles landing one by one | three facts, three figures, three steps |
 | [`together`](commons/components/together/together.md) | columns of ticked items, filling one after another | a summary: what's in, grouped |
@@ -363,8 +576,9 @@ What the `.md` shows, and where it comes from: the fixture for lines and texts, 
   - After that click the panel redraws its rows and moves the focus to the first language. Its tooltip (the file's full path) used to show up and stay. Fixed in the extension (`focusShowsTip` in `idePlugin/src/webViews/tooltip/tooltipScript.mjs`): it reaches a take built with `--rebuild-ide`, or from a `.vsix` built after it.
 - **Settings** opens from `vscode-icon[data-cmd="settings"]` and takes the panel; Back is `vscode-button[data-cmd="close"]`. Its Highlight style opens with `details#highlight > summary`; each style is `.stile[data-value="<id>"]` (ids in `idePlugin/package.json`), and a click restyles the open editors at once. The first eleven fit without scrolling. Highlighter is faint on a dark theme (⚠ next to it). The palette's "Choose highlight style…" does the same, but its list covers the top lines of the editor.
 - **A build in the terminal:** `key: Control+Backquote` opens one, `type` writes in it (PowerShell keeps what's typed before its prompt), `key: Enter` runs it. Its text is found by `waitFor` and `mark` only with `"terminal.integrated.gpuAcceleration": "off"` in `vscode.settings`: WebGL draws pixels. Maximize the panel (`View: Toggle Maximized Panel`) so the output doesn't scroll under the marks. A new terminal takes the focus a moment after it opens and closes a palette already open: `wait: 0.6` before the next `command` (which reopens the palette once, if it closes before the typing). `npm run build` prints viteTranslate's block 2–3 s after Enter and is done within a second: one chunk per language, except the source one, preloaded in the main bundle.
-- **A split** gives VS Code 62% of the width: with the panel open, about 55 columns of code fit. Keep the line that matters short, or tune `split` or `zoom.vscode`.
-- **A split-panel** shows the terminal the panel has. Kill the earlier ones behind a card (`command: "Terminal: Kill All Terminals"`), so the strip opens on a fresh one, and set `"terminal.integrated.tabs.enabled": false` in `vscode.settings`: no tab list beside the strip. The LLM's run from the panel (Translate) lands there, each line whole.
+- **A split** gives VS Code 62% of the width: with the panel open, about 55 columns of code fit. Keep the line that matters short, or tune `split` or `zoom.vscode`. Its terminal is as narrow: a CLI's report wraps in pieces there. Where a scene shows one, use a split-panel.
+- **The LLM page** (Project's `vscode-button[data-cmd="llm"]`): its actions are `#actions .azione[data-value="translate"]` and the other ids of `LLM_ACTIONS` (`idePlugin/src/core/syncCommand.mjs`), shown as rows: icon, name, description. Translate runs `--llm-translate` in the panel's terminal. The page checks the key, the settings and a ping in about 1.5 s: wait before the click.
+- **A split-panel** shows the terminal the panel has. Kill the earlier ones behind a card (`command: "Terminal: Kill All Terminals"`), so the strip opens on a fresh one, and set `"terminal.integrated.tabs.enabled": false` in `vscode.settings`: no tab list beside the strip. The LLM's run from the panel (Translate) lands there, each line whole, and ends on `✔ < 1 new key français. Full translate! / 2s.`: `waitFor` it. The app's column is x 1190 to 1920 of the frame (`split` 0.62), down to the panel's top (about 756); the panel opens with a new terminal, which takes the focus (see [Field notes](#field-notes)).
 - **The published site** (sepoina.github.io/viteTranslate) in an `app` scene, with `url`:
   - Every page remembers the last language in localStorage `viteTranslate.site.language` (`site/landing/src/siteLanguage.js`), and Edge cases and the restaurant fall back to Italian: `storage: { "viteTranslate.site.language": en-US }` starts each scene in English.
   - The landing sends any `#hash` to the playground (`site/landing/src/main.jsx`, for old links): open it bare, with `anchor: '[data-section="compare"]'`.
@@ -433,8 +647,9 @@ site/video/
     audio/              per line <id>.wav (trimmed) and <id>.raw.wav (as received); manifest.json (the TTS cache)
     capture/            the copied app, raw clips per scene, strips/ (a frame a second per scene), takes.json (with fingerprints)
     preview/            960x540 cut + contact.jpg (one frame per scene)
-    output/             <project>.mp4, <project>.srt, poster.jpg, credits.txt (with music)
+    output/             <project>.mp4, <project>.gif (with output.gif), <project>.web.mp4 + .web.webm + .web.webp (with output.web), <project>.srt, poster.jpg, credits.txt (with music)
     components/         the project's own card prototypes, if any (card: ./components/<name>)
+    fixture/            the project's own app, if it has one (gif20t: quickApp plus an `llm` block): `fixture: site/video/projects/<project>/fixture`
     log/                run.log (every run, timed), vscode.log, app.log, card.log, probe.jsonl, error-*.png
 ```
 
@@ -443,9 +658,9 @@ What git keeps is in [rule 6](#rules-for-agents); everything else is rebuilt by 
 ## The pipeline
 
 1. **tts** — each `say` becomes `audio/<scene>.wav` (OpenRouter `/audio/speech`, PCM wrapped in WAV). Cached by text + voice. The silence around the line is trimmed, keeping 0.15 s before the first word (the breath) and 0.1 s after the last. The take as received stays in `<scene>.raw.wav`, and every run trims again from it: the margins can be tuned without paying for the voice again. With `--silent`, a line already voiced for real, with the same text and voice, keeps its voice.
-2. **record** — copies the `fixture` into `capture/`, starts its `vite dev` and an isolated VS Code with the repo's extension, then plays the scenes in one session. Each scene lasts at least as long as its line. It shoots from the first scene that changed since the last take: see [Partial takes](#partial-takes).
+2. **record** — copies the `fixture` into `capture/`, starts its `vite dev` and an isolated VS Code with the repo's extension, then plays the scenes in one session. A scene's `before` plays first, unfilmed ([Cut](#cut)); its camera keyframes are measured as it goes ([Camera](#camera)). Each scene lasts at least as long as its line. It shoots from the first scene that changed since the last take: see [Partial takes](#partial-takes).
 3. **preview** — a quick low-res cut and a contact sheet.
-4. **compose** — the final cut: scenes in a row, each page in its place (side by side in a split, the app over VS Code's corner in a split-panel), voice in place, fade in and out (`fade`), subtitles, poster. A subtitle holds two lines of about 42 characters, and breaks where the voice pauses: after a full stop, then after a comma or a colon, never after an article or a preposition; two sentences share a cue only if the line breaks between them on a pause. Every line is brought to -16 LUFS (generated one by one, they come out louder or softer), its peaks limited to -1.5 dB, with 10 ms fades at its edges against clicks. Then the [music](#music), if any, goes under the voice, ducked around every line, and its credits go to `output/credits.txt`. The scenes are cut as near-lossless intermediates (CRF 10); the final video is encoded once from them, in two passes at the bitrate `output.mbPerMinute` asks for (60 MB a minute: about 8 Mbit/s, AAC 192 kbit/s), so the bits go to scrolls and fades rather than to still cards. A screen that doesn't move costs nothing at any quality: when the video can't use the bits, x264 stops at near-lossless (an average QP under 1, and a harmless "2pass curve failed to converge") and the file comes out lighter. compare weighs about 29 MB a minute at 1920×1080; compare2, captured at device pixels, about 28 at 1920×1080 and 33 at 2560×1440. The preview copies the segments as they are, fast.
+4. **compose** — the final cut: scenes in a row, each page in its place (side by side in a split, the app over VS Code's corner in a split-panel), the [camera](#camera)'s crop where a scene has one, then its [speed](#speed) changes, voice in place, fade in and out (`fade`), subtitles, poster. A subtitle holds two lines of about 42 characters, and breaks where the voice pauses: after a full stop, then after a comma or a colon, never after an article or a preposition; two sentences share a cue only if the line breaks between them on a pause. Every line is brought to -16 LUFS (generated one by one, they come out louder or softer), its peaks limited to -1.5 dB, with 10 ms fades at its edges against clicks. Then the [music](#music), if any, goes under the voice, ducked around every line, and its credits go to `output/credits.txt`. The scenes are cut as near-lossless intermediates (CRF 10); the final video is encoded once from them, in two passes at the bitrate `output.mbPerMinute` asks for (60 MB a minute: about 8 Mbit/s, AAC 192 kbit/s), so the bits go to scrolls and fades rather than to still cards. A screen that doesn't move costs nothing at any quality: when the video can't use the bits, x264 stops at near-lossless (an average QP under 1, and a harmless "2pass curve failed to converge") and the file comes out lighter. compare weighs about 29 MB a minute at 1920×1080; compare2, captured at device pixels, about 28 at 1920×1080 and 33 at 2560×1440. With `output.gif`, the [GIF](#gif) is made from the same segments. The preview copies the segments as they are, fast.
 
 Something broke? Start from `log/`: `run.log` has every run with timestamps, `error-*.png` shows each page at the moment it failed, `vscode.log` and `app.log` hold the servers' output, `card.log` the cards' console errors, `probe.jsonl` what the probes heard ([Probes](#probes)).
 
@@ -455,12 +670,12 @@ Something broke? Start from `log/`: `run.log` has every run with timestamps, `er
 
 A scene to fix shouldn't cost the whole take. `record` keeps what still holds and shoots the rest.
 
-- **Fingerprints.** `takes.json` keeps one for the *stage*: the fixture's files, the settings, the setup, zoom, lead and tail, the extension's `.vsix`, the pipeline's code (the probes included). And one per scene, chained: the scene's YAML, its voice, its card (the prototype's folder, the forge in `commons/`, the site's tokens, the GSAP version, the music credits, the video's `look`), and the fingerprint of the scene before. A changed scene changes all those after it too, since they inherit its state.
+- **Fingerprints.** `takes.json` keeps one for the *stage*: the fixture's files, the settings, the setup, zoom, lead and tail, the extension's `.vsix`, the pipeline's code (the probes included). And one per scene, chained: the scene's YAML, its voice, its card (the prototype's folder, the forge in `commons/`, the site's tokens, the GSAP version, the music credits, the video's `look`), and the fingerprint of the scene before. A changed scene changes all those after it too, since they inherit its state. `output.mbPerMinute`, `output.gif` and `output.web` are in none of them: they change the cut, not the take.
 - **From the first change.** `record` keeps every scene up to the first changed one, and shoots from there to the end. A changed stage shoots everything. Nothing changed: nothing to shoot, at once.
-- **Fast-forward.** The servers and the setup still start (about 40 s). The kept scenes are played without filming, to rebuild the state: their actions and waits, no marks, no voice time. Only the last one before the cut plays at full length, so what runs on the clock (a reload, Sync's terminal closing after 10 s) reaches the first filmed scene as in a full take. Their clips stay.
+- **Fast-forward.** The servers and the setup still start (about 40 s). The kept scenes are played without filming, to rebuild the state: their `before`, actions and waits, no marks, no camera, no speed, no voice time. Only the last one before the cut plays at full length, so what runs on the clock (a reload, Sync's terminal closing after 10 s) reaches the first filmed scene as in a full take. Their clips stay.
 - **Saved as it goes.** `takes.json` is written after every filmed scene. A run that stops halfway, an error or `--to`, picks up from there next time.
 - **Strips.** Every filmed scene leaves `capture/strips/NN-<id>.jpg`: a frame a second, four per row, left to right, the pages in their place as in the cut. They land while the run goes on.
-- **By hand.** `--full` shoots everything. `--from <scene>` shoots from there and keeps the clips before it *as they are*, even if the stage changed, with a warning: use it when you know a change touches only that scene and the later ones, like an extension fix seen in one scene only. Those kept scenes then take the new fingerprints. `--to <scene>` stops after that scene.
+- **By hand.** `--full` shoots everything. `--from <scene>` shoots from there and keeps the clips before it *as they are*, even if the stage changed, with a warning: use it when you know a change touches only that scene and the later ones, like an extension fix seen in one scene only. Those kept scenes then take the new fingerprints. `--to <scene>` stops after that scene, and `takes.json` forgets the scenes after it, clips included: the next `record` shoots them again. A camera `keep` after a kept scene starts where that scene's last keyframe left it.
 - **Partial takes and the cut.** `preview` cuts what there is, with a warning. `compose` refuses until the takes cover every scene of the YAML.
 
 On `compare` (11 scenes): a full take 172 s; from scene 8 on, 131 s; scene 9 alone (`--from llm --to llm`), 91 s.
@@ -539,3 +754,22 @@ What earlier sessions learned the hard way. Stage facts are in [On stage](#on-st
 - This VS Code opens the user settings in a modal editor, and calls the theme "Dark Modern" (with the old "Default Dark Modern" the server rewrites the file on its own).
 - **Durations:** count the real voice at the pace of the estimate. In `compare` the real lines came out within a few percent of `--silent`'s, some longer. Fit the video to its music with the real voice in.
 - Changing anything in `commons/cli/` changes the stage: the next `record` shoots everything. Use `--from` when the change can't touch the scenes before.
+
+**Camera, cut and GIF** (October 2026).
+
+- **A split's terminal is too narrow for an LLM's report.** At 62% of the width the lines wrap in pieces: `waitFor` doesn't find `Full translate!` (it timed out after 90 s, on a run that had finished in a second), and at 800 px nobody reads it. The scene is a split-panel.
+- **The panel a split-panel opens brings a new terminal, which takes the focus.** The editor's cursor goes (Monaco hides it): `camera` aimed at `.monaco-editor .cursors-layer .cursor` says "not found", and the first `key` would have gone to the terminal. A `before` with `command: "View: Focus Active Editor Group"` gives the focus back, unfilmed.
+- **A reasoning model spends its output thinking** (92% for `deepseek/deepseek-v4.1-flash` through OpenRouter) and the run ends on a four-line warning, with the result line above it. The fixture's `llm` block carries `providerOptions: { reasoning: { enabled: false } }` ([docs, reasoning models](https://sepoina.github.io/viteTranslate/docs/llm/price/#reasoning-models)): the run takes under a second and ends on `Full translate!`. Check what a CLI prints by running it by hand in a copy of the fixture under `capture/` (a scratch folder there doesn't go in git).
+- **Read a crop off a strip.** A strip is four frames a row at a quarter of their size: multiply what you measure by 4. A crop aimed at a text next to the frame's edge is clamped and pulls in the neighbour (a strip of code beside the app): give a `rect` instead.
+- **A jump cut after a click isn't understood; the run at 2× is.** Hiding the LLM's wait in a `before` leaves the viewer a jump. Showing it with `speed` and running the LLM at 2× was no better: the report went by in 1.2 s and couldn't be read. What reads: speed only the pointer's way (2×) and play the run at 1.5× (gif20t: the report takes 3 to 5 s on screen) or at real time: the command, the sync report, the request and the result are all legible. When the camera zooms on the terminal, its crop has to be wide enough for the report's longest line (`rect: [680, 652, 760]` in a split-panel; at 560 wide it cut the right of the lines).
+- **A first frame by `selector` or `text` follows the layout, a `rect` doesn't.** A project whose fixture and stage never change can use `rect` throughout. Use a target where the layout can move.
+- **`SOVRACAMPIONA`** (`camera.mjs`) is 2: the frame is doubled before `zoompan`, which rounds x and y to a pixel of its input. If a slow glide trembles, raise it to 3, then 4 (slower, more memory).
+- **Vertical: the panel sat beside the sidebar.** The terminal window was a third narrower and the LLM's report wrapped ("1 api reque…", "0500)" on its own line). The setting `workbench.panel.alignment` changed nothing; the command `View: Set Panel Alignment to Justify` in the `setup` did ([Vertical](#vertical)).
+- **A claim on a vertical card.** At the default type scale "One workflow. From code to every language." breaks after "From", mid green. `look: { type-scale: 0.7 }` keeps it on one line.
+- **Tower (gif20t): the status bar peeked under the terminal.** VS Code is shot as tall as two windows plus a margin; at zoom 2 its status bar is 44 px, the margin was 40, and 8 px of it showed at the bottom of the terminal window. The margin now follows the zoom (`22 × zoom` plus 8, at least 40).
+- **Tower: a crop in a tall frame isn't a `zoompan`.** `zoompan` crops in the aspect of its input, so a 16:9 window of a 1920 × 3320 frame comes out squeezed. The tower's camera is `crop` with an expression for y ([Tower](#tower)): it slides, it can't zoom.
+- **Tower: the LLM's run sets the length.** At real time the run takes 4 to 7 s (the `npx` start, the model's answer): the translate scene is the longest, and its length changes from take to take. gif20t shows it at 1.5×, after a slide to the terminal.
+- **Tower: right after the click the terminal still shows its old prompt.** The click opens a new terminal tab a moment later; a camera that reached the terminal at once showed an empty PowerShell prompt. A short `wait` after the click (0.5 s) and a slide (0.9 s) bring the camera there when the command is running.
+- **`record --to <scene>` leaves `takes.json` with the scenes up to it**: the later takes and clips are gone. `compose` then refuses until a plain `record` has shot the rest.
+- **An empty `.srt` is written for a video with no voice.** `compose` writes it anyway.
+- **Typing costs more than `typeDelay`.** The real keyboard adds about 25 ms a key: 46 characters at 45 ms took 3 s, not 2.1. Budget a scene from its `takes.json` duration after a first shot, not from the sum of its actions.

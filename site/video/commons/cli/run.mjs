@@ -118,8 +118,10 @@ async function main() {
     if (passo === "record")
       await record(project, { headed: flag("--headed"), rebuildIde: flag("--rebuild-ide"), full: flag("--full"), from: opzioni["--from"], to: opzioni["--to"], probe: flag("--probe"), strict: flag("--strict") });
     if (passo === "preview" || passo === "compose") {
-      const { video, duration } = await compose(project, { preview: passo === "preview" });
+      const { video, duration, gif, web } = await compose(project, { preview: passo === "preview" });
       console.log(`  ${video} (${duration.toFixed(1)} s)`);
+      if (gif) console.log(`  ${gif}`);
+      for (const f of web ?? []) console.log(`  ${f}`);
     }
     console.log(`  done in ${((performance.now() - t0) / 1000).toFixed(1)} s`);
   }

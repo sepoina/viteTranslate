@@ -144,14 +144,15 @@ The first Tab lands on "Skip to content" (`labels.skip`), hidden until focused: 
 
 ## The video in the hero
 
-[`landing/src/HeroVideo.jsx`](landing/src/HeroVideo.jsx) closes the hero with a full-width band: a poster ([`landing/public/video/poster.webp`](landing/public/video/poster.webp), ~95 kB) that opens YouTube
-in a new tab. No embedded player, on purpose: the embed sometimes answers "Sign in to confirm you're not a bot"
-(YouTube's own check on IP and session, nothing a page can work around).
+<!-- LINKED-DATA: `landing/public/video/workflow.{webm,mp4,webp}` are the `output.web` files of site/video/projects/gif20t (`gif20t.web.*`), copied by hand; the project's YAML says so too. Compose again, copy again. -->
 
-- **New video:** change `VIDEO_ID` in [`landing/src/links.js`](landing/src/links.js), and the same id everywhere its
-  LINKED-DATA comment points (root README, extension, launcher, demos).
-- **New poster:** 1280 px wide WebP, about 100 kB. The band around it has its own `--video-*` tokens and stays dark
-  in both themes (`data-theme="dark"`), like the poster.
+[`landing/src/HeroVideo.jsx`](landing/src/HeroVideo.jsx) closes the hero with a full-width band: a muted, looping video of one sentence going through VS Code, Vite, the LLM and React (30 s), with a caption and, in it, a link to the long video on YouTube. The files are in [`landing/public/video/`](landing/public/video): `workflow.webm` (~340 kB), `workflow.mp4` (~600 kB, for the browsers that don't play the webm) and `workflow.webp` (the poster, ~7 kB, shown while the video loads).
+
+- **It plays when it is seen.** `preload="none"`, and an observer starts it when the screen is 40% in view and stops it when it leaves: a loop out of sight only costs battery. With `prefers-reduced-motion` it doesn't start by itself, only the poster is there. The round button on the screen (or a click on it) pauses and resumes; a pause chosen by the reader holds when the video comes back into view (WCAG 2.2.2: a moving thing of more than 5 s can be stopped).
+- **The long video is a link,** in the caption ("Il video completo su YouTube"), not a player: the embed sometimes answers "Sign in to confirm you're not a bot" (YouTube's own check on IP and session, nothing a page can work around). **New long video:** change `VIDEO_ID` in [`landing/src/links.js`](landing/src/links.js), and the same id everywhere its LINKED-DATA comment points (root README, extension, launcher, demos).
+- **New loop:** `node commons/cli/run.mjs gif20t compose` from `site/video` (`output.web` of its YAML, [Web video](video/README.md#web-video)), then copy `gif20t.web.webm`, `.mp4` and `.webp` over `workflow.*`. Keep the 16:9 shape: the screen is `aspect-ratio: 16 / 9`.
+- The band around it has its own `--video-*` tokens and stays dark in both themes (`data-theme="dark"`), like the video itself.
+- The caption's texts are `<Trans>` strings: the other languages come from viteTranslate, not by hand.
 
 ## Cards: Source, StackBlitz, Zip
 

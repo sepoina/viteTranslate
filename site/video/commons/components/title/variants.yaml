@@ -12,6 +12,16 @@
   params:
     line: Write the sentence right where the text lives, in your JSX, in Vite and in VS Code,
     accent: and get the translation for every language you ship, without a single key to manage.
+- name: claim
+  note: a second line under the claim, its words lighting up one after another (gif20t)
+  params:
+    line: One workflow.
+    accent: From code to every language.
+    words: |
+      VS Code
+      Vite
+      LLM
+      React
 - name: too-much
   note: the limit, written down
   params:

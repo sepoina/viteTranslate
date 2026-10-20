@@ -18,7 +18,7 @@ import { load as yamlLoad } from "js-yaml";
 import { chromium } from "playwright-core";
 import { urlCard } from "./director.mjs";
 import { ffmpeg } from "./ffmpeg.mjs";
-import { CACHE_DIR, COMMONS_DIR, PROJECTS_DIR, VIDEO_DIR, loadProject } from "./storyboard.mjs";
+import { CACHE_DIR, COMMONS_DIR, PROJECTS_DIR, VIDEO_DIR, frameDi, loadProject } from "./storyboard.mjs";
 
 export const COMPONENTS_DIR = join(COMMONS_DIR, "components");
 // Un "progetto" per i prototipi da soli: niente musica, niente look in testa.
@@ -172,6 +172,9 @@ async function main() {
       if (!scena) throw new Error(`${a}: no scene "${b}"`);
       if (scena.stage !== "card") throw new Error(`${a}/${b}: stage is ${scena.stage}, not card`);
       console.log(`▶ ${a} ${b}: ${scena.card}`);
+      // Il quadro del progetto (1920×1080, o 1080×1920 in verticale), diviso lo zoom della card: come la vede la ripresa.
+      const quadro = frameDi(project.output);
+      await page.setViewportSize({ width: Math.round(quadro.width / project.zoom.card), height: Math.round(quadro.height / project.zoom.card) });
       await istanti(page, urlCard(project, scena), at, join(project.paths.preview, "cards", b));
       return 0;
     }

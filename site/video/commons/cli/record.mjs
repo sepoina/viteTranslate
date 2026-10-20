@@ -10,9 +10,11 @@
 // stato) e tengono la loro clip. takes.json si riscrive dopo ogni scena: una ripresa interrotta
 // riparte da dove si era fermata. Ogni scena girata lascia in capture/strips/ una striscia, un
 // fotogramma al secondo, da guardare mentre la ripresa va avanti.
+// before (le azioni prima della clip: il taglio), la camera (camera.mjs) e la velocità (speed.mjs) entrano qui: takes.json porta i fotogrammi chiave.
 import { createHash } from "node:crypto";
 import { cpSync, existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { basename, dirname, join, relative } from "node:path";
+import { ultima } from "./camera.mjs";
 import { impagina } from "./compose.mjs";
 import { Director, VSCODE_SETTINGS } from "./director.mjs";
 import { ffmpeg, probeDuration } from "./ffmpeg.mjs";
@@ -86,8 +88,8 @@ function improntaCartella(dir) {
  * cambiano anche tutte quelle dopo, perché ne ereditano lo stato.
  */
 function impronte(project, voci, { rebuildIde }) {
-  // mbPerMinute pesa solo sul montaggio: cambiarlo non chiede di rigirare.
-  const { scenes, music, poster, source, title, voice, output: { mbPerMinute, ...formato }, ...resto } = project;
+  // mbPerMinute, gif e web pesano solo sul montaggio: cambiarli non chiede di rigirare.
+  const { scenes, music, poster, source, title, voice, output: { mbPerMinute, gif, web, ...formato }, ...resto } = project;
   const palco = { ...resto, output: formato };
   const leggi = (ref) => (ref ? readFileSync(resolveRef(project.paths, ref), "utf8") : "");
   const stage = impronta(
@@ -167,7 +169,8 @@ function piano(project, nuove, prima, { full, from, to }) {
 function striscia(take, clipDir, file, output) {
   const clips = Object.values(take.clips);
   const righe = Math.max(1, Math.ceil((Math.floor(take.duration) + 1) / 4)); // fps=1 dà i secondi 0, 1, … fino alla fine
-  const { filtri, uscita } = impagina(clips, { W: output.width, H: output.height, scala: 1, fps: output.fps, durata: take.duration.toFixed(4) });
+  // Una scena tower: tutto il quadro alto, le tre finestre una sopra l'altra (take.tela).
+  const { filtri, uscita } = impagina(clips, { W: take.tela?.width ?? output.width, H: take.tela?.height ?? output.height, scala: 1, fps: output.fps, durata: take.duration.toFixed(4) });
   return ffmpeg([
     ...clips.flatMap((c) => ["-i", join(clipDir, c.file)]),
     "-filter_complex", [...filtri, `${uscita}fps=1,scale=480:-2,tile=4x${righe}`].join(";"),
@@ -210,8 +213,8 @@ export async function record(project, { headed = false, rebuildIde = false, full
   }
 
   const usa = new Set(project.scenes.map((s) => s.stage));
-  const serveVscode = ["vscode", "split", "split-panel"].some((s) => usa.has(s));
-  const serveApp = ["app", "split", "split-panel"].some((s) => usa.has(s));
+  const serveVscode = ["vscode", "split", "split-panel", "stack", "tower"].some((s) => usa.has(s));
+  const serveApp = ["app", "split", "split-panel", "stack", "tower"].some((s) => usa.has(s));
   // music.toEnd: dove finisce il brano nel video, contato dal suo `start` e dal suo ingresso (`delay`).
   const fineBrano = project.music?.toEnd ? (await probeDuration(project.music.file)) - project.music.start + project.music.delay : null;
   const envVscode = serveVscode ? await variabiliVscode(project.vscode.env) : {};
@@ -264,6 +267,7 @@ export async function record(project, { headed = false, rebuildIde = false, full
         const pieno = i === start - 1;
         regista.rigido = false; // una scena tenuta non si filma: i suoi avvisi non contano
         await regista.palco(scena);
+        await regista.esegui(scena.before, scena, { veloce: !pieno }); // lo stato che il taglio aspettava (README.md § "Cut")
         await regista.esegui(scena.do, scena, { veloce: !pieno });
         if (pieno) {
           const resto = Math.max(0, minima - (performance.now() - t0) / 1000) + (scena.hold ?? 0);
@@ -275,18 +279,24 @@ export async function record(project, { headed = false, rebuildIde = false, full
         regista.avvisi.splice(0);
         regista.rigido = strict;
         // L'impronta di adesso: uguale a quella di prima, o (`--from`) garantita da chi l'ha chiesto.
+        regista.ultimaCamera = ultima(prima.takes[i].camera); // `keep` nella scena dopo riparte da qui
         takes.push({ ...prima.takes[i], fingerprint: nuove.scenes[i] });
         console.log(`  » ${prefisso} ${scena.stage} kept, ${pieno ? "played at full length" : "fast-forward"} in ${((performance.now() - t0) / 1000).toFixed(1)} s`);
         continue;
       }
 
       const viste = await regista.palco(scena);
+      // Il taglio: `before` gioca prima che i recorder partano, il suo tempo non è nella clip (README.md § "Cut").
+      await regista.esegui(scena.before, scena);
+      // La prima inquadratura, misurata prima della clip: nessun fotogramma a quadro pieno in testa.
+      const apertura = scena.camera ? await regista.rettangolo(scena.camera, scena) : null;
       const recorders = viste.map(
         (v) => new Recorder(regista.pages[v.page], join(clipDir, `${prefisso}-${v.page}.mp4`), { fps: output.fps, width: v.width, height: v.height }),
       );
       await Promise.all(recorders.map((r) => r.start()));
       const t0 = performance.now();
       const t0Epoch = Date.now(); // l'orologio delle sonde
+      regista.iniziaCamera(t0, apertura);
       await regista.ciak(scena);
 
       await regista.esegui(scena.do, scena);
@@ -312,9 +322,22 @@ export async function record(project, { headed = false, rebuildIde = false, full
         id: scena.id,
         stage: scena.stage,
         duration,
-        clips: Object.fromEntries(viste.map((v, k) => [v.page, { file: basename(clip[k].file), x: v.x, y: v.y, width: v.width, height: v.height }])),
+        // Una pagina, una clip; ma una pagina può starci come più finestre (`finestre`: stack ritaglia VS Code in
+        // codice e terminale): ogni finestra ha il suo posto nel video e, se serve, il suo ritaglio della clip.
+        clips: Object.fromEntries(
+          viste.flatMap((v, k) =>
+            (v.finestre ?? [{ nome: v.page, x: v.x, y: v.y, width: v.width, height: v.height }]).map((f) => [
+              f.nome,
+              { file: basename(clip[k].file), x: f.x, y: f.y, width: f.width, height: f.height, ...(f.crop ? { crop: f.crop } : {}) },
+            ]),
+          ),
+        ),
         audio: voce ? { file: voce.file, duration: voce.duration, offset: project.lead } : null,
         say: scena.say ?? null,
+        // Il quadro alto di una scena tower (pixel del video): le clip si montano lì, e la camera ci scivola sopra.
+        ...(regista.tela ? { tela: regista.tela } : {}),
+        camera: regista.fineCamera(), // i fotogrammi chiave della camera (camera.mjs), o null
+        speed: regista.fineVelocita(), // quelli della velocità (speed.mjs), o null
         fingerprint: nuove.scenes[i],
       };
       takes.push(take);
