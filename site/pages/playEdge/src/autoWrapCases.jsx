@@ -45,7 +45,7 @@ export function AutoWrapAttrQuoted() {
 
 // ---------------------------------------------------------------- 5. attributo, forma espressione
 // Stesso esito del caso 4, sintassi diversa: è la forma che aveva la doppia graffa prima
-// della correzione del 2026-09-15 (vedi il [!CAUTION] in doc/ImplementationPlans/4_4_0.md) —
+// della correzione del 2026-09-15 —
 // resta qui apposta, come guardia dal vivo contro quella classe di bug.
 export function AutoWrapAttrExpr() {
   return <input readOnly placeholder={'_%_Cognome_%_'} />;

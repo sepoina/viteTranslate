@@ -100,7 +100,7 @@ console.log("\n== l'invariante: oldText è null ovunque tranne \"ok\" ==");
   }
 }
 
-// ---- 4.7.1: the snapshot (doc/ImplementationPlans/4_7_1.md § S2) ----------------------------
+// ---- 4.7.1: the snapshot ----------------------------------------------------------------
 console.log("\n== snapshot: absent / file / null ==");
 {
   const dir = cartella();

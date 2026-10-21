@@ -1,8 +1,7 @@
 // Il cerchio completo dell'auto-wrap, dal marcatore nudo fino all'HTML renderizzato —
 // extractMarkers (autoWrap: true), il preset React come lo applicherebbe il plugin del
 // progetto, e il runtime vero (Translate.js, useTranslateNode.js, useTranslateToString.js)
-// contro una tabella compilata. Deve uscire il testo tradotto, non l'opcode (vedi
-// doc/ImplementationPlans/4_3_0.md, "Il problema, in concreto", e 4_4_0.md § 5/6).
+// contro una tabella compilata. Deve uscire il testo tradotto, non l'opcode.
 //
 // react, react-dom e @babel/core sono peerDependencies opzionali: se mancano, test/run.mjs
 // salta il file.

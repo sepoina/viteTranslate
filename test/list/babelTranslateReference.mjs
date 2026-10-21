@@ -87,7 +87,7 @@ export default (api, options = {}) => {
   };
 };
 
-// Stessa regola di isHostParent in extractMarkers.js (vedi doc/ImplementationPlans/4_3_0.md):
+// Stessa regola di isHostParent in extractMarkers.js:
 // duplicata qui perché questo file è l'implementazione di riferimento indipendente, non un
 // consumatore che deve restare in sync a runtime — è la sua stessa esistenza a mettere alla
 // prova la regola dell'altro file.

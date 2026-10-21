@@ -267,7 +267,7 @@ Two edge cases trigger a `console.warn` instead of failing silently, as both wou
 npx vitetranslate   # --add, --status, --migrate — the flags you reach for on purpose
 ```
 
-The bin is `vtranslate-cli` from 4.1; the previous name, `vitetranslate-prepare-translation-table`, stays registered in `"bin"` as an alias so existing `prebuild` scripts keep working. The messages show neither: `CLI_NAME` in [`cli.js`](../lib/dev/vite/cli.js) is the single place the displayed name is written, and it reads `vitetranslate` — the separate [launcher](#the-global-command-launcher)'s name, since `npx vitetranslate` works whether or not this package is a project dependency yet, unlike `npx vtranslate-cli`. A command that names itself two different ways is worse than one that picks.
+The bin is `vtranslate-cli` from 4.1; the previous name, `vitetranslate-prepare-translation-table`, stays registered in `"bin"` as an alias so existing `prebuild` scripts keep working. The messages show neither: `CLI_NAME` in [`cli.js`](../lib/dev/vite/cli.js) is the single place the displayed name is written, and it reads `vitetranslate` — the separate [launcher](#the-global-command-packageslauncher)'s name, since `npx vitetranslate` works whether or not this package is a project dependency yet, unlike `npx vtranslate-cli`. A command that names itself two different ways is worse than one that picks.
 
 This is the only phase that **writes** into the localization directory.
 
@@ -1118,9 +1118,9 @@ The `files: ["lib"]` manifest rule includes `lib/` in published npm packages, co
 
 Releases publish via GitHub Actions using npm OIDC trusted publishing, linking published package tarballs directly to source commit SHAs.
 
-### The global command: `launcher/`
+### The global command: `packages/launcher/`
 
-`launcher/` is a second package, published on its own as `vitetranslate` (unscoped): the command you install once with `npm i -g vitetranslate` and then type in any project. One file, [`launcher/vitetranslate.js`](../launcher/vitetranslate.js), no dependencies, no library code.
+`packages/launcher/` is a second package, published on its own as `vitetranslate` (unscoped): the command you install once with `npm i -g vitetranslate` and then type in any project. One file, [`packages/launcher/vitetranslate.js`](../packages/launcher/vitetranslate.js), no dependencies, no library code.
 
 It never runs anything of its own. It looks for `node_modules/@sepoina/vitetranslate` starting from the current directory and climbing, the way Node does, runs **that copy's** `bin` in a child process with the same arguments, and ends the way the child ended (same exit code, same signal). Climbing like Node is the whole point: it lands on the copy the `import` inside `vite.config.*` will load, so the command and the plugin are always one version, the project's, newer or older than the launcher. They write the same files, and a global CLI running its own version would be a second writer with different rules.
 
@@ -1133,7 +1133,7 @@ Decisions that are not accidents:
 - **The library's `bin` entries must point at `cli.js`, never at a launcher**, or the launcher would launch itself forever. The `VITETRANSLATE_LAUNCHER` environment variable, set on the child, turns that loop into an error.
 - **Nothing to launch is answered with the command to type.** The lockfile picks the package manager (`pnpm-lock.yaml`, `yarn.lock`, `bun.lock[b]`, otherwise npm), looked up to the monorepo root; a dependency declared but not installed gets `install`, a missing one gets `add` (a regular dependency: the React runtime ships with the app); Yarn Plug'n'Play gets `yarn vtranslate-cli`, since there is no `node_modules` to look into.
 
-Its version follows its own changes, not the library's: a new library release never needs a new launcher. The first release went out by hand; since then the `publish-launcher` job in [`publish.yml`](../.github/workflows/publish.yml) publishes it, with the same rule as the library (only when the version in `launcher/package.json` is not on npm yet), through the same trusted publishing, which npm configures per package. No git tag or GitHub release: `vX.Y.Z` belongs to the library. Guarded by [`launcher.test.mjs`](../test/list/launcher.test.mjs).
+Its version follows its own changes, not the library's: a new library release never needs a new launcher. The first release went out by hand; since then the `publish-launcher` job in [`publish.yml`](../.github/workflows/publish.yml) publishes it, with the same rule as the library (only when the version in `packages/launcher/package.json` is not on npm yet), through the same trusted publishing, which npm configures per package. No git tag or GitHub release: `vX.Y.Z` belongs to the library. Guarded by [`launcher.test.mjs`](../test/list/launcher.test.mjs).
 
 ### The editor extension: `idePlugin/` (experimental)
 

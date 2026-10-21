@@ -1,5 +1,5 @@
 // Il comando di sync del progetto: il CLI della libreria installata lì, come lo trova il launcher
-// (launcher/vitetranslate.js). Mai un CLI dell'estensione: il comando e il plugin dentro
+// (packages/launcher/vitetranslate.js). Mai un CLI dell'estensione: il comando e il plugin dentro
 // vite.config devono essere la stessa versione, quella del progetto, perché scrivono gli stessi file.
 // Nessun import di `vscode`: chi lo lancia (cliTasks.mjs, in un task) usa solo il percorso trovato qui.
 import fs from "node:fs";

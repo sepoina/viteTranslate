@@ -3,7 +3,7 @@
 // colla delle tre sezioni: Configs (elenco, selezione col clic, sparisce con un progetto solo),
 // Project (passivo finché non si seleziona), Marked (con la sonda delle voci che usa la libreria
 // di questo repo, un link in node_modules, e il suo filtro); id unici, refresh, Restricted Mode.
-// L'aspetto nel pannello vero resta una verifica a mano (piano idePlugin_0_0_0, Fase 4).
+// L'aspetto nel pannello vero resta una verifica a mano.
 //
 //   node test/list/idePluginExtension.test.mjs
 import module from "node:module";

@@ -54,6 +54,9 @@ test/exampleCompiled/
 *.bak-corrupted-*
 *.bak-erased-*
 *.bak-migrated-*
-note_internal.md
+
+# clone di un repo privato del proprietario (vedi "REPO PRIVATO" in AGENTS.md)
+private/
+
 # generati da site/pages/docs/scripts/compileDocs.mjs a partire da content/*.mdx
 site/pages/docs/src/generated/

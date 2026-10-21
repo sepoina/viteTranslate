@@ -24,7 +24,7 @@ Every marked string and how its translation is doing, in a panel of its own. No 
 
 [viteTranslate](https://github.com/sepoina/viteTranslate#readme) is a Vite plugin: you write sentences right in your JSX, it extracts them and keeps one `.yml` table per language in sync. This extension is its view from inside the editor, and it doesn't work without it.
 
-<!-- LINKED-DATA: same video id as README.md, launcher/README.md, the demo READMEs, site/landing/src/links.js (VIDEO_ID) and the manual's overview (site/pages/docs/content/getting-started/overview.mdx). -->
+<!-- LINKED-DATA: same video id as README.md, packages/launcher/README.md, the demo READMEs, site/landing/src/links.js (VIDEO_ID) and the manual's overview (site/pages/docs/content/getting-started/overview.mdx). -->
 <p align="center">
   <a href="https://youtu.be/gYj1z3XMv9M"><img src="https://github.com/sepoina/viteTranslate/raw/HEAD/doc/youplay.png" alt="Watch: why viteTranslate, and how its pieces work together" width="560" /></a><br />
   <sub>▶️ Why viteTranslate, and how the two halves work together.</sub>

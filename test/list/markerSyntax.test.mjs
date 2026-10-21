@@ -81,7 +81,7 @@ console.log("\n== mayHaveMarkers (4.6.4): pre-filtro dei file, _%_ oppure import
   for (const [nome, code, atteso] of casi) eq(nome, atteso, mayHaveMarkers(code));
 }
 
-console.log("\n== la macro: i nomi in un posto solo (piano idePlugin_highlight) ==");
+console.log("\n== la macro: i nomi in un posto solo ==");
 {
   // MACRO_IMPORT_RE è una regex letterale: deve dire gli stessi nomi delle costanti.
   eq("il pre-filtro riconosce MACRO_COMPONENT", true, mayHaveMarkers(`import { ${MACRO_COMPONENT} } from "${RUNTIME_IMPORT}";`));

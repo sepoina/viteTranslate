@@ -6,7 +6,7 @@ export const NPM = "https://www.npmjs.com/package/@sepoina/vitetranslate";
 export const INSTALL = "npm i @sepoina/vitetranslate";
 
 // LINKED-DATA: lo stesso video (stesso id) è linkato da README.md, idePlugin/README.md,
-// launcher/README.md, dai README delle demo e dalla panoramica del manuale
+// packages/launcher/README.md, dai README delle demo e dalla panoramica del manuale
 // (site/pages/docs/content/getting-started/overview.mdx). Video nuovo: si cambia l'id in tutti.
 /** Il video "perché viteTranslate": l'id su YouTube e la sua pagina. */
 export const VIDEO_ID = "gYj1z3XMv9M";

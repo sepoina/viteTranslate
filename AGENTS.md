@@ -26,7 +26,7 @@ node -e "const s=require('fs').readFileSync('README.md','utf8').replace(/<!--[\s
 
 ## REGOLE DI MANUALISTICA
 
-- Il manuale (`site/pages/docs/content/`, pubblicato su `https://sepoina.github.io/viteTranslate/docs/`) è la fonte di verità della documentazione per l'utente. `doc/` tiene solo gli approfondimenti (`structure.md` e simili) e i segnaposto provvisori dei file migrati. I dettagli tecnici (dialetto `.mdx`, lock, controlli) stanno in `site/README.md` ("The manual") e nel piano `doc/ImplementationPlans/docs/manual_v1.md`.
+- Il manuale (`site/pages/docs/content/`, pubblicato su `https://sepoina.github.io/viteTranslate/docs/`) è la fonte di verità della documentazione per l'utente. `doc/` tiene solo gli approfondimenti (`structure.md` e simili) e i segnaposto provvisori dei file migrati. I dettagli tecnici (dialetto `.mdx`, lock, controlli) stanno in `site/README.md` ("The manual").
 - Ogni pagina dichiara nel frontmatter i `sources:`: i file che definiscono davvero ciò che dice, con il percorso dalla radice e senza glob. Per un JSON si può scrivere `file.json#chiave` (annidata con `.`): conta solo quel sottoalbero. Ogni sorgente non JSON porta una riga `DOCS-PAGE: route1, route2 — …` che rimanda alle pagine.
 - Quando cambi un file con `DOCS-PAGE:`, nello stesso intervento: `npm run docs:status`, aggiorna le pagine stale (solo in inglese), leggi il diff, poi `npm run docs:seal -- <route>`. Mai sigillare senza aver aggiornato o confermato la pagina.
 - Una nuova API pubblica (export, opzione del plugin, flag della CLI, comando o impostazione dell'estensione) ha la sua pagina nello stesso intervento: `npm run commit -- --dry-run` fallisce sui nomi non coperti.
@@ -41,7 +41,16 @@ node -e "const s=require('fs').readFileSync('README.md','utf8').replace(/<!--[\s
 
 ## REGOLE GIT
 
+- **Nel repo del progetto commit e push li fa solo l'utente** (`npm run commit`): gli agenti non committano né pushano. L'unica eccezione è `private/`, un altro repo: vedi «REPO PRIVATO».
 - Mai `git checkout`, `git restore`, `git reset`, `git stash` o `git clean` su file con modifiche non fatte nella sessione corrente: possono essere lavoro non committato dell'utente. Per annullare un tuo errore su un file guarda prima `git diff` e riscrivi a mano solo la tua modifica.
+
+## REPO PRIVATO
+
+- `private/` è il clone di un repo privato del proprietario (`sepoina/viteTranslate-private`), ignorato da questo repo (`.gitignore`): contiene appunti che non vanno pubblicati (oggi la campagna di comunicazione e i piani di implementazione). Non fa parte del progetto e chi non ne ha accesso non ne ha bisogno.
+- **I commit e i push di `private/` li gestisce l'agente in modo autonomo**, con il flusso di `private/AGENTS.md`: il proprietario non deve committarlo. È l'unica eccezione alla regola «gli agenti non committano»: nel repo del progetto i commit restano dell'utente, con `npm run commit`, e `private/` non ci entra (è ignorata).
+- Se `private/` manca (computer nuovo) e il proprietario lo chiede, si ricostruisce dalla radice del progetto, **dopo** il pull di questo repo (così `private/` è già nel `.gitignore`): `git clone https://github.com/sepoina/viteTranslate-private.git private`. Servono le credenziali GitHub del proprietario (login di `gh` o del Git Credential Manager): mai token scritti in file o in comandi.
+- Non clonarlo di propria iniziativa e non copiarne il contenuto in questo repo.
+- Per la campagna di comunicazione o altre note private: leggere `private/AGENTS.md` e `private/campaign/README.md`. I piani di implementazione stanno in `private/ImplementationPlans/` (regole in «REGOLE DI PLAN» e «REGOLE DI IMPLEMENTAZIONE DEL PLAN»).
 
 ## REGOLE DI RILASCIO
 
@@ -64,7 +73,7 @@ node -e "const s=require('fs').readFileSync('README.md','utf8').replace(/<!--[\s
 
 ## REGOLE DI IMPLEMENTAZIONE DEL PLAN
 
-- documenti di riferimento: si segue il piano di implementazione contenuto in doc/ImplementationPlans ed eventuali {nomepiano}.necessaryreview.md usciti da un ciclo precedente. E' la fonte di verità e le contraddizioni coi sorgenti diventano ask all'utente.
+- documenti di riferimento: si segue il piano di implementazione contenuto in `private/ImplementationPlans` ed eventuali {nomepiano}.necessaryreview.md usciti da un ciclo precedente. E' la fonte di verità e le contraddizioni coi sorgenti diventano ask all'utente.
 - 1.implementazione: Ogni ambiguità va risolta con ask all'utente. Al termine degli ask eventuali si procede alla modifica dei file necessari come da piano,  Eventuali test che dovessero rendersi necessari vengono appuntati in un file che si chiama {nomepiano}.necessarytest.md alla fine della procedura vengono creati tutti i test ritenuti necessari. Eventuali modifiche ai doc vengono appuntate in {nomepiano}.necessarydoc.md per essere eseguite solo alla fine. Le build vengono evitate ove possibile e ove sostituibili con sistemi di test rapido in node (lint, piccoli script).
 - 2.test: segue il file {nomepiano}.necessarytest.md del piano e li implementa. A questo punto ove possibile effettua verifiche rapide in node.
 - 3.build. La build può essere superata o emettere dei problemi che vengono risolti o che segnalano al passo successivo la necessità di revisione del piano.

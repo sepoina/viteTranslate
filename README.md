@@ -30,7 +30,7 @@ i18n for React, wired into the tools you already use: **VS Code** shows every ma
 <!-- LINKED-DATA: doc/workflow.gif is a copy of site/video/projects/gif20t/output/gif20t.gif (a campaign GIF, silent, looping). Compose it again (node commons/cli/run.mjs gif20t compose, from site/video) and copy it over, and the README follows. -->
 <img src="doc/workflow.gif" alt="A sentence typed in JSX shows up in the page at once; one click and an LLM translates it from the terminal; the page switches to French and back to English." width="720" />
 
-<!-- LINKED-DATA: same video id in site/landing/src/links.js (VIDEO_ID, the landing hero), idePlugin/README.md, launcher/README.md, the demo READMEs and the manual's overview (site/pages/docs/content/getting-started/overview.mdx). -->
+<!-- LINKED-DATA: same video id in site/landing/src/links.js (VIDEO_ID, the landing hero), idePlugin/README.md, packages/launcher/README.md, the demo READMEs and the manual's overview (site/pages/docs/content/getting-started/overview.mdx). -->
 <a href="https://youtu.be/gYj1z3XMv9M">▶ Watch the full video on YouTube</a>
 
 </div>
@@ -188,7 +188,7 @@ function App({ name }) {
 
 <br />
 
-Run `npx vitetranslate` from the project root. Tired of `npx`? This installs a tiny [launcher](launcher#readme) that runs each project's own version:
+Run `npx vitetranslate` from the project root. Tired of `npx`? This installs a tiny [launcher](packages/launcher#readme) that runs each project's own version:
 
 ```sh
 npm i -g vitetranslate

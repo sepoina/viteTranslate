@@ -1,12 +1,12 @@
 // Il compilatore del manuale: legge content/**/*.mdx (il dialetto descritto in
-// doc/ImplementationPlans/docs/manual_v1.md), lo valida e scrive src/generated/ (pagine JSX,
+// site/README.md, "The manual"), lo valida e scrive src/generated/ (pagine JSX,
 // routes.js, routes.json). Node, più Shiki per colorare i blocchi di codice; nessun import fuori da questa cartella.
 //
 //   node scripts/compileDocs.mjs      # compila una volta (npm run compile)
 //
 // Si carica anche da vite.config.js (compileDocs() a ogni avvio) e dalle verifiche in site/cli/docsSources.mjs
 // (parseMdx). Regola d'oro del dialetto: ciò che non è elencato è un errore con `file:riga`.
-// LINKED-DATA: il dialetto è descritto in manual_v1.md e, in breve, in site/README.md ("The manual").
+// LINKED-DATA: il dialetto è descritto in site/README.md ("The manual").
 import { existsSync, mkdirSync, readdirSync, readFileSync, rmdirSync, statSync, unlinkSync, watch, writeFileSync } from "node:fs";
 import { dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";

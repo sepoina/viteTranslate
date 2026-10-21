@@ -8,7 +8,7 @@
 //
 // Il lock si scrive solo con `seal`, una pagina alla volta: sigillare senza aver letto il diff
 // vanificherebbe tutto. Gli hash sono sul testo con i fine riga normalizzati a LF (CRLF/LF non conta).
-// LINKED-DATA: le regole stanno in AGENTS.md ("REGOLE DI MANUALISTICA") e nel piano doc/ImplementationPlans/docs/manual_v1.md.
+// LINKED-DATA: le regole stanno in AGENTS.md ("REGOLE DI MANUALISTICA") e in site/README.md ("The manual").
 import { createHash } from "node:crypto";
 import { existsSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { spawnSync } from "node:child_process";
@@ -149,7 +149,7 @@ export function scanScope(radice = RADICE) {
     ...(existsSync(join(radice, "doc")) ? readdirSync(join(radice, "doc")).filter((n) => n.endsWith(".md")).map((n) => `doc/${n}`) : []),
     "idePlugin/README.md",
     ...sotto("idePlugin/src"),
-    ...sotto("launcher"),
+    ...sotto("packages/launcher"),
     ...sotto("demo").filter((f) => /\/README\.md$|\/vite\.config\.js$|\/src\//.test(f)),
     ...sotto("lib").filter((f) => (f.endsWith(".js") || f.endsWith(".d.ts")) && !f.startsWith("lib/dist/")),
     ...sotto("site/landing/src").filter((f) => !f.includes("/theme/")),

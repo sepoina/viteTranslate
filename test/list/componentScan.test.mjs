@@ -1,4 +1,4 @@
-// Il classificatore di componenti (doc/ImplementationPlans/4_4_0.md § 4). È lo strato più
+// Il classificatore di componenti. È lo strato più
 // importante da provare da solo, perché è l'unico che, sbagliato, produce un guasto a
 // intermittenza: un hook iniettato in una funzione che componente non è.
 //

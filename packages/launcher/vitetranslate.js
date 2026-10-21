@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Architettura d'insieme: doc/structure.md § "Package distribution", "The global command: launcher/".
+// Architettura d'insieme: doc/structure.md § "Package distribution", "The global command: packages/launcher/".
 // Quel documento è la fonte di verità sul funzionamento della libreria: se cambi il
 // comportamento di questo file, aggiornalo nello stesso commit.
 

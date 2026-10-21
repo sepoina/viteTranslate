@@ -49,14 +49,14 @@
       }
     },
     "concepts/diagnostics": {
-      "sealedAt": "e076796",
+      "sealedAt": "f82eb1c",
       "sources": {
         "lib/errorSolve.js": "482019c69a89fa05500a999fafb078978ea05e17eaeff24ad9a73496470651f2",
         "lib/index.d.ts": "b6a7f41e978fd4d11e1cca65db1561754abbbd4d1c41d631bf65a63687b49b9a",
         "lib/react/Translate.js": "b2483d19ab7755d72b5402feb92c020fc79815fe5a0d55488b2b4a705dbaba00",
         "lib/dev/vite/uty/devReporter.js": "d3b872d65f3f4f3505754439ab30d880c986906b38fc536546af077196e1c3bc",
         "lib/dev/vite/uty/languageStatus.js": "b14a6e25b632315070fb7386911ab66276522b0804f1c3b61ab8fbb39b7efd55",
-        "lib/dev/babel/extractMarkers.js": "f30edc22493959a22bf018f41436dd5f658fb34a1f07abe35850737e0dd3c900",
+        "lib/dev/babel/extractMarkers.js": "c357bd20203eac8816896c963147cebb62e15c9ef2432021481364af23ad1c42",
         "lib/dev/babel/macroForms.js": "a52baf54b5b01f175c40321e8ef4f78b02ec174925af62682d7d961d938081ec",
         "lib/dev/compile/compileTable.js": "88db6db02adc21ce5b578105f4c5aeff5319f42ca18587b6629044fdcc9ddfa0"
       }
@@ -84,9 +84,9 @@
       }
     },
     "concepts/limitations": {
-      "sealedAt": "32f6c57",
+      "sealedAt": "f82eb1c",
       "sources": {
-        "lib/dev/babel/extractMarkers.js": "f30edc22493959a22bf018f41436dd5f658fb34a1f07abe35850737e0dd3c900",
+        "lib/dev/babel/extractMarkers.js": "c357bd20203eac8816896c963147cebb62e15c9ef2432021481364af23ad1c42",
         "lib/dev/babel/macroForms.js": "a52baf54b5b01f175c40321e8ef4f78b02ec174925af62682d7d961d938081ec",
         "lib/dev/babel/jsxMessage.js": "14bae023a9970043caa5b60c2082ce0dc6e84a0ae20cc52b6309a3cdf8b86ef3",
         "lib/react/interpolate.js": "1b38f28aa2e8d738d16f833bd1033b546d33b81c5f88f1b9f578a0e9816a7209",
@@ -95,12 +95,12 @@
       }
     },
     "concepts/markers": {
-      "sealedAt": "32f6c57",
+      "sealedAt": "f82eb1c",
       "sources": {
         "lib/markerSyntax.js": "9ca0d7d3b50d55d6738ac4dfd8f30046dab423abf83eecb5c4d4884dc87bd750",
         "lib/dev/vite/uty/markerOptions.js": "8760fb0cafac3c8145fd6e6cf46f39fd8a5d134f7fd6388b39a9681d7ff981a7",
         "lib/dev/vite/uty/rewriteMarkers.js": "0f306a1581103de01a1f05647d85d6778cf23a7d7b2583bd7eb9a71a036a31da",
-        "lib/dev/babel/extractMarkers.js": "f30edc22493959a22bf018f41436dd5f658fb34a1f07abe35850737e0dd3c900",
+        "lib/dev/babel/extractMarkers.js": "c357bd20203eac8816896c963147cebb62e15c9ef2432021481364af23ad1c42",
         "lib/dev/vite/cli.js": "0d286d24ec084edb12d070e25dbb6f40d2587be6d36c963dc937b1a1827120fd"
       }
     },
@@ -197,43 +197,43 @@
       }
     },
     "llm/api-keys": {
-      "sealedAt": "e076796",
+      "sealedAt": "f82eb1c",
       "sources": {
         "lib/dev/llm/apiKey.js": "35844e9d468d5a713b6b84a5e57d273a7447ce0bf95d370ce7ce8db24c2e06fe",
         "lib/dev/llm/keyringPeer.js": "fb71b9321cfde02e65a4dc96cb0bfc948527273982fe37acc775258ffbb2721f",
-        "lib/dev/llm/llmCommands.js": "676eabc7b41d24f1bfe08051668d30a30566c50e7836cf143ada51d12968b8fe"
+        "lib/dev/llm/llmCommands.js": "b06a7e091157b3ad9271cde321f7a38f1492bdd06260e47bef48bb9233887915"
       }
     },
     "llm/context": {
-      "sealedAt": "e076796",
+      "sealedAt": "f82eb1c",
       "sources": {
         "lib/dev/llm/contextFile.js": "4f7c8df6aa2639344bd5b35a2a8d2c2ff51ebe4e5e63beb66aebeff99e2053e2",
         "lib/dev/llm/contextSample.js": "cfbf709d71dc4e9e46323926688054e52560b49b268228cc1c4f46ce8d1fc97d",
-        "lib/dev/llm/llmOptions.js": "944323f0e455a9fe869bc56e9aa4733acbb087f9317a06f8bec546987e2441c0"
+        "lib/dev/llm/llmOptions.js": "a388437a836239a2a477f99e5838565e8f8fcc1ce38145fd221574fa503ada3b"
       }
     },
     "llm/custom-endpoint": {
-      "sealedAt": "e076796",
+      "sealedAt": "f82eb1c",
       "sources": {
         "lib/dev/llm/callModel.js": "7795b328adfa559322ef2f9049b28231301e8026c3d27d88096d67a642419ec2",
         "lib/dev/llm/fetchDriver.js": "474373e9bd2d7193a3021dac849869ab934e71539201d82cf3ec85efa52eddb5",
-        "lib/dev/llm/llmOptions.js": "944323f0e455a9fe869bc56e9aa4733acbb087f9317a06f8bec546987e2441c0",
+        "lib/dev/llm/llmOptions.js": "a388437a836239a2a477f99e5838565e8f8fcc1ce38145fd221574fa503ada3b",
         "lib/dev/llm/translatePass.js": "ca684d6b16fca996fc927f9a166ec32a56dedd2b603d39055cff6992e4b0703b"
       }
     },
     "llm/options": {
-      "sealedAt": "e076796",
+      "sealedAt": "f82eb1c",
       "sources": {
-        "lib/dev/llm/llmOptions.js": "944323f0e455a9fe869bc56e9aa4733acbb087f9317a06f8bec546987e2441c0"
+        "lib/dev/llm/llmOptions.js": "a388437a836239a2a477f99e5838565e8f8fcc1ce38145fd221574fa503ada3b"
       }
     },
     "llm/price": {
-      "sealedAt": "e076796",
+      "sealedAt": "f82eb1c",
       "sources": {
         "lib/dev/llm/costModel.js": "1fabc0bc9c231986a9863a8a89cbd473a9533fab75f9a2f182e319afcce225ba",
         "lib/dev/llm/budgetGuard.js": "03a7d6d09c302fb84bd12b49089c46f633d87b5ffd1a72b834eac651637323cb",
-        "lib/dev/llm/llmOptions.js": "944323f0e455a9fe869bc56e9aa4733acbb087f9317a06f8bec546987e2441c0",
-        "lib/dev/llm/buildBatches.js": "2da25650ed525313d82ca70ee53affe38e9c5aaf2071063af5f385916fa131d5",
+        "lib/dev/llm/llmOptions.js": "a388437a836239a2a477f99e5838565e8f8fcc1ce38145fd221574fa503ada3b",
+        "lib/dev/llm/buildBatches.js": "36856e419952aa2b5f6a3d94b5881bd340b030e43363794fad8a1586bfa8d851",
         "lib/dev/llm/llmLedger.js": "2908f63493ec3dfebe2385159398f280b7a6baa8d337c8ab710b14ba4b770b3b",
         "lib/dev/llm/translatePass.js": "ca684d6b16fca996fc927f9a166ec32a56dedd2b603d39055cff6992e4b0703b"
       }
@@ -248,9 +248,9 @@
       }
     },
     "llm/running": {
-      "sealedAt": "e076796",
+      "sealedAt": "f82eb1c",
       "sources": {
-        "lib/dev/llm/llmCommands.js": "676eabc7b41d24f1bfe08051668d30a30566c50e7836cf143ada51d12968b8fe",
+        "lib/dev/llm/llmCommands.js": "b06a7e091157b3ad9271cde321f7a38f1492bdd06260e47bef48bb9233887915",
         "lib/dev/llm/requestPanel.js": "05f2cd21972a8d1b6d8f785a2af3de548c5400edace0e7068eec12ce9fe0a439",
         "lib/dev/llm/llmReport.js": "1fbb19ce78e2e49086225e2697bf977d22ab37f8d8c5937d628e9c423854fd51",
         "lib/dev/llm/validateTranslation.js": "4e87d4d1701260cc0986f8cfbb42a7fb48103af878a612cd9d3637bc5049372c",
@@ -260,18 +260,18 @@
       }
     },
     "llm/setup": {
-      "sealedAt": "e076796",
+      "sealedAt": "f82eb1c",
       "sources": {
-        "lib/dev/llm/llmOptions.js": "944323f0e455a9fe869bc56e9aa4733acbb087f9317a06f8bec546987e2441c0",
+        "lib/dev/llm/llmOptions.js": "a388437a836239a2a477f99e5838565e8f8fcc1ce38145fd221574fa503ada3b",
         "lib/dev/llm/fetchDriver.js": "474373e9bd2d7193a3021dac849869ab934e71539201d82cf3ec85efa52eddb5",
-        "lib/dev/llm/llmCommands.js": "676eabc7b41d24f1bfe08051668d30a30566c50e7836cf143ada51d12968b8fe"
+        "lib/dev/llm/llmCommands.js": "b06a7e091157b3ad9271cde321f7a38f1492bdd06260e47bef48bb9233887915"
       }
     },
     "llm/tested-endpoints": {
-      "sealedAt": "e076796",
+      "sealedAt": "f82eb1c",
       "sources": {
         "lib/dev/llm/fetchDriver.js": "474373e9bd2d7193a3021dac849869ab934e71539201d82cf3ec85efa52eddb5",
-        "lib/dev/llm/llmOptions.js": "944323f0e455a9fe869bc56e9aa4733acbb087f9317a06f8bec546987e2441c0",
+        "lib/dev/llm/llmOptions.js": "a388437a836239a2a477f99e5838565e8f8fcc1ce38145fd221574fa503ada3b",
         "lib/dev/llm/apiKey.js": "35844e9d468d5a713b6b84a5e57d273a7447ce0bf95d370ce7ce8db24c2e06fe"
       }
     },
@@ -321,7 +321,7 @@
       }
     },
     "vscode/panel": {
-      "sealedAt": "32f6c57",
+      "sealedAt": "f82eb1c",
       "sources": {
         "idePlugin/package.json#contributes": "a8d7b4c42c9df0d198fd6358382f737c9d97a887e07dc62be0f80c2bc5fc569e",
         "idePlugin/src/webViews/selector/selectorPage.mjs": "b142bcf836c9428890add8bb85cf8373b89247ad56bb9dd00dff5b4df453cf68",
@@ -331,7 +331,7 @@
         "idePlugin/src/webViews/optional/settings/settingsPage.mjs": "16566fc742d21bebf6c411615188780955efc4513e0ef4ceb752284d5b151c25",
         "idePlugin/src/webViews/optional/llm/llmPage.mjs": "5c52d835c274eb8ee582ad2e9e10f490bb9493acd9227acf9c42d051c0d0834f",
         "idePlugin/src/webViews/optional/library/libraryPage.mjs": "979ea034d1e3059fca7f511bc3c21d5965f80b0aa066ccaa90a005991944bd17",
-        "idePlugin/src/highlight/highlightStyles.mjs": "adfa4848eed3af9952882432bc1a195dba7f87a7dd45f52c576cc97a568fe3df",
+        "idePlugin/src/highlight/highlightStyles.mjs": "42c7ef0e962b840d8ffb2433a5f02ed3d8eec60a8ede51093f5ea778461caafc",
         "idePlugin/src/core/pickProject.mjs": "2f037c484e4f9b62a7ff96e9d044d79da09d40c5907a3114130a06fd9a29ae9a",
         "idePlugin/src/probes/runProbe.mjs": "dac307853fee5996a036235e447030987698f9baf548bdab503986f94cdf6ad8"
       }

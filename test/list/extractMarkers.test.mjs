@@ -285,7 +285,7 @@ console.log("\n== una stringa che contiene _%_ senza esserne avvolta ==");
 }
 
 // =========================================================================================
-// autoWrap (4.3.0) — doc/ImplementationPlans/4_3_0.md
+// autoWrap (4.3.0)
 //
 // T1 (uscita identica a oggi con autoWrap assente) non ha un test a sé: lo garantisce ogni
 // caso sopra, che gira senza mai passare l'opzione, e il fatto che questo file passi
@@ -348,8 +348,8 @@ console.log("\n== autoWrap: parità con la reference (senza spazio a cavallo del
   // Il corpus qui esclude apposta i casi con spazio significativo sullo stesso JSXText del
   // marcatore (es. `<p>_%_a_%_ <b/></p>`): la reference lo perde per costruzione — non ha un
   // JSXText a sé a cui riattaccarlo — mentre il percorso veloce lo reinserisce come `{" "}`
-  // (vedi T18/T19). Non è un fallimento del punto 1.8: è la stessa cosa già annotata in
-  // 4_3_0.necessarytest.md, ed è per questo che quei casi restano provati altrove.
+  // (vedi T18/T19). Non è un fallimento del punto 1.8: è una limitazione nota,
+  // ed è per questo che quei casi restano provati altrove.
   const CASI_AUTOWRAP = [
     ["host semplice", `const x = <p>_%_a_%_</p>;`],
     ["fragment", `const x = <>_%_a_%_</>;`],
@@ -508,7 +508,7 @@ console.log("\n== autoWrap: avviso anche per un argomento ICU in un testo avvolt
 }
 
 // =========================================================================================
-// autoWrap (4.4.0) — doc/ImplementationPlans/4_4_0.md
+// autoWrap (4.4.0)
 // =========================================================================================
 
 // Un componente VERDE minimo: esportato, default, JSX diretto, zero parametri. Ci si inietta

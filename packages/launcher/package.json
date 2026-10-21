@@ -16,7 +16,7 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/sepoina/viteTranslate.git",
-    "directory": "launcher"
+    "directory": "packages/launcher"
   },
   "bugs": {
     "url": "https://github.com/sepoina/viteTranslate/issues"

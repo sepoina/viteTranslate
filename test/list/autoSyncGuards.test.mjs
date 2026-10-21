@@ -1,5 +1,4 @@
-// La matrice delle guardie di autoSync (vedi doc/ImplementationPlans/4_2_0.md, § "Le quattordici
-// guardie"): ognuna deve rispondere col `reason` giusto, senza mai toccare il disco — tranne
+// La matrice delle guardie di autoSync: ognuna deve rispondere col `reason` giusto, senza mai toccare il disco — tranne
 // l'ultima riga, che non ha nessuna guardia attiva ed è la prova che la sincronizzazione avviene
 // per davvero quando nulla la ferma.
 //

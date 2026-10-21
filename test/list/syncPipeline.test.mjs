@@ -606,7 +606,7 @@ console.log("\n== rename con conversione: conteggio sbagliato -> null, mai un va
 }
 
 // ============================================================= 4.7.1: safer synchronization
-// Decisions D1 (incomplete scan), D5 (two-phase sync), D6 (conflict check) of doc/ImplementationPlans/4_7_1.md.
+// Incomplete scan, two-phase sync, conflict check.
 import backupLanguageFile from "../../lib/dev/vite/uty/backupLanguageFile.js";
 import { existsSync } from "node:fs";
 

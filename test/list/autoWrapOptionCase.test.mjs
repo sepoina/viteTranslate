@@ -1,7 +1,7 @@
 // L'opzione autoWrap si legge case-insensitive come simpleLog e le due autoSync (vedi
 // autoSyncOptionCase.test.mjs), ma è il DUALE di leggiFlag: il default è spento, quindi si
-// accende solo su `true` esplicito, non su qualunque valore non-`false` — vedi
-// doc/ImplementationPlans/4_3_0.md § 1.6. Un refuso come "autoWrap: 1" deve restare spento:
+// accende solo su `true` esplicito, non su qualunque valore non-`false`.
+// Un refuso come "autoWrap: 1" deve restare spento:
 // un default che sbaglia verso l'inazione è quello giusto per una funzionalità additiva.
 //
 // A differenza di autoSyncDev/autoSyncBuild, autoWrap non finisce in vitetranslateConfig: lo

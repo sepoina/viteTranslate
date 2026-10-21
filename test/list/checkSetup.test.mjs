@@ -127,8 +127,7 @@ console.log("\n== il file della sorgente c'è ma non è nel formato: source-inva
   eq("reason", "source-invalid", r.reason);
 }
 
-// Effetto collaterale accettato della rimozione di __builder__ (vedi doc/ImplementationPlans/
-// 4_0_7.md, "Rischi"): senza quella voce a fare da sentinella, un'intestazione con zero chiavi
+// Effetto collaterale accettato della rimozione di __builder__: senza quella voce a fare da sentinella, un'intestazione con zero chiavi
 // non si distingue più, nella FORMA, da una lingua legittimamente vuota — solo la sync, che
 // conosce il riferimento, può farlo. checkSetup non lo sa e non deve più bloccare l'avvio: la
 // sync successiva ricostruisce il file.

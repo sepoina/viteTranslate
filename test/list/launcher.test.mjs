@@ -1,4 +1,4 @@
-// Il launcher globale `vitetranslate` (launcher/vitetranslate.js): trova la copia di
+// Il launcher globale `vitetranslate` (packages/launcher/vitetranslate.js): trova la copia di
 // @sepoina/vitetranslate risalendo da cwd, ne lancia il comando con gli stessi argomenti e ne
 // restituisce l'esito; quando non c'è niente da lanciare, dice che cosa scrivere.
 //
@@ -21,7 +21,7 @@ const eq = (nome, atteso, ottenuto) => {
 const salta = (perche) => console.log("  --  ", `saltato: ${perche}`);
 
 const HERE = dirname(fileURLToPath(import.meta.url));
-const LAUNCHER = join(resolve(HERE, "../.."), "launcher/vitetranslate.js");
+const LAUNCHER = join(resolve(HERE, "../.."), "packages/launcher/vitetranslate.js");
 
 const temporanee = [];
 

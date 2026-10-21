@@ -1,4 +1,4 @@
-// Il test più importante del piano 4.2.0 (doc/ImplementationPlans/4_2_0.md). Non prova un
+// Il test più importante della 4.2.0 (autoSync). Non prova un
 // comportamento: prova che il codice è scritto DOVE deve stare, leggendo vitetranslate.js come
 // testo. Il suo compito è fermare la modifica che un domani rimetterebbe la scrittura dentro un
 // hook di build (buildStart, configureServer, transform, handleHotUpdate) — la stessa cosa per

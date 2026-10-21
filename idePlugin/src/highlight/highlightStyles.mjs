@@ -39,7 +39,7 @@ export const DEFAULT_STYLE = "framed-box";
 export const ACCENT_RULER = { color: "focusBorder", lane: "Center" };
 
 // I colori che prendono il posto degli scope TextMate dello schema di partenza: niente grammatica,
-// il testo si colora con una decorazione (vedi il piano idePlugin_highlight, "Decisioni").
+// il testo si colora con una decorazione.
 // charts.yellow è editorWarning.foreground: un oro che ogni tema definisce. textPreformat.foreground
 // no: nei temi Modern di serie è quasi il colore del testo (#D0D0D0, #3B3B3B).
 const ESCAPE = "charts.yellow"; // constant.character.escape

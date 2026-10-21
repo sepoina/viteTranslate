@@ -996,7 +996,6 @@ console.log("\n== la riparazione porta codice e messaggio (trace 2026-09-25) =="
 }
 
 // ============================================== 4.7.1: paid results are never lost silently
-// Decision D2 of doc/ImplementationPlans/4_7_1.md.
 const withIo = async (overrides, fn) => {
   const saved = Object.fromEntries(Object.keys(overrides).map((k) => [k, syncIo[k]]));
   Object.assign(syncIo, overrides);

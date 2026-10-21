@@ -120,8 +120,6 @@ Newest first. An entry: what was done, what was decided and why, what is left. W
 
 ### 2026-10-19 · gif10: the cut, the camera and the GIF output, shot
 
-Plan: [video_camera_gif.md](../../../doc/ImplementationPlans/site/video/video_camera_gif.md).
-
 - **Pipeline** (three optional keys: whoever doesn't use them sees nothing change). A scene's `before` plays after the stage is set and before the recorders start: the LLM's wait is never filmed. A virtual `camera` (`commons/cli/camera.mjs`, pure functions): the scene's `camera:` is its first frame, the `camera` action glides (0.5 s, cubic) without waiting; the director measures targets while shooting, `compose` applies a `zoompan` over the frame doubled. `output.gif: { width, fps }`: after `compose`, a looping GIF in two passes from the segments, not in the stage's fingerprint. README: Camera, Cut, GIF, the tables for the `.md` and the conversion.
 - **gif10** converted: fixture `projects/gif10/fixture` (quickApp, an `llm` block on OpenRouter's deepseek-v4.1-flash, `costGuard`), four scenes, `fade: [0, 0]`. Result: **10.7 s, GIF 800×450 at 12 fps, 2.1 MB, loops; mp4 8 MB**. No warnings. Checked on the GIF's own frames: legible code, terminal line and French; no flash of the whole frame at the joins (glide into `translate`, hard cut into `french`, clean entry of the card).
 - **Asked the user, answered:** the three scenes moved from `split` to **`split-panel`** (their `.md` edited with their go-ahead): in a split the terminal is 62% wide, the LLM's line wraps and `waitFor` never found it (the first take timed out after 90 s). `camera.mjs` stays out of the stage's fingerprint (a compose-only change doesn't re-shoot; a change to `inquadra` needs `--full`).
@@ -204,7 +202,7 @@ Plan: [video_camera_gif.md](../../../doc/ImplementationPlans/site/video/video_ca
 
 ### 2026-10-13 · The card forge, and probes in every frame
 
-Plan: [video_gsap_probes.md](../../../doc/ImplementationPlans/subplans/video_gsap_probes.md). The user: "we're working on the forge; we'll forge later."
+The user: "we're working on the forge; we'll forge later."
 
 - **The forge.** One page, `commons/card.html`, plays every card. Sizes come from a few knobs (`card.css`), colors from the site's tokens, motion from GSAP 3.15 on one timeline started by the take and seekable to any instant. Text follows its container, wraps, grids add balanced rows, the body tightens down to 0.7; what still doesn't fit stops the take before it starts. The manual: `commons/darkStyle.md`.
 - **Five prototypes** (title, question, beats, together, outro) in `commons/components/`, each a short composition of shared parts, with a sheet and variants (one past its limit). `card: beats` in the YAML; `look` and `anim` (the user picked the shape: `{ fx | set | to | from | fromTo, target, at }`). The old `*.html` cards are gone; the coffee QR lives with outro.

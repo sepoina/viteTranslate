@@ -8,7 +8,7 @@ name: Build, publish & deploy
 #
 # Nessun filtro sui path in ingresso: gira a ogni push su main, e la pubblicazione decide da
 # sola se c'è qualcosa da fare (vedi "Versione già pubblicata?" nel job "publish", e lo stesso
-# step in "publish-launcher" per il secondo pacchetto, launcher/). Se non hai
+# step in "publish-launcher" per il secondo pacchetto, packages/launcher/). Se non hai
 # cambiato la versione, npm non fa niente — è la stessa garanzia di prima, non più legata al
 # fatto che il push tocchi package.json.
 on:
@@ -198,14 +198,14 @@ jobs:
           fi
           npm dist-tag add "$PKG@$VERSION" next
 
-  # Il secondo pacchetto del repo: launcher/, su npm come "vitetranslate", il comando globale
-  # (vedi doc/structure.md § "The global command: launcher/"). Job a sé invece di altri step in
+  # Il secondo pacchetto del repo: packages/launcher/, su npm come "vitetranslate", il comando globale
+  # (vedi doc/structure.md § "The global command: packages/launcher/"). Job a sé invece di altri step in
   # "publish": le due pubblicazioni non dipendono l'una dall'altra, e un guasto nella prima, o
   # nel suo tag, non deve fermare la seconda. Gli basta il checkout: il launcher è un file solo,
   # senza dipendenze né build, e i suoi test sono già passati in "build" (npm test gira anche
   # test/list/launcher.test.mjs).
   #
-  # Stessa regola della libreria: si pubblica solo se la versione di launcher/package.json non
+  # Stessa regola della libreria: si pubblica solo se la versione di packages/launcher/package.json non
   # è ancora su npm, quindi un push che non la cambia qui non fa niente.
   #
   # Niente tag né release GitHub: i "vX.Y.Z" sono della libreria (un v2.0.0 c'è già), e una
@@ -225,7 +225,7 @@ jobs:
       cancel-in-progress: false
     defaults:
       run:
-        working-directory: launcher
+        working-directory: packages/launcher
     steps:
       - uses: actions/checkout@v6
 
@@ -237,7 +237,7 @@ jobs:
       - name: Aggiorna npm (richiesto per trusted publishing OIDC)
         run: npm install -g npm@latest
 
-      # Nome letto dal file e non scritto qui: launcher/package.json è l'unico posto in cui vive.
+      # Nome letto dal file e non scritto qui: packages/launcher/package.json è l'unico posto in cui vive.
       - name: Nome e versione del launcher
         id: meta
         run: |

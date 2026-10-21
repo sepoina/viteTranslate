@@ -1,4 +1,4 @@
-// replaceFileAtomic (4.7.1, doc/ImplementationPlans/4_7_1.md § S4): a language table is replaced
+// replaceFileAtomic (4.7.1): a language table is replaced
 // through a temporary file and a rename, only if it still holds the bytes that were read.
 // Failures are injected through `syncIo`, never through permissions (root ignores them).
 //
