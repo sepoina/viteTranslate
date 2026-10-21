@@ -54,31 +54,36 @@ suite:
 
 The user manual lives in `site/pages/docs/content/` and is what users read. A change to code a page describes (the files carry a `DOCS-PAGE:` comment) means updating the page in the same pull request: the rules are in AGENTS.md ("REGOLE DI MANUALISTICA") and [site/README.md](site/README.md) ("The manual").
 
-## Editor extension (experimental)
+## Editor extension
 
-`idePlugin/` is a VS Code extension (VSCodium too): a panel of its own in the Activity Bar that sums up the viteTranslate
+`packages/idePlugin/` is a VS Code extension (VSCodium too): a panel of its own in the Activity Bar that sums up the viteTranslate
 setup of the project you are working on. It is not part of the npm package, and `npm run build` ignores it.
 
 ```bash
 npm run ide:dev       # opens this repo in an Extension Development Host window
-npm run ide:package   # builds idePlugin/vitetranslate-ide-<version>.vsix
+npm run ide:package   # builds packages/idePlugin/dist/vsix_release/vitetranslate-ide-<version>.vsix
 npm run ide:install   # builds and installs "viteTranslate DEV" (VT_CODE_CLI=codium for VSCodium)
 ```
 
 **Release or DEV, one at a time.** The DEV build has its own id (`sepoina.vitetranslate-ide-dev`), name and a dot on the Activity Bar icon, so the Marketplace never mistakes it for the release, nor updates it. It shares commands, views and settings with the release, though: keep only one of the two enabled. `ide:install` warns you if the release is installed too.
 
-It is an npm workspace with its own `devDependencies` and scripts (`npm run build|package|install:editor|dev -w idePlugin`), the same commands as the `ide:*` scripts above: both go through `idePlugin/scripts/code.mjs`. Its tests are `test/list/idePlugin*.test.mjs`, part of `npm test`.
+It is an npm workspace with its own `devDependencies` and scripts (`npm run build|package|install:editor|dev -w packages/idePlugin`), the same commands as the `ide:*` scripts above: both go through `packages/idePlugin/scripts/code.mjs`. Its tests are `test/list/idePlugin*.test.mjs`, part of `npm test`.
 
 **Results** reads the project's library through `@sepoina/vitetranslate/ide/scan` (`lib/ide/scan.js`): add exports, never remove them. Raising `IDE_API_MIN` in `markedScan.mjs` means publishing the library first (AGENTS.md).
 
-**Publishing**, until the Marketplace accepts trusted publishing (OIDC), from a clean commit:
+**Version**: `1.<minor>.<YYMMDD>`, the patch is the release date (`1.0.261021` went out on 21 Oct 2026). A version number can never be reused, not even after an unpublish: a second release on the same day takes the next day's date.
+
+**Publishing**, from a clean commit, in this order:
+
+1. Actions → *Publish extension* → *Run workflow*: checks, tests, packages, publishes to Open VSX through trusted publishing (no token) and tags `ide-v<version>`.
+2. The Marketplace, by hand until it accepts trusted publishing (OIDC):
 
 ```bash
-npm run ide:release   # checks, tests, packages, then opens the upload page and shows the .vsix
-npm run ide:tag       # once Microsoft has verified the upload: tags ide-v<version>
+npm run ide:release   # same checks, tests, packages, then opens the upload page and shows the .vsix
+npm run ide:tag       # once Microsoft has verified the upload (the workflow has usually tagged already)
 ```
 
-The checks stop if that version is already on the Marketplace, or if the library on npm is older than `LIB_MIN` in `markedScan.mjs` (`latest`, plus `next` while the extension is in preview). Once OIDC works, Actions → *Publish extension* runs the same checks and publishes by itself.
+The checks stop if that version is already on the Marketplace, so the workflow goes first, or if the library on npm is older than `LIB_MIN` in `markedScan.mjs` (`latest`, plus `next` while the extension is in preview). Once the Marketplace takes OIDC, set the repo variable `MARKETPLACE_OIDC` to `true` and the workflow publishes there too.
 
 ## Pull requests
 

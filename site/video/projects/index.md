@@ -86,7 +86,7 @@ Newest first. An entry: what was done, what was decided and why, what is left. W
 - The user's request: delete gif10, gif20 and gif20v, keep gif20t, and copy its GIF into the root `doc/`. They were untracked in git, so what was in them is gone for good: their stories live in the log entries below, their work in the pipeline.
 - **gif20t** had its fixture in gif20's folder: it moved into `projects/gif20t/fixture` (a copy, identical byte for byte) and `fixture:` follows. The fixture's content is what the takes' fingerprint hashes, so they stay valid: no new `record` needed. Its storyboard (`.md` and YAML) no longer cites gif20; `check` and `stamp` run clean.
 - **The README** (site/video) lost the project names: the weights are gif20t's (3.4, 2.9, 2.6 and 2.3 MB at 96, 64, 48 and 32 colors) with the earlier zooming GIF's numbers kept as a comparison; the field note on speed names gif20t.
-- **`doc/workflow.gif`:** a copy of `output/gif20t.gif` (800×450, 12 fps, 64 colors, 2.9 MB), for the repository's docs, shown at the top of the root `README.md` (above a text link to the YouTube video, in place of its thumbnail). The two carry LINKED-DATA comments: compose again, copy over, and the README follows. The extension's README (`idePlugin/README.md`) doesn't show it: the Marketplace wants an absolute URL.
+- **`doc/workflow.gif`:** a copy of `output/gif20t.gif` (800×450, 12 fps, 64 colors, 2.9 MB), for the repository's docs, shown at the top of the root `README.md` (above a text link to the YouTube video, in place of its thumbnail). The two carry LINKED-DATA comments: compose again, copy over, and the README follows. The extension's README (`packages/idePlugin/README.md`) doesn't show it: the Marketplace wants an absolute URL.
 
 ### 2026-10-19 · gif20t: the tower, three windows and a camera that slides
 
@@ -262,7 +262,7 @@ The user: "we're working on the forge; we'll forge later."
 
 ### 2026-10-12 · The stuck tooltip, fixed in the extension
 
-- Cause, in `idePlugin/src/webViews/tooltip/tooltipScript.mjs`. Any `focusin` lit the tooltip, including the focus that Project's tree moves by itself to the first language when it redraws after a click. Once the editor had the focus, nothing hid it.
+- Cause, in `packages/idePlugin/src/webViews/tooltip/tooltipScript.mjs`. Any `focusin` lit the tooltip, including the focus that Project's tree moves by itself to the first language when it redraws after a click. Once the editor had the focus, nothing hid it.
 - Fix:
   - `focusShowsTip`: the focus lights a tooltip only if the page has the focus and the focus is keyboard focus (`:focus-visible`: Tab, a tree's arrows);
   - the webview window's `blur` hides it.
@@ -438,14 +438,14 @@ The user: "we're working on the forge; we'll forge later."
 - References moved to `README.md`:
   - `AGENTS.md` § "REGOLE DI SITE/VIDEO", both lines;
   - `uty/subject.mjs` and `uty/storyboard.mjs`, comments and error messages;
-  - the LINKED-DATA comments in `idePlugin/`;
+  - the LINKED-DATA comments in `packages/idePlugin/`;
   - the header of both `storyboard.yaml`.
 - **No size limit here:** `site/video/README.md` answers only to being complete (15.9 kB today). The 10 kB and compression rules are for the root README: decided by the user, written in `AGENTS.md` § "REGOLE DI SITE/VIDEO".
 - Fixed on the way: a space lost in `markedRows.mjs` (`const GLYPHS = {`) by the previous session's edit.
 
 ### 2026-10-12 · quick2, a blind conversion
 
-- `quick2/storyboard.md` is a copy of quickstart's, converted into `storyboard.yaml` from the spec, the fixture and the sources of `idePlugin/` and `lib/` only. **Not fully blind:** quickstart's YAML had been opened before the rule was set.
+- `quick2/storyboard.md` is a copy of quickstart's, converted into `storyboard.yaml` from the spec, the fixture and the sources of `packages/idePlugin/` and `lib/` only. **Not fully blind:** quickstart's YAML had been opened before the rule was set.
 - Two silent rehearsals, 53.7 s: every click and `waitFor` found its target, the 🔸 shows in `fallback`, the terminal says `1 key(s) added` in `sync`.
 - Fix: Sync's terminal closed itself in the middle of `translate`, and the editor jumped. Now `key: Control+J` hides it on the cut.
 - The spec gained what the conversion had to dig out:

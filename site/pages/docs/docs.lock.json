@@ -11,10 +11,10 @@
       }
     },
     "api/plugin-options": {
-      "sealedAt": "e076796",
+      "sealedAt": "dd90a76",
       "sources": {
         "lib/index.d.ts": "b6a7f41e978fd4d11e1cca65db1561754abbbd4d1c41d631bf65a63687b49b9a",
-        "lib/dev/vite/vitetranslate.js": "005b20a89057dc28edf62e4951fa53ffa9b8bb9999f6ceb33ec04b7aa61e0d58",
+        "lib/dev/vite/vitetranslate.js": "10a0b99c6d52d43ab67bcb4df67e667371b2cef1df72a31a71d35a0d074aa7a8",
         "lib/dev/vite/uty/icuOptions.js": "555e463386a5a3b5b3a44435b4e3d8aa7d3b0628e67c63e6cb7e7627dbabfa9c",
         "lib/errorSolve.js": "482019c69a89fa05500a999fafb078978ea05e17eaeff24ad9a73496470651f2"
       }
@@ -49,14 +49,14 @@
       }
     },
     "concepts/diagnostics": {
-      "sealedAt": "f82eb1c",
+      "sealedAt": "dd90a76",
       "sources": {
         "lib/errorSolve.js": "482019c69a89fa05500a999fafb078978ea05e17eaeff24ad9a73496470651f2",
         "lib/index.d.ts": "b6a7f41e978fd4d11e1cca65db1561754abbbd4d1c41d631bf65a63687b49b9a",
         "lib/react/Translate.js": "b2483d19ab7755d72b5402feb92c020fc79815fe5a0d55488b2b4a705dbaba00",
         "lib/dev/vite/uty/devReporter.js": "d3b872d65f3f4f3505754439ab30d880c986906b38fc536546af077196e1c3bc",
         "lib/dev/vite/uty/languageStatus.js": "b14a6e25b632315070fb7386911ab66276522b0804f1c3b61ab8fbb39b7efd55",
-        "lib/dev/babel/extractMarkers.js": "c357bd20203eac8816896c963147cebb62e15c9ef2432021481364af23ad1c42",
+        "lib/dev/babel/extractMarkers.js": "765debe28c60a2ce3073791592e2a49fb86f12a7e279ce537682fd637dd3158d",
         "lib/dev/babel/macroForms.js": "a52baf54b5b01f175c40321e8ef4f78b02ec174925af62682d7d961d938081ec",
         "lib/dev/compile/compileTable.js": "88db6db02adc21ce5b578105f4c5aeff5319f42ca18587b6629044fdcc9ddfa0"
       }
@@ -84,9 +84,9 @@
       }
     },
     "concepts/limitations": {
-      "sealedAt": "f82eb1c",
+      "sealedAt": "dd90a76",
       "sources": {
-        "lib/dev/babel/extractMarkers.js": "c357bd20203eac8816896c963147cebb62e15c9ef2432021481364af23ad1c42",
+        "lib/dev/babel/extractMarkers.js": "765debe28c60a2ce3073791592e2a49fb86f12a7e279ce537682fd637dd3158d",
         "lib/dev/babel/macroForms.js": "a52baf54b5b01f175c40321e8ef4f78b02ec174925af62682d7d961d938081ec",
         "lib/dev/babel/jsxMessage.js": "14bae023a9970043caa5b60c2082ce0dc6e84a0ae20cc52b6309a3cdf8b86ef3",
         "lib/react/interpolate.js": "1b38f28aa2e8d738d16f833bd1033b546d33b81c5f88f1b9f578a0e9816a7209",
@@ -95,12 +95,12 @@
       }
     },
     "concepts/markers": {
-      "sealedAt": "f82eb1c",
+      "sealedAt": "dd90a76",
       "sources": {
-        "lib/markerSyntax.js": "9ca0d7d3b50d55d6738ac4dfd8f30046dab423abf83eecb5c4d4884dc87bd750",
+        "lib/markerSyntax.js": "dfc520b418065c9cd83007bda9862886de6f98ca50bfa83f1bb2d74eea2a8e72",
         "lib/dev/vite/uty/markerOptions.js": "8760fb0cafac3c8145fd6e6cf46f39fd8a5d134f7fd6388b39a9681d7ff981a7",
         "lib/dev/vite/uty/rewriteMarkers.js": "0f306a1581103de01a1f05647d85d6778cf23a7d7b2583bd7eb9a71a036a31da",
-        "lib/dev/babel/extractMarkers.js": "c357bd20203eac8816896c963147cebb62e15c9ef2432021481364af23ad1c42",
+        "lib/dev/babel/extractMarkers.js": "765debe28c60a2ce3073791592e2a49fb86f12a7e279ce537682fd637dd3158d",
         "lib/dev/vite/cli.js": "0d286d24ec084edb12d070e25dbb6f40d2587be6d36c963dc937b1a1827120fd"
       }
     },
@@ -307,33 +307,32 @@
       }
     },
     "vscode/commands-settings": {
-      "sealedAt": "32f6c57",
+      "sealedAt": "dd90a76",
       "sources": {
-        "idePlugin/package.json#contributes": "a8d7b4c42c9df0d198fd6358382f737c9d97a887e07dc62be0f80c2bc5fc569e"
+        "packages/idePlugin/package.json#contributes": "a8d7b4c42c9df0d198fd6358382f737c9d97a887e07dc62be0f80c2bc5fc569e"
       }
     },
     "vscode/install": {
-      "sealedAt": "32f6c57",
+      "sealedAt": "dd90a76",
       "sources": {
-        "idePlugin/package.json#engines": "86854732e86fd617cb2d2035b413f045f9df90f9b72936728b42cb11b05b7d5c",
-        "idePlugin/package.json#preview": "b5bea41b6c623f7c09f1bf24dcae58ebab3c0cdd90ad966bc43a45b44867e12b",
-        "idePlugin/src/probes/markedScan.mjs": "0cc610e304f453848b4547611faf41e4060265d9cce5e5b49d8700eefb9fb053"
+        "packages/idePlugin/package.json#engines": "86854732e86fd617cb2d2035b413f045f9df90f9b72936728b42cb11b05b7d5c",
+        "packages/idePlugin/src/probes/markedScan.mjs": "0cc610e304f453848b4547611faf41e4060265d9cce5e5b49d8700eefb9fb053"
       }
     },
     "vscode/panel": {
-      "sealedAt": "f82eb1c",
+      "sealedAt": "dd90a76",
       "sources": {
-        "idePlugin/package.json#contributes": "a8d7b4c42c9df0d198fd6358382f737c9d97a887e07dc62be0f80c2bc5fc569e",
-        "idePlugin/src/webViews/selector/selectorPage.mjs": "b142bcf836c9428890add8bb85cf8373b89247ad56bb9dd00dff5b4df453cf68",
-        "idePlugin/src/views/results/resultsView.mjs": "b6e39310d63feaf240c73a027b2edd6629243129fc2a2b196102decae718df73",
-        "idePlugin/src/views/results/markedRows.mjs": "6da960d204376526e6a5a8a337a4cb398f59d33cc5b565b07c69e9af87a29f10",
-        "idePlugin/src/webViews/project/projectPage.mjs": "81cd8ba62d04dbfda29a6d5f131dfa9523f6a4a8fe2c7ed9024c2317bd316359",
-        "idePlugin/src/webViews/optional/settings/settingsPage.mjs": "16566fc742d21bebf6c411615188780955efc4513e0ef4ceb752284d5b151c25",
-        "idePlugin/src/webViews/optional/llm/llmPage.mjs": "5c52d835c274eb8ee582ad2e9e10f490bb9493acd9227acf9c42d051c0d0834f",
-        "idePlugin/src/webViews/optional/library/libraryPage.mjs": "979ea034d1e3059fca7f511bc3c21d5965f80b0aa066ccaa90a005991944bd17",
-        "idePlugin/src/highlight/highlightStyles.mjs": "42c7ef0e962b840d8ffb2433a5f02ed3d8eec60a8ede51093f5ea778461caafc",
-        "idePlugin/src/core/pickProject.mjs": "2f037c484e4f9b62a7ff96e9d044d79da09d40c5907a3114130a06fd9a29ae9a",
-        "idePlugin/src/probes/runProbe.mjs": "dac307853fee5996a036235e447030987698f9baf548bdab503986f94cdf6ad8"
+        "packages/idePlugin/package.json#contributes": "a8d7b4c42c9df0d198fd6358382f737c9d97a887e07dc62be0f80c2bc5fc569e",
+        "packages/idePlugin/src/webViews/selector/selectorPage.mjs": "defa1bba181b2726f27f7df229a0dffb9b384c162838fa3935f86fc06a8eed7e",
+        "packages/idePlugin/src/views/results/resultsView.mjs": "a0785a4b22352983ea07243085bd476c0cf7f3ad68e7b99ddb6beaa877d5e5f0",
+        "packages/idePlugin/src/views/results/markedRows.mjs": "875d3f343cf9a042ad4f90088ab2ff1e81ff5200043a86fc3372d0bfa7ba26e8",
+        "packages/idePlugin/src/webViews/project/projectPage.mjs": "ad9872693b5a2eaf0e47a79163128f4fdb4fa85140ab735380164da8f5a0622a",
+        "packages/idePlugin/src/webViews/optional/settings/settingsPage.mjs": "bcf200d64217a5c3b3a344af357adc892e251aa7a7b4b80075345dbfafdd93d8",
+        "packages/idePlugin/src/webViews/optional/llm/llmPage.mjs": "e7fe0e94b98fdb92a31bf7a92f35b94d5da32d833198c2224805d2cff549e078",
+        "packages/idePlugin/src/webViews/optional/library/libraryPage.mjs": "2bc7ddd9b3962e03d5746dbd03f05f9524327fc01b06013f030a9dad94f1253e",
+        "packages/idePlugin/src/highlight/highlightStyles.mjs": "792428e9d83cf409a60755f19f98813aa5e6b0ae917b9e86f808ee325630bbd1",
+        "packages/idePlugin/src/core/pickProject.mjs": "c6453b7682d1831f9f6933b6c227a5adcd5bf84e4848c1f83922a530c886343d",
+        "packages/idePlugin/src/probes/runProbe.mjs": "dac307853fee5996a036235e447030987698f9baf548bdab503986f94cdf6ad8"
       }
     }
   },

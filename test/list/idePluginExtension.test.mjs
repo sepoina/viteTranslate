@@ -21,8 +21,8 @@ module.registerHooks({
   resolve: (specifier, context, next) => (specifier === "vscode" ? { url: STUB, shortCircuit: true } : next(specifier, context)),
 });
 const vscode = await import("vscode");
-const { activate } = await import("../../idePlugin/src/extension.mjs");
-const { READING, NO_SELECTION } = await import("../../idePlugin/src/webViews/project/projectState.mjs");
+const { activate } = await import("../../packages/idePlugin/src/extension.mjs");
+const { READING, NO_SELECTION } = await import("../../packages/idePlugin/src/webViews/project/projectState.mjs");
 const stato = vscode.__stato;
 
 let fail = 0;
@@ -62,8 +62,8 @@ stato.workspaceFolders = [{ uri: vscode.Uri.file(ws) }];
 stato.findFiles = async () => [vscode.Uri.file(join(ws, "other/vite.config.js")), vscode.Uri.file(join(ws, "app/vite.config.js"))];
 
 // Le sonde dai sorgenti: nei test non c'è bisogno di `npm run ide:build`.
-const SRC = (nome) => fileURLToPath(new URL(`../../idePlugin/src/${nome}`, import.meta.url));
-const SONDE = { [join("dist", "probe.mjs")]: SRC("probes/probe.mjs"), [join("dist", "markedProbe.mjs")]: SRC("probes/markedProbe.mjs") };
+const SRC = (nome) => fileURLToPath(new URL(`../../packages/idePlugin/src/${nome}`, import.meta.url));
+const SONDE = { [join("dist", "bundle", "probe.mjs")]: SRC("probes/probe.mjs"), [join("dist", "bundle", "markedProbe.mjs")]: SRC("probes/markedProbe.mjs") };
 const memoria = new Map();
 const workspaceState = { get: (k) => memoria.get(k), update: async (k, v) => void memoria.set(k, v) };
 // L'estensione in preview, come oggi: la pagina del guasto della libreria chiede il tag next. La
@@ -196,7 +196,7 @@ eq("…e non più Inspector e Highlight", [false, false], ["inspector", "highlig
 eq("tutto sotto context.subscriptions", true, context.subscriptions.length >= 5);
 {
   // Il manifest: la facoltativa si prende il pannello (via Results e Project), e si torna con ←.
-  const manifest = JSON.parse(readFileSync(new URL("../../idePlugin/package.json", import.meta.url), "utf8"));
+  const manifest = JSON.parse(readFileSync(new URL("../../packages/idePlugin/package.json", import.meta.url), "utf8"));
   const quando = Object.fromEntries(manifest.contributes.views.vitetranslate.map((v) => [v.id, v.when ?? null]));
   eq("facoltativa aperta (o all'avvio): Selector, Results e Project spariscono; Selector resta sul guasto con più progetti", {
     "vitetranslate.selector": "vitetranslate.ready && (!vitetranslate.optional || vitetranslate.libraryProblem && vitetranslate.manyProjects)",
@@ -217,16 +217,16 @@ const seleziona = (dir) => stato.comandi.get("vitetranslate.select")(dir);
 
 console.log("\n== Selector: la pagina ==");
 {
-  eq("script abilitati, e solo dist/ raggiungibile", [true, [join(ws, "ext/dist")]], [webview.options.enableScripts, webview.options.localResourceRoots.map((u) => u.fsPath)]);
+  eq("script abilitati, e solo dist/bundle/ raggiungibile", [true, [join(ws, "ext/dist/bundle")]], [webview.options.enableScripts, webview.options.localResourceRoots.map((u) => u.fsPath)]);
   eq("Config, Filter e Search, nessun bottone", ["config", "filter", "search"],
     [...webview.html.matchAll(/<section id="(\w+)"|<vscode-button [^>]*data-cmd="(\w+)"/g)].map((m) => m[1] ?? m[2]));
   eq("Project: la sua pagina, la barra dei comandi in fondo", [true, true],
-    [projectView.webview.html.includes(`src="vscode-webview://x${join(ws, "ext/dist/projectWebview.js")}"`), /<\/main>\s*<footer class="actions">/.test(projectView.webview.html)]);
+    [projectView.webview.html.includes(`src="vscode-webview://x${join(ws, "ext/dist/bundle/projectWebview.js")}"`), /<\/main>\s*<footer class="actions">/.test(projectView.webview.html)]);
   eq("gli elenchi: due vscode-tree", ["projects", "filters"], [...webview.html.matchAll(/<vscode-tree id="(\w+)"/g)].map((m) => m[1]));
   const nonce = /script-src 'nonce-([0-9a-f]+)'/.exec(webview.html)?.[1];
-  eq("CSP col nonce, e lo script lo porta", true, !!nonce && webview.html.includes(`<script type="module" nonce="${nonce}" src="vscode-webview://x${join(ws, "ext/dist/webview.js")}">`));
+  eq("CSP col nonce, e lo script lo porta", true, !!nonce && webview.html.includes(`<script type="module" nonce="${nonce}" src="vscode-webview://x${join(ws, "ext/dist/bundle/webview.js")}">`));
   eq("niente default aperto", true, webview.html.includes("default-src 'none'"));
-  eq("i codicons da dist/", true, webview.html.includes(`href="vscode-webview://x${join(ws, "ext/dist/codicon.css")}"`));
+  eq("i codicons da dist/bundle/", true, webview.html.includes(`href="vscode-webview://x${join(ws, "ext/dist/bundle/codicon.css")}"`));
   eq("prima di ready: niente stato mandato", 0, pagina.stati.length);
   eq("all'avvio la facoltativa dice cosa prepara, prima ancora dello stato", [true, "loading", "Loading"],
     [/<vscode-icon name="loading" spin><\/vscode-icon><span id="loadingText">Looking for Vite projects…/.test(optView.webview.html), optProvider.mode, optView.title]);
@@ -568,10 +568,10 @@ console.log("\n== Project: i bottoni ==");
   eq("Sync: un task per app", [{ type: "vitetranslate", command: "sync", dir: join(ws, "app") }, "viteTranslate"], [task?.definition, task?.source]);
   eq("…nella cartella del workspace", ws, task?.scope?.uri?.fsPath);
   // Con cosa, lo decide cliLaunch (provato sotto): qui, che il task usi quello che dice.
-  const { cliLaunch } = await import("../../idePlugin/src/core/syncCommand.mjs");
-  const { cliHeader } = await import("../../idePlugin/src/core/cliHeader.mjs");
+  const { cliLaunch } = await import("../../packages/idePlugin/src/core/syncCommand.mjs");
+  const { cliHeader } = await import("../../packages/idePlugin/src/core/cliHeader.mjs");
   const CLI_REPO = join(REPO, "lib/dev/vite/cli.js");
-  const lancio = cliLaunch({ cli: CLI_REPO, args: [], runner: context.asAbsolutePath(join("dist", "cliRunner.mjs")), runAsNodeCmd: context.asAbsolutePath(join("dist", "runAsNode.cmd")) });
+  const lancio = cliLaunch({ cli: CLI_REPO, args: [], runner: context.asAbsolutePath(join("dist", "bundle", "cliRunner.mjs")), runAsNodeCmd: context.asAbsolutePath(join("dist", "bundle", "runAsNode.cmd")) });
   const { VT_HEADER: testata, ...envTask } = task?.execution.options.env ?? {};
   eq("…il CLI del progetto, lanciato come dice cliLaunch", [lancio.command, lancio.args, join(ws, "app"), lancio.env],
     [task?.execution.process, task?.execution.args, task?.execution.options.cwd, envTask]);
@@ -633,14 +633,14 @@ console.log("\n== Project: i bottoni ==");
 
   // LLM: app non ha `llm` nelle opzioni. Il bottone ha il ?, e il clic apre Help al posto di Results.
   eq("LLM senza llm in vite.config: il ?", [false, "question"], ((s) => [s.llm, s.llmIcon])(await progetto()));
-  const { LLM_ACTIONS, pluginCallPosition } = await import("../../idePlugin/src/core/syncCommand.mjs");
+  const { LLM_ACTIONS, pluginCallPosition } = await import("../../packages/idePlugin/src/core/syncCommand.mjs");
   const scelteFatte = stato.scelte.length;
   await messaggio({ cmd: "llm" });
   eq("…clic: la sezione facoltativa al posto di Results, in primo piano", [true, ["vitetranslate.optional.focus"], scelteFatte],
     [stato.contesto["vitetranslate.optional"], stato.eseguiti.at(-1), stato.scelte.length]);
-  eq("Help: si chiama Help, script della sezione, solo dist/", ["Help", true, true, [join(ws, "ext/dist")]],
+  eq("Help: si chiama Help, script della sezione, solo dist/bundle/", ["Help", true, true, [join(ws, "ext/dist/bundle")]],
     [optView.title, optView.webview.html.includes("LLM translation is off"),
-      optView.webview.html.includes(`src="vscode-webview://x${join(ws, "ext/dist/optionalWebview.js")}"`), optView.webview.options.localResourceRoots.map((u) => u.fsPath)]);
+      optView.webview.html.includes(`src="vscode-webview://x${join(ws, "ext/dist/bundle/optionalWebview.js")}"`), optView.webview.options.localResourceRoots.map((u) => u.fsPath)]);
   await optPagina.ricevi({ cmd: "openPluginConfig" });
   eq("…Open the options: vite.config del progetto", ["vscode.open", join(ws, "app/vite.config.js")], [stato.eseguiti.at(-1)[0], stato.eseguiti.at(-1)[1].fsPath]);
   await optPagina.ricevi({ cmd: "close" });
@@ -907,7 +907,7 @@ stato.isTrusted = false;
 
 console.log("\n== findCli: il comando del progetto ==");
 {
-  const { findCli } = await import("../../idePlugin/src/core/syncCommand.mjs");
+  const { findCli } = await import("../../packages/idePlugin/src/core/syncCommand.mjs");
   const app = findCli(join(ws, "app"));
   eq("app: vtranslate-cli della libreria installata", [true, "vtranslate-cli", join(REPO, "lib/dev/vite/cli.js")], [app.ok, app.name, app.cli]);
   const other = findCli(join(ws, "other"));
@@ -919,25 +919,25 @@ console.log("\n== findCli: il comando del progetto ==");
 
 console.log("\n== cliLaunch: con cosa si lancia il CLI nel terminale ==");
 {
-  const { cliLaunch, nodeOnPath } = await import("../../idePlugin/src/core/syncCommand.mjs");
-  const base = { cli: "/lib/cli.js", args: ["--status"], runner: "/ext/dist/cliRunner.mjs", runAsNodeCmd: "/ext/dist/runAsNode.cmd", execPath: "/editor/Code" };
+  const { cliLaunch, nodeOnPath } = await import("../../packages/idePlugin/src/core/syncCommand.mjs");
+  const base = { cli: "/lib/cli.js", args: ["--status"], runner: "/ext/dist/bundle/cliRunner.mjs", runAsNodeCmd: "/ext/dist/bundle/runAsNode.cmd", execPath: "/editor/Code" };
   const conNode = join(ws, "bin con spazi");
   scrivi("bin con spazi/node.exe", "");
   const senza = join(ws, "vuota");
   scrivi("vuota/x.txt", "");
   const campi = (l) => [l.command, l.args, l.env, l.via, l.interactive, l.runner];
   eq("macOS e Linux: l'editor in modalità Node, col runner",
-    ["/editor/Code", ["/ext/dist/cliRunner.mjs", "/lib/cli.js", "--status"], { ELECTRON_RUN_AS_NODE: "1" }, "editor", true, "/ext/dist/cliRunner.mjs"],
+    ["/editor/Code", ["/ext/dist/bundle/cliRunner.mjs", "/lib/cli.js", "--status"], { ELECTRON_RUN_AS_NODE: "1" }, "editor", true, "/ext/dist/bundle/cliRunner.mjs"],
     campi(cliLaunch({ ...base, platform: "linux", env: { PATH: conNode } })));
   eq("Windows col node nel PATH: quello, col runner, niente ELECTRON_RUN_AS_NODE",
-    [join(conNode, "node.exe"), ["/ext/dist/cliRunner.mjs", "/lib/cli.js", "--status"], {}, "node", true, "/ext/dist/cliRunner.mjs"],
+    [join(conNode, "node.exe"), ["/ext/dist/bundle/cliRunner.mjs", "/lib/cli.js", "--status"], {}, "node", true, "/ext/dist/bundle/cliRunner.mjs"],
     campi(cliLaunch({ ...base, platform: "win32", env: { Path: `${senza};"${conNode}"` } })));
   eq("Windows senza node: runAsNode.cmd, senza runner, niente input",
-    ["/ext/dist/runAsNode.cmd", ["/lib/cli.js", "--status"], { ELECTRON_RUN_AS_NODE: "1", VT_EDITOR_EXE: "/editor/Code" }, "cmd", false, null],
+    ["/ext/dist/bundle/runAsNode.cmd", ["/lib/cli.js", "--status"], { ELECTRON_RUN_AS_NODE: "1", VT_EDITOR_EXE: "/editor/Code" }, "cmd", false, null],
     campi(cliLaunch({ ...base, platform: "win32", env: { PATH: `${senza};;` } })));
   eq("nodeOnPath: Path o PATH, voci vuote o tra virgolette, null senza", [join(conNode, "node.exe"), join(conNode, "node.exe"), null, null],
     [nodeOnPath({ PATH: `;${conNode}` }), nodeOnPath({ Path: `"${conNode}"` }), nodeOnPath({ PATH: senza }), nodeOnPath({})]);
-  const cmd = readFileSync(join(REPO, "idePlugin/src/core/runAsNode.cmd"), "utf8");
+  const cmd = readFileSync(join(REPO, "packages/idePlugin/src/core/runAsNode.cmd"), "utf8");
   eq("runAsNode.cmd: l'editor con gli argomenti, e il suo codice d'uscita", [true, true],
     [cmd.includes('@"%VT_EDITOR_EXE%" %*'), cmd.includes("@exit /b %errorlevel%")]);
 }

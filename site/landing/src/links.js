@@ -5,7 +5,7 @@ export const NPM = "https://www.npmjs.com/package/@sepoina/vitetranslate";
 // questo file lo legge anche il test in node, e siteLinks.js usa import.meta.env di Vite).
 export const INSTALL = "npm i @sepoina/vitetranslate";
 
-// LINKED-DATA: lo stesso video (stesso id) è linkato da README.md, idePlugin/README.md,
+// LINKED-DATA: lo stesso video (stesso id) è linkato da README.md, packages/idePlugin/README.md,
 // packages/launcher/README.md, dai README delle demo e dalla panoramica del manuale
 // (site/pages/docs/content/getting-started/overview.mdx). Video nuovo: si cambia l'id in tutti.
 /** Il video "perché viteTranslate": l'id su YouTube e la sua pagina. */

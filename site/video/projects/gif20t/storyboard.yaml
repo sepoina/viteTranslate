@@ -9,7 +9,7 @@
 # the pointer's way to Translate 2x, the LLM's run 1.5x (at real time it is slow; 2x went by too quick to read).
 # LINKED-DATA: the fixture is projects/gif20t/fixture: demo/Vite_8/quickApp plus an `llm` block (OpenRouter, a DeepSeek model,
 # reasoning off, costGuard so it never asks). `goto: 9` is the closing </p> of the first paragraph of its src/App.jsx. Panel selectors:
-# idePlugin/src/webViews (the LLM page's `.azione[data-value]`). Change those, check this.
+# packages/idePlugin/src/webViews (the LLM page's `.azione[data-value]`). Change those, check this.
 #
 # LINKED-DATA: output/gif20t.gif is copied by hand to doc/workflow.gif, which the root README.md shows at its top; and
 # output/gif20t.web.{webm,mp4,webp} to site/landing/public/video/workflow.* (the hero's loop, HeroVideo.jsx). Compose

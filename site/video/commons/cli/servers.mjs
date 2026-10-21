@@ -4,7 +4,7 @@
 //
 // VS Code è una "copia controllata": dati del server, estensioni e impostazioni stanno in
 // site/video/.cache/vscode, mai nel profilo dell'utente. L'estensione installata è quella del
-// repo (idePlugin/<nome>-<versione>.vsix, costruita con `code.mjs build package` se manca), non
+// repo (packages/idePlugin/dist/vsix_release/<nome>-<versione>.vsix, costruita con `code.mjs build package` se manca), non
 // quella del Marketplace: il video mostra la prossima release.
 import { spawn, spawnSync } from "node:child_process";
 import { createWriteStream, existsSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
@@ -68,9 +68,10 @@ function trovaCodeServer(cliDir) {
   return trovati[0] ?? null;
 }
 
+// LINKED-DATA: dist/vsix_release/ è VSIX in packages/idePlugin/scripts/code.mjs.
 const percorsoVsix = () => {
-  const manifest = JSON.parse(readFileSync(join(REPO_DIR, "idePlugin/package.json"), "utf8"));
-  return { manifest, vsix: join(REPO_DIR, "idePlugin", `${manifest.name}-${manifest.version}.vsix`) };
+  const manifest = JSON.parse(readFileSync(join(REPO_DIR, "packages/idePlugin/package.json"), "utf8"));
+  return { manifest, vsix: join(REPO_DIR, "packages/idePlugin/dist/vsix_release", `${manifest.name}-${manifest.version}.vsix`) };
 };
 
 /** Quale .vsix si installerebbe adesso (nome, dimensione, data), o null se va costruito: entra nell'impronta del palco (record.mjs). */
@@ -86,7 +87,7 @@ function vsixDelRepo({ rebuild }) {
   const { manifest, vsix } = percorsoVsix();
   if (rebuild || !existsSync(vsix)) {
     console.log(`  building ${manifest.name} ${manifest.version}…`);
-    const r = spawnSync(process.execPath, [join(REPO_DIR, "idePlugin/scripts/code.mjs"), "build", "package"], { stdio: "inherit" });
+    const r = spawnSync(process.execPath, [join(REPO_DIR, "packages/idePlugin/scripts/code.mjs"), "build", "package"], { stdio: "inherit" });
     if (r.status !== 0 || !existsSync(vsix)) throw new Error("the extension build failed");
   }
   return vsix;
@@ -97,7 +98,7 @@ function vsixDelRepo({ rebuild }) {
 function installaEstensione({ cliDir, serverDir, rebuild }) {
   const codeServer = trovaCodeServer(cliDir);
   const vsix = vsixDelRepo({ rebuild });
-  const { publisher, name, version } = JSON.parse(readFileSync(join(REPO_DIR, "idePlugin/package.json"), "utf8"));
+  const { publisher, name, version } = JSON.parse(readFileSync(join(REPO_DIR, "packages/idePlugin/package.json"), "utf8"));
   const installata = join(serverDir, "extensions", `${publisher}.${name}-${version}`);
   const s = statSync(vsix);
   const timbro = `${vsix}|${s.size}|${s.mtimeMs}`;

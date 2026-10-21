@@ -20,7 +20,7 @@ module.registerHooks({
   resolve: (specifier, context, next) => (specifier === "vscode" ? { url: STUB, shortCircuit: true } : next(specifier, context)),
 });
 const vscode = await import("vscode");
-const { activate } = await import("../../idePlugin/src/extension.mjs");
+const { activate } = await import("../../packages/idePlugin/src/extension.mjs");
 const stato = vscode.__stato;
 
 let fail = 0;
@@ -46,8 +46,8 @@ const APP = join(ws, "app");
 
 stato.workspaceFolders = [{ uri: vscode.Uri.file(ws) }];
 stato.findFiles = async () => [vscode.Uri.file(join(APP, "vite.config.js"))];
-const SRC = (nome) => fileURLToPath(new URL(`../../idePlugin/src/${nome}`, import.meta.url));
-const SONDE = { [join("dist", "probe.mjs")]: SRC("probes/probe.mjs"), [join("dist", "markedProbe.mjs")]: SRC("probes/markedProbe.mjs") };
+const SRC = (nome) => fileURLToPath(new URL(`../../packages/idePlugin/src/${nome}`, import.meta.url));
+const SONDE = { [join("dist", "bundle", "probe.mjs")]: SRC("probes/probe.mjs"), [join("dist", "bundle", "markedProbe.mjs")]: SRC("probes/markedProbe.mjs") };
 const memoria = new Map();
 const context = {
   subscriptions: [],

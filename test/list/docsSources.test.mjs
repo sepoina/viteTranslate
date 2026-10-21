@@ -200,12 +200,12 @@ try {
   scrivi("site/pages/docs/content/x/due.mdx", pagina(["lib/b.js", "lib/react.d.ts"], "## S {#s}\n\nE poi `betaX`.\n"));
   eq("copertura: un nome più lungo non vale (beta ≠ betaX)", "ko", livello(checks(tmp), "API coverage"));
   scrivi("site/pages/docs/content/x/due.mdx", pagina(["lib/b.js", "lib/react.d.ts"], "## S {#s}\n\nE poi `beta`.\n"));
-  // l'estensione: idePlugin/package.json elencato con un selettore conta lo stesso
-  scrivi("idePlugin/package.json", JSON.stringify({ name: "ide", contributes: { commands: [{ command: "vt.sync" }, { command: "vt.llm" }], configuration: { properties: { "vt.size": {} } } } }));
-  scrivi("site/pages/docs/content/x/tre.mdx", pagina(["idePlugin/package.json#contributes"], "## S {#s}\n\nComandi `vt.sync` e `vt.llm`.\n"));
+  // l'estensione: packages/idePlugin/package.json elencato con un selettore conta lo stesso
+  scrivi("packages/idePlugin/package.json", JSON.stringify({ name: "ide", contributes: { commands: [{ command: "vt.sync" }, { command: "vt.llm" }], configuration: { properties: { "vt.size": {} } } } }));
+  scrivi("site/pages/docs/content/x/tre.mdx", pagina(["packages/idePlugin/package.json#contributes"], "## S {#s}\n\nComandi `vt.sync` e `vt.llm`.\n"));
   v = checks(tmp);
-  eq("copertura: con un selettore la copertura di idePlugin/package.json continua a funzionare", true, righe(v, "API coverage").some((r) => r.includes("idePlugin/package.json") && r.includes("vt.size")));
-  scrivi("site/pages/docs/content/x/tre.mdx", pagina(["idePlugin/package.json#contributes"], "## S {#s}\n\nComandi `vt.sync` e `vt.llm`, setting `vt.size`.\n"));
+  eq("copertura: con un selettore la copertura di packages/idePlugin/package.json continua a funzionare", true, righe(v, "API coverage").some((r) => r.includes("packages/idePlugin/package.json") && r.includes("vt.size")));
+  scrivi("site/pages/docs/content/x/tre.mdx", pagina(["packages/idePlugin/package.json#contributes"], "## S {#s}\n\nComandi `vt.sync` e `vt.llm`, setting `vt.size`.\n"));
   eq("copertura: nominati tutti, ok", "ok", livello(checks(tmp), "API coverage"));
   rmSync(join(tmp, "site/pages/docs/content/x/tre.mdx"));
 

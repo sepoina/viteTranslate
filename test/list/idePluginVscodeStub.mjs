@@ -1,4 +1,4 @@
-// Uno stub del modulo `vscode`, per idePluginExtension.test.mjs: solo le API che idePlugin/src
+// Uno stub del modulo `vscode`, per idePluginExtension.test.mjs: solo le API che packages/idePlugin/src
 // (extension.mjs e i moduli delle sezioni) usa, e uno stato (`__stato`) che il test imposta e legge.
 // Non è un test (il nome non finisce in .test.mjs): il lanciatore non lo esegue.
 import path from "node:path";

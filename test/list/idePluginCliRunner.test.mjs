@@ -10,8 +10,8 @@ import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { afterCli, SECONDS } from "../../idePlugin/src/core/cliRunner.mjs";
-import { cliHeader, npxLine } from "../../idePlugin/src/core/cliHeader.mjs";
+import { afterCli, SECONDS } from "../../packages/idePlugin/src/core/cliRunner.mjs";
+import { cliHeader, npxLine } from "../../packages/idePlugin/src/core/cliHeader.mjs";
 
 let fail = 0;
 const eq = (nome, atteso, ottenuto) => {
@@ -98,7 +98,7 @@ console.log("\n== il runner, come lo lancia il task ==");
   const dir = mkdtempSync(join(tmpdir(), "vt-iderunner-"));
   const finto = join(dir, "finto-cli.mjs");
   writeFileSync(finto, 'console.log("output del cli", process.argv.slice(2).join(" "), "header:" + (process.env.VT_HEADER ?? "none"));\nprocess.exitCode = Number(process.argv[2]);\n');
-  const RUNNER = fileURLToPath(new URL("../../idePlugin/src/core/cliRunner.mjs", import.meta.url));
+  const RUNNER = fileURLToPath(new URL("../../packages/idePlugin/src/core/cliRunner.mjs", import.meta.url));
   const lancia = (codice) => new Promise((resolve) => {
     const env = { ...process.env, VT_HEADER: "$ npx finto --status" };
     const p = spawn(process.execPath, [RUNNER, finto, String(codice), "--status"], { stdio: ["pipe", "pipe", "inherit"], env });

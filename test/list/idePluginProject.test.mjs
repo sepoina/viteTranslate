@@ -8,23 +8,23 @@
 import { mkdtempSync, mkdirSync, rmSync, writeFileSync, readFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { projectState, keyPosition, NO_PROJECTS, NO_SELECTION, READING } from "../../idePlugin/src/webViews/project/projectState.mjs";
-import { ACTION_CSS, OPTIONAL_CSS } from "../../idePlugin/src/webViews/pageCommon.mjs";
-import { projectHtml } from "../../idePlugin/src/webViews/project/projectPage.mjs";
-import { ACTIONS, ICONS, LLM_OFF, LLM_ICON, BACK_LABEL, COMMAND_BAR_CSS, PROJECT_URL } from "../../idePlugin/src/webViews/commandBar/commandBar.mjs";
-import { wrapsBelow } from "../../idePlugin/src/webViews/commandBar/commandBarScript.mjs";
-import { accordionHtml, ACCORDION_CSS } from "../../idePlugin/src/webViews/accordion/accordion.mjs";
-import { rememberAccordions } from "../../idePlugin/src/webViews/accordion/accordionScript.mjs";
-import { TOOLTIP_CSS, tooltipHtml } from "../../idePlugin/src/webViews/tooltip/tooltip.mjs";
-import { placeTooltip, adoptTitle, focusShowsTip } from "../../idePlugin/src/webViews/tooltip/tooltipScript.mjs";
-import { selectorHtml } from "../../idePlugin/src/webViews/selector/selectorPage.mjs";
-import { helpHtml, LLM_DOC_URL } from "../../idePlugin/src/webViews/optional/help/helpPage.mjs";
-import { inspectorState, versionsState, olderThan } from "../../idePlugin/src/webViews/optional/settings/inspectorState.mjs";
-import { LIB_MIN, IDE_API_MIN } from "../../idePlugin/src/probes/markedScan.mjs";
-import { settingsHtml, SECTIONS, VERSION_ROWS } from "../../idePlugin/src/webViews/optional/settings/settingsPage.mjs";
-import { llmHtml } from "../../idePlugin/src/webViews/optional/llm/llmPage.mjs";
-import { libraryHtml, libraryState } from "../../idePlugin/src/webViews/optional/library/libraryPage.mjs";
-import { loadingHtml, FIRST_STEP } from "../../idePlugin/src/webViews/optional/loading/loadingPage.mjs";
+import { projectState, keyPosition, NO_PROJECTS, NO_SELECTION, READING } from "../../packages/idePlugin/src/webViews/project/projectState.mjs";
+import { ACTION_CSS, OPTIONAL_CSS } from "../../packages/idePlugin/src/webViews/pageCommon.mjs";
+import { projectHtml } from "../../packages/idePlugin/src/webViews/project/projectPage.mjs";
+import { ACTIONS, ICONS, LLM_OFF, LLM_ICON, BACK_LABEL, COMMAND_BAR_CSS, PROJECT_URL } from "../../packages/idePlugin/src/webViews/commandBar/commandBar.mjs";
+import { wrapsBelow } from "../../packages/idePlugin/src/webViews/commandBar/commandBarScript.mjs";
+import { accordionHtml, ACCORDION_CSS } from "../../packages/idePlugin/src/webViews/accordion/accordion.mjs";
+import { rememberAccordions } from "../../packages/idePlugin/src/webViews/accordion/accordionScript.mjs";
+import { TOOLTIP_CSS, tooltipHtml } from "../../packages/idePlugin/src/webViews/tooltip/tooltip.mjs";
+import { placeTooltip, adoptTitle, focusShowsTip } from "../../packages/idePlugin/src/webViews/tooltip/tooltipScript.mjs";
+import { selectorHtml } from "../../packages/idePlugin/src/webViews/selector/selectorPage.mjs";
+import { helpHtml, LLM_DOC_URL } from "../../packages/idePlugin/src/webViews/optional/help/helpPage.mjs";
+import { inspectorState, versionsState, olderThan } from "../../packages/idePlugin/src/webViews/optional/settings/inspectorState.mjs";
+import { LIB_MIN, IDE_API_MIN } from "../../packages/idePlugin/src/probes/markedScan.mjs";
+import { settingsHtml, SECTIONS, VERSION_ROWS } from "../../packages/idePlugin/src/webViews/optional/settings/settingsPage.mjs";
+import { llmHtml } from "../../packages/idePlugin/src/webViews/optional/llm/llmPage.mjs";
+import { libraryHtml, libraryState } from "../../packages/idePlugin/src/webViews/optional/library/libraryPage.mjs";
+import { loadingHtml, FIRST_STEP } from "../../packages/idePlugin/src/webViews/optional/loading/loadingPage.mjs";
 
 let fail = 0;
 const eq = (nome, atteso, ottenuto) => {
@@ -182,7 +182,7 @@ console.log("\n== la pagina ==");
     [...html.matchAll(/data-cmd="(\w+)"/g)].map((m) => m[1]));
   eq("…tutte codicon: GitHub è github-inverted, niente più logo in linea", [["github-inverted", "settings-gear", "refresh"], false],
     [ICONS.map((i) => i.icon), html.includes('class="logo"')]);
-  const manifesto = JSON.parse(readFileSync(new URL("../../idePlugin/package.json", import.meta.url), "utf8"));
+  const manifesto = JSON.parse(readFileSync(new URL("../../packages/idePlugin/package.json", import.meta.url), "utf8"));
   eq("…GitHub apre la homepage del manifest", manifesto.homepage.replace(/#.*$/, ""), PROJECT_URL);
   eq("…icone-bottone, dopo i bottoni", true, /<div class="bottoni">[\s\S]*<\/div>\s*<div class="icone">\s*<vscode-icon data-cmd="github" name="github-inverted" action-icon/.test(html));
   eq("LLM parte col ? e il perché nel tooltip, mai disabilitato", [true, true, false],
@@ -230,13 +230,13 @@ console.log("\n== il tooltip ==");
   eq("…la webview senza focus (è passato all'editor): no", false, focusShowsTip(pagina(false), voce(true)));
   eq("…un browser senza :focus-visible: come prima, sì", true, focusShowsTip(pagina(true), { matches: () => { throw new Error("no"); } }));
   eq("…e il fumetto si spegne quando la webview perde il focus", true,
-    /defaultView\?\.addEventListener\("blur", nascondi\)/.test(readFileSync(new URL("../../idePlugin/src/webViews/tooltip/tooltipScript.mjs", import.meta.url), "utf8")));
+    /defaultView\?\.addEventListener\("blur", nascondi\)/.test(readFileSync(new URL("../../packages/idePlugin/src/webViews/tooltip/tooltipScript.mjs", import.meta.url), "utf8")));
 
   // In ogni pagina: lo stile, e lo script che lo installa.
   const p = { scriptUri: "vscode-webview://x/s.js", codiconsUri: "vscode-webview://x/codicon.css", cspSource: "vscode-webview://x", nonce: "abc" };
   const pagine = { selector: selectorHtml(p), project: projectHtml(p), help: helpHtml(p), llm: llmHtml(p), settings: settingsHtml(p) };
   eq("tutte le pagine hanno lo stile del fumetto", Object.keys(pagine), Object.entries(pagine).filter(([, h]) => h.includes(TOOLTIP_CSS)).map(([k]) => k));
-  const script = (f) => readFileSync(new URL(`../../idePlugin/src/webViews/${f}`, import.meta.url), "utf8");
+  const script = (f) => readFileSync(new URL(`../../packages/idePlugin/src/webViews/${f}`, import.meta.url), "utf8");
   eq("…e tutti gli script lo installano", [true, true, true],
     ["selector/webview.mjs", "project/projectWebview.mjs", "optional/optionalWebview.mjs"].map((f) => /^installTooltips\(\);/m.test(script(f))));
 }
@@ -339,7 +339,7 @@ console.log("\n== la barra dei comandi: una sola ==");
   eq("…a capo: la riga intera, margini al 10%, distribuite; nelle facoltative centrate", [true, true],
     [/\.actions\.a-capo \.icone \{[^}]*flex: 1 1 100%;[^}]*padding: 0 10%; justify-content: space-between;/.test(COMMAND_BAR_CSS),
       COMMAND_BAR_CSS.includes(".actions.a-capo .icone:has(> .pagina) { justify-content: center; }")]);
-  const sorgente = (f) => readFileSync(new URL(`../../idePlugin/src/webViews/${f}`, import.meta.url), "utf8");
+  const sorgente = (f) => readFileSync(new URL(`../../packages/idePlugin/src/webViews/${f}`, import.meta.url), "utf8");
   eq("…la misura la installano le pagine con la barra", [true, true],
     ["project/projectWebview.mjs", "optional/optionalWebview.mjs"].map((f) => /^watchCommandBar\(\);/m.test(sorgente(f))));
 }

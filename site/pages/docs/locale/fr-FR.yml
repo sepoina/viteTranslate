@@ -1,8 +1,8 @@
 #  -------------------------------------------------
 #      français (France)
 #       |    code: fr-FR
-#       |    missing key: 1
-#       |    processed: 2026-10-20 12:11
+#       |    missing key: 2
+#       |    processed: 2026-10-21 11:48
 #       |    TableVersion: 260905
 #  -------------------------------------------------
 #
@@ -452,7 +452,6 @@ install_ibez6k: "<0>viteTranslate</0> est un plugin Vite : vous écrivez des phr
 install_kmvzxf: "<b>Les secrets restent secrets.</b> <em>La clé API est localisée, jamais affichée.</em>"
 install_mz4bmq: "<b>Cliquez sur l'icône %</b> dans la barre d'activité. Le surlignage ne nécessite rien : ouvrez un fichier {0} et c'est activé."
 install_n29mk9: "Le panneau viteTranslate à côté de l'éditeur"
-install_tlquex: "<b>Aperçu.</b> <em>Il lit votre projet et n'y écrit jamais.</em> Les seules choses qui modifient des fichiers sont <b>Sync</b> et les actions LLM, et elles exécutent la même CLI que vous taperiez vous-même."
 install_x93zm3: "<b>Conditions requises</b> : VS Code 1.90+, un <0>espace de travail de confiance</0> pour tout au-delà de {1}, et sur Windows un {2} dans votre PATH, afin que l'interface en ligne de commande puisse vous demander des choses (confirmations, la clé API)."
 install_ymak0a: "Ce qu'est l'extension VS Code, comment elle se rapporte à la bibliothèque, et comment la faire fonctionner."
 installation_12okzxg: "Dépendance de pair"
@@ -1635,4 +1634,5 @@ usetranslatetostring_bsrje4: "Chaînes simples traduites pour placeholder, aria-
 usetranslatetostring_k80zyw: "🎮 En direct : <0>placeholders et attributs</0>."
 
 #  ----to be translated------------------------------------------
+install_1lrobso: null
 install_1qa2rhv: null

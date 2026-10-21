@@ -8,7 +8,7 @@
 # (for llm-preview) and an `llm` block (OpenRouter, a DeepSeek model). `goto: 11` is the closing
 # </p> of the first paragraph in its src/App.jsx. The build prints one chunk per
 # non-source language (fr-FR-….js): en-US is preloaded in the main bundle. Panel selectors:
-# idePlugin/src/webViews (commandBar data-cmd, Settings `.stile[data-value]`, Project `#langs` rows
+# packages/idePlugin/src/webViews (commandBar data-cmd, Settings `.stile[data-value]`, Project `#langs` rows
 # with data-open, the LLM page's `.azione[data-value]`). The site scenes (playground … compare) open
 # the published site: its pages remember the language in localStorage "viteTranslate.site.language"
 # (site/landing/src/siteLanguage.js), edge and restaurant fall back to Italian; the landing's table

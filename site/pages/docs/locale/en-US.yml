@@ -1,8 +1,8 @@
 #  -------------------------------------------------
 #      American English (sourceLanguage)
 #       |    code: en-US
-#       |    missing key: 1
-#       |    processed: 2026-10-20 12:11
+#       |    missing key: 2
+#       |    processed: 2026-10-21 11:48
 #       |    TableVersion: 260905
 #  -------------------------------------------------
 #
@@ -452,7 +452,6 @@ install_ibez6k: "<0>viteTranslate</0> is a Vite plugin: you write sentences righ
 install_kmvzxf: "<b>Secrets stay secret.</b> <em>The API key is located, never displayed.</em>"
 install_mz4bmq: "<b>Click the % icon</b> in the Activity Bar. Highlighting needs nothing: open a {0} file and it's on."
 install_n29mk9: "The viteTranslate panel next to the editor"
-install_tlquex: "<b>Preview.</b> <em>It reads your project and never writes to it.</em> The only things that change files are <b>Sync</b> and the LLM actions, and they run the same CLI you'd type yourself."
 install_x93zm3: "<b>Requirements</b>: VS Code 1.90+, a <0>trusted workspace</0> for anything beyond {1}, and on Windows a {2} in your PATH, so the CLI can ask you things (confirmations, the API key)."
 install_ymak0a: "What the VS Code extension is, how it relates to the library, and how to get it running."
 installation_12okzxg: "Peer dependency"
@@ -1635,4 +1634,5 @@ usetranslatetostring_bsrje4: "Translated plain strings for placeholder, aria-lab
 usetranslatetostring_k80zyw: "🎮 Live: <0>placeholders and attributes</0>."
 
 #  ----to be translated------------------------------------------
+install_1lrobso: "<em>It reads your project and never writes to it.</em> The only things that change files are <b>Sync</b> and the LLM actions, and they run the same CLI you'd type yourself."
 install_1qa2rhv: "<b>Install the extension</b> from the <0>Marketplace</0>, or run {1}. On Cursor, Windsurf or VSCodium, which read <2>Open VSX</2> instead, search for \"viteTranslate\" in the Extensions view."

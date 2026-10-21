@@ -9,7 +9,7 @@ import { readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import * as S from "../../lib/ide/scan.js";
-import { IDE_API_MIN } from "../../idePlugin/src/probes/markedScan.mjs";
+import { IDE_API_MIN } from "../../packages/idePlugin/src/probes/markedScan.mjs";
 
 let fail = 0;
 const eq = (nome, atteso, ottenuto) => {
@@ -42,11 +42,11 @@ console.log("\n== package.json: l'export dichiarato ==");
 console.log("\n== la sonda non importa la libreria del repo ==");
 {
   // Le sonde girano nel progetto dell'utente: la libreria è quella installata lì, mai lib/ di qui.
-  const dir = join(REPO, "idePlugin/src/probes");
+  const dir = join(REPO, "packages/idePlugin/src/probes");
   const dalRepo = readdirSync(dir)
     .filter((f) => f.endsWith(".mjs"))
     .filter((f) => /from\s+["'][^"']*\/lib\//.test(readFileSync(join(dir, f), "utf8")));
-  eq("nessun import statico da lib/ in idePlugin/src/probes", [], dalRepo);
+  eq("nessun import statico da lib/ in packages/idePlugin/src/probes", [], dalRepo);
 }
 
 console.log(fail ? `\n${fail} KO` : "\ntutto ok");

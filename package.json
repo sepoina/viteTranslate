@@ -77,12 +77,12 @@
     "docs": "npm run dev -w site/pages/docs",
     "docs:status": "node site/cli/docsSources.mjs status",
     "docs:seal": "node site/cli/docsSources.mjs seal",
-    "ide:build": "node idePlugin/scripts/code.mjs build",
-    "ide:package": "node idePlugin/scripts/code.mjs build package",
-    "ide:install": "node idePlugin/scripts/code.mjs build devpack install",
-    "ide:dev": "node idePlugin/scripts/code.mjs build dev",
-    "ide:release": "node idePlugin/scripts/code.mjs check test build package upload",
-    "ide:tag": "node idePlugin/scripts/code.mjs tag"
+    "ide:build": "node packages/idePlugin/scripts/code.mjs build",
+    "ide:package": "node packages/idePlugin/scripts/code.mjs build package",
+    "ide:install": "node packages/idePlugin/scripts/code.mjs build devpack install",
+    "ide:dev": "node packages/idePlugin/scripts/code.mjs build dev",
+    "ide:release": "node packages/idePlugin/scripts/code.mjs check test build package upload",
+    "ide:tag": "node packages/idePlugin/scripts/code.mjs tag"
   },
   "files": [
     "lib"
@@ -91,7 +91,7 @@
     "site/landing",
     "site/pages/*",
     "demo/Vite_8/*",
-    "idePlugin"
+    "packages/idePlugin"
   ],
   "devDependencies": {
     "@babel/core": "^7.29.7",

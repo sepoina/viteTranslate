@@ -1,0 +1,5 @@
+src/**
+scripts/**
+rolldown.config.mjs
+**/*.map
+dist/vsix_*/**

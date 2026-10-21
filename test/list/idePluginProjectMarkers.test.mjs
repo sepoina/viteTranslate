@@ -1,4 +1,4 @@
-// ProjectMarkers (idePlugin/src/highlight/projectMarkers.mjs, 4.7.0): i delimitatori del progetto che
+// ProjectMarkers (packages/idePlugin/src/highlight/projectMarkers.mjs, 4.7.0): i delimitatori del progetto che
 // contiene un file, per l'evidenziazione. Sullo stub di `vscode` e con un `Projects` finto.
 //   - sceglie il progetto più profondo che contiene il file;
 //   - null prima che l'elenco arrivi, prima della lettura, in un workspace non fidato, con una
@@ -20,7 +20,7 @@ module.registerHooks({
   resolve: (specifier, context, next) => (specifier === "vscode" ? { url: STUB, shortCircuit: true } : next(specifier, context)),
 });
 const vscode = await import("vscode");
-const { ProjectMarkers } = await import("../../idePlugin/src/highlight/projectMarkers.mjs");
+const { ProjectMarkers } = await import("../../packages/idePlugin/src/highlight/projectMarkers.mjs");
 
 let fail = 0;
 const eq = (nome, atteso, ottenuto) => {

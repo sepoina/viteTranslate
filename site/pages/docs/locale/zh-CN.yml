@@ -1,8 +1,8 @@
 #  -------------------------------------------------
 #      中文（中国）
 #       |    code: zh-CN
-#       |    missing key: 1
-#       |    processed: 2026-10-20 12:11
+#       |    missing key: 2
+#       |    processed: 2026-10-21 11:48
 #       |    TableVersion: 260905
 #  -------------------------------------------------
 #
@@ -452,7 +452,6 @@ install_ibez6k: "<0>viteTranslate</0> 是一个 Vite 插件：你直接在 JSX �
 install_kmvzxf: "<b>机密保持机密。</b><em>API 密钥会被定位，但绝不会显示。</em>"
 install_mz4bmq: "<b>点击活动栏中的 % 图标</b>。高亮无需任何设置：打开 {0} 文件即自动启用。"
 install_n29mk9: "编辑器旁的 viteTranslate 面板"
-install_tlquex: "<b>预览。</b><em>它读取你的项目，绝不写入。</em>唯一会更改文件的是 <b>Sync</b> 和 LLM 操作，它们运行的就是你自己会输入的同一个 CLI。"
 install_x93zm3: "<b>要求</b>：VS Code 1.90+，除 {1} 之外的任何功能都需要<0>受信任的工作区</0>；在 Windows 上，还需 PATH 中有 {2}，以便 CLI 能向你提问（确认、API 密钥）。"
 install_ymak0a: "VS Code 扩展是什么、它与库的关系，以及如何让它运行起来。"
 installation_12okzxg: "对等依赖"
@@ -1635,4 +1634,5 @@ usetranslatetostring_bsrje4: "用于 placeholder、aria-label、title 以及其�
 usetranslatetostring_k80zyw: "🎮 实时演示：<0>占位符与属性</0>。"
 
 #  ----to be translated------------------------------------------
+install_1lrobso: null
 install_1qa2rhv: null

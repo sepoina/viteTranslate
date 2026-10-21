@@ -147,8 +147,8 @@ export function scanScope(radice = RADICE) {
   const tutti = [
     ...["README.md", "CONTRIBUTING.md"],
     ...(existsSync(join(radice, "doc")) ? readdirSync(join(radice, "doc")).filter((n) => n.endsWith(".md")).map((n) => `doc/${n}`) : []),
-    "idePlugin/README.md",
-    ...sotto("idePlugin/src"),
+    "packages/idePlugin/README.md",
+    ...sotto("packages/idePlugin/src"),
     ...sotto("packages/launcher"),
     ...sotto("demo").filter((f) => /\/README\.md$|\/vite\.config\.js$|\/src\//.test(f)),
     ...sotto("lib").filter((f) => (f.endsWith(".js") || f.endsWith(".d.ts")) && !f.startsWith("lib/dist/")),
@@ -213,10 +213,10 @@ function superfici(radice) {
     out["lib/index.d.ts"] = [...nomi("lib/index.d.ts", /^export function (\w+)/gm), ...campi];
   }
   if (existsSync(join(radice, "lib/dev/vite/cli.js"))) out["lib/dev/vite/cli.js"] = nomi("lib/dev/vite/cli.js", /^ {2}(--[\w-]+)/gm);
-  if (existsSync(join(radice, "idePlugin/package.json"))) {
-    const c = JSON.parse(leggi("idePlugin/package.json")).contributes ?? {};
+  if (existsSync(join(radice, "packages/idePlugin/package.json"))) {
+    const c = JSON.parse(leggi("packages/idePlugin/package.json")).contributes ?? {};
     const conf = [c.configuration ?? []].flat().flatMap((x) => Object.keys(x.properties ?? {}));
-    out["idePlugin/package.json"] = [...(c.commands ?? []).map((x) => x.command), ...conf];
+    out["packages/idePlugin/package.json"] = [...(c.commands ?? []).map((x) => x.command), ...conf];
   }
   for (const f of Object.keys(out)) out[f] = [...new Set(out[f])];
   return out;

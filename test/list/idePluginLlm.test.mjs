@@ -9,11 +9,11 @@ import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
-import { parseLlmStatus, errorOf, runLlmCheck, LLM_CHECK_ARGS } from "../../idePlugin/src/webViews/optional/llm/llmCheck.mjs";
-import { llmPanelState } from "../../idePlugin/src/webViews/optional/llm/llmPanel.mjs";
-import { llmHtml } from "../../idePlugin/src/webViews/optional/llm/llmPage.mjs";
-import { LLM_ACTIONS } from "../../idePlugin/src/core/syncCommand.mjs";
-import { BACK_LABEL, COMMAND_BAR_CSS } from "../../idePlugin/src/webViews/commandBar/commandBar.mjs";
+import { parseLlmStatus, errorOf, runLlmCheck, LLM_CHECK_ARGS } from "../../packages/idePlugin/src/webViews/optional/llm/llmCheck.mjs";
+import { llmPanelState } from "../../packages/idePlugin/src/webViews/optional/llm/llmPanel.mjs";
+import { llmHtml } from "../../packages/idePlugin/src/webViews/optional/llm/llmPage.mjs";
+import { LLM_ACTIONS } from "../../packages/idePlugin/src/core/syncCommand.mjs";
+import { BACK_LABEL, COMMAND_BAR_CSS } from "../../packages/idePlugin/src/webViews/commandBar/commandBar.mjs";
 
 let fail = 0;
 const eq = (nome, atteso, ottenuto) => {

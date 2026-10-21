@@ -2,9 +2,8 @@
 title: Install
 description: What the VS Code extension is, how it relates to the library, and how to get it running.
 sources:
-  - idePlugin/package.json#engines
-  - idePlugin/package.json#preview
-  - idePlugin/src/probes/markedScan.mjs
+  - packages/idePlugin/package.json#engines
+  - packages/idePlugin/src/probes/markedScan.mjs
 related:
   - /vscode/panel#results | Results | Every marked string, file by file, each with a glyph for its status.
   - /vscode/commands-settings#settings | Extension settings | The few settings the extension adds: highlighting and terminal detail.
@@ -14,10 +13,10 @@ related:
   - /llm/api-keys | API keys | Create the key, keep it out of git, and test it from the CLI or the panel.
 ---
 
-<!-- Migrated from idePlugin/README.md: "One project, two halves", "Getting started" and "Safe by design" (the Marketplace README stays as it is). -->
+<!-- Migrated from packages/idePlugin/README.md: "One project, two halves", "Getting started" and "Safe by design" (the Marketplace README stays as it is). -->
 
 > [!NOTE]
-> **Preview.** ==It reads your project and never writes to it.== The only things that change files are **Sync** and the LLM actions, and they run the same CLI you'd type yourself.
+> ==It reads your project and never writes to it.== The only things that change files are **Sync** and the LLM actions, and they run the same CLI you'd type yourself.
 
 ![The viteTranslate panel next to the editor](img/panel.png)
 

@@ -1,4 +1,4 @@
-// Estensione per l'editor (idePlugin): l'evidenziazione dei metatag (idePlugin/src/highlight/).
+// Estensione per l'editor (idePlugin): l'evidenziazione dei metatag (packages/idePlugin/src/highlight/).
 //   1. le parti di un metatag (metatagScan.mjs): delimitatori, testo, tag, buchi;
 //   2. la parità con l'estrazione: le regex trovano quello che trova Babel (extractMarkers di questo
 //      repo), sui casi difficili e su tutti i sorgenti di site/ e demo/ — nessuna voce persa,
@@ -27,16 +27,16 @@ module.registerHooks({
 const vscode = await import("vscode");
 const { default: extractMarkers } = await import("../../lib/dev/babel/extractMarkers.js");
 const { SOURCE_OPEN, SOURCE_CLOSE, MACRO_COMPONENT, mayHaveMarkers } = await import("../../lib/markerSyntax.js");
-const { markerEnd } = await import("../../idePlugin/src/views/results/markerSpan.mjs");
-const { findMetatags } = await import("../../idePlugin/src/highlight/metatagScan.mjs");
-const { STRING_RE, macroNames, escapeRe, patternsFor } = await import("../../idePlugin/src/highlight/metatagPatterns.mjs");
-const { STYLES, DEFAULT_STYLE, HIGHLIGHT_OFF, styleById } = await import("../../idePlugin/src/highlight/highlightStyles.mjs");
-const { subtractRanges } = await import("../../idePlugin/src/highlight/decorationPlan.mjs");
-const { Highlighter } = await import("../../idePlugin/src/highlight/highlighter.mjs");
-const { pickHighlightStyle, pickerItems } = await import("../../idePlugin/src/highlight/stylePicker.mjs");
-const { activate } = await import("../../idePlugin/src/extension.mjs");
-const { highlightState, sampleOf } = await import("../../idePlugin/src/webViews/optional/settings/highlightState.mjs");
-const { settingsHtml } = await import("../../idePlugin/src/webViews/optional/settings/settingsPage.mjs");
+const { markerEnd } = await import("../../packages/idePlugin/src/views/results/markerSpan.mjs");
+const { findMetatags } = await import("../../packages/idePlugin/src/highlight/metatagScan.mjs");
+const { STRING_RE, macroNames, escapeRe, patternsFor } = await import("../../packages/idePlugin/src/highlight/metatagPatterns.mjs");
+const { STYLES, DEFAULT_STYLE, HIGHLIGHT_OFF, styleById } = await import("../../packages/idePlugin/src/highlight/highlightStyles.mjs");
+const { subtractRanges } = await import("../../packages/idePlugin/src/highlight/decorationPlan.mjs");
+const { Highlighter } = await import("../../packages/idePlugin/src/highlight/highlighter.mjs");
+const { pickHighlightStyle, pickerItems } = await import("../../packages/idePlugin/src/highlight/stylePicker.mjs");
+const { activate } = await import("../../packages/idePlugin/src/extension.mjs");
+const { highlightState, sampleOf } = await import("../../packages/idePlugin/src/webViews/optional/settings/highlightState.mjs");
+const { settingsHtml } = await import("../../packages/idePlugin/src/webViews/optional/settings/settingsPage.mjs");
 const stato = vscode.__stato;
 
 let fail = 0;
@@ -164,7 +164,7 @@ console.log("\n== 2b. parità con Babel: site/ e demo/ ==");
 
 console.log("\n== 3. un posto solo ==");
 {
-  const manifest = JSON.parse(readFileSync(join(REPO, "idePlugin/package.json"), "utf8"));
+  const manifest = JSON.parse(readFileSync(join(REPO, "packages/idePlugin/package.json"), "utf8"));
   const imp = manifest.contributes.configuration.properties["vitetranslate.highlightStyle"];
   eq("enum: off, poi gli id del catalogo, nello stesso ordine", [HIGHLIGHT_OFF, ...STYLES.map((s) => s.id)], imp.enum);
   eq("enumItemLabels: i nomi", ["Off", ...STYLES.map((s) => s.name)], imp.enumItemLabels);
